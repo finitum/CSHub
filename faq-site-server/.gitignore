@@ -1,4 +1,4 @@
-src/settings_baseline.ts
+src/settings.ts
 src/certs/csedelft-privkey.pem
 
 # Default gitignore:
