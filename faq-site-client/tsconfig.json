@@ -16,6 +16,10 @@
     "lib": [
       "es2017",
       "dom"
-    ]
+    ],
+    "paths": {
+      "@csedelft/faq/*": ["src/app/*"],
+      "@csedelft/faq/shared/*": ["../faq-site-shared/*"]
+    }
   }
 }

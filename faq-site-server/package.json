@@ -6,6 +6,8 @@
     "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./src/server.ts"
   },
   "dependencies": {
+    "@types/express": "^4.16.0",
+    "@types/socket.io": "^1.4.38",
     "express": "^4.16.2",
     "moment": "^2.18.1",
     "mysql": "^2.14.1",
