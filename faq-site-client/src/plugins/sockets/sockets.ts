@@ -7,12 +7,12 @@ var sockets = {
     }
 }
 
-Vue.use(socket, address)
+Vue.use(socket, "localhost:3000");
 
 var socketconn = new Vue({
     data() {
         return {
-            ip: address
+            ip: "localhost:3000"
         }
     },
     sockets: sockets

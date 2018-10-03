@@ -6,3 +6,9 @@ declare module 'vue/types/options' {
         sockets?: any
     }
 }
+
+declare var process : {
+    env: {
+        NODE_ENV: string
+    }
+}
