@@ -1,4 +1,4 @@
-import {LIVE} from './settings_baseline';
+import {LIVE} from './settings';
 
 import https from 'https';
 import http from 'http';
@@ -8,24 +8,21 @@ import io from 'socket.io';
 
 export const app: express.Application = express();
 
-//Read the public key
-export const pubKey = fs.readFileSync('certs/csedelft-pubkey.pem');
-
-//Read the private key
-const options = {
-    key: fs.readFileSync('certs/csedelft-privkey.pem'),
-    cert: pubKey
-};
-
 let server: http.Server | https.Server;
 
 if (LIVE) {
+
+    //Read the public and private keys
+    const options = {
+        key: fs.readFileSync("certs/csedelft-privkey.pem"),
+        cert: fs.readFileSync("certs/csedelft-pubkey.pem")
+    };
     //Run the server on port 443 if live
     server = https.createServer(options, app).listen(443);
 
     //Use port 80 (http), but redirect to 443 (https)
     http.createServer((req, res) => {
-        res.writeHead(301, {Location: 'https://' + req.headers.host + req.url});
+        res.writeHead(301, {Location: "https://" + req.headers.host + req.url});
         res.end();
     }).listen(80);
 
@@ -38,6 +35,8 @@ if (LIVE) {
 export const socket = io.listen(server);
 
 //Serve the built angular files
-app.use(express.static('../faq-site-client/dist'));
+app.use(express.static("../faq-site-client/dist"));
+
+import "./auth";
 
 console.log('Express server started');

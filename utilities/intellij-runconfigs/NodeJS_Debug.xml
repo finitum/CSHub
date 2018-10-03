@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="NodeJS Debug" type="NodeJSConfigurationType" factoryName="Node.js"
+                   path-to-js-file="faq-site-server/src/index.js" working-dir="$PROJECT_DIR$">
+        <method v="2"/>
+    </configuration>
+</component>

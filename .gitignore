@@ -1,1 +1,7 @@
 .idea
+
+faq-site-server/src/**/*.js
+faq-site-server/src/**/*.map
+
+faq-site-shared/**/*.js
+faq-site-shared/**/*.map

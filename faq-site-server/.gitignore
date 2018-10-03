@@ -2,7 +2,6 @@ src/settings.ts
 src/certs/csedelft-privkey.pem
 
 # Default gitignore:
-
 # compiled output
 /dist
 /tmp
