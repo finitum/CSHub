@@ -1,13 +1,15 @@
-import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import '@babel/polyfill'
+import Vue from 'vue';
+import './plugins/vuetify'
+import App from './App.vue';
+import router from './router';
+import store from './store';
+import './registerServiceWorker';
 
-import { AppModule } from './app/app.module';
-import { environment } from './environments/environment';
+Vue.config.productionTip = false;
 
-if (environment.production) {
-  enableProdMode();
-}
-
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
-
+new Vue({
+  router,
+  store,
+  render: (h) => h(App),
+}).$mount('#app');
