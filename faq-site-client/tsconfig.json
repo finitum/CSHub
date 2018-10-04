@@ -16,6 +16,8 @@
     "paths": {
       "@/*": [
         "src/*"
+      ], "@/shared/*": [
+        "../faq-site-shared/*"
       ]
     },
     "lib": [
@@ -25,6 +27,11 @@
       "scripthost"
     ]
   },
+  "files": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+  ],
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",

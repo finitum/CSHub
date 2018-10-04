@@ -1,21 +1,27 @@
-import Vue from 'vue'
-import socket from 'Vue-Socket.io'
+import Vue from 'vue';
+import socket from 'vue-socket.io';
+import {ISocketCall} from '@/shared/socket-calls/ISocketCall';
 
-var sockets = {
-    connect: function () {
-        console.log("Socket connected")
+const sockets = {
+    connect: () => {
+        console.log('Socket connected');
     }
-}
+};
 
-Vue.use(socket, "localhost:3000");
+Vue.use(socket, process.env.VUE_APP_SOCKETURL);
 
-var socketconn = new Vue({
+export const socketConn = new Vue({
     data() {
         return {
-            ip: "localhost:3000"
-        }
+            ip: process.env.VUE_APP_SOCKETURL
+        };
     },
-    sockets: sockets
-})
+    sockets
+});
 
-export default socketconn
+export class SocketWrapper {
+
+    public static emit(emittableObject: ISocketCall): void {
+        socketConn.$socket.emit(emittableObject.socketCallName, emittableObject, emittableObject.callbackFn);
+    }
+}

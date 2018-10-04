@@ -1,3 +1,22 @@
-//Copy this file to settings.ts and fill in the appropriate values. Make sure not to push it to git (should be in the .gitignore)
+// Copy this file to settings.ts, remove the interface from the file and export the Settings instead of creating a local const
 
-export const LIVE: boolean = false //Run it live (so using certificates and port 443) or local
+export interface ISettings {
+    LIVE: boolean;
+    DATABASE: {
+        HOST: string;
+        USER: string;
+        PASSWORD: string;
+        NAME: string
+    };
+
+}
+
+const SettingsBaseline: ISettings = {
+    LIVE: true,
+    DATABASE: {
+        HOST: '',
+        USER: '',
+        PASSWORD: '',
+        NAME: ''
+    }
+};

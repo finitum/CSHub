@@ -1,3 +1,4 @@
 export interface ISocketCall {
-    socketCallName: number;
+    socketCallName: string;
+    callbackFn?: (...args: any[]) => void;
 }

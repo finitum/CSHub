@@ -1,10 +1,10 @@
-declare module 'Vue-Socket.io' {
-    import {PluginFunction} from "vue";
+declare module 'vue-socket.io' {
+    import {PluginFunction} from 'vue';
 
-    const VueSocketIO: VueSocketIO
-    export default VueSocketIO
+    const VueSocketIO: VueSocketIO;
+    export default VueSocketIO;
 
     export interface VueSocketIO {
-        install: PluginFunction<string>
+        install: PluginFunction<string>;
     }
 }
