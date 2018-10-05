@@ -1,16 +1,23 @@
-import {LIVE} from './settings';
+import {Settings} from './settings';
 
 import https from 'https';
 import http from 'http';
 import express from 'express';
 import fs from 'fs';
-import io, {Socket} from 'socket.io';
+
+import cors from 'cors';
+import bodyParser from 'body-parser';
 
 export const app: express.Application = express();
 
+app.use(cors());
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 let server: http.Server | https.Server;
 
-if (LIVE) {
+if (Settings.LIVE) {
 
     // Read the public and private keys
     const options = {
@@ -31,12 +38,9 @@ if (LIVE) {
     server = http.createServer(app).listen(3000);
 }
 
-// Let the sockets listen to the server
-export const socketListener = io.listen(server);
-
-// Serve the built angular files
+// Serve the built vue files
 app.use(express.static('../faq-site-client/dist'));
 
-import './socket-receivers';
+import './auth';
 
 console.log('Express server started');

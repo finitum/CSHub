@@ -18,6 +18,7 @@
     "no-consecutive-blank-lines": false,
     "semicolon": true,
     "trailing-comma": false,
-    "no-console": false
+    "no-console": false,
+    "variable-name": false
   }
 }

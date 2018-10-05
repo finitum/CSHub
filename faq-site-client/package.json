@@ -9,12 +9,11 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.0.0-rc.1",
-    "@types/socket.io-client": "^1.4.32",
+    "axios": "^0.18.0",
+    "cors": "^2.8.4",
     "register-service-worker": "^1.0.0",
-    "socket.io-client": "^2.1.1",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",
-    "vue-socket.io": "^2.1.1-b",
     "vuetify": "^1.2.0",
     "vuex": "^3.0.1",
     "vuex-typex": "^3.0.1"
