@@ -1,5 +1,14 @@
-import {LoginCallbackFn, LoginRequest} from '../../../faq-site-shared/socket-calls/auth/LoginRequest';
+import {LoginRequest, LoginRequestCallBack} from '../../../faq-site-shared/socket-calls/auth/LoginRequest';
+import {app} from '../';
+import {Request, Response} from 'express';
 
-export const login = (loginRequest: LoginRequest, callbackFn: LoginCallbackFn) => {
-    callbackFn(true);
-};
+app.post(LoginRequest.getURL, (req: Request, res: Response) => {
+
+    const loginRequest: LoginRequest = req.body as LoginRequest;
+
+    const response: LoginRequestCallBack = {
+        loggedin: true
+    };
+
+    res.json(response);
+});

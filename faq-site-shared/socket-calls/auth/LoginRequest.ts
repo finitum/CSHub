@@ -1,17 +1,18 @@
-import {ISocketCall} from '../ISocketCall';
-import {SocketCallNames} from '../SocketCallNames';
+import {NonAuthRequests} from '../NonAuthRequests';
+import {IApiRequest} from '../../../faq-site-shared/models/IApiRequest';
 
-export type LoginCallbackFn = (loggedon: boolean) => void;
+export interface LoginRequestCallBack {
+    loggedin: boolean;
+}
 
-export class LoginRequest implements ISocketCall {
+export class LoginRequest implements IApiRequest {
 
-    public static getCallName: string = SocketCallNames.LOGINREQUEST.toString();
-    public socketCallName: string = LoginRequest.getCallName;
+    public static getURL: string = NonAuthRequests.LOGINREQUEST;
+    public URL: string = LoginRequest.getURL;
 
     constructor(
         public username: string,
-        public password: string,
-        public callbackFn: LoginCallbackFn
+        public password: string
     ) {}
 
 }

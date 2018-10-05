@@ -17,8 +17,8 @@
 </template>
 
 <script lang="ts">
-    import {SocketWrapper} from '../plugins/sockets/sockets';
     import {LoginRequest} from '../../../faq-site-shared/socket-calls/auth/LoginRequest';
+    import {ApiWrapper} from '../plugins/api/api-wrapper';
 
     export default {
         name: 'HelloWorld',
@@ -26,13 +26,9 @@
             msg: String
         },
         mounted: () => {
-            setTimeout(() => {
-                console.log('Executing request');
+            console.log('Executing request');
 
-                SocketWrapper.emit(new LoginRequest('hoi', 'hoi', (loggedon: boolean): void => {
-                    console.log(loggedon);
-                }));
-            }, 1000)
+            ApiWrapper.sendRequest(new LoginRequest('hoi', 'hoi'));
 
         }
     };
