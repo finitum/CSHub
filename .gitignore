@@ -1,7 +1,13 @@
+# IntelliJ Files
 .idea
+FAQSite.iml
 
 faq-site-server/src/**/*.js
 faq-site-server/src/**/*.map
 
 faq-site-shared/**/*.js
 faq-site-shared/**/*.map
+
+# Yarn lock files (un-ignore if everyone uses yarn)
+faq-site-client/yarn.lock
+faq-site-server/yarn.lock
