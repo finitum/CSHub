@@ -71,7 +71,7 @@ connectionPromise.then((connection: any) => {
 });
 
 export const query = (query: string, ...args: any[]) =>
-    new Promise<any>((resolve, reject) => {
+    new Promise<DatabaseResultSet>((resolve, reject) => {
 
         if (connection == null && Settings.USESSH) {
             toExecuteQueries.push({
@@ -84,40 +84,80 @@ export const query = (query: string, ...args: any[]) =>
                 if (err) {
                     return reject(err);
                 }
-                resolve(rows);
+                resolve(new DatabaseResultSet(rows));
             });
         }
     });
 
+export class DatabaseResultSet {
 
-export const getStringFromDB = (name: string, obj: any): string => {
+    constructor(private rows: any[]) {}
 
-    if (Array.isArray(obj)) {
-        obj = obj[0];
+    public static getStringFromDB(name: string, obj: any): string {
+
+        if (Array.isArray(obj)) {
+            obj = obj[0];
+        }
+
+        const currObj = obj[name.trim()];
+
+        try {
+            return currObj as string;
+        } catch (err) {
+            console.error(`Error getting value from database string, name: ${name}. Error: ${err}`);
+            return null;
+        }
     }
 
-    const currObj = obj[name];
+    public static getNumberFromDB(name: string, obj: any): number {
 
-    try {
-        return currObj as string;
-    } catch (err) {
-        console.error(`Error getting value from database string, name: ${name}. Error: ${err}`);
-        return null;
+        if (Array.isArray(obj)) {
+            obj = obj[0];
+        }
+
+        const currObj = obj[name.trim()];
+
+        try {
+            return currObj as number;
+        } catch (err) {
+            console.error(`Error getting value from database string, name: ${name}. Error: ${err}`);
+            return null;
+        }
     }
-};
 
-export const getNumberFromDB = (name: string, obj: any): number => {
-
-    if (Array.isArray(obj)) {
-        obj = obj[0];
+    public getStringFromDB(name: string, index: number = 0): string {
+        return DatabaseResultSet.getStringFromDB(name, this.rows[index]);
     }
 
-    const currObj = obj[name];
-
-    try {
-        return currObj as number;
-    } catch (err) {
-        console.error(`Error getting value from database number, name: ${name}. Error: ${err}`);
-        return null;
+    public getNumberFromDB(name: string, index: number = 0): number {
+        return DatabaseResultSet.getNumberFromDB(name, this.rows[index]);
     }
-};
+
+    public getRows(): any[] {
+        return this.rows;
+    }
+
+    public convertRowsToResultObjects(): DatabaseResultRow[] {
+
+        const convertedRows: DatabaseResultRow[] = [];
+
+        for (const row of this.rows) {
+            convertedRows.push(new DatabaseResultRow(row));
+        }
+
+        return convertedRows;
+    }
+}
+
+export class DatabaseResultRow {
+
+    constructor(private row: any) {}
+
+    public getStringFromDB(name: string): string {
+        return DatabaseResultSet.getStringFromDB(name, this.row);
+    }
+
+    public getNumberFromDB(name: string): number {
+        return DatabaseResultSet.getNumberFromDB(name, this.row);
+    }
+}

@@ -1,8 +1,8 @@
-import {UserModel} from "../../../../faq-site-shared/models/UserModel";
+import {IUser} from "../../../../faq-site-shared/models/IUser";
 
 import {IUserState} from "./state";
 
-export const changeUserModel = (state: IUserState, payload: UserModel) => {
+export const changeUserModel = (state: IUserState, payload: IUser) => {
     state.userModel = payload;
 };
 

@@ -1,18 +1,21 @@
-import {UserModel} from "../../../../faq-site-shared/models/UserModel";
+import {IUser} from "../../../../faq-site-shared/models/IUser";
 import {getStoreBuilder} from "vuex-typex";
 import {RootState} from "../";
 
 export interface IUserState {
-    userModel: UserModel;
+    userModel: IUser;
 }
 
 export const UserState: IUserState = {
     userModel: {
+        id: 0,
         rank: 0,
-        username: null,
         blocked: 0,
         verified: 0,
-        email: null
+        email: null,
+        firstname: "",
+        lastname: "",
+        avatar: ""
     }
 };
 
