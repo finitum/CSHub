@@ -22,17 +22,17 @@ export interface ISettings {
 const SettingsBaseline: ISettings = {
     LIVE: true,
     DATABASE: {
-        HOST: '',
-        USER: '',
-        PASSWORD: '',
-        NAME: ''
+        HOST: "",
+        USER: "",
+        PASSWORD: "",
+        NAME: ""
     },
     USESSH: true,
     SSH: {
-        HOST: '',
-        USER: '',
+        HOST: "",
+        USER: "",
         PORT: 1234,
-        PRIVATEKEYLOCATION: ''
+        PRIVATEKEYLOCATION: ""
     },
-    ALLOWORIGIN: ''
+    ALLOWORIGIN: ""
 };

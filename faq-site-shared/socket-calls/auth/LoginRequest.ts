@@ -1,11 +1,14 @@
-import {NonAuthRequests} from '../NonAuthRequests';
-import {IApiRequest} from '../../../faq-site-shared/models/IApiRequest';
-import {AuthResponses} from '../../../faq-site-shared/socket-calls/auth/AuthResponses';
+import {IApiRequest} from "../../../faq-site-shared/models/IApiRequest";
+import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResponses";
+import {UserModel} from "../../../faq-site-shared/models/UserModel";
+
+import {NonAuthRequests} from "../NonAuthRequests";
 
 export class LoginRequestCallBack {
 
     constructor(
-        public response: AuthResponses
+        public response: AuthResponses,
+        public userModel?: UserModel
     ) {}
 }
 

@@ -71,20 +71,20 @@
 
 <script>
     export default {
-        name: 'App',
+        name: "App",
         data() {
             return {
                 clipped: false,
                 drawer: true,
                 fixed: false,
                 items: [{
-                    icon: 'fas fa-shapes',
-                    title: 'Inspire'
+                    icon: "fas fa-shapes",
+                    title: "Inspire"
                 }],
                 miniVariant: false,
                 right: true,
                 rightDrawer: false,
-                title: 'Vuetify.js'
+                title: "Vuetify.js"
             };
         }
     };

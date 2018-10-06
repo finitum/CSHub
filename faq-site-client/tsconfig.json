@@ -3,6 +3,7 @@
     "target": "esnext",
     "module": "esnext",
     "strict": true,
+    "strictNullChecks": false,
     "jsx": "preserve",
     "importHelpers": true,
     "moduleResolution": "node",
@@ -13,11 +14,6 @@
     "types": [
       "webpack-env"
     ],
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    },
     "lib": [
       "esnext",
       "dom",

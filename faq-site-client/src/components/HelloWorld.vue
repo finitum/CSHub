@@ -1,8 +1,9 @@
+import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResponses";
 <template>
     <v-container fluid>
         <v-slide-y-transition mode="out-in">
             <v-layout column align-center>
-                <img src="@/assets/logo.png" alt="Vuetify.js" class="mb-5">
+                <img src="../assets/logo.png" alt="Vuetify.js" class="mb-5">
                 <blockquote>
                     &#8220;First, solve the problem. Then, write the code.&#8221;
                     <footer>
@@ -18,20 +19,24 @@
 
 <script lang="ts">
     import {LoginRequest, LoginRequestCallBack} from "../../../faq-site-shared/socket-calls/auth/LoginRequest";
-    import {ApiWrapper} from '../plugins/api/api-wrapper';
-    import {AuthResponses} from '../../../faq-site-shared/socket-calls/auth/AuthResponses';
+    import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResponses";
+
+    import {ApiWrapper} from "../plugins/api/api-wrapper";
+
+    import userState from "../store/user";
 
     export default {
-        name: 'HelloWorld',
+        name: "HelloWorld",
         props: {
             msg: String
         },
         mounted: () => {
-            console.log('Executing request');
-
-            ApiWrapper.sendPostRequest(new LoginRequest('df', 'hoidfdfdfddfdfdfd'), (callbackData: LoginRequestCallBack) => {
+            ApiWrapper.sendPostRequest(new LoginRequest("df", "hoidfdfdfddfdfdfd"), (callbackData: LoginRequestCallBack) => {
+                if (callbackData.response === AuthResponses.SUCCESS && callbackData.userModel) {
+                    userState.changeUserModel(callbackData.userModel);
+                }
                 console.log(callbackData.response === AuthResponses.SUCCESS);
-                console.log(callbackData)
+                console.log(callbackData);
             });
 
         }
