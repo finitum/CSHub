@@ -6,7 +6,11 @@ import router from "./router";
 import store from "./store";
 import "./registerServiceWorker";
 
+import VeeValidate from "vee-validate";
+
 Vue.config.productionTip = false;
+
+Vue.use(VeeValidate);
 
 new Vue({
     router,
