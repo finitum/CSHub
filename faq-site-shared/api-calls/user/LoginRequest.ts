@@ -1,13 +1,21 @@
-import {IApiRequest} from "../../../faq-site-shared/models/IApiRequest";
-import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResponses";
-import {UserModel} from "../../../faq-site-shared/models/UserModel";
+import {IApiRequest} from "../../models/IApiRequest";
+import {UserModel} from "../../models/UserModel";
 
 import {NonAuthRequests} from "../NonAuthRequests";
+
+export enum LoginResponses {
+    INCORRECTPASS,
+    ACCOUNTNOTVERIFIED,
+    ACCOUNTBLOCKED,
+    SUCCESS,
+    NOEXISTINGACCOUNT,
+    INVALIDINPUT
+}
 
 export class LoginRequestCallBack {
 
     constructor(
-        public response: AuthResponses,
+        public response: LoginResponses,
         public userModel?: UserModel
     ) {}
 }

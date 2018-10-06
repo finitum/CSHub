@@ -1,23 +1,27 @@
 import crypto from "crypto";
 import {Request, Response} from "express";
 
-import {app} from "../";
+import {app} from "../../index";
 
-import {LoginRequest, LoginRequestCallBack} from "../../../faq-site-shared/socket-calls/auth/LoginRequest";
-import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResponses";
-import {UserModel} from "../../../faq-site-shared/models/UserModel";
+import {LoginRequest, LoginRequestCallBack, LoginResponses} from "../../../../faq-site-shared/api-calls/index";
+import {UserModel} from "../../../../faq-site-shared/models/UserModel";
 
-import {getNumberFromDB, getStringFromDB, query} from "../database-connection";
+import {getNumberFromDB, getStringFromDB, query} from "../../database-connection";
 
-import {secretKey} from "./jwt-key";
-import {sign} from "./jwt";
-import {checkForEmtpyOrSmallerThan} from "../utilities/string-utils";
+import {secretKey} from "../../auth/jwt-key";
+import {sign} from "../../auth/jwt";
+import {customValidator} from "../../utilities/string-utils";
 
 app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
     const loginRequest: LoginRequest = req.body as LoginRequest;
 
-    if (checkForEmtpyOrSmallerThan(loginRequest.password, 8) && checkForEmtpyOrSmallerThan(loginRequest.email)) {
+    if (customValidator({
+        input: loginRequest.password,
+        validationObject: {
+            length: 8
+        }
+    }).valid && customValidator({input: loginRequest.email}).valid) {
         crypto.pbkdf2(loginRequest.password, secretKey, 45000, 64, "sha512", (err: Error | null, derivedKey: Buffer) => {
 
             query(`
@@ -28,13 +32,13 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
                     .then((result: any) => {
 
                         if (result.length === 0) {
-                            res.json(new LoginRequestCallBack(AuthResponses.NOEXISTINGACCOUNT));
+                            res.json(new LoginRequestCallBack(LoginResponses.NOEXISTINGACCOUNT));
                         } else if (getStringFromDB("password", result) === derivedKey.toString("hex")) {
 
                             if (getNumberFromDB("blocked", result) === 1) {
-                                res.json(new LoginRequestCallBack(AuthResponses.ACCOUNTBLOCKED));
+                                res.json(new LoginRequestCallBack(LoginResponses.ACCOUNTBLOCKED));
                             } else if (getNumberFromDB("verified", result) === 0) {
-                                res.json(new LoginRequestCallBack(AuthResponses.ACCOUNTNOTVERIFIED));
+                                res.json(new LoginRequestCallBack(LoginResponses.ACCOUNTNOTVERIFIED));
                             } else {
                                 delete result[0].password;
 
@@ -52,11 +56,11 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
                                     maxAge: 7200
                                 });
 
-                                res.json(new LoginRequestCallBack(AuthResponses.SUCCESS, userModel));
+                                res.json(new LoginRequestCallBack(LoginResponses.SUCCESS, userModel));
                             }
 
                         } else {
-                            res.json(new LoginRequestCallBack(AuthResponses.INCORRECTPASS));
+                            res.json(new LoginRequestCallBack(LoginResponses.INCORRECTPASS));
                         }
 
                     })
@@ -66,7 +70,7 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
         });
     } else {
-        res.json(new LoginRequestCallBack(AuthResponses.INVALIDINPUT));
+        res.json(new LoginRequestCallBack(LoginResponses.INVALIDINPUT));
     }
 
 

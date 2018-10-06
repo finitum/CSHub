@@ -48,6 +48,6 @@ if (Settings.LIVE) {
 // Serve the built vue files
 app.use(express.static("../faq-site-client/dist"));
 
-import "./auth";
+import "./components";
 
 console.log("Express server started");
