@@ -1,6 +1,6 @@
-import axios, {AxiosResponse} from 'axios';
+import axios, {AxiosResponse} from "axios";
 
-import {IApiRequest} from '../../../../faq-site-shared/models/IApiRequest';
+import {IApiRequest} from "../../../../faq-site-shared/models/IApiRequest";
 
 export class ApiWrapper {
 
@@ -30,8 +30,8 @@ export class ApiWrapper {
         baseURL: process.env.VUE_APP_SOCKETURL,
         withCredentials: true,
         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
+            "Accept": "application/json",
+            "Content-Type": "application/json",
         }
     });
 }

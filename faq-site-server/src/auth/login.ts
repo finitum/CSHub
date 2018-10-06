@@ -51,7 +51,7 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
                                     maxAge: 7200
                                 });
 
-                                res.json(new LoginRequestCallBack(AuthResponses.SUCCESS));
+                                res.json(new LoginRequestCallBack(AuthResponses.SUCCESS, userModel));
                             }
 
                         } else {

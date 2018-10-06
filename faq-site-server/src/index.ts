@@ -1,13 +1,13 @@
-import {Settings} from './settings';
+import {Settings} from "./settings";
 
-import https from 'https';
-import http from 'http';
-import express from 'express';
-import fs from 'fs';
+import https from "https";
+import http from "http";
+import express from "express";
+import fs from "fs";
 
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import cookieParser from 'cookie-parser';
+import cors from "cors";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 
 export const app: express.Application = express();
 
@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-import './middleware';
+import "./middleware";
 
 let server: http.Server | https.Server;
 
@@ -28,8 +28,8 @@ if (Settings.LIVE) {
 
     // Read the public and private keys
     const options = {
-        key: fs.readFileSync('certs/csedelft-privkey.pem'),
-        cert: fs.readFileSync('certs/csedelft-pubkey.pem')
+        key: fs.readFileSync("certs/csedelft-privkey.pem"),
+        cert: fs.readFileSync("certs/csedelft-pubkey.pem")
     };
     // Run the server on port 443 if live
     server = https.createServer(options, app).listen(443);
@@ -46,8 +46,8 @@ if (Settings.LIVE) {
 }
 
 // Serve the built vue files
-app.use(express.static('../faq-site-client/dist'));
+app.use(express.static("../faq-site-client/dist"));
 
-import './auth';
+import "./auth";
 
-console.log('Express server started');
+console.log("Express server started");
