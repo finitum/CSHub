@@ -1,8 +1,8 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
-import {UserModel} from '../../../faq-site-shared/models/UserModel';
+import {UserModel} from "../../../faq-site-shared/models/UserModel";
 
-import {secretKey} from './jwt-key';
+import {secretKey} from "./jwt-key";
 
 export const sign = (obj: UserModel): string => {
     return jwt.sign(obj, secretKey);

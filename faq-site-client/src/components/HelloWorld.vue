@@ -1,4 +1,3 @@
-import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResponses";
 <template>
     <v-container fluid>
         <v-slide-y-transition mode="out-in">

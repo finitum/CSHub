@@ -1,7 +1,7 @@
-import mysql from 'mysql2';
-import {Settings} from './settings';
-import {Client} from 'ssh2';
-import fs from 'fs';
+import mysql from "mysql2";
+import {Settings} from "./settings";
+import {Client} from "ssh2";
+import fs from "fs";
 
 const connectionconf = {
     host: Settings.DATABASE.HOST,
@@ -18,11 +18,11 @@ let connection = null;
 let connectionPromise = null;
 if (Settings.USESSH) {
      connectionPromise = new Promise((resolve, reject) => {
-        sshClient.on('ready', () => {
+        sshClient.on("ready", () => {
             sshClient.forwardOut(
-                '127.0.0.1',
+                "127.0.0.1",
                 12345,
-                'localhost',
+                "localhost",
                 3306,
                 (err, stream) => {
                     if (err) {
