@@ -1,14 +1,22 @@
 import {Request, Response} from "express";
 
+import {JWTTokenModel} from "../../faq-site-shared/models/JWTTokenModel";
+
 import {app} from "./";
-import {validateAccessToken} from "./auth/jwt";
+import {sign, validateAccessToken} from "./auth/jwt";
 import {Settings} from "./settings";
 
 app.use((req: Request, res: Response, next: Function) => {
 
     if (req.cookies !== null && req.cookies["token"] !== null) {
-        if (validateAccessToken(req.cookies.token)) {
-           res.cookie("token", req.cookies.token, {
+
+        const tokenObj: JWTTokenModel = validateAccessToken(req.cookies.token);
+
+        if (tokenObj) {
+
+            const newtoken: string = sign(tokenObj.user);
+
+            res.cookie("token", newtoken, {
                maxAge: 7200
            });
         } else {

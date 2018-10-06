@@ -12,9 +12,10 @@
     "axios": "^0.18.0",
     "cors": "^2.8.4",
     "register-service-worker": "^1.0.0",
+    "vee-validate": "^2.1.0-beta.9",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",
-    "vuetify": "^1.2.0",
+    "vuetify": "^1.3.0-alpha.1",
     "vuex": "^3.0.1",
     "vuex-typex": "^3.0.1"
   },

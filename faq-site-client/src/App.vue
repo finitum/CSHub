@@ -1,5 +1,5 @@
 <template>
-    <v-app>
+    <v-app id="app">
         <router-view></router-view>
     </v-app>
 </template>
@@ -13,3 +13,8 @@
         }
     };
 </script>
+<style scoped>
+    #app {
+        background: white;
+    }
+</style>
