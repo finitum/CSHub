@@ -8,6 +8,14 @@ export interface ISettings {
         PASSWORD: string;
         NAME: string
     };
+    USESSH: boolean;
+    SSH: {
+        HOST: string,
+        USER: string,
+        PORT: number,
+        PRIVATEKEYLOCATION: string
+    };
+    ALLOWORIGIN: string;
 
 }
 
@@ -18,5 +26,13 @@ const SettingsBaseline: ISettings = {
         USER: '',
         PASSWORD: '',
         NAME: ''
-    }
+    },
+    USESSH: true,
+    SSH: {
+        HOST: '',
+        USER: '',
+        PORT: 1234,
+        PRIVATEKEYLOCATION: ''
+    },
+    ALLOWORIGIN: ''
 };

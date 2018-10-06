@@ -1,10 +1,8 @@
-export class UserModel {
+export interface UserModel {
 
-    private rank: number;
-    private name: string;
-
-    constructor(rank: number, name: string) {
-        this.name = name;
-        this.rank = rank;
-    }
+    email: string;
+    username: string;
+    rank: number;
+    blocked: number;
+    verified: number;
 }

@@ -1,14 +1,70 @@
-import {LoginRequest, LoginRequestCallBack} from '../../../faq-site-shared/socket-calls/auth/LoginRequest';
-import {app} from '../';
+import crypto from 'crypto';
 import {Request, Response} from 'express';
+
+import {app} from '../';
+
+import {LoginRequest, LoginRequestCallBack} from '../../../faq-site-shared/socket-calls/auth/LoginRequest';
+import {AuthResponses} from '../../../faq-site-shared/socket-calls/auth/AuthResponses';
+import {UserModel} from '../../../faq-site-shared/models/UserModel';
+
+import {getNumberFromDB, getStringFromDB, query} from '../database-connection';
+
+import {secretKey} from './jwt-key';
+import {sign} from './jwt';
 
 app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
     const loginRequest: LoginRequest = req.body as LoginRequest;
 
-    const response: LoginRequestCallBack = {
-        loggedin: true
-    };
+    if (loginRequest.password != null && loginRequest.password.length > 8) {
+        crypto.pbkdf2(loginRequest.password, secretKey, 45000, 64, 'sha512', (err: Error | null, derivedKey: Buffer) => {
 
-    res.json(response);
+            query(`
+                SELECT email, username, rank, blocked, verified, password
+                FROM users
+                WHERE username = ?
+                `, loginRequest.username)
+                    .then((result: any) => {
+
+                        if (result.length === 0) {
+                            res.json(new LoginRequestCallBack(AuthResponses.NOEXISTINGACCOUNT));
+                        } else if (getStringFromDB('password', result) === derivedKey.toString('hex')) {
+
+                            if (getNumberFromDB('blocked', result) === 1) {
+                                res.json(new LoginRequestCallBack(AuthResponses.ACCOUNTBLOCKED));
+                            } else if (getNumberFromDB('verified', result) === 0) {
+                                res.json(new LoginRequestCallBack(AuthResponses.ACCOUNTNOTVERIFIED));
+                            } else {
+                                delete result[0].password;
+
+                                const userModel: UserModel = {
+                                    email: getStringFromDB('email', result),
+                                    username: getStringFromDB('username', result),
+                                    rank: getNumberFromDB('rank', result),
+                                    blocked: getNumberFromDB('blocked', result),
+                                    verified: getNumberFromDB('verified', result)
+                                };
+
+                                const jwt = sign(userModel);
+
+                                res.cookie('token', jwt, {
+                                    maxAge: 7200
+                                });
+
+                                res.json(new LoginRequestCallBack(AuthResponses.SUCCESS));
+                            }
+
+                        } else {
+                            res.json(new LoginRequestCallBack(AuthResponses.INCORRECTPASS));
+                        }
+
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    });
+
+        });
+    }
+
+
 });
