@@ -1,4 +1,3 @@
-import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResponses";
 <template>
     <v-card>
         <v-card-title class="title font-weight-regular justify-space-between">
@@ -12,6 +11,7 @@ import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResp
                     name="email"
                     v-validate="'required'"
                     required
+                    suffix="@student.tudelft.nl"
                     box
                     @change="userData.emailerror = ''"
                     @keyup.enter="doLogin"
@@ -30,12 +30,14 @@ import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResp
                     @change="userData.passworderror = ''"
                     @keyup.enter="doLogin"
             ></v-text-field>
+            <p v-if=""></p>
             <v-switch
                     label="Remember login?"
                     v-model="userData.rememberuser"
             ></v-switch>
             <div>
                 <v-btn depressed color="primary" @click="doLogin">Login</v-btn>
+                <v-btn depressed color="secondary" to="createaccount">Create account</v-btn>
             </div>
         </v-card-text>
     </v-card>
@@ -45,10 +47,11 @@ import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResp
     import Vue from "vue";
 
     import {ApiWrapper} from "../plugins/api/api-wrapper";
-    import {LogConsole} from "../plugins/DebugConsole";
+    import {LogConsole} from "../plugins/debugConsole";
 
-    import {LoginRequest, LoginRequestCallBack} from "../../../faq-site-shared/socket-calls/auth/LoginRequest";
-    import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResponses";
+    import {LocalStorageData} from "../store/localStorageData";
+
+    import {LoginRequest, LoginRequestCallBack, LoginResponses} from "../../../faq-site-shared/api-calls";
 
     import userState from "../store/user";
 
@@ -62,9 +65,13 @@ import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResp
                     password: "" as string,
                     passwordvisible: false as boolean,
                     passworderror: "" as string,
+                    globalerror: "" as string,
                     rememberuser: false as boolean
                 }
             };
+        },
+        mounted() {
+            this.userData.email = localStorage.getItem(LocalStorageData.EMAIL);
         },
         inject: ["$validator"],
         computed: {
@@ -89,21 +96,24 @@ import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResp
                     .then((allValid: boolean) => {
                         if (allValid) {
                             ApiWrapper.sendPostRequest(new LoginRequest(this.userData.email, this.userData.password), (callbackData: LoginRequestCallBack) => {
-                                if (callbackData.response === AuthResponses.SUCCESS && callbackData.userModel) {
+                                if (callbackData.response === LoginResponses.SUCCESS && callbackData.userModel) {
+                                    if (this.userData.rememberuser) {
+                                        localStorage.setItem(LocalStorageData.EMAIL, this.userData.email);
+                                    }
                                     userState.changeUserModel(callbackData.userModel);
-                                } else if (callbackData.response === AuthResponses.NOEXISTINGACCOUNT) {
+                                } else if (callbackData.response === LoginResponses.NOEXISTINGACCOUNT) {
                                     LogConsole("Account does not exist");
                                     this.userData.emailerror = "Account does not exist.";
-                                } else if (callbackData.response === AuthResponses.ACCOUNTNOTVERIFIED) {
+                                } else if (callbackData.response === LoginResponses.ACCOUNTNOTVERIFIED) {
                                     LogConsole("Account is not verified");
                                     this.userData.emailerror = "Account has not been verified.";
-                                } else if (callbackData.response === AuthResponses.ACCOUNTBLOCKED) {
+                                } else if (callbackData.response === LoginResponses.ACCOUNTBLOCKED) {
                                     LogConsole("Account is blocked");
                                     this.userData.emailerror = "Account has been blocked.";
-                                } else if (callbackData.response === AuthResponses.INCORRECTPASS) {
+                                } else if (callbackData.response === LoginResponses.INCORRECTPASS) {
                                     LogConsole("Incorrect password was entered");
                                     this.userData.passworderror = "Incorrect password.";
-                                } else if (callbackData.response === AuthResponses.INVALIDINPUT) {
+                                } else if (callbackData.response === LoginResponses.INVALIDINPUT) {
                                     LogConsole("Invalid input");
                                     this.userData.passworderror = "Invalid input.";
                                     this.userData.emailerror = "Invalid input.";
