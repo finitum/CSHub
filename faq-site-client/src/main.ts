@@ -10,7 +10,7 @@ import VeeValidate from "vee-validate";
 
 Vue.config.productionTip = false;
 
-Vue.use(VeeValidate);
+Vue.use(VeeValidate, { inject: false, delay: 1 });
 
 new Vue({
     router,
