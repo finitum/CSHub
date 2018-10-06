@@ -54,6 +54,7 @@
     import {LoginRequest, LoginRequestCallBack, LoginResponses} from "../../../faq-site-shared/api-calls";
 
     import userState from "../store/user";
+    import router, {Routes} from "../router";
 
     export default Vue.extend({
         name: "LoginScreen",
@@ -101,6 +102,7 @@
                                         localStorage.setItem(LocalStorageData.EMAIL, this.userData.email);
                                     }
                                     userState.changeUserModel(callbackData.userModel);
+                                    router.push(Routes.INDEX);
                                 } else if (callbackData.response === LoginResponses.NOEXISTINGACCOUNT) {
                                     LogConsole("Account does not exist");
                                     this.userData.emailerror = "Account does not exist.";

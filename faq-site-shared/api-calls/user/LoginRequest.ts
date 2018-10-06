@@ -1,5 +1,5 @@
 import {IApiRequest} from "../../models/IApiRequest";
-import {UserModel} from "../../models/UserModel";
+import {IUser} from "../../models/IUser";
 
 import {NonAuthRequests} from "../NonAuthRequests";
 
@@ -16,7 +16,7 @@ export class LoginRequestCallBack {
 
     constructor(
         public response: LoginResponses,
-        public userModel?: UserModel
+        public userModel?: IUser
     ) {}
 }
 

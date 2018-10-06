@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 
-import {JWTTokenModel} from "../../faq-site-shared/models/JWTTokenModel";
+import {IJWTToken} from "../../faq-site-shared/models/IJWTToken";
 
 import {app} from "./";
 import {sign, validateAccessToken} from "./auth/jwt";
@@ -10,7 +10,7 @@ app.use((req: Request, res: Response, next: Function) => {
 
     if (req.cookies !== null && req.cookies["token"] !== null) {
 
-        const tokenObj: JWTTokenModel = validateAccessToken(req.cookies.token);
+        const tokenObj: IJWTToken = validateAccessToken(req.cookies.token);
 
         if (tokenObj) {
 

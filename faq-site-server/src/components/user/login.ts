@@ -4,9 +4,9 @@ import {Request, Response} from "express";
 import {app} from "../../index";
 
 import {LoginRequest, LoginRequestCallBack, LoginResponses} from "../../../../faq-site-shared/api-calls/index";
-import {UserModel} from "../../../../faq-site-shared/models/UserModel";
+import {IUser} from "../../../../faq-site-shared/models/IUser";
 
-import {getNumberFromDB, getStringFromDB, query} from "../../database-connection";
+import {DatabaseResultSet, query} from "../../database-connection";
 
 import {secretKey} from "../../auth/jwt-key";
 import {sign} from "../../auth/jwt";
@@ -25,29 +25,32 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
         crypto.pbkdf2(loginRequest.password, secretKey, 45000, 64, "sha512", (err: Error | null, derivedKey: Buffer) => {
 
             query(`
-                SELECT email, firstname, lastname, rank, blocked, verified, password
+                SELECT email, id, firstname, lastname, rank, blocked, verified, password, avatar
                 FROM users
                 WHERE email = ?
                 `, loginRequest.email)
-                    .then((result: any) => {
+                    .then((result: DatabaseResultSet) => {
 
-                        if (result.length === 0) {
+                        if (result.getRows().length === 0) {
                             res.json(new LoginRequestCallBack(LoginResponses.NOEXISTINGACCOUNT));
-                        } else if (getStringFromDB("password", result) === derivedKey.toString("hex")) {
+                        } else if (result.getStringFromDB("password") === derivedKey.toString("hex")) {
 
-                            if (getNumberFromDB("blocked", result) === 1) {
+                            if (result.getNumberFromDB("blocked") === 1) {
                                 res.json(new LoginRequestCallBack(LoginResponses.ACCOUNTBLOCKED));
-                            } else if (getNumberFromDB("verified", result) === 0) {
+                            } else if (result.getNumberFromDB("verified") === 0) {
                                 res.json(new LoginRequestCallBack(LoginResponses.ACCOUNTNOTVERIFIED));
                             } else {
                                 delete result[0].password;
 
-                                const userModel: UserModel = {
-                                    email: getStringFromDB("email", result),
-                                    username: getStringFromDB("username", result),
-                                    rank: getNumberFromDB("rank", result),
-                                    blocked: getNumberFromDB("blocked", result),
-                                    verified: getNumberFromDB("verified", result)
+                                const userModel: IUser = {
+                                    id: result.getNumberFromDB("id"),
+                                    email: result.getStringFromDB("email"),
+                                    rank: result.getNumberFromDB("rank"),
+                                    blocked: result.getNumberFromDB("blocked"),
+                                    verified: result.getNumberFromDB("verified"),
+                                    firstname: result.getStringFromDB("firstname"),
+                                    lastname: result.getStringFromDB("lastname"),
+                                    avatar: result.getStringFromDB("avatar")
                                 };
 
                                 const jwt = sign(userModel);
@@ -65,7 +68,7 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
                     })
                     .catch(err => {
-                        console.error(err);
+                        res.status(503).send();
                     });
 
         });

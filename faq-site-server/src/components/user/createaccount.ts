@@ -6,7 +6,7 @@ import {app} from "../../";
 import {CreateAccountRequest, CreateAccountRequestCallBack, CreateAccountResponses} from "../../../../faq-site-shared/api-calls";
 import {validateMultipleInputs} from "../../utilities/string-utils";
 import {secretKey} from "../../auth/jwt-key";
-import {query} from "../../database-connection";
+import {DatabaseResultSet, query} from "../../database-connection";
 
 
 app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
@@ -27,9 +27,9 @@ app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
             FROM users
             WHERE email = ?
             `, createAccountRequest.email)
-            .then((result: any) => {
+            .then((result: DatabaseResultSet) => {
 
-                if (result.length === 0) {
+                if (result.getRows().length === 0) {
                     crypto.pbkdf2(createAccountRequest.password, secretKey, 45000, 64, "sha512", (err: Error | null, derivedKey: Buffer) => {
 
                         query(`
@@ -39,22 +39,20 @@ app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
                             .then(() => {
                                 res.json(new CreateAccountRequestCallBack(CreateAccountResponses.SUCCESS));
                             })
-                            .catch(() => {
+                            .catch(err => {
                                 res.status(503).send();
                             });
                     });
-
                 } else {
                     res.json(new CreateAccountRequestCallBack(CreateAccountResponses.ALREADYEXISTS));
                 }
             })
             .catch(err => {
-                console.error(err);
+                res.status(503).send();
             });
 
     } else {
         res.json(new CreateAccountRequestCallBack(CreateAccountResponses.INVALIDINPUT));
     }
-
 
 });

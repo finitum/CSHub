@@ -1,5 +1,4 @@
 import {IApiRequest} from "../../models/IApiRequest";
-import {UserModel} from "../../models/UserModel";
 
 import {NonAuthRequests} from "../NonAuthRequests";
 
