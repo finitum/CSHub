@@ -6,8 +6,10 @@
     "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./src/server.ts"
   },
   "dependencies": {
+    "@types/cors": "^2.8.4",
     "@types/express": "^4.16.0",
     "@types/jsonwebtoken": "^7.2.8",
+    "@types/ssh2": "^0.5.36",
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "codelyzer": "^4.4.4",
@@ -17,6 +19,8 @@
     "jsonwebtoken": "^8.3.0",
     "moment": "^2.18.1",
     "mysql": "^2.16.0",
+    "mysql2": "^1.6.1",
+    "ssh2": "^0.6.1",
     "tslint": "^5.11.0"
   },
   "devDependencies": {

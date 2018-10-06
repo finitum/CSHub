@@ -17,8 +17,9 @@
 </template>
 
 <script lang="ts">
-    import {LoginRequest} from '../../../faq-site-shared/socket-calls/auth/LoginRequest';
+    import {LoginRequest, LoginRequestCallBack} from "../../../faq-site-shared/socket-calls/auth/LoginRequest";
     import {ApiWrapper} from '../plugins/api/api-wrapper';
+    import {AuthResponses} from '../../../faq-site-shared/socket-calls/auth/AuthResponses';
 
     export default {
         name: 'HelloWorld',
@@ -28,7 +29,10 @@
         mounted: () => {
             console.log('Executing request');
 
-            ApiWrapper.sendRequest(new LoginRequest('hoi', 'hoi'));
+            ApiWrapper.sendPostRequest(new LoginRequest('df', 'hoidfdfdfddfdfdfd'), (callbackData: LoginRequestCallBack) => {
+                console.log(callbackData.response === AuthResponses.SUCCESS);
+                console.log(callbackData)
+            });
 
         }
     };

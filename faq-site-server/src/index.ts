@@ -7,13 +7,20 @@ import fs from 'fs';
 
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
 export const app: express.Application = express();
 
-app.use(cors());
+app.use(cors({
+    origin: Settings.ALLOWORIGIN,
+    credentials: true
+}));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cookieParser());
+
+import './middleware';
 
 let server: http.Server | https.Server;
 

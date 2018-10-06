@@ -1,0 +1,7 @@
+export enum AuthResponses {
+    INCORRECTPASS,
+    ACCOUNTNOTVERIFIED,
+    ACCOUNTBLOCKED,
+    SUCCESS,
+    NOEXISTINGACCOUNT
+}
