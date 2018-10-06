@@ -11,19 +11,20 @@ import {getNumberFromDB, getStringFromDB, query} from "../database-connection";
 
 import {secretKey} from "./jwt-key";
 import {sign} from "./jwt";
+import {checkForEmtpyOrSmallerThan} from "../utilities/string-utils";
 
 app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
     const loginRequest: LoginRequest = req.body as LoginRequest;
 
-    if (loginRequest.password != null && loginRequest.password.length > 8) {
+    if (checkForEmtpyOrSmallerThan(loginRequest.password, 8) && checkForEmtpyOrSmallerThan(loginRequest.email)) {
         crypto.pbkdf2(loginRequest.password, secretKey, 45000, 64, "sha512", (err: Error | null, derivedKey: Buffer) => {
 
             query(`
-                SELECT email, username, rank, blocked, verified, password
+                SELECT email, firstname, lastname, rank, blocked, verified, password
                 FROM users
-                WHERE username = ?
-                `, loginRequest.username)
+                WHERE email = ?
+                `, loginRequest.email)
                     .then((result: any) => {
 
                         if (result.length === 0) {
@@ -64,6 +65,8 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
                     });
 
         });
+    } else {
+        res.json(new LoginRequestCallBack(AuthResponses.INVALIDINPUT));
     }
 
 

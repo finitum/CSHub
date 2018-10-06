@@ -1,3 +1,4 @@
+import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResponses";
 <template>
     <v-card>
         <v-card-title class="title font-weight-regular justify-space-between">
@@ -6,64 +7,113 @@
         <v-card-text>
             <v-text-field
                     label="Email"
-                    v-model="userData.username"
-                    :error-messages="errors.collect('email')"
+                    v-model="userData.email"
+                    :error-messages="emailErrors"
                     name="email"
                     v-validate="'required'"
                     required
+                    box
+                    @change="userData.emailerror = ''"
                     @keyup.enter="doLogin"
             ></v-text-field>
             <v-text-field
                     label="Password"
                     v-model="userData.password"
-                    :error-messages="errors.collect('password')"
+                    :error-messages="passwordErrors"
                     name="password"
                     :append-icon="userData.passwordvisible ? 'visibility' : 'visibility_off'"
                     @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
                     :type="userData.passwordvisible ? 'password' : 'text'"
-                    v-validate="'required'"
-                    counter
+                    v-validate="'required|min:8'"
+                    box
                     required
+                    @change="userData.passworderror = ''"
                     @keyup.enter="doLogin"
             ></v-text-field>
             <v-switch
                     label="Remember login?"
                     v-model="userData.rememberuser"
             ></v-switch>
+            <div>
+                <v-btn depressed color="primary" @click="doLogin">Login</v-btn>
+            </div>
         </v-card-text>
     </v-card>
 </template>
 
 <script lang="ts">
+    import Vue from "vue";
+
     import {ApiWrapper} from "../plugins/api/api-wrapper";
+    import {LogConsole} from "../plugins/DebugConsole";
+
     import {LoginRequest, LoginRequestCallBack} from "../../../faq-site-shared/socket-calls/auth/LoginRequest";
     import {AuthResponses} from "../../../faq-site-shared/socket-calls/auth/AuthResponses";
+
     import userState from "../store/user";
 
-    export default {
+    export default Vue.extend({
         name: "LoginScreen",
-        data: () => {
+        data() {
             return {
                 userData: {
-                    username: "",
-                    password: "",
-                    passwordvisible: false,
-                    rememberuser: false
+                    email: "" as string,
+                    emailerror: "" as string,
+                    password: "" as string,
+                    passwordvisible: false as boolean,
+                    passworderror: "" as string,
+                    rememberuser: false as boolean
                 }
+            };
+        },
+        inject: ["$validator"],
+        computed: {
+            passwordErrors(): string {
+                let validationErrors = "";
+                if (this.errors) { validationErrors = this.errors.collect("password"); }
+
+                const customErrors = this.userData.passworderror;
+                return `${validationErrors.toString()}${customErrors}`;
+            },
+            emailErrors(): string {
+                let validationErrors = "";
+                if (this.errors) { validationErrors = this.errors.collect("email"); }
+
+                const customErrors = this.userData.emailerror;
+                return `${validationErrors.toString()}${customErrors}`;
             }
         },
         methods: {
-            doLogin: () => {
-                ApiWrapper.sendPostRequest(new LoginRequest("df", "hoidfdfdfddfdfdfd"), (callbackData: LoginRequestCallBack) => {
-                    if (callbackData.response === AuthResponses.SUCCESS && callbackData.userModel) {
-                        userState.changeUserModel(callbackData.userModel);
-                    }
-                    console.log(callbackData.response === AuthResponses.SUCCESS);
-                    console.log(callbackData);
-                });
+            doLogin()  {
+                this.$validator.validateAll()
+                    .then((allValid: boolean) => {
+                        if (allValid) {
+                            ApiWrapper.sendPostRequest(new LoginRequest(this.userData.email, this.userData.password), (callbackData: LoginRequestCallBack) => {
+                                if (callbackData.response === AuthResponses.SUCCESS && callbackData.userModel) {
+                                    userState.changeUserModel(callbackData.userModel);
+                                } else if (callbackData.response === AuthResponses.NOEXISTINGACCOUNT) {
+                                    LogConsole("Account does not exist");
+                                    this.userData.emailerror = "Account does not exist.";
+                                } else if (callbackData.response === AuthResponses.ACCOUNTNOTVERIFIED) {
+                                    LogConsole("Account is not verified");
+                                    this.userData.emailerror = "Account has not been verified.";
+                                } else if (callbackData.response === AuthResponses.ACCOUNTBLOCKED) {
+                                    LogConsole("Account is blocked");
+                                    this.userData.emailerror = "Account has been blocked.";
+                                } else if (callbackData.response === AuthResponses.INCORRECTPASS) {
+                                    LogConsole("Incorrect password was entered");
+                                    this.userData.passworderror = "Incorrect password.";
+                                } else if (callbackData.response === AuthResponses.INVALIDINPUT) {
+                                    LogConsole("Invalid input");
+                                    this.userData.passworderror = "Invalid input.";
+                                    this.userData.emailerror = "Invalid input.";
+                                }
+                            });
+                        }
+                    });
             }
         }
-    }
+    });
 </script>
 
 <style scoped>

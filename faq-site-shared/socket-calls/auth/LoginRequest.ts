@@ -18,7 +18,7 @@ export class LoginRequest implements IApiRequest {
     public URL: string = LoginRequest.getURL;
 
     constructor(
-        public username: string,
+        public email: string,
         public password: string
     ) {}
 
