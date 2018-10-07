@@ -40,13 +40,14 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import {ITopic} from "../../../faq-site-shared/models";
-    import {ApiWrapper} from "../plugins";
-    import {GetTopicsCallBack, GetTopicsRequest} from "../../../faq-site-shared/api-calls/pages/GetTopicsRequest";
+    import {ITopic} from "../../../../faq-site-shared/models/index";
+    import {ApiWrapper} from "../../plugins/index";
+    import {GetTopicsCallBack, GetTopicsRequest} from "../../../../faq-site-shared/api-calls/pages/GetTopicsRequest";
 
     import NavDrawerItem from "./NavDrawerItem.vue";
-    import uiState from "../store/ui";
-    import router, {Routes} from "../router";
+    import uiState from "../../store/ui";
+    import dataState from "../../store/data";
+    import router, {Routes} from "../../views/router";
 
     export default Vue.extend({
         name: "NavDrawer",
@@ -57,7 +58,7 @@
                 topics: [] as ITopic[],
                 items: [],
                 navigationLocations: Routes
-            }
+            };
         },
         computed: {
             drawerComputed: {
@@ -72,6 +73,7 @@
         mounted() {
             ApiWrapper.sendGetRequest(new GetTopicsRequest(), (callbackData: GetTopicsCallBack) => {
                 this.topics = callbackData.topics;
+                dataState.setTopics(callbackData.topics);
             });
         }
     });

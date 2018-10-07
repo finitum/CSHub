@@ -14,16 +14,16 @@
         data() {
             return {
                 posts: [] as IPost[]
-            }
+            };
         },
         mounted() {
             ApiWrapper.sendGetRequest(new GetIndexRequest(), (callbackData: GetIndexCallBack) => {
                 this.posts = callbackData.posts;
 
                 console.log(this.posts);
-            })
+            });
         }
-    })
+    });
 </script>
 
 <style scoped>
