@@ -4,9 +4,14 @@
       <span>Editor</span>
     </v-card-title>
 
-    <v-card-text id="editor">
+    <v-card-text>
+      <div id="editor"></div>
 
     </v-card-text>
+    <v-card-actions>
+      <v-btn color="success" >Confirm</v-btn>
+      <v-btn color="error">Cancel</v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 
@@ -43,21 +48,21 @@
                   modules: {
                       formula: true,
                       toolbar: [
-                          ['bold', 'italic', 'underline', 'strike'],
-                          ['blockquote', 'code-block'],
-                          [{ 'header': 1 }, { 'header': 2 }],
-                          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                          [{ 'script': 'sub' }, { 'script': 'super' }],
-                          [{ 'indent': '-1' }, { 'indent': '+1' }],
-                          [{ 'direction': 'rtl' }],
-                          [{ 'size': ['small', false, 'large', 'huge'] }],
-                          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                          [{ 'color': [] }, { 'background': [] }],
-                          [{ 'font': [] }],
-                          [{ 'align': [] }],
-                          ['clean'],
-                          ['link', 'image'],
-                          ['formula']
+                          ["bold", "italic", "underline", "strike"],
+                          ["blockquote", "code-block"],
+                          [{ "header": 1 }, { "header": 2 }],
+                          [{ "list": "ordered" }, { "list": "bullet" }],
+                          [{ "script": "sub" }, { "script": "super" }],
+                          [{ "indent": "-1" }, { "indent": "+1" }],
+                          [{ "direction": "rtl" }],
+                          [{ "size": ["small", false, "large", "huge"] }],
+                          [{ "header": [1, 2, 3, 4, 5, 6, false] }],
+                          [{ "color": [] }, { "background": [] }],
+                          [{ "font": [] }],
+                          [{ "align": [] }],
+                          ["clean"],
+                          ["link", "image"],
+                          ["formula"]
                       ]
                   }
               }
