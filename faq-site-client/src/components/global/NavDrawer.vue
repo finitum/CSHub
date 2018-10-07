@@ -41,8 +41,8 @@
 <script lang="ts">
     import Vue from "vue";
     import {ITopic} from "../../../../faq-site-shared/models/index";
-    import {ApiWrapper} from "../../plugins/index";
-    import {GetTopicsCallBack, GetTopicsRequest} from "../../../../faq-site-shared/api-calls/pages/GetTopicsRequest";
+    import {ApiWrapper, LogObjectConsole} from "../../plugins/index";
+    import {TopicsCallBack, TopicsRequest} from "../../../../faq-site-shared/api-calls/pages/TopicsRequest";
 
     import NavDrawerItem from "./NavDrawerItem.vue";
     import uiState from "../../store/ui";
@@ -71,7 +71,8 @@
             }
         },
         mounted() {
-            ApiWrapper.sendGetRequest(new GetTopicsRequest(), (callbackData: GetTopicsCallBack) => {
+            ApiWrapper.sendGetRequest(new TopicsRequest(), (callbackData: TopicsCallBack) => {
+                LogObjectConsole(callbackData.topics, "NavDrawer mounted");
                 this.topics = callbackData.topics;
                 dataState.setTopics(callbackData.topics);
             });

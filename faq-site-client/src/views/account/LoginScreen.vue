@@ -49,7 +49,7 @@
     import Vue from "vue";
 
     import {ApiWrapper} from "../../plugins/api/api-wrapper";
-    import {LogConsole} from "../../plugins/debugConsole";
+    import {LogStringConsole} from "../../plugins/debugConsole";
 
     import {LocalStorageData} from "../../store/localStorageData";
 
@@ -106,19 +106,19 @@
                                     userState.changeUserModel(callbackData.userModel);
                                     router.push(Routes.INDEX);
                                 } else if (callbackData.response === LoginResponses.NOEXISTINGACCOUNT) {
-                                    LogConsole("Account does not exist");
+                                    LogStringConsole("Account does not exist");
                                     this.userData.emailerror = "Account does not exist.";
                                 } else if (callbackData.response === LoginResponses.ACCOUNTNOTVERIFIED) {
-                                    LogConsole("Account is not verified");
+                                    LogStringConsole("Account is not verified");
                                     this.userData.emailerror = "Account has not been verified.";
                                 } else if (callbackData.response === LoginResponses.ACCOUNTBLOCKED) {
-                                    LogConsole("Account is blocked");
+                                    LogStringConsole("Account is blocked");
                                     this.userData.emailerror = "Account has been blocked.";
                                 } else if (callbackData.response === LoginResponses.INCORRECTPASS) {
-                                    LogConsole("Incorrect password was entered");
+                                    LogStringConsole("Incorrect password was entered");
                                     this.userData.passworderror = "Incorrect password.";
                                 } else if (callbackData.response === LoginResponses.INVALIDINPUT) {
-                                    LogConsole("Invalid input");
+                                    LogStringConsole("Invalid input");
                                     this.userData.passworderror = "Invalid input.";
                                     this.userData.emailerror = "Invalid input.";
                                 }
