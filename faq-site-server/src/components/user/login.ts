@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import {Request, Response} from "express";
 
-import {app} from "../../index";
+import {app, logger} from "../../index";
 
 import {LoginRequest, LoginRequestCallBack, LoginResponses} from "../../../../faq-site-shared/api-calls/index";
 import {IUser} from "../../../../faq-site-shared/models/IUser";
@@ -67,6 +67,7 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
                     })
                     .catch(err => {
+                        logger.error(`Login query failed: ${err}`);
                         res.status(500).send();
                     });
 

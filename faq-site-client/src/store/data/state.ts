@@ -4,12 +4,10 @@ import {IPost, ITopic} from "../../../../faq-site-shared/models";
 
 export interface IDataState {
     topics: ITopic[];
-    post: IPost;
 }
 
 export const DataState: IDataState = {
-    topics: null,
-    post: null
+    topics: null
 };
 
 export const dataStoreBuilder = getStoreBuilder<RootState>().module("data", DataState);
