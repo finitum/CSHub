@@ -2,12 +2,18 @@
     <div v-if="postReduced !== null">
         <v-card id="previewCard" :class="{previewCard: !isFullPost, fullCard: isFullPost}">
             <v-card-title primary-title>
-                <v-breadcrumbs divider="/" style="width: 100%">
+                <v-breadcrumbs divider="/" style="width: 100%" v-if="isFullPost">
                     <v-breadcrumbs-item
-
+                        v-for="item in topicNames"
+                        :key="item.index"
+                        :disabled="false"
+                    >
+                        <router-link :to="item.url">{{item.name}}</router-link>
+                    </v-breadcrumbs-item>
+                    <v-breadcrumbs-item
                             :disabled="true"
                     >
-                        HOi
+                        {{postReduced.title}}
                     </v-breadcrumbs-item>
                 </v-breadcrumbs>
                 <v-badge right color="green" overlap class="mr-3">
@@ -39,7 +45,6 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import jQuery from "jquery";
     import {Route} from "vue-router";
 
     import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../plugins";
@@ -53,7 +58,10 @@
     import router, {Routes} from "../../views/router";
     import dataState from "../../store/data";
 
-    type thing = {title: string, url: string}
+    interface IBreadCrumbType {
+        name: string;
+        url: string;
+    }
 
     export default Vue.extend({
         name: "Post",
@@ -61,7 +69,7 @@
             return {
                 postReduced: null as IPostReduced,
                 postFull: null as IPost,
-                topicNames: [] as Array<{name: string, url: string}>
+                topicNames: [] as IBreadCrumbType[]
             };
         },
         props: {
@@ -83,9 +91,33 @@
             }
         },
         methods: {
-            getTopicListWhereFinalChildIs(child: ITopic): Array<> {
-                const parentTopic = dataState.topics.find((x) => x.children.findIndex((y) => y.id === child.id) !== -1);
-                return new Array[...this.getTopicListWhereFinalChildIs(parentTopic), {name: child.name, url: Routes.TOPIC + "/" + child.hash}];
+            getParentTopic(child: ITopic, topics: ITopic[]): ITopic {
+                for (const topic of topics) {
+                    if (topic.children !== undefined && topic.children.findIndex(x => x.id === child.id) !== -1) {
+                        return topic;
+                    } else if (topic.children !== undefined && topic.children.length > 0) {
+                        const currTopic = this.getParentTopic(child, topic.children);
+                        if (currTopic !== null) {
+                            return currTopic;
+                        }
+                    }
+                }
+                return null;
+            },
+            getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
+                const parentTopic = this.getParentTopic(child, dataState.topics);
+
+                const currTopic: IBreadCrumbType = {
+                    name: child.name,
+                    url: `${Routes.TOPIC}/${child.hash}`
+                };
+
+                if (parentTopic !== null) {
+                    const parentArray: IBreadCrumbType[] = this.getTopicListWhereFinalChildIs(parentTopic);
+                    return [...parentArray, currTopic];
+                } else {
+                    return [currTopic];
+                }
             },
             getPreviewPostRequest() {
                 ApiWrapper.sendPostRequest(new PostPreviewRequest(this.postHash), (callbackData: PostPreviewCallBack) => {
@@ -98,8 +130,7 @@
 
                     LogObjectConsole(callbackData.post, `Getting data for ${callbackData.post.title} fullpostrequest`);
 
-                    const topicNames = this.getTopicListWhereFinalChildIs(callbackData.post.topic);
-
+                    this.topicNames = this.getTopicListWhereFinalChildIs(callbackData.post.topic);
                     this.postFull = callbackData.post;
 
                     this.postReduced = {
@@ -111,7 +142,6 @@
                 });
             },
             navigateToPost(): void {
-
                 LogStringConsole(`Going to post ${this.postReduced.title}`, "PostPreview navigateToPost");
                 this.getFullPostRequest();
             }

@@ -55,9 +55,13 @@
         }
     });
 </script>
-<style scoped>
+<style>
     #app {
         background: white;
+    }
+
+    a {
+        text-decoration: none !important;
     }
 
     .componentChange-leave-active {
