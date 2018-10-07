@@ -1,7 +1,13 @@
 import {app} from "../../";
 import {Request, Response} from "express";
-import {PostCallBack, PostRequest} from "../../../../faq-site-shared/api-calls";
-import {IEdit, IPost} from "../../../../faq-site-shared/models";
+import {
+    IPostRequest,
+    PostCallBack,
+    PostPreviewCallBack,
+    PostPreviewRequest,
+    PostRequest
+} from "../../../../faq-site-shared/api-calls";
+import {IEdit, IPost, IPostBase, IPostReduced} from "../../../../faq-site-shared/models";
 
 import {getTopics} from "./topics";
 import {DatabaseResultSet, query} from "../../database-connection";
@@ -9,7 +15,8 @@ import {hasAccessToPost} from "../../auth/validateRights/post";
 
 app.post(PostRequest.getURL, (req: Request, res: Response) => {
 
-    const postRequest: PostRequest = req.body as PostRequest;
+    const postRequest: IPostRequest = req.body as IPostRequest;
+    const isReducedRequest: boolean = postRequest.isReduced;
 
     hasAccessToPost(postRequest.postId, req.cookies["token"])
         .then((approved: boolean) => {
@@ -44,8 +51,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                          INNER JOIN users T2 ON T1.author = T2.id
                          INNER JOIN topics T3 ON T1.topic = T3.id
                          LEFT JOIN users T4 ON T1.approvedBy = T4.id
-                  WHERE approved = 1
-                    AND T1.id = ?
+                  WHERE T1.id = ?
                   ORDER BY datetime DESC
                 `, postRequest.postId)
                     .then((post: DatabaseResultSet) => {
@@ -70,8 +76,9 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                  INNER JOIN users T2 ON T1.editedBy = T2.id
                                  LEFT JOIN users T3 ON T1.approvedBy = T3.id
                           WHERE post = ?
-                            AND approved = 1
-                        `, post.getNumberFromDB("id"))
+                          ORDER BY datetime DESC
+                          LIMIT 0, ?
+                        `, post.getNumberFromDB("id"), isReducedRequest ? 1 : 5)
                             .then((edits: DatabaseResultSet) => {
 
                                 const currEdits: IEdit[] = [];
@@ -99,31 +106,44 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                     });
                                 }
 
-                                const postsObj: IPost = {
-                                    edits: currEdits,
+                                const postBase: IPostBase = {
                                     topic: topicsResult.find(x => x.id === post.getNumberFromDB("topicId")),
+                                    datetime: post.getStringFromDB("datetime"),
+                                    title: post.getStringFromDB("title"),
+                                    upvotes: post.getNumberFromDB("upvotes"),
+                                    id: post.getNumberFromDB("id"),
                                     author: {
                                         id: post.getNumberFromDB("authorId"),
                                         firstname: post.getStringFromDB("authorFirstName"),
                                         lastname: post.getStringFromDB("authorLastName"),
                                         avatar: post.getStringFromDB("authorAvatar")
-                                    },
-                                    datetime: post.getStringFromDB("datetime"),
-                                    title: post.getStringFromDB("title"),
-                                    upvotes: post.getNumberFromDB("upvotes"),
-                                    id: post.getNumberFromDB("id"),
-                                    approved: post.getNumberFromDB("approved") === 1,
-                                    approvedBy: {
-                                        id: post.getNumberFromDB("approvedById"),
-                                        firstname: post.getStringFromDB("approvedByFirstName"),
-                                        lastname: post.getStringFromDB("approvedByLastName"),
-                                        avatar: post.getStringFromDB("approvedByAvatar")
-                                    },
-                                    rejectedReason: post.getStringFromDB("rejectedReason")
+                                    }
                                 };
 
-                                res.json(new PostCallBack(postsObj));
+                                if (isReducedRequest) {
+                                    const postObj: IPostReduced = {
+                                        ...postBase,
+                                        lastEdit: currEdits[0]
+                                    };
 
+                                    res.json(new PostPreviewCallBack(postObj));
+                                } else {
+                                    const postObj: IPost = {
+                                        ...postBase,
+                                        approved: post.getNumberFromDB("approved") === 1,
+                                        approvedBy: {
+                                            id: post.getNumberFromDB("approvedById"),
+                                            firstname: post.getStringFromDB("approvedByFirstName"),
+                                            lastname: post.getStringFromDB("approvedByLastName"),
+                                            avatar: post.getStringFromDB("approvedByAvatar")
+                                        },
+                                        edits: currEdits,
+                                        rejectedReason: post.getStringFromDB("rejectedReason")
+                                    };
+
+                                    res.json(new PostCallBack(postsObj));
+
+                                }
                             })
                             .catch(err => {
                                 res.status(503).send();

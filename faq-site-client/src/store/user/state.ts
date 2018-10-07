@@ -9,7 +9,7 @@ export interface IUserState {
 export const UserState: IUserState = {
     userModel: {
         id: 0,
-        rank: 0,
+        admin: false,
         blocked: 0,
         verified: 0,
         email: null,

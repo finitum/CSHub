@@ -4,7 +4,7 @@ import {DatabaseResultSet, query} from "../../database-connection";
 export const hasAccessToPost = (postId: number, jwt: string): Promise<boolean> => {
     const tokenResult = validateAccessToken(jwt);
 
-    if (tokenResult.user.rank === 2) {
+    if (tokenResult !== undefined && tokenResult.user.admin) {
         return new Promise((resolve, reject) => { resolve(true); });
     } else {
         return query(`
