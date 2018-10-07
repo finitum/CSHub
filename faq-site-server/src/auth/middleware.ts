@@ -1,10 +1,11 @@
 import {Request, Response} from "express";
+import moment from "moment";
 
-import {IJWTToken} from "../../faq-site-shared/models/IJWTToken";
+import {IJWTToken} from "../../../faq-site-shared/models/IJWTToken";
 
-import {app} from "./";
-import {sign, validateAccessToken} from "./auth/jwt";
-import {Settings} from "./settings";
+import {app} from "../index";
+import {sign, validateAccessToken} from "./jwt";
+import {Settings} from "../settings";
 
 app.use((req: Request, res: Response, next: Function) => {
 
@@ -12,12 +13,12 @@ app.use((req: Request, res: Response, next: Function) => {
 
         const tokenObj: IJWTToken = validateAccessToken(req.cookies.token);
 
-        if (tokenObj) {
+        if (tokenObj !== undefined && moment(tokenObj.expirydate).isAfter(moment())) {
 
             const newtoken: string = sign(tokenObj.user);
 
             res.cookie("token", newtoken, {
-               maxAge: 7200
+               maxAge: 7200000
            });
         } else {
             res.clearCookie("token");

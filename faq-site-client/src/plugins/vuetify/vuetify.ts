@@ -1,8 +1,7 @@
 import Vue from "vue";
 import Vuetify from "vuetify";
 import "vuetify/dist/vuetify.min.css";
-
-import {PropValidator} from "vue/types/options";
+import "@mdi/font/css/materialdesignicons.css";
 
 Vue.use(Vuetify, {
     theme: {

@@ -1,5 +1,5 @@
 export interface ITopic {
-    children: ITopic[];
+    children?: ITopic[];
     name: string;
     id: number;
 }

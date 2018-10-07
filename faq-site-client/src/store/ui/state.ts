@@ -1,0 +1,19 @@
+import {IUser} from "../../../../faq-site-shared/models/IUser";
+import {getStoreBuilder} from "vuex-typex";
+import {RootState} from "../";
+
+export interface IUIState {
+    navbar: {
+        open: boolean
+    };
+}
+
+export const UIState: IUIState = {
+    navbar: {
+        open: false
+    }
+};
+
+export const uiStoreBuilder = getStoreBuilder<RootState>().module("ui", UIState);
+
+export const uiStateGetter = uiStoreBuilder.state();
