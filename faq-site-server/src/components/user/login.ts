@@ -25,7 +25,7 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
         crypto.pbkdf2(loginRequest.password, secretKey, 45000, 64, "sha512", (err: Error | null, derivedKey: Buffer) => {
 
             query(`
-                SELECT email, id, firstname, lastname, rank, blocked, verified, password, avatar
+                SELECT email, id, firstname, lastname, admin, blocked, verified, password, avatar
                 FROM users
                 WHERE email = ?
                 `, loginRequest.email)
@@ -44,7 +44,7 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
                                 const userModel: IUser = {
                                     id: result.getNumberFromDB("id"),
                                     email: result.getStringFromDB("email"),
-                                    rank: result.getNumberFromDB("rank"),
+                                    admin: result.getNumberFromDB("admin") === 1,
                                     blocked: result.getNumberFromDB("blocked"),
                                     verified: result.getNumberFromDB("verified"),
                                     firstname: result.getStringFromDB("firstname"),

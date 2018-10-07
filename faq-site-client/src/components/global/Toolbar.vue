@@ -1,7 +1,7 @@
 <template>
     <v-toolbar color="primary" app absolute clipped-left>
         <v-toolbar-side-icon @click.native="drawerComputed = !drawerComputed"></v-toolbar-side-icon>
-        <span class="title ml-3 mr-5">CSE&nbsp;<span class="font-weight-light">Delft</span></span>
+        <div class="title ml-3 mr-5" @click="routeHome()">CSE&nbsp;<span class="font-weight-light">Delft</span></div>
         <v-text-field
                 solo-inverted
                 flat
@@ -15,10 +15,16 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import uiState from "../store/ui";
+    import uiState from "../../store/ui/index";
+    import router, {Routes} from "../../views/router";
 
     export default Vue.extend({
         name: "Toolbar",
+        methods: {
+            routeHome() {
+                router.push(Routes.INDEX);
+            }
+        },
         computed: {
             drawerComputed: {
                 get(): boolean {
@@ -29,7 +35,7 @@
                 }
             }
         },
-    })
+    });
 </script>
 
 <style scoped>

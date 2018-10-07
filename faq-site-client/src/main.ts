@@ -1,11 +1,11 @@
 import "@babel/polyfill";
 import Vue from "vue";
-import "./plugins/vuetify/vuetify";
-import "./plugins/validation";
+import "./plugins";
 import App from "./App.vue";
-import router from "./router";
+import router from "./views/router";
 import store from "./store";
 import "./registerServiceWorker";
+import "./styleOverwrites.css";
 
 Vue.config.productionTip = false;
 

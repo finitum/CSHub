@@ -10,7 +10,7 @@ export interface IUIState {
 
 export const UIState: IUIState = {
     navbar: {
-        open: false
+        open: null
     }
 };
 
