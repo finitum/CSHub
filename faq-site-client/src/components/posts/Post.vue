@@ -1,6 +1,6 @@
 <template>
     <div v-if="postReduced !== null">
-        <v-card class="previewCard" id="previewCard" :style="{maxHeight: maxheight}">
+        <v-card id="previewCard" :class="{previewCard: !isFullPost, fullCard: isFullPost}">
             <v-card-title primary-title>
                 <div>
                     <h3 class="headline mb-0">{{postReduced.title}}</h3>
@@ -39,8 +39,7 @@
         data() {
             return {
                 postReduced: null as IPostReduced,
-                postFull: null as IPost,
-                maxheight: "220px" as string
+                postFull: null as IPost
             };
         },
         props: {
@@ -48,30 +47,27 @@
             isFullPost: Boolean
         },
         mounted() {
-            console.log(this.isFullPost);
             if (this.isFullPost) {
                 this.getFullPostRequest();
             } else {
-                ApiWrapper.sendPostRequest(new PostPreviewRequest(this.postHash), (callbackData: PostPreviewCallBack) => {
-                    this.postReduced = callbackData.post;
-                    LogObjectConsole(callbackData.post, "PostPreview");
-                });
+                this.getPreviewPostRequest();
             }
 
         },
         watch: {
             $route(to: Route, from: Route) {
                 if (to.fullPath === Routes.INDEX && from.name === "post") {
-                    jQuery("#previewCard").animate({
-                        margin: "5%",
-                        width: "90%"
-                    });
-
-                    this.maxheight = "220px";
+                    LogStringConsole("Going from full to preview");
                 }
             }
         },
         methods: {
+            getPreviewPostRequest() {
+                ApiWrapper.sendPostRequest(new PostPreviewRequest(this.postHash), (callbackData: PostPreviewCallBack) => {
+                    this.postReduced = callbackData.post;
+                    LogObjectConsole(callbackData.post, "PostPreview");
+                });
+            },
             getFullPostRequest() {
                 ApiWrapper.sendPostRequest(new PostRequest(this.postHash), (callbackData: PostCallBack) => {
 
@@ -90,16 +86,7 @@
             navigateToPost(): void {
 
                 LogStringConsole(`Going to post ${this.postReduced.title}`, "PostPreview navigateToPost");
-
-                this.maxheight = "100%";
-
-                jQuery("#previewCard").animate({
-                    height: "100%",
-                    margin: 0,
-                    width: "100%"
-                }, 5000, () => {
-                    this.getFullPostRequest();
-                });
+                this.getFullPostRequest();
             }
         }
     });
@@ -107,13 +94,23 @@
 
 <style scoped>
     .previewCard {
-        position: absolute;
+        position: relative;
         width: 90%;
         overflow: hidden;
         margin: 5%;
+        max-height: 220px;
     }
 
-    .previewCard .viewButton {
+    .fullCard {
+        position: absolute;
+        width: 100%;
+        overflow: hidden;
+        margin: 0;
+        height: 100%;
+        max-height: 100%;
+    }
+
+    .viewButton {
         position: absolute;
         bottom: 0;
         left: 0;
