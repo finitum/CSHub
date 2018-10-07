@@ -5,7 +5,7 @@ import {NonAuthRequests} from "../NonAuthRequests";
 export class IndexCallBack {
 
     constructor(
-        public postIds: number[]
+        public postHashes: number[]
     ) {}
 }
 

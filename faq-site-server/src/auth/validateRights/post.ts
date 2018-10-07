@@ -1,7 +1,7 @@
 import {validateAccessToken} from "../jwt";
 import {DatabaseResultSet, query} from "../../database-connection";
 
-export const hasAccessToPost = (postId: number, jwt: string): Promise<boolean> => {
+export const hasAccessToPost = (postHash: number, jwt: string): Promise<boolean> => {
     const tokenResult = validateAccessToken(jwt);
 
     if (tokenResult !== undefined && tokenResult.user.admin) {
@@ -10,8 +10,8 @@ export const hasAccessToPost = (postId: number, jwt: string): Promise<boolean> =
         return query(`
             SELECT approved
             FROM posts
-            WHERE id = ?
-        `, postId)
+            WHERE hash = ?
+        `, postHash)
             .then((databaseResult: DatabaseResultSet) => databaseResult.getNumberFromDB("approved") !== 0);
     }
 };

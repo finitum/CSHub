@@ -40,7 +40,7 @@ app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
                                 res.json(new CreateAccountRequestCallBack(CreateAccountResponses.SUCCESS));
                             })
                             .catch(err => {
-                                res.status(503).send();
+                                res.status(500).send();
                             });
                     });
                 } else {
@@ -48,7 +48,7 @@ app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
                 }
             })
             .catch(err => {
-                res.status(503).send();
+                res.status(500).send();
             });
 
     } else {

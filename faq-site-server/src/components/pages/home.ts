@@ -14,10 +14,10 @@ app.get(IndexRequest.getURL, (req: Request, res: Response) => {
     topics
         .then((topicsResult) => {
             if (topicsResult === null) {
-                res.status(503).send();
+                res.status(500).send();
             } else {
                 query(`
-                  SELECT id
+                  SELECT hash
                   FROM posts T1
                   WHERE approved = 1
                   ORDER BY datetime DESC
@@ -25,18 +25,18 @@ app.get(IndexRequest.getURL, (req: Request, res: Response) => {
                 `)
                     .then((posts: DatabaseResultSet) => {
 
-                        const postIds: number[] = [];
+                        const postHashes: number[] = [];
 
                         for (const post of posts.convertRowsToResultObjects()) {
-                            postIds.push(post.getNumberFromDB("id"));
+                            postHashes.push(post.getNumberFromDB("hash"));
                         }
 
-                        const callbackObj = new IndexCallBack(postIds);
+                        const callbackObj = new IndexCallBack(postHashes);
 
                         res.json(callbackObj);
                     })
                     .catch(err => {
-                        res.status(503).send();
+                        res.status(500).send();
                     });
             }
         });

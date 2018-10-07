@@ -4,13 +4,15 @@ import Router from "vue-router";
 import LoginScreen from "./account/LoginScreen.vue";
 import CreateAccount from "./account/CreateAccount.vue";
 import Index from "./Index.vue";
+import FullPost from "./FullPost.vue";
 
 Vue.use(Router);
 
 export enum Routes {
     INDEX = "/",
     LOGIN = "/login",
-    CREATEACCOUNT = "/createaccount"
+    CREATEACCOUNT = "/createaccount",
+    POST = "/post"
 }
 
 export default new Router({
@@ -31,6 +33,11 @@ export default new Router({
             path: Routes.CREATEACCOUNT,
             name: "createaccount",
             component: CreateAccount
+        },
+        {
+            path: `${Routes.POST}/:hash`,
+            name: "post",
+            component: FullPost
         }
     ],
 });

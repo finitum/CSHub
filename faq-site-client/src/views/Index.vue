@@ -1,7 +1,7 @@
 <template>
-    <div>
-        <PostPreview v-for="postId in postIds" :key="postId.index" :postId="postId"></PostPreview>
-    </div>
+    <v-flex>
+        <PostPreview v-for="postHash in postHashes" :key="postHash.index" :postHash="postHash"></PostPreview>
+    </v-flex>
 </template>
 
 <script lang="ts">
@@ -19,13 +19,13 @@
         components: {PostPreview},
         data() {
             return {
-                postIds: [] as number[]
+                postHashes: [] as number[]
             };
         },
         mounted() {
             ApiWrapper.sendGetRequest(new IndexRequest(), (callbackData: IndexCallBack) => {
-                this.postIds = callbackData.postIds;
-                LogObjectConsole(callbackData.postIds, "Index postids");
+                this.postHashes = callbackData.postHashes;
+                LogObjectConsole(callbackData.postHashes, "Index posthashes");
             });
         }
     });
