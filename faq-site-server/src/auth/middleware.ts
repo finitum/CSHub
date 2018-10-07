@@ -13,7 +13,7 @@ app.use((req: Request, res: Response, next: Function) => {
 
         const tokenObj: IJWTToken = validateAccessToken(req.cookies.token);
 
-        if (tokenObj !== undefined && moment(tokenObj.expirydate).isAfter(moment())) {
+        if (tokenObj !== undefined && moment.unix(tokenObj.expirydate).isAfter(moment())) {
 
             const newtoken: string = sign(tokenObj.user);
 
