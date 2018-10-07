@@ -67,7 +67,7 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
                     })
                     .catch(err => {
-                        res.status(503).send();
+                        res.status(500).send();
                     });
 
         });

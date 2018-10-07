@@ -7,7 +7,7 @@
                 <v-layout justify-center align-center>
                     <transition
                             name="componentChange"
-                            enter-active-class="animated fadeInLeft"
+                            :enter-active-class="activeclass"
                     >
                         <router-view></router-view>
                     </transition>
@@ -18,11 +18,14 @@
 </template>
 
 <script lang="ts">
+    import {Route} from "vue-router";
+
     import NavDrawer from "./components/global/NavDrawer.vue";
     import Toolbar from "./components/global/Toolbar.vue";
 
     import Vue from "vue";
     import uiState from "./store/ui";
+    import {Routes} from "./views/router";
 
     export default Vue.extend({
         name: "App",
@@ -39,8 +42,18 @@
         },
         data() {
             return {
-                drawerActive: true as boolean
+                drawerActive: true as boolean,
+                activeclass: "animated fadeInLeft" as string
             };
+        },
+        watch: {
+            '$route' (to: Route, from: Route) {
+                if (from.fullPath === Routes.INDEX && to.name === "post") {
+                    this.activeclass = ""
+                } else {
+                    this.activeclass = "animated fadeInLeft"
+                }
+            }
         }
     });
 </script>
@@ -52,12 +65,4 @@
     .componentChange-leave-active {
         opacity: 0;
     }
-
-    .fadeInLeft {
-        -webkit-animation: fadeInLeft 0.5s;
-        -moz-animation:    fadeInLeft 0.5s;
-        -o-animation:      fadeInLeft 0.5s;
-        animation:         fadeInLeft 0.5s;
-    }
-
 </style>

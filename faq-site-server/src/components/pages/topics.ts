@@ -12,7 +12,7 @@ app.get(TopicsRequest.getURL, (req: Request, res: Response) => {
     topics
         .then((result) => {
             if (result === null) {
-                res.status(503).send();
+                res.status(500).send();
             } else {
                 res.json(new TopicsCallBack(result));
             }

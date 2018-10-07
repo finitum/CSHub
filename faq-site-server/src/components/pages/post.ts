@@ -18,7 +18,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
     const postRequest: IPostRequest = req.body as IPostRequest;
     const isReducedRequest: boolean = postRequest.isReduced;
 
-    hasAccessToPost(postRequest.postId, req.cookies["token"])
+    hasAccessToPost(postRequest.postHash, req.cookies["token"])
         .then((approved: boolean) => {
             if (!approved) {
                 res.status(401).send();
@@ -27,11 +27,12 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
         })
         .then((topicsResult) => {
             if (topicsResult === null) {
-                res.status(503).send();
+                res.status(500).send();
             } else {
                 query(`
                   SELECT T1.datetime,
                          T1.title,
+                         T1.hash,
                          T1.upvotes,
                          T2.id        AS authorId,
                          T2.firstname AS authorFirstName,
@@ -51,9 +52,9 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                          INNER JOIN users T2 ON T1.author = T2.id
                          INNER JOIN topics T3 ON T1.topic = T3.id
                          LEFT JOIN users T4 ON T1.approvedBy = T4.id
-                  WHERE T1.id = ?
+                  WHERE T1.hash = ?
                   ORDER BY datetime DESC
-                `, postRequest.postId)
+                `, postRequest.postHash)
                     .then((post: DatabaseResultSet) => {
 
                         const postsObj: IPost = null;
@@ -106,11 +107,16 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                     });
                                 }
 
+                                if (currEdits.length === 0) {
+                                    res.status(500).send();
+                                }
+
                                 const postBase: IPostBase = {
                                     topic: topicsResult.find(x => x.id === post.getNumberFromDB("topicId")),
                                     datetime: post.getStringFromDB("datetime"),
                                     title: post.getStringFromDB("title"),
                                     upvotes: post.getNumberFromDB("upvotes"),
+                                    hash: post.getNumberFromDB("hash"),
                                     id: post.getNumberFromDB("id"),
                                     author: {
                                         id: post.getNumberFromDB("authorId"),
@@ -141,15 +147,15 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                         rejectedReason: post.getStringFromDB("rejectedReason")
                                     };
 
-                                    res.json(new PostCallBack(postsObj));
+                                    res.json(new PostCallBack(postObj));
 
                                 }
                             })
                             .catch(err => {
-                                res.status(503).send();
+                                res.status(500).send();
                             });
                     })
-                    .catch(err => res.status(503).send());
+                    .catch(err => res.status(500).send());
             }
         });
 });
