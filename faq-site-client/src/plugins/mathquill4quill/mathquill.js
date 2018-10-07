@@ -8,7 +8,7 @@
  * one at http://mozilla.org/MPL/2.0/.
  */
 
-(function() {
+export function mathquill() {
 
 var jQuery = window.jQuery,
   undefined,
@@ -126,7 +126,7 @@ var P = (function(prototype, ownProperty, undefined) {
 
   return function P(_superclass /* = Object */, definition) {
     // handle the case where no superclass is given
-    if (definition === undefined || _superclass === undefined) {
+    if (definition === undefined) {
       definition = _superclass;
       _superclass = Object;
     }
@@ -971,6 +971,7 @@ function getInterface(v) {
   function MQ(el) {
     if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
       // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
+    //console.log($);
     var blockId = $(el).children('.mq-root-block').attr(mqBlockId);
     var ctrlr = blockId && Node.byId[blockId].controller;
     return ctrlr ? APIClasses[ctrlr.KIND_OF_MQ](ctrlr) : null;
@@ -4932,4 +4933,4 @@ for (var key in MQ1) (function(key, val) {
   else MathQuill[key] = val;
 }(key, MQ1[key]));
 
-}());
+}
