@@ -1,26 +1,31 @@
 <template>
+    <div>
+        <PostPreview v-for="postId in postIds" :key="postId.index" :postId="postId"></PostPreview>
+    </div>
 </template>
 
 <script lang="ts">
     import Vue from "vue";
 
-    import {GetIndexCallBack, GetIndexRequest} from "../../../faq-site-shared/api-calls";
-    import {IPost} from "../../../faq-site-shared/models";
+    import PostPreview from "../components/posts/PostPreview.vue";
+
+    import {IndexCallBack, IndexRequest} from "../../../faq-site-shared/api-calls";
 
     import {ApiWrapper} from "../plugins/api/api-wrapper";
+    import {LogObjectConsole} from "../plugins";
 
     export default Vue.extend({
         name: "Index",
+        components: {PostPreview},
         data() {
             return {
-                posts: [] as IPost[]
+                postIds: [] as number[]
             };
         },
         mounted() {
-            ApiWrapper.sendGetRequest(new GetIndexRequest(), (callbackData: GetIndexCallBack) => {
-                this.posts = callbackData.posts;
-
-                console.log(this.posts);
+            ApiWrapper.sendGetRequest(new IndexRequest(), (callbackData: IndexCallBack) => {
+                this.postIds = callbackData.postIds;
+                LogObjectConsole(callbackData.postIds, "Index postids");
             });
         }
     });

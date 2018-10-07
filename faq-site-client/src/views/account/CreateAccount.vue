@@ -60,7 +60,7 @@
 <script lang="ts">
     import Vue from "vue";
 
-    import {emailValidator, ApiWrapper, LogConsole} from "../../plugins/index";
+    import {emailValidator, ApiWrapper, LogStringConsole} from "../../plugins/index";
 
     import {
         CreateAccountRequest,
@@ -97,10 +97,10 @@
                                 if (callbackData.response === CreateAccountResponses.SUCCESS) {
                                     router.push(Routes.LOGIN);
                                 } else if (callbackData.response === CreateAccountResponses.ALREADYEXISTS) {
-                                    LogConsole("Account already exists");
+                                    LogStringConsole("Account already exists");
                                     this.userData.emailerror = "Account already exists.";
                                 } else if (callbackData.response === CreateAccountResponses.INVALIDINPUT) {
-                                    LogConsole("Invalid input");
+                                    LogStringConsole("Invalid input");
                                     this.userData.emailerror = "Invalid input.";
                                 }
                             });
