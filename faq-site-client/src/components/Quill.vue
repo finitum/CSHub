@@ -36,34 +36,78 @@
       data() {
           return {
               editor: {},
-              content: "Hello",
-              editorOptions: {
+              content: "Type here...",
+              _options: {},
+              defaultOptions: {
                   theme: "snow",
                   modules: {
                       formula: true,
-                      toolbar: [['formula']]
+                      toolbar: [
+                          ['bold', 'italic', 'underline', 'strike'],
+                          ['blockquote', 'code-block'],
+                          [{ 'header': 1 }, { 'header': 2 }],
+                          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                          [{ 'script': 'sub' }, { 'script': 'super' }],
+                          [{ 'indent': '-1' }, { 'indent': '+1' }],
+                          [{ 'direction': 'rtl' }],
+                          [{ 'size': ['small', false, 'large', 'huge'] }],
+                          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                          [{ 'color': [] }, { 'background': [] }],
+                          [{ 'font': [] }],
+                          [{ 'align': [] }],
+                          ['clean'],
+                          ['link', 'image'],
+                          ['formula']
+                      ]
                   }
               }
           };
       },
       props: {
-        options: {
-            type: Object,
-            required: false,
-            default: () => ({})
-        }
+          value: String,
+          disabled: {
+              type: Boolean,
+              default: false
+          },
+          options: {
+              type: Object,
+              required: false,
+              default: () => ({})
+          }
       },
 
       mounted() {
-          (window as any)["jQuery"] = JQuery;
-          (window as any)["katex"] = katex;
+          this.initRequirements();
+          this.initQuill();
+      },
+      methods: {
+          initRequirements(){
+              (window as any)["jQuery"] = JQuery;
+              (window as any)["katex"] = katex;
 
-          mathquill();
-          mathquill4quill((Quill as any), (window as any)["MathQuill"]);
+              mathquill();
+              mathquill4quill((Quill as any), (window as any)["MathQuill"]);
+          },
+          initQuill(){
+              // Options
+              this._options = Object.assign({}, this.defaultOptions, this.options);
 
-          this.editor = new Quill("#editor", this.editorOptions);
+              this.editor = new Quill("#editor", this._options);
+              this.editor.enableMathQuillFormulaAuthoring();
 
-          this.editor.enableMathQuillFormulaAuthoring();
+              this.editor.enable(false);
+
+              // Set content
+              if (this.value || this.content) {
+                  this.editor.pasteHTML(this.value || this.content)
+              }
+
+              if(!this.disabled){
+                  this.editor.enable(true)
+              }
+
+
+          }
       }
   });
 </script>
