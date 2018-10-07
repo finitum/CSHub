@@ -2,17 +2,13 @@
     <v-app id="app">
         <NavDrawer></NavDrawer>
         <Toolbar></Toolbar>
-        <v-content>
-            <v-container fluid fill-height class="grey lighten-4">
-                <v-layout justify-center align-center>
-                    <transition
-                            name="componentChange"
-                            :enter-active-class="activeclass"
-                    >
-                        <router-view></router-view>
-                    </transition>
-                </v-layout>
-            </v-container>
+        <v-content class="grey lighten-4">
+            <transition
+                    name="componentChange"
+                    :enter-active-class="activeclass"
+            >
+                <router-view></router-view>
+            </transition>
         </v-content>
     </v-app>
 </template>
@@ -47,11 +43,13 @@
             };
         },
         watch: {
-            '$route' (to: Route, from: Route) {
+            $route(to: Route, from: Route) {
                 if (from.fullPath === Routes.INDEX && to.name === "post") {
-                    this.activeclass = ""
+                    this.activeclass = "";
+                } else if (to.fullPath === Routes.INDEX && from.name === "post") {
+                    this.activeclass = "";
                 } else {
-                    this.activeclass = "animated fadeInLeft"
+                    this.activeclass = "animated fadeInLeft";
                 }
             }
         }
