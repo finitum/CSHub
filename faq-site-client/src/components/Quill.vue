@@ -1,12 +1,14 @@
 <template>
   <v-card>
-    <v-card-title>
+    <v-card-title class="title font-weight-regular justify-space-between">
       <span>Editor</span>
     </v-card-title>
 
     <v-card-text>
-      <div id="editor"></div>
-
+        <div id="editor"></div>
+        <br />
+        <v-btn color="error" @click="cancelEditor">Cancel</v-btn>
+        <v-btn class="confirm" color="success" @click="saveEditor">Confirm</v-btn>
     </v-card-text>
   </v-card>
 </template>
@@ -32,10 +34,11 @@
       data() {
           return {
               editor: {},
-              content: "Type here...",
+              content: "",
               _options: {},
               defaultOptions: {
                   theme: "snow",
+                  placeholder: "Type here ...",
                   modules: {
                       formula: true,
                       toolbar: [
@@ -101,12 +104,26 @@
               if (!this.disabled) {
                   (this.editor as any).enable(true);
               }
-
-
+          },
+          saveEditor() {
+              this.$emit("saved");
+          },
+          cancelEditor() {
+              this.$emit("canceled");
           }
       }
   });
 </script>
 
 <style scoped>
+.confirm {
+  float: right;
+}
+#editor {
+  min-height: 100px;
+  height: 60vh;
+
+  min-width: 700px;
+  width: 70vw;
+}
 </style>
