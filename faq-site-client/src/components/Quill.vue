@@ -18,14 +18,18 @@
   import "quill/dist/quill.snow.css";
   import "quill/dist/quill.bubble.css";
 
+  import JQuery from "jquery";
+
   import Quill from "quill";
 
-  import "../plugins/mathquill4quill/mathquill"
+  import {mathquill} from "../plugins/mathquill4quill/mathquill"
+  import "../plugins/mathquill4quill/mathquill.css"
+
 
   import "katex/dist/katex.min.css"
-  import "katex/dist/katex.min.js"
+  import katex from "katex/dist/katex.min.js"
 
-  import "../plugins/mathquill4quill/mathquill4quill"
+  import {mathquill4quill} from "../plugins/mathquill4quill/mathquill4quill"
 
   export default Vue.extend({
       name: "Quill",
@@ -49,10 +53,22 @@
             default: () => ({})
         }
       },
+
       mounted() {
-          //window["katex"] = katex;
+          window["jQuery"] = JQuery;
+
+          window["katex"] = katex;
+          //window["Quill"] = Quill;
+
+          mathquill();
+
+          mathquill4quill(Quill, window.MathQuill);
+
+
 
           this.editor = new Quill("#editor", this.editorOptions);
+
+          this.editor.enableMathQuillFormulaAuthoring();
       }
   });
 </script>

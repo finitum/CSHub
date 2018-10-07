@@ -1,4 +1,4 @@
-(function(Quill, MathQuill) {
+export function mathquill4quill(Quill, MathQuill) {
 
   function insertAfter(newNode, referenceNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
@@ -73,4 +73,4 @@
     });
   };
 
-})(window.Quill, window.MathQuill);
+}
