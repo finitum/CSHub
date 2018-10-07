@@ -5,12 +5,15 @@ import LoginScreen from "./account/LoginScreen.vue";
 import CreateAccount from "./account/CreateAccount.vue";
 import Index from "./Index.vue";
 
+import Quill from "../components/Quill.vue"; // TODO: Remove if done with testing
+
 Vue.use(Router);
 
 export enum Routes {
     INDEX = "/",
     LOGIN = "/login",
-    CREATEACCOUNT = "/createaccount"
+    CREATEACCOUNT = "/createaccount",
+    EDITOR = "/editor"
 }
 
 export default new Router({
@@ -31,6 +34,11 @@ export default new Router({
             path: Routes.CREATEACCOUNT,
             name: "createaccount",
             component: CreateAccount
+        },
+        {
+            path: Routes.EDITOR, // TODO: Same as import
+            name: "editor",
+            component: Quill
         }
     ],
 });
