@@ -20,6 +20,7 @@
     "vuex-typex": "^3.0.1"
   },
   "devDependencies": {
+    "@mdi/font": "^2.8.94",
     "@vue/cli-plugin-babel": "^3.0.4",
     "@vue/cli-plugin-pwa": "^3.0.4",
     "@vue/cli-plugin-typescript": "^3.0.4",

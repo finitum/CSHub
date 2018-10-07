@@ -40,7 +40,6 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
                             } else if (result.getNumberFromDB("verified") === 0) {
                                 res.json(new LoginRequestCallBack(LoginResponses.ACCOUNTNOTVERIFIED));
                             } else {
-                                delete result[0].password;
 
                                 const userModel: IUser = {
                                     id: result.getNumberFromDB("id"),
@@ -56,7 +55,7 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
                                 const jwt = sign(userModel);
 
                                 res.cookie("token", jwt, {
-                                    maxAge: 7200
+                                    maxAge: 7200000
                                 });
 
                                 res.json(new LoginRequestCallBack(LoginResponses.SUCCESS, userModel));

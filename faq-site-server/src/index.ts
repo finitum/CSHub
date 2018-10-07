@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-import "./middleware";
+import "./auth/middleware";
 
 let server: http.Server | https.Server;
 

@@ -21,7 +21,7 @@
                     v-model="userData.password"
                     :error-messages="passwordErrors"
                     name="password"
-                    :append-icon="userData.passwordvisible ? 'visibility' : 'visibility_off'"
+                    :append-icon="userData.passwordvisible ? 'mdi-eye' : 'mdi-eye-off'"
                     @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
                     :type="userData.passwordvisible ? 'password' : 'text'"
                     v-validate="'required|min:8'"
@@ -102,7 +102,7 @@
                                         localStorage.setItem(LocalStorageData.EMAIL, this.userData.email);
                                     }
                                     userState.changeUserModel(callbackData.userModel);
-                                    router.push(Routes.INDEX);
+                                    // router.push(Routes.INDEX);
                                 } else if (callbackData.response === LoginResponses.NOEXISTINGACCOUNT) {
                                     LogConsole("Account does not exist");
                                     this.userData.emailerror = "Account does not exist.";

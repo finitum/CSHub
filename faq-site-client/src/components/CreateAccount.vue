@@ -21,7 +21,7 @@
                     v-model="userData.password"
                     :error-messages="errors.collect('password')"
                     name="password"
-                    :append-icon="userData.passwordvisible ? 'visibility' : 'visibility_off'"
+                    :append-icon="userData.passwordvisible ? 'mdi-eye' : 'mdi-eye-off'"
                     @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
                     :type="userData.passwordvisible ? 'password' : 'text'"
                     v-validate="'required|min:8'"
