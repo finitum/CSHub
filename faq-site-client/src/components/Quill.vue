@@ -24,7 +24,13 @@
   import "quill/dist/quill.snow.css";
   import "quill/dist/quill.bubble.css";
 
-  import { quillEditor } from "vue-quill-editor";
+  import katex from "katex";
+  //TODO: Get KaTeX working : https://github.com/surmon-china/vue-quill-editor/issues/280
+  import { quillEditor, Quill } from "vue-quill-editor";
+
+  //import "mathquill";
+  //import "../plugins/mathquill4quill/mathquill4quill";
+
 
   export default Vue.extend({
       name: "Quill",
@@ -32,13 +38,21 @@
           return {
               content: "Hello",
               editorOptions: {
+                  modules: {
+                      //toolbar: [['formula']]
+                  },
                   theme: "snow",
                   toolbar: true
               }
           };
       },
+      props: {
+
+      },
       components: {
           quillEditor
+      },
+      mounted() {
       }
   });
 </script>
