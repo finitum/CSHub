@@ -55,11 +55,11 @@
       },
 
       mounted() {
-          window["jQuery"] = JQuery;
-          window["katex"] = katex;
+          (window as any)["jQuery"] = JQuery;
+          (window as any)["katex"] = katex;
 
           mathquill();
-          mathquill4quill(Quill, window["MathQuill"]);
+          mathquill4quill((Quill as any), (window as any)["MathQuill"]);
 
           this.editor = new Quill("#editor", this.editorOptions);
 
