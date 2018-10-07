@@ -1,32 +1,52 @@
 <template>
-    <v-flex>
-        <PostPreview v-for="postHash in postHashes" :key="postHash.index" :postHash="postHash"></PostPreview>
-    </v-flex>
+    <div>
+        <div v-for="postHash in postHashes" :key="postHash.index">
+            <Post :postHash="postHash" :isFullPost="currentPostHash !== -1" v-if="currentPostHash !== -1 && postHash === currentPostHash || currentPostHash === -1"></Post>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
     import Vue from "vue";
 
-    import PostPreview from "../components/posts/PostPreview.vue";
+    import Post from "../components/posts/Post.vue";
 
     import {IndexCallBack, IndexRequest} from "../../../faq-site-shared/api-calls";
 
     import {ApiWrapper} from "../plugins/api/api-wrapper";
     import {LogObjectConsole} from "../plugins";
+    import router, {Routes} from "../views/router";
+    import {Route} from "vue-router";
 
     export default Vue.extend({
         name: "Index",
-        components: {PostPreview},
+        components: {Post},
         data() {
             return {
-                postHashes: [] as number[]
+                postHashes: [] as number[],
+                currentPostHash: -1 as number
             };
         },
+        watch: {
+            $route(to: Route, from: Route) {
+                if (from.fullPath === Routes.INDEX && to.name === "post") {
+                    this.currentPostHash = +(to.params as any).hash;
+                } else if (to.fullPath === Routes.INDEX && from.name === "post") {
+                    this.currentPostHash = -1;
+                }
+            }
+        },
         mounted() {
-            ApiWrapper.sendGetRequest(new IndexRequest(), (callbackData: IndexCallBack) => {
-                this.postHashes = callbackData.postHashes;
-                LogObjectConsole(callbackData.postHashes, "Index posthashes");
-            });
+
+            if (router.currentRoute.name === "post") {
+                this.currentPostHash = +(router.currentRoute.params as any).hash;
+                this.postHashes = [this.currentPostHash];
+            } else {
+                ApiWrapper.sendGetRequest(new IndexRequest(), (callbackData: IndexCallBack) => {
+                    this.postHashes = callbackData.postHashes;
+                    LogObjectConsole(callbackData.postHashes, "Index posthashes");
+                });
+            }
         }
     });
 </script>
