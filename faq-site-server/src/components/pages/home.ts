@@ -1,7 +1,7 @@
 import async from "async";
 import {Request, Response} from "express";
 
-import {app} from "../../";
+import {app, logger} from "../../";
 import {DatabaseResultSet, query} from "../../database-connection";
 
 import {IndexCallBack, IndexRequest} from "../../../../faq-site-shared/api-calls";
@@ -14,6 +14,7 @@ app.get(IndexRequest.getURL, (req: Request, res: Response) => {
     topics
         .then((topicsResult) => {
             if (topicsResult === null) {
+                logger.error(`No topics found, so can't get posts`);
                 res.status(500).send();
             } else {
                 query(`
@@ -36,6 +37,7 @@ app.get(IndexRequest.getURL, (req: Request, res: Response) => {
                         res.json(callbackObj);
                     })
                     .catch(err => {
+                        logger.error(`Getting posts hash failed`);
                         res.status(500).send();
                     });
             }

@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 
-import {app} from "../../";
+import {app, logger} from "../../";
 import {DatabaseResultSet, query} from "../../database-connection";
 
 import {ITopic} from "../../../../faq-site-shared/models";
@@ -12,6 +12,7 @@ app.get(TopicsRequest.getURL, (req: Request, res: Response) => {
     topics
         .then((result) => {
             if (result === null) {
+                logger.error(`No topics found`);
                 res.status(500).send();
             } else {
                 res.json(new TopicsCallBack(result));
@@ -21,7 +22,7 @@ app.get(TopicsRequest.getURL, (req: Request, res: Response) => {
 
 export const getTopics = (): Promise<ITopic[] | null> => {
     return query(`
-      SELECT id, parentid, name
+      SELECT id, parentid, name, hash
       FROM topics
     `)
         .then((topics: DatabaseResultSet) => {
@@ -40,7 +41,8 @@ export const getTopics = (): Promise<ITopic[] | null> => {
 
                         const currTopic: ITopic = {
                             name: DatabaseResultSet.getStringFromDB("name", topic),
-                            id: DatabaseResultSet.getNumberFromDB("id", topic)
+                            id: DatabaseResultSet.getNumberFromDB("id", topic),
+                            hash: DatabaseResultSet.getNumberFromDB("hash", topic)
                         };
 
                         if (children !== null) {
@@ -62,7 +64,8 @@ export const getTopics = (): Promise<ITopic[] | null> => {
 
                 const currTopic: ITopic = {
                     name: DatabaseResultSet.getStringFromDB("name", topic),
-                    id: DatabaseResultSet.getNumberFromDB("id", topic)
+                    id: DatabaseResultSet.getNumberFromDB("id", topic),
+                    hash: DatabaseResultSet.getNumberFromDB("hash", topic)
                 };
 
                 if (children !== null) {

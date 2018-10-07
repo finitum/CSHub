@@ -1,3 +1,21 @@
+import winston, {format} from "winston";
+
+export const logger = winston.createLogger({
+    level: "info",
+    format: format.combine(
+        format.timestamp(),
+        format.json()
+    ),
+    transports: [
+        new winston.transports.File({ filename: "logs/error.log", level: "error" }),
+        new winston.transports.File({ filename: "logs/combined.log" })
+    ]
+});
+
+logger.add(new winston.transports.Console({
+    format: winston.format.simple()
+}));
+
 import {Settings} from "./settings";
 
 import https from "https";
@@ -50,4 +68,4 @@ app.use(express.static("../faq-site-client/dist"));
 
 import "./components";
 
-console.log("Express server started");
+logger.info("Express server started");

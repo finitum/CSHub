@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import {Request, Response} from "express";
 
-import {app} from "../../";
+import {app, logger} from "../../";
 
 import {CreateAccountRequest, CreateAccountRequestCallBack, CreateAccountResponses} from "../../../../faq-site-shared/api-calls";
 import {validateMultipleInputs} from "../../utilities/string-utils";
@@ -40,6 +40,7 @@ app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
                                 res.json(new CreateAccountRequestCallBack(CreateAccountResponses.SUCCESS));
                             })
                             .catch(err => {
+                                logger.error(`Inserting into users table failed`);
                                 res.status(500).send();
                             });
                     });
@@ -48,6 +49,7 @@ app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
                 }
             })
             .catch(err => {
+                logger.error(`Selecting from users failed`);
                 res.status(500).send();
             });
 

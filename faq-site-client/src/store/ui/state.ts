@@ -5,17 +5,11 @@ export interface IUIState {
     navbar: {
         open: boolean
     };
-    post: {
-        height: number;
-    };
 }
 
 export const UIState: IUIState = {
     navbar: {
         open: null
-    },
-    post: {
-        height: 220
     }
 };
 

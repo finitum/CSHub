@@ -1,4 +1,4 @@
-import {app} from "../../";
+import {app, logger} from "../../";
 import {Request, Response} from "express";
 import {
     IPostRequest,
@@ -27,6 +27,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
         })
         .then((topicsResult) => {
             if (topicsResult === null) {
+                logger.error(`No topics found, so can't get post data`);
                 res.status(500).send();
             } else {
                 query(`
@@ -38,6 +39,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                          T2.firstname AS authorFirstName,
                          T2.lastname  AS authorLastName,
                          T2.avatar    AS authorAvatar,
+                         T2.admin     AS authorAdmin,
                          T3.name,
                          T3.id        AS topicId,
                          T1.id,
@@ -47,7 +49,8 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                          T4.id        AS approvedById,
                          T4.firstname AS approvedByFirstName,
                          T4.lastname  AS approvedByLastName,
-                         T4.avatar    AS approvedByAvatar
+                         T4.avatar    AS approvedByAvatar,
+                         T4.admin     AS approvedByAdmin
                   FROM posts T1
                          INNER JOIN users T2 ON T1.author = T2.id
                          INNER JOIN topics T3 ON T1.topic = T3.id
@@ -66,11 +69,13 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                  T2.firstname                   AS editedByFirstName,
                                  T2.lastname                    AS editedByLastName,
                                  T2.avatar                      AS editedByAvatar,
+                                 T2.admin                       AS editedByAdmin,
                                  T1.approved,
                                  T3.id                          AS approvedById,
                                  T3.firstname                   AS approvedByFirstName,
                                  T3.lastname                    AS approvedByLastName,
                                  T3.avatar                      AS approvedByAvatar,
+                                 T3.admin                       AS approvedByAdmin,
                                  T1.rejectedReason,
                                  T1.datetime
                           FROM edits T1
@@ -92,14 +97,16 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                             id: edit.getNumberFromDB("editedById"),
                                             firstname: edit.getStringFromDB("editedByFirstName"),
                                             lastname: edit.getStringFromDB("editedByLastName"),
-                                            avatar: edit.getStringFromDB("editedByAvatar")
+                                            avatar: edit.getStringFromDB("editedByAvatar"),
+                                            admin: edit.getNumberFromDB("authorAdmin") === 1
                                         },
                                         approved: edit.getNumberFromDB("approved") === 1,
                                         approvedBy: {
                                             id: edit.getNumberFromDB("approvedById"),
                                             firstname: edit.getStringFromDB("approvedByFirstName"),
                                             lastname: edit.getStringFromDB("approvedByLastName"),
-                                            avatar: edit.getStringFromDB("approvedByAvatar")
+                                            avatar: edit.getStringFromDB("approvedByAvatar"),
+                                            admin: edit.getNumberFromDB("approvedByAdmin") === 1
                                         },
                                         rejectedReason: edit.getStringFromDB("rejectedReason"),
                                         id: edit.getNumberFromDB("id"),
@@ -108,6 +115,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                 }
 
                                 if (currEdits.length === 0) {
+                                    logger.error(`No edits found`);
                                     res.status(500).send();
                                 }
 
@@ -122,7 +130,8 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                         id: post.getNumberFromDB("authorId"),
                                         firstname: post.getStringFromDB("authorFirstName"),
                                         lastname: post.getStringFromDB("authorLastName"),
-                                        avatar: post.getStringFromDB("authorAvatar")
+                                        avatar: post.getStringFromDB("authorAvatar"),
+                                        admin: post.getNumberFromDB("authorAdmin") === 1
                                     }
                                 };
 
@@ -141,7 +150,8 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                             id: post.getNumberFromDB("approvedById"),
                                             firstname: post.getStringFromDB("approvedByFirstName"),
                                             lastname: post.getStringFromDB("approvedByLastName"),
-                                            avatar: post.getStringFromDB("approvedByAvatar")
+                                            avatar: post.getStringFromDB("approvedByAvatar"),
+                                            admin: post.getNumberFromDB("approvedByAdmin") === 1
                                         },
                                         edits: currEdits,
                                         rejectedReason: post.getStringFromDB("rejectedReason")
@@ -152,10 +162,14 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                 }
                             })
                             .catch(err => {
+                                logger.error(`Retreiving edit data failed`);
                                 res.status(500).send();
                             });
                     })
-                    .catch(err => res.status(500).send());
+                    .catch(err => {
+                        logger.error(`Retreiving post data failed`);
+                        res.status(500).send();
+                    });
             }
         });
 });

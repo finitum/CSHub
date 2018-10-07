@@ -11,7 +11,8 @@ export enum Routes {
     INDEX = "/",
     LOGIN = "/login",
     CREATEACCOUNT = "/createaccount",
-    POST = "/post"
+    POST = "/post",
+    TOPIC = "/topic"
 }
 
 export default new Router({
