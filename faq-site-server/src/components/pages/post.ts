@@ -9,7 +9,7 @@ import {
 } from "../../../../faq-site-shared/api-calls";
 import {IEdit, IPost, IPostBase, IPostReduced} from "../../../../faq-site-shared/models";
 
-import {getTopics} from "./topics";
+import {getTopicFromId, getTopics} from "./topics";
 import {DatabaseResultSet, query} from "../../database-connection";
 import {hasAccessToPost} from "../../auth/validateRights/post";
 
@@ -120,7 +120,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                 }
 
                                 const postBase: IPostBase = {
-                                    topic: topicsResult.find(x => x.id === post.getNumberFromDB("topicId")),
+                                    topic: getTopicFromId(post.getNumberFromDB("topicId"), topicsResult),
                                     datetime: post.getStringFromDB("datetime"),
                                     title: post.getStringFromDB("title"),
                                     upvotes: post.getNumberFromDB("upvotes"),

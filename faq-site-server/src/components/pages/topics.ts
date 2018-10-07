@@ -20,6 +20,20 @@ app.get(TopicsRequest.getURL, (req: Request, res: Response) => {
         });
 });
 
+export const getTopicFromId = (topicId: number, topics: ITopic[]) => {
+    for (const topic of topics) {
+        if (topic.id === topicId) {
+            return topic;
+        } else if (topic.children !== undefined) {
+            const currTopic =  getTopicFromId(topicId, topic.children);
+            if (currTopic !== null) {
+                return currTopic;
+            }
+        }
+    }
+    return null;
+};
+
 export const getTopics = (): Promise<ITopic[] | null> => {
     return query(`
       SELECT id, parentid, name, hash
