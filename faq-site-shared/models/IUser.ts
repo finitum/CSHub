@@ -1,6 +1,6 @@
 export interface IUser extends IUserCensored {
     email: string;
-    rank: number;
+    admin: boolean;
     blocked: number;
     verified: number;
 }
