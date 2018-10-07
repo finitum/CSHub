@@ -101,9 +101,15 @@
                   (this.editor as any).pasteHTML(this.value || this.content);
               }
 
+              // Make Image Handler
+              this.editor.getModule("toolbar").addHandler("image", this.imgHandler);
+
               if (!this.disabled) {
                   (this.editor as any).enable(true);
               }
+          },
+          imgHandler(){
+            console.log("Image handler called")
           },
           saveEditor() {
               this.$emit("saved");
