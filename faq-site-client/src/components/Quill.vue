@@ -4,13 +4,7 @@
       <span>Editor</span>
     </v-card-title>
 
-    <v-card-text>
-      <quill-editor
-              ref="editor"
-              :options="editorOptions"
-              v-model="content">
-
-      </quill-editor>
+    <v-card-text id="editor">
 
     </v-card-text>
   </v-card>
@@ -24,35 +18,41 @@
   import "quill/dist/quill.snow.css";
   import "quill/dist/quill.bubble.css";
 
-  import katex from "katex";
-  //TODO: Get KaTeX working : https://github.com/surmon-china/vue-quill-editor/issues/280
-  import { quillEditor, Quill } from "vue-quill-editor";
+  import Quill from "quill";
 
-  //import "mathquill";
-  //import "../plugins/mathquill4quill/mathquill4quill";
+  import "../plugins/mathquill4quill/mathquill"
 
+  import "katex/dist/katex.min.css"
+  import "katex/dist/katex.min.js"
+
+  import "../plugins/mathquill4quill/mathquill4quill"
 
   export default Vue.extend({
       name: "Quill",
       data() {
           return {
+              editor: {},
               content: "Hello",
               editorOptions: {
-                  modules: {
-                      //toolbar: [['formula']]
-                  },
                   theme: "snow",
-                  toolbar: true
+                  modules: {
+                      formula: true,
+                      toolbar: [['formula']]
+                  }
               }
           };
       },
       props: {
-
-      },
-      components: {
-          quillEditor
+        options: {
+            type: Object,
+            required: false,
+            default: () => ({})
+        }
       },
       mounted() {
+          //window["katex"] = katex;
+
+          this.editor = new Quill("#editor", this.editorOptions);
       }
   });
 </script>
