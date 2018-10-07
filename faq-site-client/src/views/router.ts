@@ -1,9 +1,9 @@
 import Vue from "vue";
 import Router from "vue-router";
 
-import LoginScreen from "./components/LoginScreen.vue";
-import CreateAccount from "./components/CreateAccount.vue";
-import Index from "./components/Index.vue";
+import LoginScreen from "./account/LoginScreen.vue";
+import CreateAccount from "./account/CreateAccount.vue";
+import Index from "./Index.vue";
 
 Vue.use(Router);
 
