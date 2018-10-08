@@ -5,6 +5,6 @@ export const setTopics = (state: IDataState, payload: ITopic[]) => {
     state.topics = payload;
 };
 
-export const setQuillContents = (state: IDataState, payload: object) => {
+export const setQuillContents = (state: IDataState, payload: object[]) => {
     state.quillContents = payload;
 };
