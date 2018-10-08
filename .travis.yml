@@ -27,5 +27,6 @@ matrix:
         - tsc
 
 cache:
-    - faq-site-client/node_modules
-    - faq-site-server/node_modules
+    directories:
+        - faq-site-client/node_modules
+        - faq-site-server/node_modules
