@@ -102,8 +102,10 @@
               (this.editor as any).on("text-change", this.textChanged);
           },
           saveEditor() {
-              const content = (this.editor as any).getContents();
+              // Stores delta type object into the store
+              // Documentation: https://quilljs.com/docs/delta/
 
+              const content = (this.editor as any).getContents();
               dataState.setQuillContents(content); // Why does this give an error
 
               this.$emit("saved");
@@ -112,11 +114,8 @@
               this.$emit("canceled");
           },
           textChanged(delta: object, oldDelta: object, source: string) {
-              // Documentation: https://quilljs.com/docs/delta/#changes
-              // console.log("Delta: " + JSON.stringify(delta)); // Delta is the single changed made that triggered this function
-              // console.log("OldDelta: " + JSON.stringify(oldDelta)); // OldDelta is everything that was typed previous to the edit
-              // TODO: Store Contents or Deltas in the store (or both?)
-
+              // Delta is the single changed made that triggered this function
+              // OldDelta is everything that was typed previous to the edit
               this.$emit("textChanged");
           }
       }
