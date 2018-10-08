@@ -187,6 +187,10 @@
 .confirm {
   float: right; /* Push confirm button to the right (can this be done cleaner with vuetify? */
 }
+.toolbar, .editor {
+  border: none;
+}
+
 .editor {
   /* Specify a sane default height */
   min-height: 100px;
