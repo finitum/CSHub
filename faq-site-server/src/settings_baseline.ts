@@ -19,7 +19,7 @@ export interface ISettings {
 
 }
 
-const SettingsBaseline: ISettings = {
+export const Settings: ISettings = {
     LIVE: true,
     DATABASE: {
         HOST: "",
