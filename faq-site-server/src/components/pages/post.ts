@@ -45,7 +45,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                          T2.avatar    AS authorAvatar,
                          T2.admin     AS authorAdmin,
                          T3.name,
-                         T3.id        AS topicId,
+                         T3.hash        AS topicHash,
                          T1.id,
                          T1.approved,
                          T1.approvedBy,
@@ -127,7 +127,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                 // Create the postBase object, it will be expanded depending on the type of request (Preview or full, preview has less data)
                                 // The author is of typed IUserCensored as it protects a bit of privacy, it doesn't get all their data, just name and avatar
                                 const postBase: IPostBase = {
-                                    topic: getTopicFromHash(post.getNumberFromDB("topicId"), topicsResult),
+                                    topic: getTopicFromHash(post.getNumberFromDB("topicHash"), topicsResult),
                                     datetime: post.getStringFromDB("datetime"),
                                     title: post.getStringFromDB("title"),
                                     upvotes: post.getNumberFromDB("upvotes"),

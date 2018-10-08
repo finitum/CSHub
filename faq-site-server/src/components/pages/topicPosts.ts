@@ -44,6 +44,7 @@ app.post(TopicPostsRequest.getURL, (req: Request, res: Response) => {
                     topicHashes = getChildHashes([currTopic]);
                 }
 
+                // Retreiving all post hashes of the current topic
                 query(`
                   SELECT T1.hash
                   FROM posts T1

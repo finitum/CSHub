@@ -27,6 +27,8 @@ export enum CustomValidatorReponseTypes {
     TUEMAIL
 }
 
+// This validates the input string based on a few types which can be added to. By default, nullemptyundefined is always on
+// It will return a response which tells it if it's valid, gives the enum of the error and the value of the string is something is wrong
 export const customValidator = (input: ICustomValidatorInput): ICustomValidatorResponse => {
 
     if (input.validationObject === undefined) {
@@ -55,6 +57,7 @@ export const customValidator = (input: ICustomValidatorInput): ICustomValidatorR
 
 };
 
+// It will validate multiple inputs, and when the first one gives an error, that will be the one that is returned in the response object
 export const validateMultipleInputs = (...inputs: ICustomValidatorInput[]): ICustomValidatorResponse => {
     for (const input of inputs) {
         const validationResult = customValidator(input);
