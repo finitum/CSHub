@@ -14,6 +14,7 @@ export enum Routes {
     LOGIN = "/login",
     CREATEACCOUNT = "/createaccount",
     EDITOR = "/editor",
+    POST = "/post",
     TOPIC = "/topic"
 }
 
