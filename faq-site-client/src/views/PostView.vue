@@ -11,10 +11,9 @@
 
     import Post from "../components/posts/Post.vue";
 
-    import {IndexCallBack, IndexRequest} from "../../../faq-site-shared/api-calls";
+    import {TopicPostsCallBack, TopicPostsRequest} from "../../../faq-site-shared/api-calls";
 
-    import {ApiWrapper} from "../plugins/api/api-wrapper";
-    import {LogObjectConsole} from "../plugins";
+    import {ApiWrapper, LogObjectConsole} from "../utilities";
     import router, {Routes} from "../views/router";
     import {Route} from "vue-router";
 
@@ -42,7 +41,7 @@
                 this.currentPostHash = +(router.currentRoute.params as any).hash;
                 this.postHashes = [this.currentPostHash];
             } else {
-                ApiWrapper.sendGetRequest(new IndexRequest(), (callbackData: IndexCallBack) => {
+                ApiWrapper.sendPostRequest(new TopicPostsRequest(0, 0), (callbackData: TopicPostsCallBack) => {
                     this.postHashes = callbackData.postHashes;
                     LogObjectConsole(callbackData.postHashes, "Index posthashes");
                 });

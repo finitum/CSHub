@@ -23,7 +23,7 @@
                             :size="50"
                             :class="{adminBorder: postReduced.author.admin}"
                     >
-                        <img src="https://www.w3schools.com/howto/img_avatar.png" alt="avatar">
+                        <img :src="postReduced.author.avatar" alt="avatar">
                     </v-avatar>
                 </v-badge>
                 <div>
@@ -47,7 +47,7 @@
     import Vue from "vue";
     import {Route} from "vue-router";
 
-    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../plugins";
+    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
     import {
         PostCallBack,
         PostPreviewCallBack,
@@ -93,7 +93,7 @@
         methods: {
             getParentTopic(child: ITopic, topics: ITopic[]): ITopic {
                 for (const topic of topics) {
-                    if (topic.children !== undefined && topic.children.findIndex(x => x.id === child.id) !== -1) {
+                    if (topic.children !== undefined && topic.children.findIndex((x) => x.id === child.id) !== -1) {
                         return topic;
                     } else if (topic.children !== undefined && topic.children.length > 0) {
                         const currTopic = this.getParentTopic(child, topic.children);
@@ -159,7 +159,7 @@
         position: relative;
         width: 90%;
         overflow: hidden;
-        margin: 5%;
+        margin: 20px 5% 20px 5%;
         max-height: 220px;
     }
 

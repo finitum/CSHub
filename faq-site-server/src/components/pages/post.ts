@@ -9,27 +9,31 @@ import {
 } from "../../../../faq-site-shared/api-calls";
 import {IEdit, IPost, IPostBase, IPostReduced} from "../../../../faq-site-shared/models";
 
-import {getTopicFromId, getTopics} from "./topics";
+import {getTopicFromHash, getTopicTree} from "./topics";
 import {DatabaseResultSet, query} from "../../database-connection";
 import {hasAccessToPost} from "../../auth/validateRights/post";
 
 app.post(PostRequest.getURL, (req: Request, res: Response) => {
 
     const postRequest: IPostRequest = req.body as IPostRequest;
+
+    // If it just wants the preview object, it can be a 'reduced' object, it won't get all the info and edits
     const isReducedRequest: boolean = postRequest.isReduced;
 
+    // Check if the user actually has access to the post
     hasAccessToPost(postRequest.postHash, req.cookies["token"])
         .then((approved: boolean) => {
             if (!approved) {
                 res.status(401).send();
             }
-            return getTopics();
+            return getTopicTree();
         })
         .then((topicsResult) => {
             if (topicsResult === null) {
                 logger.error(`No topics found, so can't get post data`);
                 res.status(500).send();
             } else {
+                // Get all the post data from database
                 query(`
                   SELECT T1.datetime,
                          T1.title,
@@ -89,6 +93,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
 
                                 const currEdits: IEdit[] = [];
 
+                                // Loop through the edits and construct the edit object
                                 for (const edit of edits.convertRowsToResultObjects()) {
                                     currEdits.push({
                                         parentPostId: post.getNumberFromDB("id"),
@@ -119,8 +124,10 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                     res.status(500).send();
                                 }
 
+                                // Create the postBase object, it will be expanded depending on the type of request (Preview or full, preview has less data)
+                                // The author is of typed IUserCensored as it protects a bit of privacy, it doesn't get all their data, just name and avatar
                                 const postBase: IPostBase = {
-                                    topic: getTopicFromId(post.getNumberFromDB("topicId"), topicsResult),
+                                    topic: getTopicFromHash(post.getNumberFromDB("topicId"), topicsResult),
                                     datetime: post.getStringFromDB("datetime"),
                                     title: post.getStringFromDB("title"),
                                     upvotes: post.getNumberFromDB("upvotes"),
@@ -135,6 +142,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                     }
                                 };
 
+                                // Respond with the correct callback
                                 if (isReducedRequest) {
                                     const postObj: IPostReduced = {
                                         ...postBase,
@@ -163,11 +171,13 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                             })
                             .catch(err => {
                                 logger.error(`Retreiving edit data failed`);
+                                logger.error(err);
                                 res.status(500).send();
                             });
                     })
                     .catch(err => {
                         logger.error(`Retreiving post data failed`);
+                        logger.error(err);
                         res.status(500).send();
                     });
             }
