@@ -22,12 +22,13 @@
   import "quill/dist/quill.snow.css";
   import "quill/dist/quill.bubble.css";
   import Quill from "quill";
-  import {mathquill} from "../plugins/quill/mathquill";
-  import "../plugins/quill/mathquill.css";
+  import defaultOptions from "./options";
+  import {mathquill} from "../../plugins/quill/mathquill";
+  import "../../plugins/quill/mathquill.css";
   import "katex/dist/katex.min.css";
   // @ts-ignore
   import katex from "katex/dist/katex.min";
-  import {mathquill4quill} from "../plugins/quill/mathquill4quill";
+  import {mathquill4quill} from "../../plugins/quill/mathquill4quill";
 
   export default Vue.extend({
       name: "Quill",
@@ -36,30 +37,7 @@
               editor: {},
               content: "",
               _options: {},
-              defaultOptions: {
-                  theme: "snow",
-                  placeholder: "Type here ...",
-                  modules: {
-                      formula: true,
-                      toolbar: [
-                          ["bold", "italic", "underline", "strike"],
-                          ["blockquote", "code-block"],
-                          [{ header: 1 }, { header: 2 }],
-                          [{ list: "ordered" }, { list: "bullet" }],
-                          [{ script: "sub" }, { script: "super" }],
-                          [{ indent: "-1" }, { indent: "+1" }],
-                          [{ direction: "rtl" }],
-                          [{ size: ["small", false, "large", "huge"] }],
-                          [{ header: [1, 2, 3, 4, 5, 6, false] }],
-                          [{ color: [] }, { background: [] }],
-                          [{ font: [] }],
-                          [{ align: [] }],
-                          ["clean"],
-                          ["link", "image"],
-                          ["formula"]
-                      ]
-                  }
-              }
+              defaultOptions
           };
       },
       props: {
@@ -101,15 +79,9 @@
                   (this.editor as any).pasteHTML(this.value || this.content);
               }
 
-              // Make Image Handler
-              (this.editor as any).getModule("toolbar").addHandler("image", this.imgHandler);
-
               if (!this.disabled) {
                   (this.editor as any).enable(true);
               }
-          },
-          imgHandler() {
-              console.log("Image handler called");
           },
           saveEditor() {
               this.$emit("saved");
