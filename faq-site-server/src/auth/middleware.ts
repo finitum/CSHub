@@ -18,7 +18,7 @@ app.use((req: Request, res: Response, next: Function) => {
             const newtoken: string = sign(tokenObj.user);
 
             res.cookie("token", newtoken, {
-               maxAge: 7200000
+               maxAge: 7200000 // Two hours
            });
         } else {
             res.clearCookie("token");
