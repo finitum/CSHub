@@ -1,4 +1,4 @@
-# CSEDelft
+# CSEDelft [![Build Status](https://travis-ci.com/RobbinBaauw/FAQSite.svg?branch=master)](https://travis-ci.com/RobbinBaauw/FAQSite)
 This is a project made for the TU Delft CSE studies, where everyone can post information, summaries and more, for everyone to see and read.
 ## Running the project
 * Install [NodeJS](https://nodejs.org/en/), and install the dependencies of the server and client projects
