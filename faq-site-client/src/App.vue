@@ -5,9 +5,12 @@
         <v-content>
             <v-container fluid fill-height class="grey lighten-4">
                 <v-layout justify-center align-center>
-                    <v-flex shrink>
+                    <transition
+                            name="componentChange"
+                            enter-active-class="animated fadeInLeft"
+                    >
                         <router-view></router-view>
-                    </v-flex>
+                    </transition>
                 </v-layout>
             </v-container>
         </v-content>
@@ -15,8 +18,8 @@
 </template>
 
 <script lang="ts">
-    import NavDrawer from "./components/NavDrawer.vue";
-    import Toolbar from "./components/Toolbar.vue";
+    import NavDrawer from "./components/global/NavDrawer.vue";
+    import Toolbar from "./components/global/Toolbar.vue";
 
     import Vue from "vue";
     import uiState from "./store/ui";
@@ -45,4 +48,16 @@
     #app {
         background: white;
     }
+
+    .componentChange-leave-active {
+        opacity: 0;
+    }
+
+    .fadeInLeft {
+        -webkit-animation: fadeInLeft 0.5s;
+        -moz-animation:    fadeInLeft 0.5s;
+        -o-animation:      fadeInLeft 0.5s;
+        animation:         fadeInLeft 0.5s;
+    }
+
 </style>

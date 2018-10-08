@@ -1,13 +1,12 @@
-import async from "async";
 import {Request, Response} from "express";
 
 import {app} from "../../";
 import {DatabaseResultSet, query} from "../../database-connection";
 
 import {ITopic} from "../../../../faq-site-shared/models";
-import {GetTopicsCallBack, GetTopicsRequest} from "../../../../faq-site-shared/api-calls/pages/GetTopicsRequest";
+import {TopicsCallBack, TopicsRequest} from "../../../../faq-site-shared/api-calls/pages/TopicsRequest";
 
-app.get(GetTopicsRequest.getURL, (req: Request, res: Response) => {
+app.get(TopicsRequest.getURL, (req: Request, res: Response) => {
 
     const topics = getTopics();
     topics
@@ -15,7 +14,7 @@ app.get(GetTopicsRequest.getURL, (req: Request, res: Response) => {
             if (result === null) {
                 res.status(503).send();
             } else {
-                res.json(new GetTopicsCallBack(result));
+                res.json(new TopicsCallBack(result));
             }
         });
 });
