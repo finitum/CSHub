@@ -49,6 +49,7 @@
     import dataState from "../../store/data";
     import router, {Routes} from "../../views/router";
     import {getTopicFromHash} from "../../../../faq-site-shared/utilities/topics";
+    import {Route} from "vue-router";
 
     export default Vue.extend({
         name: "NavDrawer",
@@ -72,10 +73,17 @@
             }
         },
         watch: {
+            $route(to: Route, from: Route) {
+                if (to.fullPath.includes(Routes.TOPIC)) {
+                    this.activeTopicHash = [+(to.params as any).hash]; //Perhaps not use this later on, but doing this thru the store
+                }
+            },
             activeTopicHash(hash: number[]) {
                 if (hash.length !== 0) {
                     const topicObj = getTopicFromHash(hash[0], this.topics);
-                    router.push(`${Routes.TOPIC}/${topicObj.hash}`);
+                    if (!router.currentRoute.fullPath.includes(Routes.TOPIC) || topicObj.hash !== +(router.currentRoute.params as any).hash) {
+                        router.push(`${Routes.TOPIC}/${topicObj.hash}`);
+                    }
                 }
             }
         },
