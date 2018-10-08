@@ -18,20 +18,17 @@
 
   import JQuery from "jquery";
 
-  import "../../plugins/quill/highlight.pack";
+  import "../../plugins/quill/highlight.pack"; // Needs to be loaded before quill
   import "../../plugins/quill/gruvbox-dark.css"; // Highlight.js style sheet
-
   import "quill/dist/quill.core.css";
   import "quill/dist/quill.snow.css";
-  import "quill/dist/quill.bubble.css";
-
   import Quill from "quill";
   import defaultOptions from "./options";
   import {mathquill} from "../../plugins/quill/mathquill";
   import "../../plugins/quill/mathquill.css";
-  import "katex/dist/katex.min.css";
   // @ts-ignore
   import katex from "katex/dist/katex.min";
+  import "katex/dist/katex.min.css";
   import {mathquill4quill} from "../../plugins/quill/mathquill4quill";
 
   export default Vue.extend({
