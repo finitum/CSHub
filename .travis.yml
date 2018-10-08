@@ -1,0 +1,11 @@
+matrix:
+  include:
+  - language: node_js
+    node_js:
+        - "8"
+        - "10"
+    before_script:
+        - cd faq-site-client
+    script:
+        - npm install
+        - npm run build
