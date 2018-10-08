@@ -25,12 +25,12 @@
                 </v-flex>
             </v-layout>
             <v-treeview
-                    :active.sync="activeTopicId"
-                    :items="topics"
-                    open-on-click
-                    activatable
-                    active-class="primary--text"
-                    transition
+                :active.sync="activeTopicHash"
+                :items="topics"
+                item-key="hash"
+                activatable
+                active-class="primary--text"
+                transition
             >
             </v-treeview>
             <v-divider dark class="my-3"></v-divider>
@@ -48,13 +48,14 @@
     import uiState from "../../store/ui";
     import dataState from "../../store/data";
     import router, {Routes} from "../../views/router";
+    import {getTopicFromHash} from "../../../../faq-site-shared/utilities/topics";
 
     export default Vue.extend({
         name: "NavDrawer",
         components: {NavDrawerItem},
         data() {
             return {
-                activeTopicId: [],
+                activeTopicHash: [],
                 topics: [] as ITopic[],
                 items: [],
                 navigationLocations: Routes
@@ -67,6 +68,14 @@
                 },
                 set(newValue: boolean) {
                     uiState.setDrawerState(newValue);
+                }
+            }
+        },
+        watch: {
+            activeTopicHash(hash: number[]) {
+                if (hash.length !== 0) {
+                    const topicObj = getTopicFromHash(hash[0], this.topics);
+                    router.push(`${Routes.TOPIC}/${topicObj.hash}`);
                 }
             }
         },

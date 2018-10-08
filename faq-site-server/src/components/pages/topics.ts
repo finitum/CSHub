@@ -4,7 +4,7 @@ import {app, logger} from "../../";
 import {DatabaseResultSet, query} from "../../database-connection";
 
 import {ITopic} from "../../../../faq-site-shared/models";
-import {TopicsCallBack, TopicsRequest} from "../../../../faq-site-shared/api-calls/pages/TopicsRequest";
+import {TopicsCallBack, TopicsRequest} from "../../../../faq-site-shared/api-calls";
 
 app.get(TopicsRequest.getURL, (req: Request, res: Response) => {
 
@@ -19,21 +19,6 @@ app.get(TopicsRequest.getURL, (req: Request, res: Response) => {
             }
         });
 });
-
-// This is a recursive function which will get the topic from its hashs, if not, check the children (by calling iself on the children)
-export const getTopicFromHash = (topicHash: number, topics: ITopic[]): ITopic => {
-    for (const topic of topics) {
-        if (topic.hash === topicHash) {
-            return topic;
-        } else if (topic.children !== undefined) {
-            const currTopic =  getTopicFromHash(topicHash, topic.children);
-            if (currTopic !== null) {
-                return currTopic;
-            }
-        }
-    }
-    return null;
-};
 
 // This is called quite often, it will retreive all the topics from the database and parse them into the correct model
 export const getTopicTree = (): Promise<ITopic[] | null> => {

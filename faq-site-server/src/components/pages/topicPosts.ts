@@ -5,8 +5,9 @@ import {app, logger} from "../../";
 import {DatabaseResultSet, query} from "../../database-connection";
 
 import {TopicPostsCallBack, TopicPostsRequest} from "../../../../faq-site-shared/api-calls";
-import {getTopicFromHash, getTopicTree} from "./topics";
+import {getTopicTree} from "./topics";
 import {ITopic} from "../../../../faq-site-shared/models";
+import {getTopicFromHash} from "../../../../faq-site-shared/utilities/topics";
 
 app.post(TopicPostsRequest.getURL, (req: Request, res: Response) => {
 
