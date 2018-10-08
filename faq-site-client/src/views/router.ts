@@ -41,6 +41,11 @@ export default new Router({
             path: Routes.EDITOR, // TODO: Same as import
             name: "editor",
             component: Quill
+        },
+        {
+            path: `${Routes.POST}/:hash`,
+            name: "post",
+            component: PostView
         }
     ],
 });
