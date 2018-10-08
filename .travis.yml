@@ -9,3 +9,19 @@ matrix:
     script:
         - npm install
         - npm run build
+
+  - language: node_js
+    node_js:
+        - "8"
+        - "10"
+    before_script:
+        - cd faq-site-server/src/
+        - cp settings_baseline.ts settings.ts
+        - cd ..
+    script:
+        - npm install
+        - tsc
+
+cache:
+    - faq-site-client/node_modules
+    - faq-site-server/node_modules
