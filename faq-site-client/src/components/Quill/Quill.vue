@@ -18,9 +18,13 @@
 
   import JQuery from "jquery";
 
+  import "../../plugins/quill/highlight.pack";
+  import "../../plugins/quill/gruvbox-dark.css"; // Highlight.js style sheet
+
   import "quill/dist/quill.core.css";
   import "quill/dist/quill.snow.css";
   import "quill/dist/quill.bubble.css";
+
   import Quill from "quill";
   import defaultOptions from "./options";
   import {mathquill} from "../../plugins/quill/mathquill";
@@ -56,6 +60,10 @@
       mounted() {
           this.initRequirements();
           this.initQuill();
+      },
+      beforeDestroy() {
+          this.editor = null;
+          delete this.editor;
       },
       methods: {
           initRequirements() {

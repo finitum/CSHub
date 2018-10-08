@@ -3,6 +3,7 @@ export default {
     placeholder: "Type here ...",
     modules: {
         formula: true,
+        syntax: true,
         toolbar: [
             ["bold", "italic", "underline", "strike"],
             ["blockquote", "code-block"],
