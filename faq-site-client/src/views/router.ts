@@ -3,7 +3,7 @@ import Router from "vue-router";
 
 import LoginScreen from "./account/LoginScreen.vue";
 import CreateAccount from "./account/CreateAccount.vue";
-import Index from "./Index.vue";
+import PostView from "./PostView.vue";
 
 import Quill from "../components/Quill/Quill.vue"; // TODO: Remove if done with testing
 
@@ -14,6 +14,7 @@ export enum Routes {
     LOGIN = "/login",
     CREATEACCOUNT = "/createaccount",
     EDITOR = "/editor"
+    TOPIC = "/topic"
 }
 
 export default new Router({
@@ -23,7 +24,7 @@ export default new Router({
         {
             path: Routes.INDEX,
             name: "index",
-            component: Index
+            component: PostView
         },
         {
             path: Routes.LOGIN,
