@@ -60,7 +60,7 @@
 <script lang="ts">
     import Vue from "vue";
 
-    import {emailValidator, ApiWrapper, LogStringConsole} from "../../plugins/index";
+    import {emailValidator, ApiWrapper, LogStringConsole} from "../../utilities";
 
     import {
         CreateAccountRequest,

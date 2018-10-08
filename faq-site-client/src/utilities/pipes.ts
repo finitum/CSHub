@@ -6,10 +6,10 @@ Vue.filter("formatDate", (value: string): string => {
 });
 
 
-Vue.filter("roundNumber", (value: number, decimals: number): number => {
+Vue.filter("roundNumber", (value: number, decimals: number): string => {
     if (decimals !== null) {
-        return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+        return value.toFixed(decimals);
     } else {
-        return Math.round(value * 10) / 10;
+        return value.toFixed(2);
     }
 });

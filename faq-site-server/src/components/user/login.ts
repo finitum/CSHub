@@ -16,12 +16,15 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
     const loginRequest: LoginRequest = req.body as LoginRequest;
 
+    // Checking the input, see createaccount for a (bit) more in depth explanation
     if (customValidator({
         input: loginRequest.password,
         validationObject: {
             length: 8
         }
     }).valid && customValidator({input: loginRequest.email}).valid) {
+
+        // If the input is actually valid, check if the password entered is equal. Depending on the output of the server, provide the correct error or login.
         crypto.pbkdf2(loginRequest.password, secretKey, 45000, 64, "sha512", (err: Error | null, derivedKey: Buffer) => {
 
             query(`
@@ -54,6 +57,8 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
                                 const jwt = sign(userModel);
 
+                                // Sign a JWT token which has the usermodel, on this way, we don't have to check in the database when we get a request from the user, we just verify the JWT token, which contains the userModel.
+                                // Also, the token is only valid for 2 hours
                                 res.cookie("token", jwt, {
                                     maxAge: 7200000
                                 });
@@ -68,6 +73,7 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
                     })
                     .catch(err => {
                         logger.error(`Login query failed: ${err}`);
+                        logger.error(err);
                         res.status(500).send();
                     });
 
