@@ -147,27 +147,28 @@
               this.editor = new Quill("#snow-container .editor", this._options);
               (this.editor as any).enableMathQuillFormulaAuthoring(); // Enable mathquill4quill
 
-              (this.editor as any).enable(false); // Hide it before we set the content
+              (this.editor as Quill).enable(false); // Hide it before we set the content
 
               // Set the content (with input a quill delta object)
               if (this.value || this.content) {
-                  (this.editor as any).setContents(this.content || this.value);
+                  (this.editor as Quill).setContents(this.content || this.value);
               }
 
               // Show the editor again
               if (!this.disabled) {
-                  (this.editor as any).enable(true);
+                  (this.editor as Quill).enable(true);
               }
 
               // Specify function to be called on change
-              (this.editor as any).on("text-change", this.textChanged);
+              (this.editor as Quill).on("text-change", this.textChanged);
           },
           saveEditor() {
               // Stores delta type object into the store
               // Documentation: https://quilljs.com/docs/delta/
 
-              const content = (this.editor as any).getContents();
-              dataState.setQuillContents(content); // Why does this give an error
+              const content = (this.editor as Quill).getContents();
+              // @ts-ignore
+              dataState.setQuillContents(content);
 
               this.$emit("saved");
           },
