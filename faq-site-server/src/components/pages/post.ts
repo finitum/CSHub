@@ -1,4 +1,4 @@
-import {app} from "../../";
+import {app, logger} from "../../";
 import {Request, Response} from "express";
 import {
     IPostRequest,
@@ -9,36 +9,43 @@ import {
 } from "../../../../faq-site-shared/api-calls";
 import {IEdit, IPost, IPostBase, IPostReduced} from "../../../../faq-site-shared/models";
 
-import {getTopics} from "./topics";
+import {getTopicFromHash, getTopicTree} from "./topics";
 import {DatabaseResultSet, query} from "../../database-connection";
 import {hasAccessToPost} from "../../auth/validateRights/post";
 
 app.post(PostRequest.getURL, (req: Request, res: Response) => {
 
     const postRequest: IPostRequest = req.body as IPostRequest;
+
+    // If it just wants the preview object, it can be a 'reduced' object, it won't get all the info and edits
     const isReducedRequest: boolean = postRequest.isReduced;
 
-    hasAccessToPost(postRequest.postId, req.cookies["token"])
+    // Check if the user actually has access to the post
+    hasAccessToPost(postRequest.postHash, req.cookies["token"])
         .then((approved: boolean) => {
             if (!approved) {
                 res.status(401).send();
             }
-            return getTopics();
+            return getTopicTree();
         })
         .then((topicsResult) => {
             if (topicsResult === null) {
-                res.status(503).send();
+                logger.error(`No topics found, so can't get post data`);
+                res.status(500).send();
             } else {
+                // Get all the post data from database
                 query(`
                   SELECT T1.datetime,
                          T1.title,
+                         T1.hash,
                          T1.upvotes,
                          T2.id        AS authorId,
                          T2.firstname AS authorFirstName,
                          T2.lastname  AS authorLastName,
                          T2.avatar    AS authorAvatar,
+                         T2.admin     AS authorAdmin,
                          T3.name,
-                         T3.id        AS topicId,
+                         T3.hash        AS topicHash,
                          T1.id,
                          T1.approved,
                          T1.approvedBy,
@@ -46,14 +53,15 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                          T4.id        AS approvedById,
                          T4.firstname AS approvedByFirstName,
                          T4.lastname  AS approvedByLastName,
-                         T4.avatar    AS approvedByAvatar
+                         T4.avatar    AS approvedByAvatar,
+                         T4.admin     AS approvedByAdmin
                   FROM posts T1
                          INNER JOIN users T2 ON T1.author = T2.id
                          INNER JOIN topics T3 ON T1.topic = T3.id
                          LEFT JOIN users T4 ON T1.approvedBy = T4.id
-                  WHERE T1.id = ?
+                  WHERE T1.hash = ?
                   ORDER BY datetime DESC
-                `, postRequest.postId)
+                `, postRequest.postHash)
                     .then((post: DatabaseResultSet) => {
 
                         const postsObj: IPost = null;
@@ -65,11 +73,13 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                  T2.firstname                   AS editedByFirstName,
                                  T2.lastname                    AS editedByLastName,
                                  T2.avatar                      AS editedByAvatar,
+                                 T2.admin                       AS editedByAdmin,
                                  T1.approved,
                                  T3.id                          AS approvedById,
                                  T3.firstname                   AS approvedByFirstName,
                                  T3.lastname                    AS approvedByLastName,
                                  T3.avatar                      AS approvedByAvatar,
+                                 T3.admin                       AS approvedByAdmin,
                                  T1.rejectedReason,
                                  T1.datetime
                           FROM edits T1
@@ -83,6 +93,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
 
                                 const currEdits: IEdit[] = [];
 
+                                // Loop through the edits and construct the edit object
                                 for (const edit of edits.convertRowsToResultObjects()) {
                                     currEdits.push({
                                         parentPostId: post.getNumberFromDB("id"),
@@ -91,14 +102,16 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                             id: edit.getNumberFromDB("editedById"),
                                             firstname: edit.getStringFromDB("editedByFirstName"),
                                             lastname: edit.getStringFromDB("editedByLastName"),
-                                            avatar: edit.getStringFromDB("editedByAvatar")
+                                            avatar: edit.getStringFromDB("editedByAvatar"),
+                                            admin: edit.getNumberFromDB("authorAdmin") === 1
                                         },
                                         approved: edit.getNumberFromDB("approved") === 1,
                                         approvedBy: {
                                             id: edit.getNumberFromDB("approvedById"),
                                             firstname: edit.getStringFromDB("approvedByFirstName"),
                                             lastname: edit.getStringFromDB("approvedByLastName"),
-                                            avatar: edit.getStringFromDB("approvedByAvatar")
+                                            avatar: edit.getStringFromDB("approvedByAvatar"),
+                                            admin: edit.getNumberFromDB("approvedByAdmin") === 1
                                         },
                                         rejectedReason: edit.getStringFromDB("rejectedReason"),
                                         id: edit.getNumberFromDB("id"),
@@ -106,20 +119,30 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                     });
                                 }
 
+                                if (currEdits.length === 0) {
+                                    logger.error(`No edits found`);
+                                    res.status(500).send();
+                                }
+
+                                // Create the postBase object, it will be expanded depending on the type of request (Preview or full, preview has less data)
+                                // The author is of typed IUserCensored as it protects a bit of privacy, it doesn't get all their data, just name and avatar
                                 const postBase: IPostBase = {
-                                    topic: topicsResult.find(x => x.id === post.getNumberFromDB("topicId")),
+                                    topic: getTopicFromHash(post.getNumberFromDB("topicHash"), topicsResult),
                                     datetime: post.getStringFromDB("datetime"),
                                     title: post.getStringFromDB("title"),
                                     upvotes: post.getNumberFromDB("upvotes"),
+                                    hash: post.getNumberFromDB("hash"),
                                     id: post.getNumberFromDB("id"),
                                     author: {
                                         id: post.getNumberFromDB("authorId"),
                                         firstname: post.getStringFromDB("authorFirstName"),
                                         lastname: post.getStringFromDB("authorLastName"),
-                                        avatar: post.getStringFromDB("authorAvatar")
+                                        avatar: post.getStringFromDB("authorAvatar"),
+                                        admin: post.getNumberFromDB("authorAdmin") === 1
                                     }
                                 };
 
+                                // Respond with the correct callback
                                 if (isReducedRequest) {
                                     const postObj: IPostReduced = {
                                         ...postBase,
@@ -135,21 +158,28 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                             id: post.getNumberFromDB("approvedById"),
                                             firstname: post.getStringFromDB("approvedByFirstName"),
                                             lastname: post.getStringFromDB("approvedByLastName"),
-                                            avatar: post.getStringFromDB("approvedByAvatar")
+                                            avatar: post.getStringFromDB("approvedByAvatar"),
+                                            admin: post.getNumberFromDB("approvedByAdmin") === 1
                                         },
                                         edits: currEdits,
                                         rejectedReason: post.getStringFromDB("rejectedReason")
                                     };
 
-                                    res.json(new PostCallBack(postsObj));
+                                    res.json(new PostCallBack(postObj));
 
                                 }
                             })
                             .catch(err => {
-                                res.status(503).send();
+                                logger.error(`Retreiving edit data failed`);
+                                logger.error(err);
+                                res.status(500).send();
                             });
                     })
-                    .catch(err => res.status(503).send());
+                    .catch(err => {
+                        logger.error(`Retreiving post data failed`);
+                        logger.error(err);
+                        res.status(500).send();
+                    });
             }
         });
 });

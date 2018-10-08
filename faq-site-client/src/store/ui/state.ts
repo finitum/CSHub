@@ -1,4 +1,3 @@
-import {IUser} from "../../../../faq-site-shared/models/IUser";
 import {getStoreBuilder} from "vuex-typex";
 import {RootState} from "../";
 
