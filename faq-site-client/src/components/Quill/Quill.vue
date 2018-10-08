@@ -8,6 +8,8 @@
           </v-card-title>
 
           <v-card-text>
+            <!-- Shamelessly stolen from the quilljs homepage -->
+            <!-- TODO: Find out their css and steal it as well -->
             <div id="snow-wrapper">
               <div id="snow-container">
                 <div class="toolbar">
