@@ -4,15 +4,15 @@ import {ITopic} from "../../models/ITopic";
 
 import {NonAuthRequests} from "../NonAuthRequests";
 
-export class GetTopicsCallBack {
+export class TopicsCallBack {
 
     constructor(
         public topics: ITopic[]
     ) {}
 }
 
-export class GetTopicsRequest implements IApiRequest {
+export class TopicsRequest implements IApiRequest {
 
-    public static getURL: string = NonAuthRequests.GETTOPICS;
-    public URL: string = GetTopicsRequest.getURL;
+    public static getURL: string = NonAuthRequests.TOPICS;
+    public URL: string = TopicsRequest.getURL;
 }

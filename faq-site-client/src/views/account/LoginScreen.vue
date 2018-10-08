@@ -1,59 +1,61 @@
 <template>
-    <v-card>
-        <v-card-title class="title font-weight-regular justify-space-between">
-            <span>Login</span>
-        </v-card-title>
-        <v-card-text>
-            <v-text-field
-                    label="Email"
-                    v-model="userData.email"
-                    :error-messages="emailErrors"
-                    name="email"
-                    v-validate="'required'"
-                    required
-                    suffix="@student.tudelft.nl"
-                    box
-                    @change="userData.emailerror = ''"
-                    @keyup.enter="doLogin"
-            ></v-text-field>
-            <v-text-field
-                    label="Password"
-                    v-model="userData.password"
-                    :error-messages="passwordErrors"
-                    name="password"
-                    :append-icon="userData.passwordvisible ? 'mdi-eye' : 'mdi-eye-off'"
-                    @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
-                    :type="userData.passwordvisible ? 'password' : 'text'"
-                    v-validate="'required|min:8'"
-                    box
-                    required
-                    @change="userData.passworderror = ''"
-                    @keyup.enter="doLogin"
-            ></v-text-field>
-            <p v-if=""></p>
-            <v-switch
-                    label="Remember login?"
-                    v-model="userData.rememberuser"
-            ></v-switch>
-            <div>
-                <v-btn depressed color="primary" @click="doLogin">Login</v-btn>
-                <v-btn depressed color="secondary" to="createaccount">Create account</v-btn>
-            </div>
-        </v-card-text>
-    </v-card>
+    <v-flex shrink>
+        <v-card>
+            <v-card-title class="title font-weight-regular justify-space-between">
+                <span>Login</span>
+            </v-card-title>
+            <v-card-text>
+                <v-text-field
+                        label="Email"
+                        v-model="userData.email"
+                        :error-messages="emailErrors"
+                        name="email"
+                        v-validate="'required'"
+                        required
+                        suffix="@student.tudelft.nl"
+                        box
+                        @change="userData.emailerror = ''"
+                        @keyup.enter="doLogin"
+                ></v-text-field>
+                <v-text-field
+                        label="Password"
+                        v-model="userData.password"
+                        :error-messages="passwordErrors"
+                        name="password"
+                        :append-icon="userData.passwordvisible ? 'mdi-eye' : 'mdi-eye-off'"
+                        @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
+                        :type="userData.passwordvisible ? 'password' : 'text'"
+                        v-validate="'required|min:8'"
+                        box
+                        required
+                        @change="userData.passworderror = ''"
+                        @keyup.enter="doLogin"
+                ></v-text-field>
+                <p v-if=""></p>
+                <v-switch
+                        label="Remember login?"
+                        v-model="userData.rememberuser"
+                ></v-switch>
+                <div>
+                    <v-btn depressed color="primary" @click="doLogin">Login</v-btn>
+                    <v-btn depressed color="secondary" to="createaccount">Create account</v-btn>
+                </div>
+            </v-card-text>
+        </v-card>
+    </v-flex>
 </template>
 
 <script lang="ts">
     import Vue from "vue";
 
-    import {ApiWrapper} from "../plugins/api/api-wrapper";
-    import {LogConsole} from "../plugins/debugConsole";
+    import {ApiWrapper} from "../../plugins/api/api-wrapper";
+    import {LogStringConsole} from "../../plugins/debugConsole";
 
-    import {LocalStorageData} from "../store/localStorageData";
+    import {LocalStorageData} from "../../store/localStorageData";
 
-    import {LoginRequest, LoginRequestCallBack, LoginResponses} from "../../../faq-site-shared/api-calls";
+    import {LoginRequest, LoginRequestCallBack, LoginResponses} from "../../../../faq-site-shared/api-calls/index";
 
-    import userState from "../store/user";
+    import userState from "../../store/user/index";
     import router, {Routes} from "../router";
 
     export default Vue.extend({
@@ -102,21 +104,21 @@
                                         localStorage.setItem(LocalStorageData.EMAIL, this.userData.email);
                                     }
                                     userState.changeUserModel(callbackData.userModel);
-                                    // router.push(Routes.INDEX);
+                                    router.push(Routes.INDEX);
                                 } else if (callbackData.response === LoginResponses.NOEXISTINGACCOUNT) {
-                                    LogConsole("Account does not exist");
+                                    LogStringConsole("Account does not exist");
                                     this.userData.emailerror = "Account does not exist.";
                                 } else if (callbackData.response === LoginResponses.ACCOUNTNOTVERIFIED) {
-                                    LogConsole("Account is not verified");
+                                    LogStringConsole("Account is not verified");
                                     this.userData.emailerror = "Account has not been verified.";
                                 } else if (callbackData.response === LoginResponses.ACCOUNTBLOCKED) {
-                                    LogConsole("Account is blocked");
+                                    LogStringConsole("Account is blocked");
                                     this.userData.emailerror = "Account has been blocked.";
                                 } else if (callbackData.response === LoginResponses.INCORRECTPASS) {
-                                    LogConsole("Incorrect password was entered");
+                                    LogStringConsole("Incorrect password was entered");
                                     this.userData.passworderror = "Incorrect password.";
                                 } else if (callbackData.response === LoginResponses.INVALIDINPUT) {
-                                    LogConsole("Invalid input");
+                                    LogStringConsole("Invalid input");
                                     this.userData.passworderror = "Invalid input.";
                                     this.userData.emailerror = "Invalid input.";
                                 }
