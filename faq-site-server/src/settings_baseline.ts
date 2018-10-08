@@ -16,6 +16,8 @@ export interface ISettings {
         PRIVATEKEYLOCATION: string
     };
     ALLOWORIGIN: string;
+    TOKENAGEMILLISECONDS: number;
+    PASSWORDITERATIONS: number;
 
 }
 
@@ -34,5 +36,7 @@ export const Settings: ISettings = {
         PORT: 1234,
         PRIVATEKEYLOCATION: ""
     },
-    ALLOWORIGIN: ""
+    ALLOWORIGIN: "",
+    TOKENAGEMILLISECONDS: 7200000,
+    PASSWORDITERATIONS: 45000
 };

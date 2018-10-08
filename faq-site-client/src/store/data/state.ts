@@ -1,6 +1,6 @@
 import {getStoreBuilder} from "vuex-typex";
 import {RootState} from "../";
-import {ITopic} from "../../../../faq-site-shared/models";
+import {IPost, ITopic} from "../../../../faq-site-shared/models";
 
 export interface IDataState {
     topics: ITopic[];
