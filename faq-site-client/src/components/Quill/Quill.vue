@@ -16,6 +16,8 @@
 <script lang="ts">
   import Vue from "vue";
 
+  import dataState from "../../store/data";
+
   import JQuery from "jquery";
 
   import "../../plugins/quill/highlight.pack"; // Needs to be loaded before quill
@@ -36,13 +38,17 @@
       data() {
           return {
               editor: {},
-              content: "",
+              content: {},
               _options: {},
               defaultOptions
           };
       },
       props: {
-          value: String,
+          value: {
+              type: Object,
+              required: false,
+              default: () => ({})
+          },
           disabled: {
               type: Boolean,
               default: false
@@ -80,11 +86,11 @@
               this.editor = new Quill("#editor", this._options);
               (this.editor as any).enableMathQuillFormulaAuthoring(); // Enable mathquill4quill
 
-              (this.editor as any).enable(false); //Hide it before we set the content
+              (this.editor as any).enable(false); // Hide it before we set the content
 
-              // Set the content
+              // Set the content (with input a quill delta object)
               if (this.value || this.content) {
-                  (this.editor as any).pasteHTML(this.value || this.content);
+                  (this.editor as any).setContents(this.content || this.value);
               }
 
               // Show the editor again
@@ -93,18 +99,22 @@
               }
 
               // Specify function to be called on change
-              this.editor.on('text-change', this.textChanged)
+              (this.editor as any).on("text-change", this.textChanged);
           },
           saveEditor() {
+              const content = (this.editor as any).getContents();
+
+              dataState.setQuillContents(content); // Why does this give an error
+
               this.$emit("saved");
           },
           cancelEditor() {
               this.$emit("canceled");
           },
-          textChanged(delta, oldDelta, source) {
+          textChanged(delta: object, oldDelta: object, source: string) {
               // Documentation: https://quilljs.com/docs/delta/#changes
-              console.log("Delta: " + JSON.stringify(delta)); // Delta is the single changed made that triggered this function
-              console.log("OldDelta: " + JSON.stringify(oldDelta)); // OldDelta is everything that was typed previous to the edit
+              // console.log("Delta: " + JSON.stringify(delta)); // Delta is the single changed made that triggered this function
+              // console.log("OldDelta: " + JSON.stringify(oldDelta)); // OldDelta is everything that was typed previous to the edit
               // TODO: Store Contents or Deltas in the store (or both?)
 
               this.$emit("textChanged");
