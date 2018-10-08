@@ -87,12 +87,20 @@
               if (!this.disabled) {
                   (this.editor as any).enable(true);
               }
+
+              this.editor.on('text-change', this.textChanged)
           },
           saveEditor() {
               this.$emit("saved");
           },
           cancelEditor() {
               this.$emit("canceled");
+          },
+          textChanged(delta, oldDelta, source) {
+              // Documentation: https://quilljs.com/docs/delta/#changes
+              console.log("Delta: " + JSON.stringify(delta)); // Delta is the single changed made that triggered this function
+              console.log("OldDelta: " + JSON.stringify(oldDelta)); // OldDelta is everything that was typed previous to the edit
+              // TODO: Store Contents or Deltas in the store
           }
       }
   });
