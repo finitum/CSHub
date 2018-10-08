@@ -17,6 +17,7 @@
                     <option value="2">Subheading</option>
                     <option selected>Normal</option>
                   </select>
+                  <!--
                   <select class="ql-font">
                     <option selected>Sailec Light</option>
                     <option value="sofia">Sofia Pro</option>
@@ -25,6 +26,7 @@
                     <option value="inconsolata">Inconsolata</option>
                     <option value="ubuntu">Ubuntu Mono</option>
                   </select>
+                  -->
                 </span>
                   <span class="ql-formats">
                   <button class="ql-bold"></button>
@@ -183,7 +185,7 @@
 .confirm {
   float: right; /* Push confirm button to the right (can this be done cleaner with vuetify? */
 }
-#editor {
+.editor {
   /* Specify a sane default height */
   min-height: 100px;
   height: 60vh;
