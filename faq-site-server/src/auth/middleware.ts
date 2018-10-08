@@ -9,6 +9,9 @@ import {Settings} from "../settings";
 
 app.use((req: Request, res: Response, next: Function) => {
 
+    // This checks the incoming JWT token, validates it, checks if it's still valid.
+    // If valid, create a new one (so no cookie stealing)
+    // If invalid, remove the cookie
     if (req.cookies !== null && req.cookies["token"] !== null) {
 
         const tokenObj: IJWTToken = validateAccessToken(req.cookies.token);
@@ -18,13 +21,14 @@ app.use((req: Request, res: Response, next: Function) => {
             const newtoken: string = sign(tokenObj.user);
 
             res.cookie("token", newtoken, {
-               maxAge: 7200000 // Two hours
+               maxAge: Settings.TOKENAGEMILLISECONDS
            });
         } else {
             res.clearCookie("token");
         }
     }
 
+    // Add some headers so we don't have to deal with CORS problems
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Origin", Settings.ALLOWORIGIN);
     res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,UPDATE,OPTIONS");

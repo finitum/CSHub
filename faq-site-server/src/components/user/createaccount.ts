@@ -2,11 +2,12 @@ import crypto from "crypto";
 import {Request, Response} from "express";
 
 import {app, logger} from "../../";
+import {Settings} from "../../settings";
+import {DatabaseResultSet, query} from "../../database-connection";
 
 import {CreateAccountRequest, CreateAccountRequestCallBack, CreateAccountResponses} from "../../../../faq-site-shared/api-calls";
 import {validateMultipleInputs} from "../../utilities/string-utils";
 import {secretKey} from "../../auth/jwt-key";
-import {DatabaseResultSet, query} from "../../database-connection";
 
 app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
 
@@ -31,7 +32,7 @@ app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
 
                 // It checks whether the user doesn't already exist. If not, hash the password 45000 times and insert the user into the database. If nothing gives any errors, send the callback with a succes message, otherwise it will give the corresponding message
                 if (result.getRows().length === 0) {
-                    crypto.pbkdf2(createAccountRequest.password, secretKey, 45000, 64, "sha512", (err: Error | null, derivedKey: Buffer) => {
+                    crypto.pbkdf2(createAccountRequest.password, secretKey, Settings.PASSWORDITERATIONS, 64, "sha512", (err: Error | null, derivedKey: Buffer) => {
 
                         query(`
                             INSERT INTO users
