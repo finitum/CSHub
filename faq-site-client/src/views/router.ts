@@ -13,7 +13,7 @@ export enum Routes {
     INDEX = "/",
     LOGIN = "/login",
     CREATEACCOUNT = "/createaccount",
-    EDITOR = "/editor"
+    EDITOR = "/editor",
     TOPIC = "/topic"
 }
 
