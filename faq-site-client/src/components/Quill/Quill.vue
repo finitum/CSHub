@@ -55,39 +55,44 @@
       },
 
       mounted() {
-          this.initRequirements();
-          this.initQuill();
+          this.initRequirements(); // Init quill dependencies (mathquill4quill)
+          this.initQuill(); // Actually init quill itself
       },
       beforeDestroy() {
+          // Remove the editor on destroy
           this.editor = null;
           delete this.editor;
       },
       methods: {
           initRequirements() {
+              // Assign jquery and katex for use by mathquill
               (window as any).jQuery = JQuery;
               (window as any).katex = katex;
 
-              mathquill();
-              mathquill4quill((Quill as any), (window as any).MathQuill);
+              mathquill(); // Load mathquill after jquery and katex were defined
+              mathquill4quill((Quill as any), (window as any).MathQuill); // Load mathquill4quill after all its dependencies are accounted for
           },
           initQuill() {
-              // Options
+              // Overide user-specified options with default options
               this._options = Object.assign({}, this.defaultOptions, this.options);
 
+              // Create the editor
               this.editor = new Quill("#editor", this._options);
-              (this.editor as any).enableMathQuillFormulaAuthoring();
+              (this.editor as any).enableMathQuillFormulaAuthoring(); // Enable mathquill4quill
 
-              (this.editor as any).enable(false);
+              (this.editor as any).enable(false); //Hide it before we set the content
 
-              // Set content
+              // Set the content
               if (this.value || this.content) {
                   (this.editor as any).pasteHTML(this.value || this.content);
               }
 
+              // Show the editor again
               if (!this.disabled) {
                   (this.editor as any).enable(true);
               }
 
+              // Specify function to be called on change
               this.editor.on('text-change', this.textChanged)
           },
           saveEditor() {
@@ -101,6 +106,8 @@
               console.log("Delta: " + JSON.stringify(delta)); // Delta is the single changed made that triggered this function
               console.log("OldDelta: " + JSON.stringify(oldDelta)); // OldDelta is everything that was typed previous to the edit
               // TODO: Store Contents or Deltas in the store
+
+              this.$emit("textChanged");
           }
       }
   });
@@ -108,12 +115,13 @@
 
 <style scoped>
 .confirm {
-  float: right;
+  float: right; /* Push confirm button to the right (can this be done cleaner with vuetify? */
 }
 #editor {
+  /* Specify a sane default height */
   min-height: 100px;
   height: 60vh;
-
+  /* and width */
   min-width: 700px;
   width: 70vw;
 }
