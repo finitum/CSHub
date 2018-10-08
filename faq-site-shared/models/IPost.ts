@@ -16,6 +16,7 @@ export interface IPostReduced extends IPostBase {
 export interface IPostBase {
     topic: ITopic;
     author: IUserCensored;
+    hash: number;
     datetime: string;
     title: string;
     upvotes: number;

@@ -1,6 +1,6 @@
 import axios, {AxiosResponse} from "axios";
 
-import {IApiRequest} from "../../../../faq-site-shared/models/IApiRequest";
+import {IApiRequest} from "../../../faq-site-shared/models/IApiRequest";
 
 export class ApiWrapper {
 

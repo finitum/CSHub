@@ -48,8 +48,8 @@
 <script lang="ts">
     import Vue from "vue";
 
-    import {ApiWrapper} from "../../plugins/api/api-wrapper";
-    import {LogStringConsole} from "../../plugins/debugConsole";
+    import {ApiWrapper} from "../../utilities/api-wrapper";
+    import {LogStringConsole} from "../../utilities/debugConsole";
 
     import {LocalStorageData} from "../../store/localStorageData";
 

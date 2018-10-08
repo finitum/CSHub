@@ -16,10 +16,12 @@ export interface ISettings {
         PRIVATEKEYLOCATION: string
     };
     ALLOWORIGIN: string;
+    TOKENAGEMILLISECONDS: number;
+    PASSWORDITERATIONS: number;
 
 }
 
-const SettingsBaseline: ISettings = {
+export const Settings: ISettings = {
     LIVE: true,
     DATABASE: {
         HOST: "",
@@ -34,5 +36,7 @@ const SettingsBaseline: ISettings = {
         PORT: 1234,
         PRIVATEKEYLOCATION: ""
     },
-    ALLOWORIGIN: ""
+    ALLOWORIGIN: "",
+    TOKENAGEMILLISECONDS: 7200000,
+    PASSWORDITERATIONS: 45000
 };
