@@ -105,7 +105,7 @@
               // Documentation: https://quilljs.com/docs/delta/#changes
               console.log("Delta: " + JSON.stringify(delta)); // Delta is the single changed made that triggered this function
               console.log("OldDelta: " + JSON.stringify(oldDelta)); // OldDelta is everything that was typed previous to the edit
-              // TODO: Store Contents or Deltas in the store
+              // TODO: Store Contents or Deltas in the store (or both?)
 
               this.$emit("textChanged");
           }
