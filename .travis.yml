@@ -1,6 +1,8 @@
 matrix:
   include:
   - language: node_js
+    env:
+        - CLIENT=true
     node_js:
         - "8"
         - "10"
@@ -11,6 +13,8 @@ matrix:
         - npm run build
 
   - language: node_js
+    env:
+        - SERVER=true
     node_js:
         - "8"
         - "10"
