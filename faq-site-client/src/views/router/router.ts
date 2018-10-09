@@ -3,10 +3,10 @@ import Router, {Route} from "vue-router";
 
 import {VerifyTokenRequest, VerifyTokenRequestCallBack, VerifyTokenResponses} from "../../../../faq-site-shared/api-calls/user";
 
-import LoginScreen from "../account/LoginScreen.vue";
-import CreateAccount from "../account/CreateAccount.vue";
-import AdminDashboard from "../account/AdminDashboard.vue";
-import UserDashboard from "../account/UserDashboard.vue";
+import LoginScreen from "../user/LoginScreen.vue";
+import CreateAccount from "../user/CreateAccount.vue";
+import AdminDashboard from "../user/AdminDashboard.vue";
+import UserDashboard from "../user/UserDashboard.vue";
 
 import PostView from "../PostView.vue";
 

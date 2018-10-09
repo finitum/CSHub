@@ -26,6 +26,9 @@
                 currentPostHash: -1 as number
             };
         },
+        props: {
+            inputHashes: Array as number[]
+        },
         watch: {
             $route(to: Route, from: Route) {
                 if (to.fullPath.includes(Routes.POST)) {
@@ -42,7 +45,9 @@
             }
         },
         mounted() {
-            if (router.currentRoute.fullPath.includes(Routes.POST)) {
+            if (this.inputHashes !== undefined && this.inputHashes !== null) {
+                this.postHashes = this.inputHashes;
+            } else if (router.currentRoute.fullPath.includes(Routes.POST)) {
                 this.currentPostHash = +(router.currentRoute.params as any).hash;
                 this.postHashes = [this.currentPostHash];
             } else if (router.currentRoute.fullPath.includes(Routes.TOPIC)) {

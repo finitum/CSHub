@@ -45,7 +45,7 @@ export const checkTokenValidity = (req: Request): {valid: boolean, tokenObj?: IJ
         const tokenObj: IJWTToken = validateAccessToken(req.cookies.token);
 
         if (tokenObj !== undefined && moment.unix(tokenObj.expirydate).isAfter(moment())) {
-            return {valid: true, tokenObj: tokenObj};
+            return {valid: true, tokenObj};
         } else {
             return {valid: false};
         }
