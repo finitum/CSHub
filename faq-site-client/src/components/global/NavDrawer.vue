@@ -37,13 +37,10 @@
 <script lang="ts">
     import Vue from "vue";
     import {ITopic} from "../../../../faq-site-shared/models";
-    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
+    import {ApiWrapper, LogObjectConsole} from "../../utilities";
     import {
         TopicsCallBack,
-        TopicsRequest,
-        VerifyTokenRequest,
-        VerifyTokenRequestCallBack} from "../../../../faq-site-shared/api-calls";
-    import {getTopicFromHash} from "../../../../faq-site-shared/utilities/topics";
+        TopicsRequest} from "../../../../faq-site-shared/api-calls";
 
     import NavDrawerItem from "./NavDrawerItem.vue";
 
@@ -84,12 +81,12 @@
             $route(to: Route, from: Route) {
                 if (to.fullPath.includes(Routes.TOPIC)) {
                     this.activeTopicHash = [+to.params.hash]; // Perhaps do not use this later on, but doing this through the store
-                } else if (to.fullPath.includes(Routes.INDEX)) {
+                } else if (to.fullPath === Routes.INDEX) {
                     this.activeTopicHash = [0];
                 }
             },
             activeTopicHash(hash: number[]) {
-                if (hash.length !== 0) {
+                if (hash.length !== 0 && hash[0] !== 0) {
                     if (!this.$router.currentRoute.fullPath.includes(Routes.TOPIC) || hash[0] !== +this.$router.currentRoute.params.hash) {
                         this.$router.push(`${Routes.TOPIC}/${hash[0]}`);
                     }

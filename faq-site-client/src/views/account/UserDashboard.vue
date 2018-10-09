@@ -9,7 +9,7 @@
 
     export default Vue.extend({
         name: "UserDashboard"
-    })
+    });
 </script>
 
 <style scoped>
