@@ -65,9 +65,6 @@ if (Settings.LIVE) {
     server = http.createServer(app).listen(3000);
 }
 
-// Serve the built vue files
-app.use(express.static("../faq-site-client/dist"));
-
 // Here all the connectors will be defined
 import "./components";
 
