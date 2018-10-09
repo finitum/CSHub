@@ -5,12 +5,15 @@ import LoginScreen from "./account/LoginScreen.vue";
 import CreateAccount from "./account/CreateAccount.vue";
 import PostView from "./PostView.vue";
 
+import Quill from "../components/Quill/Quill.vue"; // TODO: Remove if done with testing
+
 Vue.use(Router);
 
 export enum Routes {
     INDEX = "/",
     LOGIN = "/login",
     CREATEACCOUNT = "/createaccount",
+    EDITOR = "/editor",
     POST = "/post",
     TOPIC = "/topic"
 }
@@ -33,6 +36,11 @@ export default new Router({
             path: Routes.CREATEACCOUNT,
             name: "createaccount",
             component: CreateAccount
+        },
+        {
+            path: Routes.EDITOR, // TODO: Same as import
+            name: "editor",
+            component: Quill
         },
         {
             path: `${Routes.POST}/:hash`,
