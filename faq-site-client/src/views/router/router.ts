@@ -57,6 +57,11 @@ const router = new Router({
             component: PostView
         },
         {
+            path: `${Routes.TOPIC}/:hash`,
+            name: "topic",
+            component: PostView
+        },
+        {
             path: Routes.USERDASHBOARD,
             name: "user",
             component: UserDashboard,
