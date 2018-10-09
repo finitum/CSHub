@@ -4,20 +4,17 @@
             fixed
             clipped
             class="grey lighten-4"
-            app
-    >
+            app>
         <v-list
                 dense
-                class="grey lighten-4"
-        >
+                class="grey lighten-4">
 
             <NavDrawerItem icon="mdi-account" text="User dashboard"></NavDrawerItem>
             <router-link :to="navigationLocations.LOGIN"><NavDrawerItem icon="mdi-login" text="Login"></NavDrawerItem></router-link>
             <v-divider dark class="my-3"></v-divider>
             <v-layout
                     row
-                    align-center
-            >
+                    align-center>
                 <v-flex xs6>
                     <v-subheader>
                         Topics
@@ -25,13 +22,12 @@
                 </v-flex>
             </v-layout>
             <v-treeview
-                    :active.sync="activeTopicId"
-                    :items="topics"
-                    open-on-click
-                    activatable
-                    active-class="primary--text"
-                    transition
-            >
+                :active.sync="activeTopicHash"
+                :items="topics"
+                item-key="hash"
+                activatable
+                active-class="primary--text"
+                transition>
             </v-treeview>
             <v-divider dark class="my-3"></v-divider>
         </v-list>
@@ -40,21 +36,23 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import {ITopic} from "../../../../faq-site-shared/models/index";
-    import {ApiWrapper, LogObjectConsole} from "../../plugins/index";
-    import {TopicsCallBack, TopicsRequest} from "../../../../faq-site-shared/api-calls/pages/TopicsRequest";
+    import {ITopic} from "../../../../faq-site-shared/models";
+    import {ApiWrapper, LogObjectConsole} from "../../utilities";
+    import {TopicsCallBack, TopicsRequest} from "../../../../faq-site-shared/api-calls/pages";
 
     import NavDrawerItem from "./NavDrawerItem.vue";
     import uiState from "../../store/ui";
     import dataState from "../../store/data";
-    import router, {Routes} from "../../views/router";
+    import {Routes} from "../../views/router";
+    import {getTopicFromHash} from "../../../../faq-site-shared/utilities/topics";
+    import {Route} from "vue-router";
 
     export default Vue.extend({
         name: "NavDrawer",
         components: {NavDrawerItem},
         data() {
             return {
-                activeTopicId: [],
+                activeTopicHash: [],
                 topics: [] as ITopic[],
                 items: [],
                 navigationLocations: Routes
@@ -70,7 +68,23 @@
                 }
             }
         },
+        watch: {
+            $route(to: Route, from: Route) {
+                if (to.fullPath.includes(Routes.TOPIC)) {
+                    this.activeTopicHash = [+to.params.hash]; // Perhaps do not use this later on, but doing this through the store
+                }
+            },
+            activeTopicHash(hash: number[]) {
+                if (hash.length !== 0) {
+                    const topicObj = getTopicFromHash(hash[0], this.topics);
+                    if (!this.$router.currentRoute.fullPath.includes(Routes.TOPIC) || topicObj.hash !== +this.$router.currentRoute.params.hash) {
+                        this.$router.push(`${Routes.TOPIC}/${topicObj.hash}`);
+                    }
+                }
+            }
+        },
         mounted() {
+            // Sends a get request to the server, and sets the correct store value after receiving the topics in the TopicsCallBack
             ApiWrapper.sendGetRequest(new TopicsRequest(), (callbackData: TopicsCallBack) => {
                 LogObjectConsole(callbackData.topics, "NavDrawer mounted");
                 this.topics = callbackData.topics;
@@ -81,7 +95,4 @@
 </script>
 
 <style scoped>
-    a {
-        text-decoration: none !important;
-    }
 </style>

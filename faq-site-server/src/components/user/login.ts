@@ -1,12 +1,12 @@
 import crypto from "crypto";
 import {Request, Response} from "express";
 
-import {app} from "../../index";
+import {app, logger} from "../../index";
+import {Settings} from "../../settings";
+import {DatabaseResultSet, query} from "../../database-connection";
 
 import {LoginRequest, LoginRequestCallBack, LoginResponses} from "../../../../faq-site-shared/api-calls/index";
 import {IUser} from "../../../../faq-site-shared/models/IUser";
-
-import {DatabaseResultSet, query} from "../../database-connection";
 
 import {secretKey} from "../../auth/jwt-key";
 import {sign} from "../../auth/jwt";
@@ -16,13 +16,16 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
     const loginRequest: LoginRequest = req.body as LoginRequest;
 
+    // Checking the input, see createaccount for a (bit) more in depth explanation
     if (customValidator({
         input: loginRequest.password,
         validationObject: {
             length: 8
         }
     }).valid && customValidator({input: loginRequest.email}).valid) {
-        crypto.pbkdf2(loginRequest.password, secretKey, 45000, 64, "sha512", (err: Error | null, derivedKey: Buffer) => {
+
+        // If the input is actually valid, check if the password entered is equal. Depending on the output of the server, provide the correct error or login.
+        crypto.pbkdf2(loginRequest.password, secretKey, Settings.PASSWORDITERATIONS, 64, "sha512", (err: Error | null, derivedKey: Buffer) => {
 
             query(`
                 SELECT email, id, firstname, lastname, admin, blocked, verified, password, avatar
@@ -54,8 +57,10 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
                                 const jwt = sign(userModel);
 
+                                // Sign a JWT token which has the usermodel, on this way, we don't have to check in the database when we get a request from the user, we just verify the JWT token, which contains the userModel.
+                                // Also, the token is only valid for 2 hours (7200000)
                                 res.cookie("token", jwt, {
-                                    maxAge: 7200000
+                                    maxAge: Settings.TOKENAGEMILLISECONDS
                                 });
 
                                 res.json(new LoginRequestCallBack(LoginResponses.SUCCESS, userModel));
@@ -67,7 +72,9 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
                     })
                     .catch(err => {
-                        res.status(503).send();
+                        logger.error(`Login query failed: ${err}`);
+                        logger.error(err);
+                        res.status(500).send();
                     });
 
         });

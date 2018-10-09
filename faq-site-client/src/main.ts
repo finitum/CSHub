@@ -6,6 +6,7 @@ import router from "./views/router";
 import store from "./store";
 import "./registerServiceWorker";
 import "./styleOverwrites.css";
+import "./utilities/pipes";
 
 Vue.config.productionTip = false;
 
