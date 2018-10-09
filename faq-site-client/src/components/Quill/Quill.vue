@@ -81,6 +81,7 @@
 
   import "../../plugins/quill/highlight.pack"; // Needs to be loaded before quill
   import "../../plugins/quill/gruvbox-dark.css"; // Highlight.js style sheet
+  import "../../plugins/quill/Sailec-Light.otf"; // Font file
   import "quill/dist/quill.core.css";
   import "quill/dist/quill.snow.css";
   import Quill from "quill";
@@ -185,16 +186,30 @@
 </script>
 
 <style scoped>
+@font-face {
+  font-family: 'SailecLight';
+  src: url("../../plugins/quill/Sailec-Light.otf");
+}
+
 .confirm {
   float: right; /* Push confirm button to the right (can this be done cleaner with vuetify? */
 }
+
+#snow-container {
+}
+
 .toolbar, .editor {
   border: none;
+
+
+  font-family: 'SailecLight', Roboto, sans-serif;
 }
 
 .editor {
   /* Specify a sane default height */
   min-height: 100px;
   height: 60vh;
+
+  width: 70vw;
 }
 </style>
