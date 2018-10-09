@@ -1,6 +1,7 @@
 src/settings.ts
 src/certs/csedelft-privkey.pem
 src/auth/jwt-key.ts
+logs
 
 # Default gitignore:
 # compiled output

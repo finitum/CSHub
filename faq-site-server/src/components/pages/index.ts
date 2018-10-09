@@ -1,3 +1,3 @@
-import "./home";
+import "./topicPosts";
 import "./topics";
 import "./post";

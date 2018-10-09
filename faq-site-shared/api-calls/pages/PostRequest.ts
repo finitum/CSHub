@@ -6,7 +6,7 @@ import {NonAuthRequests} from "../NonAuthRequests";
 export interface IPostRequest {
 
     isReduced: boolean;
-    postId: number;
+    postHash: number;
 }
 
 export class PostCallBack {
@@ -22,7 +22,7 @@ export class PostRequest implements IApiRequest, IPostRequest {
     public URL: string = PostRequest.getURL;
     public isReduced: boolean = false;
 
-    constructor(public postId: number) {}
+    constructor(public postHash: number) {}
 
 }
 
@@ -39,7 +39,7 @@ export class PostPreviewRequest implements IApiRequest, IPostRequest {
     public URL: string = PostRequest.getURL;
     public isReduced: boolean = true;
 
-    constructor(public postId: number) {}
+    constructor(public postHash: number) {}
 }
 
 
