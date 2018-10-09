@@ -28,22 +28,36 @@
         },
         watch: {
             $route(to: Route, from: Route) {
-                if (from.fullPath === Routes.INDEX && to.name === "post") {
+                if (to.fullPath.includes(Routes.POST)) {
                     this.currentPostHash = +(to.params as any).hash;
-                } else if (to.fullPath === Routes.INDEX && from.name === "post") {
-                    this.currentPostHash = -1;
+                }
+
+                if (to.fullPath === Routes.INDEX) {
+                    this.getTopicRequest(0);
+                }
+
+                if (to.fullPath.includes(Routes.TOPIC)) {
+                    this.getTopicRequest(+(router.currentRoute.params as any).hash);
                 }
             }
         },
         mounted() {
-
-            if (router.currentRoute.name === "post") {
+            if (router.currentRoute.fullPath.includes(Routes.POST)) {
                 this.currentPostHash = +(router.currentRoute.params as any).hash;
                 this.postHashes = [this.currentPostHash];
-            } else {
-                ApiWrapper.sendPostRequest(new TopicPostsRequest(0, 0), (callbackData: TopicPostsCallBack) => {
+            } else if (router.currentRoute.fullPath.includes(Routes.TOPIC)) {
+                this.getTopicRequest(+(router.currentRoute.params as any).hash);
+            } else if (router.currentRoute.fullPath === Routes.INDEX) {
+                this.getTopicRequest(0);
+            }
+        },
+        methods: {
+            getTopicRequest(topicHash: number) {
+                this.currentPostHash = -1;
+
+                ApiWrapper.sendPostRequest(new TopicPostsRequest(topicHash, 0), (callbackData: TopicPostsCallBack) => {
                     this.postHashes = callbackData.postHashes;
-                    LogObjectConsole(callbackData.postHashes, "Index posthashes");
+                    LogObjectConsole(callbackData.postHashes, "Topic posthashes");
                 });
             }
         }

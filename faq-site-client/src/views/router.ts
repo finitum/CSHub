@@ -38,6 +38,11 @@ export default new Router({
             path: `${Routes.POST}/:hash`,
             name: "post",
             component: PostView
+        },
+        {
+            path: `${Routes.TOPIC}/:hash`,
+            name: "topic",
+            component: PostView
         }
     ],
 });
