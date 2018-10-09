@@ -14,7 +14,7 @@ export const hasAccessToPost = (postHash: number, jwt: string): Promise<boolean>
             WHERE hash = ?
         `, postHash)
             .then((databaseResult: DatabaseResultSet) => {
-                if (tokenResult !== undefined && tokenResult.user.id === databaseResult.getNumberFromDB("id")) {
+                if (tokenResult !== undefined && tokenResult.user.id === databaseResult.getNumberFromDB("author")) {
                     return true;
                 }
                 return databaseResult.getNumberFromDB("approved") !== 0;
