@@ -9,9 +9,10 @@ import {
 } from "../../../../faq-site-shared/api-calls";
 import {IEdit, IPost, IPostBase, IPostReduced} from "../../../../faq-site-shared/models";
 
-import {getTopicFromHash, getTopicTree} from "./topics";
+import {getTopicTree} from "./topics";
 import {DatabaseResultSet, query} from "../../database-connection";
 import {hasAccessToPost} from "../../auth/validateRights/post";
+import {getTopicFromHash} from "../../../../faq-site-shared/utilities/topics";
 
 app.post(PostRequest.getURL, (req: Request, res: Response) => {
 
