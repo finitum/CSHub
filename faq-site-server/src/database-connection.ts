@@ -70,8 +70,8 @@ connectionPromise.then((connection: any) => {
     }
 });
 
-export const query = (query: string, ...args: any[]) =>
-    new Promise<DatabaseResultSet>((resolve, reject) => {
+export const query = (query: string, ...args: any[]) => {
+    return new Promise<DatabaseResultSet>((resolve, reject) => {
 
         if (connection == null && Settings.USESSH) {
             toExecuteQueries.push({
@@ -88,6 +88,7 @@ export const query = (query: string, ...args: any[]) =>
             });
         }
     });
+};
 
 export class DatabaseResultSet {
 
