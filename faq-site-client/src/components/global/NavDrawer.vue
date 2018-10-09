@@ -71,11 +71,11 @@
         watch: {
             $route(to: Route, from: Route) {
                 if (to.fullPath.includes(Routes.TOPIC)) {
-                    this.activeTopicHash = [+(to.params as any).hash]; // Perhaps do not use this later on, but doing this through the store
+                    this.activeTopicHash = [+to.params.hash]; // Perhaps do not use this later on, but doing this through the store
                 }
             },
             activeTopicHash(hash: number[]) {
-                if (hash.length) {
+                if (hash.length !== 0) {
                     const topicObj = getTopicFromHash(hash[0], this.topics);
                     if (!this.$router.currentRoute.fullPath.includes(Routes.TOPIC) || topicObj.hash !== +this.$router.currentRoute.params.hash) {
                         this.$router.push(`${Routes.TOPIC}/${topicObj.hash}`);
