@@ -9,10 +9,15 @@ export const hasAccessToPost = (postHash: number, jwt: string): Promise<boolean>
         return new Promise((resolve, reject) => { resolve(true); });
     } else {
         return query(`
-            SELECT approved
+            SELECT approved, author
             FROM posts
             WHERE hash = ?
         `, postHash)
-            .then((databaseResult: DatabaseResultSet) => databaseResult.getNumberFromDB("approved") !== 0);
+            .then((databaseResult: DatabaseResultSet) => {
+                if (tokenResult !== undefined && tokenResult.user.id === databaseResult.getNumberFromDB("id")) {
+                    return true;
+                }
+                return databaseResult.getNumberFromDB("approved") !== 0;
+            });
     }
 };

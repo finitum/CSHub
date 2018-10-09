@@ -2,6 +2,7 @@ import mysql from "mysql2";
 import {Settings} from "./settings";
 import {Client} from "ssh2";
 import fs from "fs";
+import {logger} from "./index";
 
 const connectionconf = {
     host: Settings.DATABASE.HOST,
@@ -105,7 +106,8 @@ export class DatabaseResultSet {
         try {
             return currObj as string;
         } catch (err) {
-            console.error(`Error getting value from database string, name: ${name}. Error: ${err}`);
+            logger.error(`Error getting number from database string, name: ${name}.`);
+            logger.error(err);
             return null;
         }
     }
@@ -121,7 +123,8 @@ export class DatabaseResultSet {
         try {
             return currObj as number;
         } catch (err) {
-            console.error(`Error getting value from database string, name: ${name}. Error: ${err}`);
+            logger.error(`Error getting value from database string, name: ${name}.`);
+            logger.error(err);
             return null;
         }
     }

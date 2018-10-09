@@ -14,7 +14,7 @@ import {customValidator} from "../../utilities/string-utils";
 
 app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
-    const loginRequest: LoginRequest = req.body as LoginRequest;
+    const loginRequest = req.body as LoginRequest;
 
     // Checking the input, see createaccount for a (bit) more in depth explanation
     if (customValidator({
