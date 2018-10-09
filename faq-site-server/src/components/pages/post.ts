@@ -139,7 +139,8 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                         lastname: post.getStringFromDB("authorLastName"),
                                         avatar: post.getStringFromDB("authorAvatar"),
                                         admin: post.getNumberFromDB("authorAdmin") === 1
-                                    }
+                                    },
+                                    approved: post.getNumberFromDB("approved") === 1
                                 };
 
                                 // Respond with the correct callback
@@ -153,7 +154,6 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                 } else {
                                     const postObj: IPost = {
                                         ...postBase,
-                                        approved: post.getNumberFromDB("approved") === 1,
                                         approvedBy: {
                                             id: post.getNumberFromDB("approvedById"),
                                             firstname: post.getStringFromDB("approvedByFirstName"),

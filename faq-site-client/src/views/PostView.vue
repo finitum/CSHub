@@ -18,7 +18,7 @@
     import {Route} from "vue-router";
 
     export default Vue.extend({
-        name: "Index",
+        name: "PostView",
         components: {Post},
         data() {
             return {
@@ -27,12 +27,12 @@
             };
         },
         props: {
-            inputHashes: Array as number[]
+            inputHashes: Array // Null = any, Array gave a type error
         },
         watch: {
             $route(to: Route, from: Route) {
                 if (to.fullPath.includes(Routes.POST)) {
-                    this.currentPostHash = +(to.params as any).hash;
+                    this.currentPostHash = +to.params.hash;
                 }
 
                 if (to.fullPath === Routes.INDEX) {
@@ -40,19 +40,19 @@
                 }
 
                 if (to.fullPath.includes(Routes.TOPIC)) {
-                    this.getTopicRequest(+(router.currentRoute.params as any).hash);
+                    this.getTopicRequest(+this.$router.currentRoute.params.hash);
                 }
             }
         },
         mounted() {
             if (this.inputHashes !== undefined && this.inputHashes !== null) {
-                this.postHashes = this.inputHashes;
-            } else if (router.currentRoute.fullPath.includes(Routes.POST)) {
-                this.currentPostHash = +(router.currentRoute.params as any).hash;
+                this.postHashes = (this.inputHashes as number[]);
+            } else if (this.$router.currentRoute.fullPath.includes(Routes.POST)) {
+                this.currentPostHash = +this.$router.currentRoute.params.hash;
                 this.postHashes = [this.currentPostHash];
-            } else if (router.currentRoute.fullPath.includes(Routes.TOPIC)) {
-                this.getTopicRequest(+(router.currentRoute.params as any).hash);
-            } else if (router.currentRoute.fullPath === Routes.INDEX) {
+            } else if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
+                this.getTopicRequest(+this.$router.currentRoute.params.hash);
+            } else if (this.$router.currentRoute.fullPath === Routes.INDEX) {
                 this.getTopicRequest(0);
             }
         },

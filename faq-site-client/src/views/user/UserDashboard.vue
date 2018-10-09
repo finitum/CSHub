@@ -31,7 +31,7 @@
                 ApiWrapper.sendPostRequest(new UserDashboardRequest(startIndex), (callbackData: UserDashboardCallBack) => {
                     this.postHashes = callbackData.postHashes;
                     LogObjectConsole(callbackData.postHashes, "User dashboard posthashes");
-                })
+                });
             },
             toggleFullPost(postHash: number) {
                 if (postHash !== null) {

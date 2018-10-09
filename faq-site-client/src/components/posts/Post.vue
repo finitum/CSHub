@@ -1,6 +1,6 @@
 <template>
     <div v-if="postReduced !== null">
-        <v-card id="previewCard" :class="{previewCard: !isFullPost, fullCard: isFullPost}">
+        <v-card id="previewCard" :class="{previewCard: !isFullPost, fullCard: isFullPost}" :style="{backgroundColor: backgroundColorComputed}">
             <v-card-title primary-title>
                 <v-breadcrumbs divider="/" style="width: 100%" v-if="isFullPost">
                     <v-btn color="primary" fab small dark @click="returnToPostMenu">
@@ -83,6 +83,11 @@
                 this.getFullPostRequest();
             } else {
                 this.getPreviewPostRequest();
+            }
+        },
+        computed: {
+            backgroundColorComputed(): string {
+                return !this.postReduced.approved ? "orange" : "";
             }
         },
         methods: {
