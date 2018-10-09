@@ -195,21 +195,20 @@
   float: right; /* Push confirm button to the right (can this be done cleaner with vuetify? */
 }
 
-#snow-container {
+#snow-wrapper .toolbar{
+  border: none;
+  padding: 1%;
 }
 
-.toolbar, .editor {
+#snow-wrapper, .editor {
   border: none;
-
-
-  font-family: 'SailecLight', Roboto, sans-serif;
+  font-family: 'SailecLight', sans-serif;
 }
 
 .editor {
-  /* Specify a sane default height */
+  /* Specify a sane default height and width */
   min-height: 100px;
   height: 60vh;
-
   width: 70vw;
 }
 </style>
