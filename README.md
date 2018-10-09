@@ -1,7 +1,7 @@
 # CSEDelft [![Build Status](https://travis-ci.com/RobbinBaauw/FAQSite.svg?branch=master)](https://travis-ci.com/RobbinBaauw/FAQSite)
 This is a project made for the TU Delft CSE studies, where everyone can post information, summaries and more, for everyone to see and read.
 ## Running the project
-* Install [NodeJS](https://nodejs.org/en/), and install the dependencies of the server and client projects
+* Install [NodeJS](https://nodejs.org/en/), and install the dependencies of the server and client projects (`npm install` in the correct directories)
 * For the server, run `ts-node`, or use the provided IntelliJ runconfigs
 * For the client, run `npm run serve`
 
