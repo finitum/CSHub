@@ -14,7 +14,7 @@
     import {TopicPostsCallBack, TopicPostsRequest} from "../../../faq-site-shared/api-calls";
 
     import {ApiWrapper, LogObjectConsole} from "../utilities";
-    import router, {Routes} from "../views/router";
+    import router, {Routes} from "./router/router";
     import {Route} from "vue-router";
 
     export default Vue.extend({

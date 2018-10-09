@@ -1,24 +1,17 @@
 import {IUser} from "../../../../faq-site-shared/models/IUser";
 import {getStoreBuilder} from "vuex-typex";
-import {RootState} from "../";
+import {IRootState} from "../";
 
 export interface IUserState {
     userModel: IUser;
+    hasCheckedToken: boolean;
 }
 
 export const UserState: IUserState = {
-    userModel: {
-        id: 0,
-        admin: false,
-        blocked: 0,
-        verified: 0,
-        email: null,
-        firstname: "",
-        lastname: "",
-        avatar: ""
-    }
+    userModel: null,
+    hasCheckedToken: false
 };
 
-export const userStoreBuilder = getStoreBuilder<RootState>().module("user", UserState);
+export const userStoreBuilder = getStoreBuilder<IRootState>().module("user", UserState);
 
 export const userStateGetter = userStoreBuilder.state();

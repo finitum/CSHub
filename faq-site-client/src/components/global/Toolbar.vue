@@ -16,7 +16,7 @@
 <script lang="ts">
     import Vue from "vue";
     import uiState from "../../store/ui/index";
-    import router, {Routes} from "../../views/router";
+    import router, {Routes} from "../../views/router/router";
 
     export default Vue.extend({
         name: "Toolbar",

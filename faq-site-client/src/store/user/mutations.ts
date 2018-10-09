@@ -9,3 +9,7 @@ export const changeUserModel = (state: IUserState, payload: IUser) => {
 export const clearUserModel = (state: IUserState) => {
     state.userModel = null;
 };
+
+export const setCheckedToken = (state: IUserState) => {
+    state.hasCheckedToken = true;
+};

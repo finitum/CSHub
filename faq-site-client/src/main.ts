@@ -2,7 +2,7 @@ import "@babel/polyfill";
 import Vue from "vue";
 import "./plugins";
 import App from "./App.vue";
-import router from "./views/router";
+import router from "./views/router/router";
 import store from "./store";
 import "./registerServiceWorker";
 import "./styleOverwrites.css";

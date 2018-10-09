@@ -11,8 +11,8 @@
                 class="grey lighten-4"
         >
 
-            <NavDrawerItem icon="mdi-account" text="User dashboard"></NavDrawerItem>
-            <router-link :to="navigationLocations.LOGIN"><NavDrawerItem icon="mdi-login" text="Login"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.USERDASHBOARD" v-if="userLoggedInComputed"><NavDrawerItem icon="mdi-account" text="User dashboard"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.LOGIN" v-if="!userLoggedInComputed"><NavDrawerItem icon="mdi-login" text="Login"></NavDrawerItem></router-link>
             <v-divider dark class="my-3"></v-divider>
             <v-layout
                     row
@@ -41,13 +41,21 @@
 <script lang="ts">
     import Vue from "vue";
     import {ITopic} from "../../../../faq-site-shared/models/index";
-    import {ApiWrapper, LogObjectConsole} from "../../utilities";
-    import {TopicsCallBack, TopicsRequest} from "../../../../faq-site-shared/api-calls/pages/TopicsRequest";
+    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
+    import {
+        TopicsCallBack,
+        TopicsRequest,
+        VerifyTokenRequest,
+        VerifyTokenRequestCallBack, VerifyTokenResponses
+    } from "../../../../faq-site-shared/api-calls";
 
     import NavDrawerItem from "./NavDrawerItem.vue";
+
     import uiState from "../../store/ui";
     import dataState from "../../store/data";
-    import router, {Routes} from "../../views/router";
+    import userState from "../../store/user";
+
+    import router, {Routes} from "../../views/router/router";
 
     export default Vue.extend({
         name: "NavDrawer",
@@ -67,6 +75,11 @@
                 },
                 set(newValue: boolean) {
                     uiState.setDrawerState(newValue);
+                }
+            },
+            userLoggedInComputed: {
+                get(): boolean {
+                    return userState.isLoggedIn;
                 }
             }
         },
