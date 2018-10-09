@@ -42,8 +42,8 @@
         TopicsCallBack,
         TopicsRequest,
         VerifyTokenRequest,
-        VerifyTokenRequestCallBack, VerifyTokenResponses
-    } from "../../../../faq-site-shared/api-calls";
+        VerifyTokenRequestCallBack} from "../../../../faq-site-shared/api-calls";
+    import {getTopicFromHash} from "../../../../faq-site-shared/utilities/topics";
 
     import NavDrawerItem from "./NavDrawerItem.vue";
 
@@ -51,7 +51,8 @@
     import dataState from "../../store/data";
     import userState from "../../store/user";
 
-    import router, {Routes} from "../../views/router/router";
+    import {Routes} from "../../views/router/router";
+    import {Route} from "vue-router";
 
     export default Vue.extend({
         name: "NavDrawer",
@@ -72,19 +73,25 @@
                 set(newValue: boolean) {
                     uiState.setDrawerState(newValue);
                 }
+            },
+            userLoggedInComputed: {
+                get(): boolean {
+                    return userState.isLoggedIn;
+                }
             }
         },
         watch: {
             $route(to: Route, from: Route) {
                 if (to.fullPath.includes(Routes.TOPIC)) {
                     this.activeTopicHash = [+to.params.hash]; // Perhaps do not use this later on, but doing this through the store
+                } else if (to.fullPath.includes(Routes.INDEX)) {
+                    this.activeTopicHash = [0];
                 }
             },
             activeTopicHash(hash: number[]) {
                 if (hash.length !== 0) {
-                    const topicObj = getTopicFromHash(hash[0], this.topics);
-                    if (!this.$router.currentRoute.fullPath.includes(Routes.TOPIC) || topicObj.hash !== +this.$router.currentRoute.params.hash) {
-                        this.$router.push(`${Routes.TOPIC}/${topicObj.hash}`);
+                    if (!this.$router.currentRoute.fullPath.includes(Routes.TOPIC) || hash[0] !== +this.$router.currentRoute.params.hash) {
+                        this.$router.push(`${Routes.TOPIC}/${hash[0]}`);
                     }
                 }
             }
@@ -93,6 +100,11 @@
             // Sends a get request to the server, and sets the correct store value after receiving the topics in the TopicsCallBack
             ApiWrapper.sendGetRequest(new TopicsRequest(), (callbackData: TopicsCallBack) => {
                 LogObjectConsole(callbackData.topics, "NavDrawer mounted");
+
+                if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
+                    this.activeTopicHash = [this.$router.currentRoute.params.hash];
+
+                }
                 this.topics = callbackData.topics;
                 dataState.setTopics(callbackData.topics);
             });
