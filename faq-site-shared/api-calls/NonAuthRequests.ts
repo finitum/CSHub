@@ -6,4 +6,5 @@ export class NonAuthRequests {
     public static readonly TOPICPOSTS: string = "/api/0/topicposts";
     public static readonly POSTDATA: string = "/api/0/post";
     public static readonly TOPICS: string = "/api/0/topics";
+    public static readonly VERIFYTOKEN: string = "/api/0/verifytoken";
 }

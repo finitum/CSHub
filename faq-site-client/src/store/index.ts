@@ -5,12 +5,12 @@ import {getStoreBuilder} from "vuex-typex";
 import {IUserState} from "./user/state";
 import {IUIState} from "./ui/state";
 
-export interface RootState {
+export interface IRootState {
     user: IUserState;
     ui: IUIState;
 }
 
 Vue.use(Vuex);
-const store: Store<RootState> = getStoreBuilder<RootState>().vuexStore();
+const store: Store<IRootState> = getStoreBuilder<IRootState>().vuexStore();
 
 export default store;

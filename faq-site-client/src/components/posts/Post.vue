@@ -55,7 +55,7 @@
         PostRequest
     } from "../../../../faq-site-shared/api-calls";
     import {IPost, IPostReduced, ITopic} from "../../../../faq-site-shared/models";
-    import router, {Routes} from "../../views/router";
+    import router, {Routes} from "../../views/router/router";
     import dataState from "../../store/data";
 
     interface IBreadCrumbType {

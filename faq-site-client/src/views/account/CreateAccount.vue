@@ -68,7 +68,7 @@
         CreateAccountResponses
     } from "../../../../faq-site-shared/api-calls/index";
 
-    import router, {Routes} from "../router";
+    import router, {Routes} from "../router/router";
 
     export default Vue.extend({
         name: "CreateAccount",
