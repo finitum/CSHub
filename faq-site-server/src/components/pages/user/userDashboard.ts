@@ -28,5 +28,7 @@ app.post(UserDashboardRequest.getURL, (req: Request, res: Response) => {
 
                 res.json(new UserDashboardCallBack(hashes));
             });
+    } else {
+        res.status(401).send();
     }
 });
