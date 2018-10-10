@@ -17,7 +17,7 @@
                                 required
                                 box
                                 @change="userData.emailerror = ''"
-                                @keyup.enter="doLogin"
+                                @keyup.enter="doCreateAccount"
                         ></v-text-field>
                         <v-text-field
                                 label="Password"
@@ -27,20 +27,36 @@
                                 :append-icon="userData.passwordvisible ? 'mdi-eye-off' : 'mdi-eye'"
                                 @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
                                 :type="userData.passwordvisible ? 'text' : 'password'"
-                                v-validate="'required|min:8'"
+                                v-validate="'required|min:8|confirmed:password confirmation'"
                                 box
                                 required
                                 @change="userData.passworderror = ''"
-                                @keyup.enter="doLogin"
+                                @keyup.enter="doCreateAccount"
+                        ></v-text-field>
+                        <v-text-field
+                                label="Confirm password"
+                                v-model="userData.confirmPassword"
+                                :error-messages="errors.collect('password confirmation')"
+                                name="password confirmation"
+                                :append-icon="userData.passwordvisible ? 'mdi-eye-off' : 'mdi-eye'"
+                                @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
+                                :type="userData.passwordvisible ? 'text' : 'password'"
+                                v-validate="'required|min:8'"
+                                box
+                                ref="password confirmation"
+                                required
+                                @change="userData.passworderror = ''"
+                                @keyup.enter="doCreateAccount"
                         ></v-text-field>
                         <v-text-field
                                 label="First name"
-                                v-model="userData.fistname"
+                                v-model="userData.firstname"
                                 :error-messages="errors.collect('firstname')"
                                 name="firstname"
                                 v-validate="'required'"
                                 required
                                 box
+                                @keyup.enter="doCreateAccount"
                         ></v-text-field>
                         <v-text-field
                                 label="Last name"
@@ -50,6 +66,7 @@
                                 v-validate="'required'"
                                 required
                                 box
+                                @keyup.enter="doCreateAccount"
                         ></v-text-field>
                         <div>
                             <v-btn depressed color="primary" @click="doCreateAccount">Create account</v-btn>
@@ -72,7 +89,7 @@
         CreateAccountResponses
     } from "../../../../faq-site-shared/api-calls/index";
 
-    import router, {Routes} from "../router";
+    import router, {Routes} from "../router/router";
 
     export default Vue.extend({
         name: "CreateAccount",
@@ -82,8 +99,9 @@
                     email: "" as string,
                     emailerror: "" as string,
                     password: "" as string,
+                    confirmPassword: "" as string,
                     passwordvisible: false as boolean,
-                    fistname: "" as string,
+                    firstname: "" as string,
                     lastname: "" as string
                 }
             };
@@ -97,7 +115,7 @@
                 this.$validator.validateAll()
                     .then((allValid: boolean) => {
                         if (allValid) {
-                            ApiWrapper.sendPostRequest(new CreateAccountRequest(this.userData.email, this.userData.password, this.userData.fistname, this.userData.lastname), (callbackData: CreateAccountRequestCallBack) => {
+                            ApiWrapper.sendPostRequest(new CreateAccountRequest(this.userData.email, this.userData.password, this.userData.firstname, this.userData.lastname), (callbackData: CreateAccountRequestCallBack) => {
                                 if (callbackData.response === CreateAccountResponses.SUCCESS) {
                                     router.push(Routes.LOGIN);
                                 } else if (callbackData.response === CreateAccountResponses.ALREADYEXISTS) {

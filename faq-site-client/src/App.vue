@@ -21,7 +21,7 @@
 
     import Vue from "vue";
     import uiState from "./store/ui";
-    import {Routes} from "./views/router";
+    import {Routes} from "./views/router/router";
 
     export default Vue.extend({
         name: "App",

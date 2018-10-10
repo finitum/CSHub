@@ -9,8 +9,8 @@
                 dense
                 class="grey lighten-4">
 
-            <NavDrawerItem icon="mdi-account" text="User dashboard"></NavDrawerItem>
-            <router-link :to="navigationLocations.LOGIN"><NavDrawerItem icon="mdi-login" text="Login"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.USERDASHBOARD" v-if="userLoggedInComputed"><NavDrawerItem icon="mdi-account" text="User dashboard"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.LOGIN" v-if="!userLoggedInComputed"><NavDrawerItem icon="mdi-login" text="Login"></NavDrawerItem></router-link>
             <v-divider dark class="my-3"></v-divider>
             <v-layout
                     row
@@ -38,13 +38,17 @@
     import Vue from "vue";
     import {ITopic} from "../../../../faq-site-shared/models";
     import {ApiWrapper, LogObjectConsole} from "../../utilities";
-    import {TopicsCallBack, TopicsRequest} from "../../../../faq-site-shared/api-calls/pages";
+    import {
+        TopicsCallBack,
+        TopicsRequest} from "../../../../faq-site-shared/api-calls";
 
     import NavDrawerItem from "./NavDrawerItem.vue";
+
     import uiState from "../../store/ui";
     import dataState from "../../store/data";
-    import {Routes} from "../../views/router";
-    import {getTopicFromHash} from "../../../../faq-site-shared/utilities/topics";
+    import userState from "../../store/user";
+
+    import {Routes} from "../../views/router/router";
     import {Route} from "vue-router";
 
     export default Vue.extend({
@@ -66,19 +70,27 @@
                 set(newValue: boolean) {
                     uiState.setDrawerState(newValue);
                 }
+            },
+            userLoggedInComputed: {
+                get(): boolean {
+                    return userState.isLoggedIn;
+                }
             }
         },
         watch: {
             $route(to: Route, from: Route) {
                 if (to.fullPath.includes(Routes.TOPIC)) {
                     this.activeTopicHash = [+to.params.hash]; // Perhaps do not use this later on, but doing this through the store
+                } else if (to.fullPath === Routes.INDEX) {
+                    this.activeTopicHash = [0];
+                } else {
+                    this.activeTopicHash = [-1];
                 }
             },
             activeTopicHash(hash: number[]) {
-                if (hash.length !== 0) {
-                    const topicObj = getTopicFromHash(hash[0], this.topics);
-                    if (!this.$router.currentRoute.fullPath.includes(Routes.TOPIC) || topicObj.hash !== +this.$router.currentRoute.params.hash) {
-                        this.$router.push(`${Routes.TOPIC}/${topicObj.hash}`);
+                if (hash.length !== 0 && hash[0] > 0) {
+                    if (!this.$router.currentRoute.fullPath.includes(Routes.TOPIC) || hash[0] !== +this.$router.currentRoute.params.hash) {
+                        this.$router.push(`${Routes.TOPIC}/${hash[0]}`);
                     }
                 }
             }
@@ -87,6 +99,11 @@
             // Sends a get request to the server, and sets the correct store value after receiving the topics in the TopicsCallBack
             ApiWrapper.sendGetRequest(new TopicsRequest(), (callbackData: TopicsCallBack) => {
                 LogObjectConsole(callbackData.topics, "NavDrawer mounted");
+
+                if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
+                    this.activeTopicHash = [this.$router.currentRoute.params.hash];
+
+                }
                 this.topics = callbackData.topics;
                 dataState.setTopics(callbackData.topics);
             });

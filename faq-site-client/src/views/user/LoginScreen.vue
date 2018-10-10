@@ -60,7 +60,7 @@
     import {LoginRequest, LoginRequestCallBack, LoginResponses} from "../../../../faq-site-shared/api-calls/index";
 
     import userState from "../../store/user/index";
-    import router, {Routes} from "../router";
+    import router, {Routes} from "../router/router";
 
     export default Vue.extend({
         name: "LoginScreen",

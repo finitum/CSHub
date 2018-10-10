@@ -1,5 +1,5 @@
 import {getStoreBuilder} from "vuex-typex";
-import {RootState} from "../";
+import {IRootState} from "../";
 
 export interface IUIState {
     navbar: {
@@ -13,6 +13,6 @@ export const UIState: IUIState = {
     }
 };
 
-export const uiStoreBuilder = getStoreBuilder<RootState>().module("ui", UIState);
+export const uiStoreBuilder = getStoreBuilder<IRootState>().module("ui", UIState);
 
 export const uiStateGetter = uiStoreBuilder.state();

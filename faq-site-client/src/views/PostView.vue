@@ -14,22 +14,25 @@
     import {TopicPostsCallBack, TopicPostsRequest} from "../../../faq-site-shared/api-calls";
 
     import {ApiWrapper, LogObjectConsole} from "../utilities";
-    import router, {Routes} from "../views/router";
+    import {Routes} from "./router/router";
     import {Route} from "vue-router";
 
     export default Vue.extend({
-        name: "Index",
-        components: {Post},
+        name: "PostView",
         data() {
             return {
                 postHashes: [] as number[],
                 currentPostHash: -1 as number
             };
         },
+        components: {Post},
+        props: {
+            inputHashes: Array
+        },
         watch: {
             $route(to: Route, from: Route) {
                 if (to.fullPath.includes(Routes.POST)) {
-                    this.currentPostHash = +(to.params as any).hash;
+                    this.currentPostHash = +to.params.hash;
                 }
 
                 if (to.fullPath === Routes.INDEX) {
@@ -37,26 +40,34 @@
                 }
 
                 if (to.fullPath.includes(Routes.TOPIC)) {
-                    this.getTopicRequest(+(router.currentRoute.params as any).hash);
+                    this.getTopicRequest(+this.$router.currentRoute.params.hash);
                 }
             }
         },
         mounted() {
-            if (router.currentRoute.fullPath.includes(Routes.POST)) {
-                this.currentPostHash = +(router.currentRoute.params as any).hash;
+            if (this.inputHashes !== undefined && this.inputHashes !== null) {
+                this.postHashes = (this.inputHashes as number[]);
+            } else if (this.$router.currentRoute.fullPath.includes(Routes.POST)) {
+                this.currentPostHash = +this.$router.currentRoute.params.hash;
                 this.postHashes = [this.currentPostHash];
-            } else if (router.currentRoute.fullPath.includes(Routes.TOPIC)) {
-                this.getTopicRequest(+(router.currentRoute.params as any).hash);
-            } else if (router.currentRoute.fullPath === Routes.INDEX) {
+            } else if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
+                this.getTopicRequest(+this.$router.currentRoute.params.hash);
+            } else if (this.$router.currentRoute.fullPath === Routes.INDEX) {
                 this.getTopicRequest(0);
             }
         },
         methods: {
             getTopicRequest(topicHash: number) {
+
+                // Ts gives an error here, have no clue as to why as it normally also works
+                // @ts-ignore
                 this.currentPostHash = -1;
 
                 ApiWrapper.sendPostRequest(new TopicPostsRequest(topicHash, 0), (callbackData: TopicPostsCallBack) => {
+                    // Ts gives an error here, have no clue as to why as it normally also works
+                    // @ts-ignore
                     this.postHashes = callbackData.postHashes;
+
                     LogObjectConsole(callbackData.postHashes, "Topic posthashes");
                 });
             }
