@@ -1,3 +1,6 @@
+import {UserDashboardChangePasswordResponses} from "../../../../faq-site-shared/api-calls/pages/user";
+import {UserDashboardChangePasswordResponses} from "../../../../faq-site-shared/api-calls/pages/user";
+import {UserDashboardChangePasswordResponses} from "../../../../faq-site-shared/api-calls/pages/user";
 <template>
     <div>
         <div v-show="currentPostHash === -1">
@@ -88,8 +91,14 @@
 
     import Post from "../../components/posts/Post.vue";
 
-    import {ApiWrapper, LogObjectConsole} from "../../utilities";
-    import {UserDashboardCallBack, UserDashboardRequest} from "../../../../faq-site-shared/api-calls/pages/user";
+    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
+    import {
+        UserDashboardCallBack,
+        UserDashboardChangePasswordCallBack,
+        UserDashboardChangePasswordRequest,
+        UserDashboardChangePasswordResponses,
+        UserDashboardRequest
+    } from "../../../../faq-site-shared/api-calls/pages/user";
     import userState from "../../store/user";
     import {IUser} from "../../../../faq-site-shared/models";
 
@@ -133,7 +142,18 @@
                 }
             },
             changePassword() {
-                console.log(1)
+                ApiWrapper.sendPostRequest(new UserDashboardChangePasswordRequest(this.userData.currentPassword, this.userData.newPassword), (callBack: UserDashboardChangePasswordCallBack) => {
+                    if (callBack.response === UserDashboardChangePasswordResponses.SUCCESS) {
+                        // TODO: If the dialog wrapper works, show a success dialog
+                        LogStringConsole("User changed password");
+                    } else if (callBack.response === UserDashboardChangePasswordResponses.WRONGPASSWORD) {
+                        LogStringConsole("Wrong password was entered so password not changed");
+                        this.userData.currentPasswordError = "Wrong password!"
+                    } else if (callBack.response === UserDashboardChangePasswordResponses.INVALIDINPUT) {
+                        LogStringConsole("Invalid input at password change");
+                        this.userData.currentPasswordError = "Wrong input!"
+                    }
+                });
             }
         }
     });

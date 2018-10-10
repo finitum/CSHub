@@ -11,7 +11,7 @@ export enum UserDashboardChangePasswordResponses {
 export class UserDashboardChangePasswordCallBack {
 
     constructor(
-        public respose: UserDashboardChangePasswordResponses
+        public response: UserDashboardChangePasswordResponses
     ) {}
 }
 
