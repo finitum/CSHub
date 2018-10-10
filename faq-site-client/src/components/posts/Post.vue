@@ -47,20 +47,20 @@
 </template>
 
 <script lang="ts">
-    import Vue from "vue";
+    import Vue from "vue"; // importing vue
 
-    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
+    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities"; // import wrapper & consoles
     import {
         PostCallBack,
         PostPreviewCallBack,
         PostPreviewRequest,
         PostRequest
-    } from "../../../../faq-site-shared/api-calls";
-    import {IPost, IPostReduced, ITopic} from "../../../../faq-site-shared/models";
-    import {Routes} from "../../views/router/router";
+    } from "../../../../faq-site-shared/api-calls"; // importing different post view modes
+    import {IPost, IPostReduced, ITopic} from "../../../../faq-site-shared/models"; // importing posts
+    import {Routes} from "../../views/router/router"; 
     import dataState from "../../store/data";
 
-    interface IBreadCrumbType {
+    interface IBreadCrumbType { // set interface parameters
         name: string;
         url: string;
     }
@@ -76,9 +76,9 @@
         },
         props: {
             postHash: Number,
-            isFullPost: Boolean
+            isFullPost: Boolean // check FullPost
         },
-        mounted() {
+        mounted() { // if there's a post, get post. else get post preview
             if (this.isFullPost) {
                 this.getFullPostRequest();
             } else {
