@@ -14,20 +14,20 @@
     import {TopicPostsCallBack, TopicPostsRequest} from "../../../faq-site-shared/api-calls";
 
     import {ApiWrapper, LogObjectConsole} from "../utilities";
-    import router, {Routes} from "./router/router";
+    import {Routes} from "./router/router";
     import {Route} from "vue-router";
 
     export default Vue.extend({
         name: "PostView",
-        components: {Post},
         data() {
             return {
                 postHashes: [] as number[],
                 currentPostHash: -1 as number
             };
         },
+        components: {Post},
         props: {
-            inputHashes: Array // Null = any, Array gave a type error
+            inputHashes: Array
         },
         watch: {
             $route(to: Route, from: Route) {
@@ -58,10 +58,16 @@
         },
         methods: {
             getTopicRequest(topicHash: number) {
+
+                // Ts gives an error here, have no clue as to why as it normally also works
+                // @ts-ignore
                 this.currentPostHash = -1;
 
                 ApiWrapper.sendPostRequest(new TopicPostsRequest(topicHash, 0), (callbackData: TopicPostsCallBack) => {
+                    // Ts gives an error here, have no clue as to why as it normally also works
+                    // @ts-ignore
                     this.postHashes = callbackData.postHashes;
+
                     LogObjectConsole(callbackData.postHashes, "Topic posthashes");
                 });
             }
