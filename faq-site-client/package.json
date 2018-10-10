@@ -15,15 +15,15 @@
     "katex": "^0.7.1",
     "moment": "^2.22.2",
     "quill": "^1.3.6",
+    "quill-delta": "latest",
     "register-service-worker": "^1.0.0",
     "rxjs": "^6.3.3",
     "vee-validate": "^2.1.0-beta.9",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",
-    "vuetify": "^1.3.0-alpha.1",
+    "vuetify": "^1.3.0-alpha.2",
     "vuex": "^3.0.1",
-    "vuex-typex": "^3.0.1",
-    "quill-delta": "latest"
+    "vuex-typex": "^3.0.1"
   },
   "devDependencies": {
     "@mdi/font": "^2.8.94",

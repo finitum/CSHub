@@ -8,6 +8,7 @@ import {DatabaseResultSet, query} from "../../database-connection";
 import {CreateAccountRequest, CreateAccountRequestCallBack, CreateAccountResponses} from "../../../../faq-site-shared/api-calls";
 import {validateMultipleInputs} from "../../utilities/string-utils";
 import {secretKey} from "../../auth/jwt-key";
+import {hashPassword} from "../../auth/hashPassword";
 
 app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
 
@@ -32,21 +33,26 @@ app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
 
                 // It checks whether the user doesn't already exist. If not, hash the password 45000 times and insert the user into the database. If nothing gives any errors, send the callback with a succes message, otherwise it will give the corresponding message
                 if (result.getRows().length === 0) {
-                    crypto.pbkdf2(createAccountRequest.password, secretKey, Settings.PASSWORDITERATIONS, 64, "sha512", (err: Error | null, derivedKey: Buffer) => {
-
-                        query(`
+                    hashPassword(createAccountRequest.password)
+                        .then((hashedValue: string) => {
+                            query(`
                             INSERT INTO users
                             SET email = ?, password = ?, firstname = ?, lastname = ?
-                            `, createAccountRequest.email, derivedKey.toString("hex"), createAccountRequest.firstname, createAccountRequest.lastname)
-                            .then(() => {
-                                res.json(new CreateAccountRequestCallBack(CreateAccountResponses.SUCCESS));
-                            })
-                            .catch(err => {
-                                logger.error(`Inserting into users table failed`);
-                                logger.error(err);
-                                res.status(500).send();
-                            });
-                    });
+                            `, createAccountRequest.email, hashedValue, createAccountRequest.firstname, createAccountRequest.lastname)
+                                .then(() => {
+                                    res.json(new CreateAccountRequestCallBack(CreateAccountResponses.SUCCESS));
+                                })
+                                .catch(err => {
+                                    logger.error(`Inserting into users table failed`);
+                                    logger.error(err);
+                                    res.status(500).send();
+                                });
+                        })
+                        .catch((err) => {
+                            logger.error(`Hashing password for creating account failed`);
+                            logger.error(err);
+                            res.status(500).send();
+                        });
                 } else {
                     res.json(new CreateAccountRequestCallBack(CreateAccountResponses.ALREADYEXISTS));
                 }

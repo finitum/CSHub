@@ -11,10 +11,11 @@ import {IUser} from "../../../../faq-site-shared/models/IUser";
 import {secretKey} from "../../auth/jwt-key";
 import {sign} from "../../auth/jwt";
 import {customValidator} from "../../utilities/string-utils";
+import {hashPassword} from "../../auth/hashPassword";
 
 app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
-    const loginRequest: LoginRequest = req.body as LoginRequest;
+    const loginRequest = req.body as LoginRequest;
 
     // Checking the input, see createaccount for a (bit) more in depth explanation
     if (customValidator({
@@ -25,9 +26,9 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
     }).valid && customValidator({input: loginRequest.email}).valid) {
 
         // If the input is actually valid, check if the password entered is equal. Depending on the output of the server, provide the correct error or login.
-        crypto.pbkdf2(loginRequest.password, secretKey, Settings.PASSWORDITERATIONS, 64, "sha512", (err: Error | null, derivedKey: Buffer) => {
-
-            query(`
+        hashPassword(loginRequest.password)
+            .then((hashedValue: string) => {
+                query(`
                 SELECT email, id, firstname, lastname, admin, blocked, verified, password, avatar
                 FROM users
                 WHERE email = ?
@@ -36,7 +37,7 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
 
                         if (result.getRows().length === 0) {
                             res.json(new LoginRequestCallBack(LoginResponses.NOEXISTINGACCOUNT));
-                        } else if (result.getStringFromDB("password") === derivedKey.toString("hex")) {
+                        } else if (result.getStringFromDB("password") === hashedValue) {
 
                             if (result.getNumberFromDB("blocked") === 1) {
                                 res.json(new LoginRequestCallBack(LoginResponses.ACCOUNTBLOCKED));
@@ -76,8 +77,12 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
                         logger.error(err);
                         res.status(500).send();
                     });
-
-        });
+            })
+            .catch((err) => {
+                logger.error(`Hashing password for logging into account failed`);
+                logger.error(err);
+                res.status(500).send();
+            });
     } else {
         res.json(new LoginRequestCallBack(LoginResponses.INVALIDINPUT));
     }

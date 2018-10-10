@@ -4,7 +4,6 @@ import {
     IPostRequest,
     PostCallBack,
     PostPreviewCallBack,
-    PostPreviewRequest,
     PostRequest
 } from "../../../../faq-site-shared/api-calls";
 import {IEdit, IPost, IPostBase, IPostReduced} from "../../../../faq-site-shared/models";
@@ -16,7 +15,7 @@ import {getTopicFromHash} from "../../../../faq-site-shared/utilities/topics";
 
 app.post(PostRequest.getURL, (req: Request, res: Response) => {
 
-    const postRequest: IPostRequest = req.body as IPostRequest;
+    const postRequest = req.body as IPostRequest;
 
     // If it just wants the preview object, it can be a 'reduced' object, it won't get all the info and edits
     const isReducedRequest: boolean = postRequest.isReduced;
@@ -140,7 +139,8 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                         lastname: post.getStringFromDB("authorLastName"),
                                         avatar: post.getStringFromDB("authorAvatar"),
                                         admin: post.getNumberFromDB("authorAdmin") === 1
-                                    }
+                                    },
+                                    approved: post.getNumberFromDB("approved") === 1
                                 };
 
                                 // Respond with the correct callback
@@ -154,7 +154,6 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                 } else {
                                     const postObj: IPost = {
                                         ...postBase,
-                                        approved: post.getNumberFromDB("approved") === 1,
                                         approvedBy: {
                                             id: post.getNumberFromDB("approvedById"),
                                             firstname: post.getStringFromDB("approvedByFirstName"),

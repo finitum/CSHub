@@ -4,7 +4,6 @@ import {IEdit} from "./IEdit";
 
 export interface IPost extends IPostBase {
     edits: IEdit[];
-    approved: boolean;
     approvedBy: IUserCensored;
     rejectedReason: string;
 }
@@ -19,6 +18,7 @@ export interface IPostBase {
     hash: number;
     datetime: string;
     title: string;
+    approved: boolean;
     upvotes: number;
     id: number;
 }

@@ -1,8 +1,11 @@
 <template>
     <div v-if="postReduced !== null">
-        <v-card id="previewCard" :class="{previewCard: !isFullPost, fullCard: isFullPost}">
+        <v-card id="previewCard" :class="{previewCard: !isFullPost, fullCard: isFullPost}" :style="{backgroundColor: backgroundColorComputed}">
             <v-card-title primary-title>
                 <v-breadcrumbs divider="/" style="width: 100%" v-if="isFullPost">
+                    <v-btn color="primary" depressed small dark @click="returnToPostMenu">
+                        <v-icon>mdi-chevron-left</v-icon>
+                    </v-btn>
                     <v-breadcrumbs-item
                         v-for="item in topicNames"
                         :key="item.index"
@@ -16,7 +19,7 @@
                         {{postReduced.title}}
                     </v-breadcrumbs-item>
                 </v-breadcrumbs>
-                <v-badge right color="green" overlap class="mr-3">
+                <v-badge right color="green" overlap class="mr-3 pl-3">
                     <span slot="badge">{{postReduced.upvotes}}</span>
                     <v-avatar
                             :tile="false"
@@ -45,7 +48,6 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import {Route} from "vue-router";
 
     import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
     import {
@@ -55,7 +57,7 @@
         PostRequest
     } from "../../../../faq-site-shared/api-calls";
     import {IPost, IPostReduced, ITopic} from "../../../../faq-site-shared/models";
-    import router, {Routes} from "../../views/router";
+    import {Routes} from "../../views/router/router";
     import dataState from "../../store/data";
 
     interface IBreadCrumbType {
@@ -83,14 +85,19 @@
                 this.getPreviewPostRequest();
             }
         },
-        watch: {
-            $route(to: Route, from: Route) {
-                if (to.fullPath === Routes.INDEX && from.name === "post") {
-                    LogStringConsole("Going from full to preview");
-                }
+        computed: {
+            backgroundColorComputed(): string {
+                return !this.postReduced.approved ? "orange" : "";
             }
         },
         methods: {
+            returnToPostMenu() {
+                if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD)) {
+                    this.$router.go(-1);
+                } else {
+                    this.$emit("toggleFullPost", null);
+                }
+            },
             getParentTopic(child: ITopic, topics: ITopic[]): ITopic {
                 for (const topic of topics) {
                     if (topic.children !== undefined && topic.children.findIndex((x) => x.id === child.id) !== -1) {
@@ -138,7 +145,11 @@
                         lastEdit: callbackData.post.edits[0]
                     };
 
-                    router.push(`${Routes.POST}/${this.postReduced.hash}`);
+                    if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD)) {
+                        this.$router.push(`${Routes.POST}/${this.postReduced.hash}`);
+                    } else {
+                        this.$emit("toggleFullPost", callbackData.post.hash);
+                    }
                 });
             },
             navigateToPost(): void {
@@ -160,7 +171,7 @@
         width: 90%;
         overflow: hidden;
         margin: 20px 5% 20px 5%;
-        max-height: 220px;
+        max-height: 150px;
     }
 
     .fullCard {
