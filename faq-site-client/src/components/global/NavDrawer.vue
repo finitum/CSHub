@@ -10,6 +10,7 @@
                 class="grey lighten-4">
 
             <router-link :to="navigationLocations.USERDASHBOARD" v-if="userLoggedInComputed"><NavDrawerItem icon="mdi-account" text="User dashboard"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.ADMINDASHBOARD" v-if="userLoggedInComputed && userIsAdminComputed"><NavDrawerItem icon="mdi-account-supervisor" text="Admin dashboard"></NavDrawerItem></router-link>
             <router-link :to="navigationLocations.LOGIN" v-if="!userLoggedInComputed"><NavDrawerItem icon="mdi-login" text="Login"></NavDrawerItem></router-link>
             <v-divider dark class="my-3"></v-divider>
             <v-layout
@@ -36,7 +37,7 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import {ITopic} from "../../../../faq-site-shared/models";
+    import {ITopic, IUser} from "../../../../faq-site-shared/models";
     import {ApiWrapper, LogObjectConsole} from "../../utilities";
     import {
         TopicsCallBack,
@@ -74,6 +75,11 @@
             userLoggedInComputed: {
                 get(): boolean {
                     return userState.isLoggedIn;
+                }
+            },
+            userIsAdminComputed: {
+                get(): boolean {
+                    return userState.isAdmin;
                 }
             }
         },
