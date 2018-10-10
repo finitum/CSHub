@@ -171,7 +171,7 @@
         width: 90%;
         overflow: hidden;
         margin: 20px 5% 20px 5%;
-        max-height: 220px;
+        max-height: 150px;
     }
 
     .fullCard {
