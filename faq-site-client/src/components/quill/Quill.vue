@@ -63,21 +63,21 @@
     import dataState from "../../store/data";
     import JQuery from "jquery";
 
-    import "../../plugins/quill/highlight.pack"; // Needs to be loaded before quill
-    import "../../plugins/quill/gruvbox-dark.css"; // Highlight.js style sheet
+    import "../../plugins/quill/highlight.pack.min"; // Needs to be loaded before quill
+    import "../../plugins/quill/gruvbox-dark.min.css"; // Highlight.js style sheet
     import "../../plugins/quill/Sailec-Light.otf"; // Font file
     import "quill/dist/quill.core.css";
     import "quill/dist/quill.snow.css";
     import Quill from "quill";
     import defaultOptions from "./options";
     // @ts-ignore
-    import {mathquill} from "../../plugins/quill/mathquill";
-    import "../../plugins/quill/mathquill.css";
+    import {mathquill} from "../../plugins/quill/mathquill.min";
+    import "../../plugins/quill/mathquill.min.css";
     // @ts-ignore
     import katex from "katex/dist/katex.min";
     import "katex/dist/katex.min.css";
     // @ts-ignore
-    import {mathquill4quill} from "../../plugins/quill/mathquill4quill";
+    import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
 
     export default Vue.extend({
         name: "Quill",
@@ -107,7 +107,7 @@
         },
 
         mounted() {
-            this.initRequirements(); // Init quill dependencies (mathquill4quill)
+            this.initRequirements(); // Init quill dependencies (mathquill4quillMin)
             this.initQuill(); // Actually init quill itself
         },
         beforeDestroy() {
@@ -117,12 +117,12 @@
         },
         methods: {
             initRequirements() {
-                // Assign jquery and katex for use by mathquill
+                // Assign jquery and katex for use by mathquillMin
                 (window as any).jQuery = JQuery;
                 (window as any).katex = katex;
 
-                mathquill(); // Load mathquill after jquery and katex were defined
-                mathquill4quill((Quill as any), (window as any).MathQuill); // Load mathquill4quill after all its dependencies are accounted for
+                mathquill(); // Load mathquillMin after jquery and katex were defined
+                mathquill4quill((Quill as any), (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
             },
             initQuill() {
                 // Overide user-specified options with default options
@@ -131,7 +131,7 @@
                 // Create the editor
                 this.editor = new Quill("#snow-container .editor", this._options);
                 // @ts-ignore
-                this.editor.enableMathQuillFormulaAuthoring(); // Enable mathquill4quill
+                this.editor.enableMathQuillFormulaAuthoring(); // Enable mathquill4quillMin
                 this.editor.enable(false); // Hide it before we set the content
 
                 // Set the content (with input a quill delta object)

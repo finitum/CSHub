@@ -5,7 +5,7 @@ import LoginScreen from "./account/LoginScreen.vue";
 import CreateAccount from "./account/CreateAccount.vue";
 import PostView from "./PostView.vue";
 
-import Quill from "../components/Quill/Quill.vue"; // TODO: Remove if done with testing
+import Quill from "../components/quill/Quill.vue"; // TODO: Remove if done with testing
 
 Vue.use(Router);
 
