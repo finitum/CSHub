@@ -80,6 +80,8 @@
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
     import {ImgurUpload} from "../../utilities/imgur";
     import Delta from "quill-delta/dist/Delta";
+    import {ImageResize} from "../../plugins/quill/ImageResize.min";
+    Quill.register("modules/imageResize", ImageResize);
 
     export default Vue.extend({
         name: "Quill",
