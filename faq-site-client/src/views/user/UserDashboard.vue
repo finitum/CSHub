@@ -1,6 +1,3 @@
-import {UserDashboardChangePasswordResponses} from "../../../../faq-site-shared/api-calls/pages/user";
-import {UserDashboardChangePasswordResponses} from "../../../../faq-site-shared/api-calls/pages/user";
-import {UserDashboardChangePasswordResponses} from "../../../../faq-site-shared/api-calls/pages/user";
 <template>
     <div>
         <div v-show="currentPostHash === -1">
