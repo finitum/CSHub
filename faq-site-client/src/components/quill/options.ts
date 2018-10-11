@@ -5,6 +5,7 @@ export default {
     modules: {
         syntax: true,
         resize:  {},
+        table: true,
         toolbar: "#snow-container .toolbar"
     }
 };
