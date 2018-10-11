@@ -78,6 +78,8 @@
     import "katex/dist/katex.min.css";
     // @ts-ignore
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
+    import {ImgurUpload} from "../../utilities/imgur";
+    import Delta from "./delta";
 
     export default Vue.extend({
         name: "Quill",
@@ -155,9 +157,14 @@
                 // @ts-ignore
                 dataState.setQuillContents(content);
             },
-            textChanged(delta: object, oldDelta: object, source: string) {
+            textChanged(delta: Delta, oldDelta: Delta, source: string) {
                 // Delta is the single changed made that triggered this function
                 // OldDelta is everything that was typed previous to the edit
+                console.log(delta)
+                ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
+                    .then((ndelta) => {
+                        console.log(ndelta)
+                    });
                 this.$emit("textChanged");
             }
         }
