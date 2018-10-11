@@ -1,6 +1,12 @@
 <template>
     <div>
-        p
+        <v-subheader>
+            Your profile
+        </v-subheader>
+        <v-container fluid fill-height class="grey lighten-4">
+            <v-layout justify-center align-center>
+            </v-layout>
+        </v-container>
     </div>
 </template>
 
