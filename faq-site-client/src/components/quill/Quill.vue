@@ -44,8 +44,50 @@
                                           <button class="ql-code-block"></button>
                                     </span>
                                     <span class="ql-formats">
-                                        <button class="ql-table">Table</button>
-                                        <button class="ql-table-row">Table</button>
+                                        <v-menu
+                                                v-model="tableMenuOpen"
+                                                :close-on-content-click="false"
+                                                :nudge-width="100"
+                                                offset-x
+                                        >
+                                              <v-btn
+                                                  slot="activator"
+                                                  dark
+                                                  flat
+                                                  small
+                                                  id="tableButton"
+                                              >
+                                                  <v-icon color="black" id="tableIcon">mdi-table</v-icon>
+                                              </v-btn>
+
+                                              <v-card>
+                                                    <v-card-title primary-title style="padding-bottom: 0">
+                                                        <h3>
+                                                            Table options
+                                                        </h3>
+                                                    </v-card-title>
+                                                    <v-card-text style="padding-top: 0">
+                                                        <v-list>
+                                                            <v-list-tile>
+                                                                <button @click="performTableAction(tableActions.CREATETABLE)"><v-icon>mdi-table</v-icon></button>
+                                                                <button @click="performTableAction(tableActions.REMOVETABLE)"><v-icon>mdi-table-remove</v-icon></button>
+                                                            </v-list-tile>
+                                                            <v-list-tile>
+                                                                <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)"><v-icon>mdi-table-column-plus-before</v-icon></button>
+                                                                <button @click="performTableAction(tableActions.CREATENEWCOLUMNRIGHT)"><v-icon>mdi-table-column-plus-after</v-icon></button>
+                                                            </v-list-tile>
+                                                            <v-list-tile>
+                                                                <button @click="performTableAction(tableActions.CREATENEWROWUP)"><v-icon>mdi-table-row-plus-before</v-icon></button>
+                                                                <button @click="performTableAction(tableActions.CREATENEWROWDOWN)"><v-icon>mdi-table-row-plus-after</v-icon></button>
+                                                            </v-list-tile>
+                                                            <v-list-tile>
+                                                                <button @click="performTableAction(tableActions.REMOVEROW)"><v-icon>mdi-table-row-remove</v-icon></button>
+                                                                <button @click="performTableAction(tableActions.REMOVECOLUMN)"><v-icon>mdi-table-column-remove</v-icon></button>
+                                                            </v-list-tile>
+                                                        </v-list>
+                                                    </v-card-text>
+                                              </v-card>
+                                            </v-menu>
                                     </span>
                                 </div>
                                 <div class="editor">
@@ -87,6 +129,17 @@
 
     Quill.register("modules/resize", ImageResize);
 
+    enum TableActions {
+        CREATETABLE,
+        CREATENEWROWUP,
+        CREATENEWROWDOWN,
+        CREATENEWCOLUMNLEFT,
+        CREATENEWCOLUMNRIGHT,
+        REMOVEROW,
+        REMOVECOLUMN,
+        REMOVETABLE
+    }
+
     export default Vue.extend({
         name: "Quill",
         data() {
@@ -94,6 +147,8 @@
                 editor: {} as any,
                 content: {},
                 _options: {},
+                tableMenuOpen: false as boolean,
+                tableActions: TableActions as TableActions,
                 defaultOptions
             };
         },
@@ -124,6 +179,37 @@
             delete this.editor;
         },
         methods: {
+            performTableAction(type: TableActions) {
+                const table = this.editor.getModule("table");
+                if (table !== undefined) {
+                    switch (type) {
+                        case TableActions.CREATETABLE:
+                            table.insertTable(2, 2);
+                            break;
+                        case TableActions.REMOVETABLE:
+                            table.deleteTable();
+                            break;
+                        case TableActions.CREATENEWCOLUMNLEFT:
+                            table.insertColumnLeft();
+                            break;
+                        case TableActions.CREATENEWCOLUMNRIGHT:
+                            table.insertColumnRight();
+                            break;
+                        case TableActions.CREATENEWROWUP:
+                            table.insertRowAbove();
+                            break;
+                        case TableActions.CREATENEWROWDOWN:
+                            table.insertRowBelow();
+                            break;
+                        case TableActions.REMOVECOLUMN:
+                            table.deleteColumn();
+                            break;
+                        case TableActions.REMOVEROW:
+                            table.deleteRow();
+                            break;
+                    }
+                }
+            },
             initRequirements() {
                 // Assign jquery and katex for use by mathquillMin
                 (window as any).jQuery = JQuery;
@@ -151,6 +237,8 @@
                 if (!this.disabled) {
                     this.editor.enable(true);
                 }
+
+                this.editor.focus();
 
                 // Specify function to be called on change
                 this.editor.on("text-change", this.textChanged);
@@ -197,5 +285,23 @@
         min-height: 100px;
         height: 60vh;
         width: 70vw;
+    }
+
+    td {
+        border: 1px solid rgba(0,0,0,0.12) !important;
+    }
+
+    #tableButton {
+        min-width: 10px;
+    }
+
+    #tableButton:focus,
+    #tableButton:hover {
+        color: white;
+    }
+
+    #tableIcon:hover {
+        caret-color: #00A6D8 !important;
+        color: #00A6D8 !important;
     }
 </style>
