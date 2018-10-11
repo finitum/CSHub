@@ -148,7 +148,7 @@
                 content: {},
                 _options: {},
                 tableMenuOpen: false as boolean,
-                tableActions: TableActions as TableActions,
+                tableActions: TableActions,
                 defaultOptions
             };
         },
