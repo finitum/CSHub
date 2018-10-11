@@ -1,5 +1,5 @@
 import axios, {AxiosResponse} from "axios";
-import Delta from "../components/quill/delta";
+import Delta from "quill-delta/dist/Delta";
 
 const imgurBaseUrl = "https://api.imgur.com/3";
 const imgurClientId = "5b157adc646460e"; // This client ID is linked to CSHub change if not using for that project
@@ -44,7 +44,6 @@ export class ImgurUpload {
     }
 
     private static async uploadBase64ToImgur(payload: string): Promise<AxiosResponse> {
-        console.log(payload)
         return await this.axiosAPI.post("/image", {
             image: payload
         });

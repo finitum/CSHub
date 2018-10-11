@@ -68,7 +68,7 @@
     import "../../plugins/quill/Sailec-Light.otf"; // Font file
     import "quill/dist/quill.core.css";
     import "quill/dist/quill.snow.css";
-    import Quill from "quill";
+    import Quill, {Sources} from "quill";
     import defaultOptions from "./options";
     // @ts-ignore
     import {mathquill} from "../../plugins/quill/mathquill.min";
@@ -79,7 +79,7 @@
     // @ts-ignore
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
     import {ImgurUpload} from "../../utilities/imgur";
-    import Delta from "./delta";
+    import Delta from "quill-delta/dist/Delta";
 
     export default Vue.extend({
         name: "Quill",
@@ -157,14 +157,9 @@
                 // @ts-ignore
                 dataState.setQuillContents(content);
             },
-            textChanged(delta: Delta, oldDelta: Delta, source: string) {
+            textChanged(delta: Delta, oldContents: Delta, source: Sources) {
                 // Delta is the single changed made that triggered this function
                 // OldDelta is everything that was typed previous to the edit
-                console.log(delta)
-                ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
-                    .then((ndelta) => {
-                        console.log(ndelta)
-                    });
                 this.$emit("textChanged");
             }
         }
