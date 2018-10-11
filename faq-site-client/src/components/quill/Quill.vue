@@ -22,6 +22,7 @@
                                           <button class="ql-bold"></button>
                                           <button class="ql-italic"></button>
                                           <button class="ql-underline"></button>
+                                          <button class="ql-clean"></button>
                                     </span>
                                     <span class="ql-formats">
                                           <button class="ql-list" value="ordered"></button>
@@ -43,7 +44,8 @@
                                           <button class="ql-code-block"></button>
                                     </span>
                                     <span class="ql-formats">
-                                        <button class="ql-clean"></button>
+                                        <button class="ql-table">Table</button>
+                                        <button class="ql-table-row">Table</button>
                                     </span>
                                 </div>
                                 <div class="editor">
@@ -66,9 +68,8 @@
     import "../../plugins/quill/highlight.pack.min"; // Needs to be loaded before quill
     import "../../plugins/quill/gruvbox-dark.min.css"; // Highlight.js style sheet
     import "../../plugins/quill/Sailec-Light.otf"; // Font file
-    import "quill/dist/quill.core.css";
-    import "quill/dist/quill.snow.css";
-    import Quill, {Sources} from "quill";
+    import "../../plugins/quill/quill2.min";
+    import "../../plugins/quill/quill2.min.css";
     import defaultOptions from "./options";
     // @ts-ignore
     import {mathquill} from "../../plugins/quill/mathquill.min";
@@ -81,13 +82,16 @@
     import {ImgurUpload} from "../../utilities/imgur";
     import Delta from "quill-delta/dist/Delta";
     import {ImageResize} from "../../plugins/quill/ImageResize.min";
+
+    const Quill: any = (window as any).Quill;
+
     Quill.register("modules/resize", ImageResize);
 
     export default Vue.extend({
         name: "Quill",
         data() {
             return {
-                editor: {} as Quill,
+                editor: {} as any,
                 content: {},
                 _options: {},
                 defaultOptions
@@ -126,7 +130,7 @@
                 (window as any).katex = katex;
 
                 mathquill(); // Load mathquillMin after jquery and katex were defined
-                mathquill4quill((Quill as any), (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
+                mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
             },
             initQuill() {
                 // Overide user-specified options with default options
@@ -159,7 +163,7 @@
                 // @ts-ignore
                 dataState.setQuillContents(content);
             },
-            textChanged(delta: Delta, oldContents: Delta, source: Sources) {
+            textChanged(delta: Delta, oldContents: Delta, source: any) {
                 // Delta is the single changed made that triggered this function
                 // OldDelta is everything that was typed previous to the edit
                 this.$emit("textChanged");
