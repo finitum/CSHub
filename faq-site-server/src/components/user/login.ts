@@ -1,4 +1,3 @@
-import crypto from "crypto";
 import {Request, Response} from "express";
 
 import {app, logger} from "../../index";
@@ -8,7 +7,6 @@ import {DatabaseResultSet, query} from "../../database-connection";
 import {LoginRequest, LoginRequestCallBack, LoginResponses} from "../../../../faq-site-shared/api-calls/index";
 import {IUser} from "../../../../faq-site-shared/models/IUser";
 
-import {secretKey} from "../../auth/jwt-key";
 import {sign} from "../../auth/jwt";
 import {customValidator} from "../../utilities/string-utils";
 import {hashPassword} from "../../auth/hashPassword";
@@ -49,8 +47,8 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
                                     id: result.getNumberFromDB("id"),
                                     email: result.getStringFromDB("email"),
                                     admin: result.getNumberFromDB("admin") === 1,
-                                    blocked: result.getNumberFromDB("blocked"),
-                                    verified: result.getNumberFromDB("verified"),
+                                    blocked: result.getNumberFromDB("blocked") === 1,
+                                    verified: result.getNumberFromDB("verified") === 1,
                                     firstname: result.getStringFromDB("firstname"),
                                     lastname: result.getStringFromDB("lastname"),
                                     avatar: result.getStringFromDB("avatar")

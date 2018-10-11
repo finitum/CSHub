@@ -1,7 +1,7 @@
 export interface IUser extends IUserCensored {
     email: string;
-    blocked: number;
-    verified: number;
+    blocked: boolean;
+    verified: boolean;
 }
 
 export interface IUserCensored {
