@@ -1,6 +1,3 @@
-import {UserDashboardChangePasswordResponses} from "../../../../faq-site-shared/api-calls/pages/user";
-import {UserDashboardChangePasswordResponses} from "../../../../faq-site-shared/api-calls/pages/user";
-import {UserDashboardChangePasswordResponses} from "../../../../faq-site-shared/api-calls/pages/user";
 <template>
     <div>
         <div v-show="currentPostHash === -1">
@@ -148,10 +145,10 @@ import {UserDashboardChangePasswordResponses} from "../../../../faq-site-shared/
                         LogStringConsole("User changed password");
                     } else if (callBack.response === UserDashboardChangePasswordResponses.WRONGPASSWORD) {
                         LogStringConsole("Wrong password was entered so password not changed");
-                        this.userData.currentPasswordError = "Wrong password!"
+                        this.userData.currentPasswordError = "Wrong password!";
                     } else if (callBack.response === UserDashboardChangePasswordResponses.INVALIDINPUT) {
                         LogStringConsole("Invalid input at password change");
-                        this.userData.currentPasswordError = "Wrong input!"
+                        this.userData.currentPasswordError = "Wrong input!";
                     }
                 });
             }
