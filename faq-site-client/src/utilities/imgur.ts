@@ -1,4 +1,5 @@
 import axios, {AxiosResponse} from "axios";
+import Delta from "../components/quill/delta";
 
 const imgurBaseUrl = "https://api.imgur.com/3";
 const imgurClientId = "5b157adc646460e"; // This client ID is linked to CSHub change if not using for that project
@@ -6,19 +7,19 @@ const imgurClientId = "5b157adc646460e"; // This client ID is linked to CSHub ch
 // Documentation: https://apidocs.imgur.com
 export class ImgurUpload {
 
-    public static async findAndReplaceImagesWithImgurLinks(delta: object[]): Promise<object> {
-        for (const i in delta) {
+    public static async findAndReplaceImagesWithImgurLinks(delta: Delta): Promise<Delta> {
+        for (const currDelta of delta.ops) {
             // Found an image!
-            if (typeof (delta[i] as any).insert.image !== "undefined") {
+            if (currDelta.hasOwnProperty("insert") && typeof (currDelta as any).insert.image !== "undefined") {
                 // The base64 of the image
-                const originalBase64 = (delta[i] as any).insert.image;
+                const originalBase64 = (currDelta as any).insert.image;
                 const strippedBase64 = this.stripBase64Preamble(originalBase64); // Strip the preamble (imgur wants this)
 
                 // Upload it to imgur
                 await this.uploadBase64ToImgur(strippedBase64).then((response: AxiosResponse) => {
                     if (response.data.success) {
                         // Replace the base64 with the imgur link
-                        (delta[i] as any).insert.image = response.data.data.link;
+                        (currDelta as any).insert.image = response.data.data.link;
                     } else {
                         // TODO: Error handling, Maybe retry otherwise fail silently(?)
                     }
@@ -33,15 +34,17 @@ export class ImgurUpload {
     private static axiosAPI = axios.create({
         baseURL: imgurBaseUrl,
         headers: {
-            Authorization: `Client-ID ${imgurClientId}`
+            "Authorization": `Client-ID ${imgurClientId}`,
+            "Content-Type": "application/json"
         }
     });
 
     private static stripBase64Preamble(base64: string): string {
-        return base64.replace("data:image/png;base64,", "");
+        return base64.replace(/data:image\/(.+);base64,/, "");
     }
 
     private static async uploadBase64ToImgur(payload: string): Promise<AxiosResponse> {
+        console.log(payload)
         return await this.axiosAPI.post("/image", {
             image: payload
         });
