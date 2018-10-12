@@ -8,7 +8,8 @@ import CreateAccount from "../user/CreateAccount.vue";
 import AdminDashboard from "../user/AdminDashboard.vue";
 import UserDashboard from "../user/UserDashboard.vue";
 
-import PostView from "../PostView.vue";
+import PostView from "../posts/PostView.vue";
+import PostCreate from "../posts/PostCreate.vue";
 
 import {userBeforeEnter} from "./guards/userDashboardGuard";
 import {adminBeforeEnter} from "./guards/adminDashboardGuard";
@@ -28,6 +29,7 @@ export enum Routes {
     EDITOR = "/editor",
     CREATEACCOUNT = "/createaccount",
     POST = "/post",
+    POSTCREATE = "/post/create",
     TOPIC = "/topic",
     USERDASHBOARD = "/user",
     ADMINDASHBOARD = "/admin"
@@ -53,6 +55,12 @@ const router = new Router({
             name: "createaccount",
             component: CreateAccount,
             beforeEnter: onlyIfNotLoggedIn
+        },
+        {
+            path: Routes.POSTCREATE,
+            name: "post",
+            component: PostCreate,
+            beforeEnter: userBeforeEnter
         },
         {
             path: `${Routes.POST}/:hash`,
