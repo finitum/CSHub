@@ -2,7 +2,7 @@ import {IUserCensored} from "./IUser";
 
 export interface IEdit {
     parentPostId: number;
-    content: string;
+    content: object;
     editedBy: IUserCensored;
     approved: boolean;
     approvedBy: IUserCensored;
