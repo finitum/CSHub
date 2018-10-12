@@ -80,7 +80,7 @@
             return {
                 activeTopicHash: [],
                 topicViewOpen: false
-            }
+            };
         },
         computed: {
             topics() {
@@ -89,7 +89,7 @@
         },
         methods: {
             submitPost() {
-                this.$refs.quillView.setDelta(this.$refs.quillEdit.getDelta());
+                console.log((this.$refs as any).quillEdit.getDelta());
             }
         }
     });
