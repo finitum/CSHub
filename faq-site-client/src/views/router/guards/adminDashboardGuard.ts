@@ -4,10 +4,10 @@ import router, {Routes} from "../router";
 
 export const adminBeforeEnter = (to: Route, from: Route, next: () => any) => {
     if (userState.isLoggedIn && userState.isAdmin) {
-        router.push(Routes.LOGIN);
-    } else if (!userState.isAdmin) {
+        next();
+    } else if (!userState.isAdmin && userState.isLoggedIn) {
         router.push(Routes.INDEX);
     } else {
-        next();
+        router.push(Routes.LOGIN);
     }
 };

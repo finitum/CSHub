@@ -81,8 +81,10 @@ app.post(SubmitPostRequest.getURL, (req: Request, res: Response) => {
                         });
                 }
             });
-    } else {
+    } else if (!inputsValidation.valid) {
         res.json(new SubmitPostCallback(SubmitPostResponse.INVALIDINPUT));
+    } else if (!userObj.valid) {
+        res.status(401).send();
     }
 
 });
