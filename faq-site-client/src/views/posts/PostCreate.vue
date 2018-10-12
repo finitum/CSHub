@@ -1,3 +1,5 @@
+import {SubmitPostResponse} from "../../../../faq-site-shared/api-calls/pages";
+import {SubmitPostResponse} from "../../../../faq-site-shared/api-calls/pages";
 <template>
     <v-container fluid fill-height class="grey lighten-4">
         <v-layout justify-center align-center>
@@ -9,7 +11,10 @@
                                 <h3 class="headline">Create post</h3>
                             </v-flex>
                             <v-flex class="text-xs-right">
-                                <v-btn depressed large color="primary" @click="submitPost">Submit</v-btn>
+                                <v-btn depressed large color="primary" @click="submitPost">
+                                    <span v-if="!showCloseIcon">Submit</span>
+                                    <v-icon v-if="showCloseIcon">mdi-close</v-icon>
+                                </v-btn>
                             </v-flex>
                         </v-layout>
                     </v-card-title>
@@ -20,6 +25,12 @@
                                         style="font-weight:bold; font-size: 22px"
                                         label="Title"
                                         box
+                                        v-model="postTitle"
+                                        v-validate="'required|min:4|max:127'"
+                                        :error-messages="errors.collect('postTitle') + postTitleError"
+                                        @change="postTitleError = ''"
+                                        name="postTitle"
+                                        required
                                 ></v-text-field>
                             </v-flex>
                             <v-flex class="text-xs-right">
@@ -36,7 +47,9 @@
                                             flat
                                             id="tableButton"
                                     >
-                                        <v-icon color="black" id="tableIcon">mdi-folder-multiple</v-icon>
+                                        <v-icon v-if="!showTopicWrongIcon && !showTopicFilledIcon" color="black">mdi-folder-multiple</v-icon>
+                                        <v-icon v-if="showTopicFilledIcon" color="primary">mdi-folder-plus</v-icon>
+                                        <v-icon v-if="showTopicWrongIcon && !showTopicFilledIcon" color="red">mdi-folder-remove</v-icon>
                                     </v-btn>
 
                                     <v-card>
@@ -72,14 +85,29 @@
     import Vue from "vue";
     import Quill from "../../components/quill/Quill.vue";
     import dataState from "../../store/data";
+    import Delta from "quill-delta/dist/Delta";
+    import {ImgurUpload} from "../../utilities/imgur";
+    import {ApiWrapper} from "../../utilities";
+    import {
+        SubmitPostCallback,
+        SubmitPostRequest,
+        SubmitPostResponse
+    } from "../../../../faq-site-shared/api-calls/pages";
+    import {Routes} from "../router/router";
 
     export default Vue.extend({
         name: "PostCreate",
         components: {Quill},
+        inject: ["$validator"],
         data() {
             return {
                 activeTopicHash: [],
-                topicViewOpen: false
+                topicViewOpen: false,
+                postTitle: "",
+                postTitleError: "",
+                showCloseIcon: false,
+                showTopicWrongIcon: false,
+                showTopicFilledIcon: false
             };
         },
         computed: {
@@ -87,9 +115,44 @@
                 return dataState.topics;
             }
         },
+        watch: {
+            activeTopicHash() {
+                this.showTopicFilledIcon = this.activeTopicHash[0] !== undefined;
+            }
+        },
         methods: {
             submitPost() {
-                console.log((this.$refs as any).quillEdit.getDelta());
+                if (this.activeTopicHash[0] !== undefined) {
+                    this.$validator.validateAll()
+                        .then((allValid: boolean) => {
+                            if (allValid) {
+                                const delta: Delta = (this.$refs as any).quillEdit.getDelta();
+                                if (delta.ops[0].insert !== "\n") {
+                                    ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
+                                        .then((newValue: Delta) => {
+                                            ApiWrapper.sendPostRequest(new SubmitPostRequest(this.postTitle, JSON.stringify(newValue), this.activeTopicHash[0]), (response: SubmitPostCallback) => {
+                                                if (response.response === SubmitPostResponse.SUCCESS) {
+                                                    this.$router.push(Routes.USERDASHBOARD);
+                                                } else if (response.response === SubmitPostResponse.TITLEALREADYINUSE) {
+                                                    this.postTitleError = "Title is already in use!"
+                                                }
+                                            });
+                                        });
+                                } else {
+                                    this.showCloseIcon = true;
+                                    setTimeout(() => {
+                                        this.showCloseIcon = false;
+                                    }, 1000)
+                                }
+
+                            }
+                        })
+                } else {
+                    this.showTopicWrongIcon = true;
+                    setTimeout(() => {
+                        this.showTopicWrongIcon = false;
+                    }, 1000)
+                }
             }
         }
     });
