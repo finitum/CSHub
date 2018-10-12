@@ -251,7 +251,7 @@
                 // @ts-ignore
                 dataState.setQuillContents(content);
             },
-            textChanged(delta: Delta, oldContents: Delta, source: any) {
+            textChanged(delta: Delta, oldContents: Delta, source: string) {
                 // Delta is the single changed made that triggered this function
                 // OldDelta is everything that was typed previous to the edit
                 this.$emit("textChanged");
