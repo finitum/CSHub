@@ -23,7 +23,7 @@ export class SubmitPostRequest implements IApiRequest {
 
     constructor(
         public postTitle: string,
-        public postBody: string,
+        public postBody: object,
         public postTopicHash: number
     ) {}
 }

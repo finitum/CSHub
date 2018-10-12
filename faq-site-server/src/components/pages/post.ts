@@ -97,7 +97,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
                                 for (const edit of edits.convertRowsToResultObjects()) {
                                     currEdits.push({
                                         parentPostId: post.getNumberFromDB("id"),
-                                        content: edit.getStringFromDB("editContent"),
+                                        content: JSON.parse(edit.getStringFromDB("editContent")),
                                         editedBy: {
                                             id: edit.getNumberFromDB("editedById"),
                                             firstname: edit.getStringFromDB("editedByFirstName"),

@@ -22,7 +22,7 @@ app.post(SubmitPostRequest.getURL, (req: Request, res: Response) => {
             minlength: 4,
             maxlength: 127
         }
-    }, {input: submitPostRequest.postBody}, {input: submitPostRequest.postTopicHash});
+    }, {input: JSON.stringify(submitPostRequest.postBody)}, {input: submitPostRequest.postTopicHash});
 
     if (inputsValidation.valid && userObj.valid) {
         const topics = getTopicTree();
@@ -61,7 +61,7 @@ app.post(SubmitPostRequest.getURL, (req: Request, res: Response) => {
                                           SET post     = ?,
                                               content  = ?,
                                               editedBy = ?
-                                        `, insertResult.getInsertId(), submitPostRequest.postBody, userObj.tokenObj.user.id);
+                                        `, insertResult.getInsertId(), JSON.stringify(submitPostRequest.postBody), userObj.tokenObj.user.id);
                                     })
                                     .then((insertEdit: DatabaseResultSet) => {
                                         res.json(new SubmitPostCallback(SubmitPostResponse.SUCCESS, topicHash));

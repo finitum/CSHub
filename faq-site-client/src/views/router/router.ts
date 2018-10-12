@@ -29,7 +29,7 @@ export enum Routes {
     EDITOR = "/editor",
     CREATEACCOUNT = "/createaccount",
     POST = "/post",
-    POSTCREATE = "/createpost",
+    POSTCREATE = "/post/create",
     TOPIC = "/topic",
     USERDASHBOARD = "/user",
     ADMINDASHBOARD = "/admin"

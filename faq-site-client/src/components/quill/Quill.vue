@@ -127,7 +127,6 @@
         data() {
             return {
                 editor: {},
-                content: {},
                 _options: {},
                 tableMenuOpen: false,
                 tableActions: TableActions,
@@ -243,8 +242,8 @@
                 this.editor.enable(false); // Hide it before we set the content
 
                 // Set the content (with input a quill delta object)
-                if (this.value || this.content) {
-                    this.editor.setContents(this.content || this.value);
+                if (this.value) {
+                    this.editor.setContents(this.value);
                 }
 
                 // Show the editor again

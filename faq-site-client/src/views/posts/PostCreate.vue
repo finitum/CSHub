@@ -1,10 +1,14 @@
-import {SubmitPostResponse} from "../../../../faq-site-shared/api-calls/pages";
-import {SubmitPostResponse} from "../../../../faq-site-shared/api-calls/pages";
 <template>
     <v-container fluid fill-height class="grey lighten-4">
         <v-layout justify-center align-center>
             <v-flex>
-                <v-card>
+                <v-progress-circular
+                    v-if="showLoadingIcon"
+                    :size="50"
+                    color="primary"
+                    indeterminate
+                ></v-progress-circular>
+                <v-card :class="{opaqueLoading: showLoadingIcon}">
                     <v-card-title class="title font-weight-regular justify-space-between">
                         <v-layout row justify-space-between>
                             <v-flex>
@@ -107,7 +111,8 @@ import {SubmitPostResponse} from "../../../../faq-site-shared/api-calls/pages";
                 postTitleError: "",
                 showCloseIcon: false,
                 showTopicWrongIcon: false,
-                showTopicFilledIcon: false
+                showTopicFilledIcon: false,
+                showLoadingIcon: false
             };
         },
         computed: {
@@ -128,13 +133,15 @@ import {SubmitPostResponse} from "../../../../faq-site-shared/api-calls/pages";
                             if (allValid) {
                                 const delta: Delta = (this.$refs as any).quillEdit.getDelta();
                                 if (delta.ops[0].insert !== "\n") {
+                                    this.showLoadingIcon = true;
                                     ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
                                         .then((newValue: Delta) => {
-                                            ApiWrapper.sendPostRequest(new SubmitPostRequest(this.postTitle, JSON.stringify(newValue), this.activeTopicHash[0]), (response: SubmitPostCallback) => {
+                                            ApiWrapper.sendPostRequest(new SubmitPostRequest(this.postTitle, newValue, this.activeTopicHash[0]), (response: SubmitPostCallback) => {
+                                                this.showLoadingIcon = false;
                                                 if (response.response === SubmitPostResponse.SUCCESS) {
                                                     this.$router.push(Routes.USERDASHBOARD);
                                                 } else if (response.response === SubmitPostResponse.TITLEALREADYINUSE) {
-                                                    this.postTitleError = "Title is already in use!"
+                                                    this.postTitleError = "Title is already in use!";
                                                 }
                                             });
                                         });
@@ -142,16 +149,16 @@ import {SubmitPostResponse} from "../../../../faq-site-shared/api-calls/pages";
                                     this.showCloseIcon = true;
                                     setTimeout(() => {
                                         this.showCloseIcon = false;
-                                    }, 1000)
+                                    }, 1000);
                                 }
 
                             }
-                        })
+                        });
                 } else {
                     this.showTopicWrongIcon = true;
                     setTimeout(() => {
                         this.showTopicWrongIcon = false;
-                    }, 1000)
+                    }, 1000);
                 }
             }
         }
@@ -159,4 +166,8 @@ import {SubmitPostResponse} from "../../../../faq-site-shared/api-calls/pages";
 </script>
 
 <style scoped>
+    .opaqueLoading {
+        pointer-events: none;
+        filter: blur(8px);
+    }
 </style>
