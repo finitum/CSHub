@@ -3,3 +3,4 @@ export * from "./pages";
 
 export * from "./NonAuthRequests";
 export * from "./AuthRequests";
+export * from "./AdminRequests";

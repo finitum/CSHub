@@ -58,7 +58,7 @@ const router = new Router({
         },
         {
             path: Routes.POSTCREATE,
-            name: "post",
+            name: "postcreate",
             component: PostCreate,
             beforeEnter: userBeforeEnter
         },
@@ -102,8 +102,9 @@ router.beforeEach((to: Route, from: Route, next) => {
                 userState.changeUserModel(verified.userModel);
             } else {
                 LogStringConsole("User is not logged in", "isLoggedIn after API");
-                userState.setCheckedToken();
             }
+            userState.setCheckedToken();
+
             next();
         });
     } else {

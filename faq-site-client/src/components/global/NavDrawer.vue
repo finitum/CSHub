@@ -50,6 +50,7 @@
                     </v-flex>
                 </v-layout>
                 <router-link :to="navigationLocations.POSTCREATE"><NavDrawerItem icon="mdi-pencil" text="Create new post"></NavDrawerItem></router-link>
+                <router-link v-if="userAdminComputed" :to="navigationLocations.ADMINDASHBOARD + adminRoutes.TOPICCREATE"><NavDrawerItem icon="mdi-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
             </div>
         </v-list>
     </v-navigation-drawer>
@@ -71,6 +72,7 @@
 
     import {Routes} from "../../views/router/router";
     import {Route} from "vue-router";
+    import {AdminRoutes} from "../../views/router/adminRoutes";
 
     export default Vue.extend({
         name: "NavDrawer",
@@ -80,7 +82,8 @@
                 activeTopicHash: [],
                 topics: [] as ITopic[],
                 items: [],
-                navigationLocations: Routes
+                navigationLocations: Routes,
+                adminRoutes: AdminRoutes
             };
         },
         computed: {
@@ -95,6 +98,11 @@
             userLoggedInComputed: {
                 get(): boolean {
                     return userState.isLoggedIn;
+                }
+            },
+            userAdminComputed: {
+                get(): boolean {
+                    return userState.isAdmin;
                 }
             }
         },
