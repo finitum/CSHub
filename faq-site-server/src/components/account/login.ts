@@ -19,7 +19,7 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
     if (customValidator({
         input: loginRequest.password,
         validationObject: {
-            length: 8
+            minlength: 8
         }
     }).valid && customValidator({input: loginRequest.email}).valid) {
 

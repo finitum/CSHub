@@ -8,7 +8,7 @@ import {
 } from "../../../../faq-site-shared/api-calls";
 import {IEdit, IPost, IPostBase, IPostReduced} from "../../../../faq-site-shared/models";
 
-import {getTopicTree} from "./topics";
+import {getTopicTree} from "../../utilities/topics-utils";
 import {DatabaseResultSet, query} from "../../database-connection";
 import {hasAccessToPost} from "../../auth/validateRights/post";
 import {getTopicFromHash} from "../../../../faq-site-shared/utilities/topics";
@@ -68,7 +68,7 @@ app.post(PostRequest.getURL, (req: Request, res: Response) => {
 
                         query(`
                           SELECT T1.id                          AS editId,
-                                 CONVERT(T1.content USING utf8) AS editContent,
+                                 T1.content                     AS editContent,
                                  T2.id                          AS editedById,
                                  T2.firstname                   AS editedByFirstName,
                                  T2.lastname                    AS editedByLastName,

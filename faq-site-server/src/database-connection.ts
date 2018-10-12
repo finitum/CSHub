@@ -85,7 +85,7 @@ export const query = (query: string, ...args: any[]) => {
                 if (err) {
                     return reject(err);
                 }
-                resolve(new DatabaseResultSet(rows));
+                resolve(new DatabaseResultSet(rows, rows.insertId));
             });
         }
     });
@@ -93,7 +93,7 @@ export const query = (query: string, ...args: any[]) => {
 
 export class DatabaseResultSet {
 
-    constructor(private rows: any[]) {}
+    constructor(private rows: any[], private insertId: number) {}
 
     public static getStringFromDB(name: string, obj: any): string {
 
@@ -127,6 +127,10 @@ export class DatabaseResultSet {
             logger.error(err);
             return null;
         }
+    }
+
+    public getInsertId(): number {
+        return this.insertId;
     }
 
     public getStringFromDB(name: string, index: number = 0): string {

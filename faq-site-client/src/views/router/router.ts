@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Router, {Route} from "vue-router";
 
-import {VerifyTokenRequest, VerifyTokenRequestCallBack, VerifyTokenResponses} from "../../../../faq-site-shared/api-calls/user";
+import {VerifyTokenRequest, VerifyTokenRequestCallBack, VerifyTokenResponses} from "../../../../faq-site-shared/api-calls/account";
 
 import LoginScreen from "../user/LoginScreen.vue";
 import CreateAccount from "../user/CreateAccount.vue";
@@ -29,7 +29,7 @@ export enum Routes {
     EDITOR = "/editor",
     CREATEACCOUNT = "/createaccount",
     POST = "/post",
-    POSTCREATE = "/post/create",
+    POSTCREATE = "/createpost",
     TOPIC = "/topic",
     USERDASHBOARD = "/user",
     ADMINDASHBOARD = "/admin"
