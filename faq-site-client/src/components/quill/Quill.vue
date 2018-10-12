@@ -176,9 +176,10 @@
 
             this.initRequirements(); // Init quill dependencies (mathquill4quillMin)
 
+            // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
             setTimeout(() => {
                 this.initQuill(); // Actually init quill itself
-            }, 1000)
+            })
         },
         beforeDestroy() {
             // Remove the editor on destroy
