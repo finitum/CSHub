@@ -89,7 +89,7 @@
 
 </template>
 
-<script lang="ts">
+<script>
     import Vue from "vue";
 
     import dataState from "../../store/data";
@@ -101,44 +101,37 @@
     import "../../plugins/quill/quill2.min";
     import "../../plugins/quill/quill2.min.css";
     import defaultOptions from "./options";
-    // @ts-ignore
     import {mathquill} from "../../plugins/quill/mathquill.min";
     import "../../plugins/quill/mathquill.min.css";
-    // @ts-ignore
     import katex from "katex/dist/katex.min";
     import "katex/dist/katex.min.css";
-    // @ts-ignore
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
-    import {ImgurUpload} from "../../utilities/imgur";
-    import Delta from "quill-delta/dist/Delta";
     import {ImageResize} from "../../plugins/quill/ImageResize.min";
-    import {IQuillEditSetup} from "./IQuillEditSetup";
 
-    const Quill: any = (window as any).Quill;
-
+    const Quill = window.Quill;
     Quill.register("modules/resize", ImageResize);
 
-    enum TableActions {
-        CREATETABLE,
-        CREATENEWROWUP,
-        CREATENEWROWDOWN,
-        CREATENEWCOLUMNLEFT,
-        CREATENEWCOLUMNRIGHT,
-        REMOVEROW,
-        REMOVECOLUMN,
-        REMOVETABLE
-    }
+    const TableActions = Object.freeze({
+            CREATETABLE: 1,
+            CREATENEWROWUP: 2,
+            CREATENEWROWDOWN: 3,
+            CREATENEWCOLUMNLEFT: 4,
+            CREATENEWCOLUMNRIGHT: 5,
+            REMOVEROW: 6,
+            REMOVECOLUMN: 7,
+            REMOVETABLE: 8
+    });
 
-    export default Vue.extend({
+    export default {
         name: "Quill",
         data() {
             return {
-                editor: {} as any,
+                editor: {},
                 content: {},
                 _options: {},
-                tableMenuOpen: false as boolean,
+                tableMenuOpen: false,
                 tableActions: TableActions,
-                quillId: "" as string,
+                quillId: "",
                 defaultOptions
             };
         },
@@ -158,7 +151,7 @@
                 default: () => ({})
             },
             editorSetup: {
-                type: Object as IQuillEditSetup,
+                type: null,
                 default: {allowEdit: true, showToolbar: true}
             }
         },
@@ -179,7 +172,7 @@
             // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
             setTimeout(() => {
                 this.initQuill(); // Actually init quill itself
-            })
+            });
         },
         beforeDestroy() {
             // Remove the editor on destroy
@@ -187,13 +180,13 @@
             delete this.editor;
         },
         methods: {
-            getDelta(): string {
+            getDelta() {
                 return this.editor.getContents();
             },
-            setDelta(contents: Delta) {
+            setDelta(contents) {
                 this.editor.setContents(contents);
             },
-            performTableAction(type: TableActions) {
+            performTableAction(type) {
                 const table = this.editor.getModule("table");
                 if (table !== undefined) {
                     switch (type) {
@@ -226,11 +219,11 @@
             },
             initRequirements() {
                 // Assign jquery and katex for use by mathquillMin
-                (window as any).jQuery = JQuery;
-                (window as any).katex = katex;
+                window.jQuery = JQuery;
+                window.katex = katex;
 
                 mathquill(); // Load mathquillMin after jquery and katex were defined
-                mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
+                mathquill4quill(Quill, window.MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
             },
             initQuill() {
                 // Set options and override the default with the user specified ones (Order of importance if right to left)
@@ -264,21 +257,13 @@
                 // Specify function to be called on change
                 this.editor.on("text-change", this.textChanged);
             },
-            saveEditor() {
-                // Stores delta type object into the store
-                // Documentation: https://quilljs.com/docs/delta/
-
-                const content = this.editor.getContents();
-                // @ts-ignore
-                dataState.setQuillContents(content);
-            },
-            textChanged(delta: Delta, oldContents: Delta, source: string) {
+            textChanged(delta, oldContents, source) {
                 // Delta is the single changed made that triggered this function
                 // OldDelta is everything that was typed previous to the edit
                 this.$emit("textChanged");
             }
         }
-    });
+    };
 </script>
 
 <style scoped>
