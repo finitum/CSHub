@@ -12,7 +12,7 @@
                             <div id="snow-container">
                                 <div class="toolbar">
                                     <span class="ql-formats">
-                                          <select class="ql-header">
+                                          <select class="ql-header" title="Header">
                                                 <option value="1">Heading</option>
                                                 <option value="2">Subheading</option>
                                                 <option selected>Normal</option>
@@ -27,7 +27,7 @@
                                     <span class="ql-formats">
                                           <button class="ql-list" value="ordered"></button>
                                           <button class="ql-list" value="bullet"></button>
-                                          <select class="ql-align">
+                                          <select class="ql-align" title="Alignment">
                                             <option label="left" selected></option>
                                             <option label="center" value="center"></option>
                                             <option label="right" value="right"></option>
@@ -219,7 +219,7 @@
                 mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
             },
             initQuill() {
-                // Overide user-specified options with default options
+                // Set options and override the default with the user specified ones (Order of importance if right to left)
                 this._options = Object.assign({}, this.defaultOptions, this.options);
 
                 // Create the editor
@@ -264,10 +264,6 @@
     @font-face {
         font-family: 'SailecLight';
         src: url("../../plugins/quill/Sailec-Light.otf");
-    }
-
-    .confirm {
-        float: right; /* Push confirm button to the right (can this be done cleaner with vuetify? */
     }
 
     #snow-wrapper .toolbar {
