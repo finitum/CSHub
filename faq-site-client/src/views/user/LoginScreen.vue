@@ -33,7 +33,6 @@
                                 @change="userData.passworderror = ''"
                                 @keyup.enter="doLogin"
                         ></v-text-field>
-                        <p v-if=""></p>
                         <v-switch
                                 label="Remember login?"
                                 v-model="userData.rememberuser"
