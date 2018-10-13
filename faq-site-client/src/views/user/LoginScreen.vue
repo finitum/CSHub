@@ -7,41 +7,43 @@
                         <span>Login</span>
                     </v-card-title>
                     <v-card-text>
-                        <v-text-field
-                                label="Email"
-                                v-model="userData.email"
-                                :error-messages="emailErrors"
-                                name="email"
-                                v-validate="'required'"
-                                required
-                                suffix="@student.tudelft.nl"
-                                box
-                                @change="userData.emailerror = ''"
-                                @keyup.enter="doLogin"
-                        ></v-text-field>
-                        <v-text-field
-                                label="Password"
-                                v-model="userData.password"
-                                :error-messages="passwordErrors"
-                                name="password"
-                                :append-icon="userData.passwordvisible ? 'mdi-eye-off' : 'mdi-eye'"
-                                @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
-                                :type="userData.passwordvisible ? 'text' : 'password'"
-                                v-validate="'required|min:8'"
-                                box
-                                required
-                                @change="userData.passworderror = ''"
-                                @keyup.enter="doLogin"
-                        ></v-text-field>
-                        <p v-if=""></p>
-                        <v-switch
-                                label="Remember login?"
-                                v-model="userData.rememberuser"
-                        ></v-switch>
-                        <div>
-                            <v-btn depressed color="primary" @click="doLogin">Login</v-btn>
-                            <v-btn depressed color="secondary" to="createaccount">Create account</v-btn>
-                        </div>
+                        <v-form>
+                            <v-text-field
+                                    label="Email"
+                                    v-model="userData.email"
+                                    :error-messages="emailErrors"
+                                    name="email"
+                                    v-validate="'required'"
+                                    required
+                                    suffix="@student.tudelft.nl"
+                                    autocomplete="email"
+                                    box
+                                    @change="userData.emailerror = ''"
+                                    @keyup.enter="doLogin"
+                            ></v-text-field>
+                            <v-text-field
+                                    label="Password"
+                                    v-model="userData.password"
+                                    :error-messages="passwordErrors"
+                                    name="password"
+                                    :append-icon="userData.passwordvisible ? 'mdi-eye-off' : 'mdi-eye'"
+                                    @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
+                                    :type="userData.passwordvisible ? 'text' : 'password'"
+                                    v-validate="'required|min:8'"
+                                    box
+                                    required
+                                    @change="userData.passworderror = ''"
+                                    @keyup.enter="doLogin"
+                            ></v-text-field>
+                            <v-switch
+                                    label="Remember login?"
+                                    v-model="userData.rememberuser"
+                            ></v-switch>
+                            <div>
+                                <v-btn depressed color="primary" @click="doLogin">Login</v-btn>
+                                <v-btn depressed color="secondary" to="createaccount">Create account</v-btn>
+                            </div>
+                        </v-form>
                     </v-card-text>
                 </v-card>
             </v-flex>

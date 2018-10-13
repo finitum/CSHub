@@ -36,7 +36,7 @@
             </v-card-title>
 
             <v-card-text>
-                <div v-html="postReduced.lastEdit.content"></div>
+                <Quill ref="quillView" :editorSetup="{allowEdit: false, showToolbar: false}" :value="postReduced.lastEdit.content"></Quill>
             </v-card-text>
 
             <v-card-actions>
@@ -48,6 +48,8 @@
 
 <script lang="ts">
     import Vue from "vue";
+
+    import Quill from "../quill/Quill.vue";
 
     import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
     import {
@@ -67,6 +69,7 @@
 
     export default Vue.extend({
         name: "Post",
+        components: {Quill},
         data() {
             return {
                 postReduced: null as IPostReduced,

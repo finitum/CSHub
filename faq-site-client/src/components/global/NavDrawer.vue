@@ -9,6 +9,15 @@
                 dense
                 class="grey lighten-4">
 
+            <v-layout
+                    row
+                    align-center>
+                <v-flex xs6>
+                    <v-subheader>
+                        User
+                    </v-subheader>
+                </v-flex>
+            </v-layout>
             <router-link :to="navigationLocations.USERDASHBOARD" v-if="userLoggedInComputed"><NavDrawerItem icon="mdi-account" text="User dashboard"></NavDrawerItem></router-link>
             <router-link :to="navigationLocations.LOGIN" v-if="!userLoggedInComputed"><NavDrawerItem icon="mdi-login" text="Login"></NavDrawerItem></router-link>
             <v-divider dark class="my-3"></v-divider>
@@ -29,7 +38,20 @@
                 active-class="primary--text"
                 transition>
             </v-treeview>
-            <v-divider dark class="my-3"></v-divider>
+            <div v-if="userLoggedInComputed">
+                <v-divider dark class="my-3"></v-divider>
+                <v-layout
+                        row
+                        align-center>
+                    <v-flex xs6>
+                        <v-subheader>
+                            Create
+                        </v-subheader>
+                    </v-flex>
+                </v-layout>
+                <router-link :to="navigationLocations.POSTCREATE"><NavDrawerItem icon="mdi-pencil" text="Create new post"></NavDrawerItem></router-link>
+                <router-link v-if="userAdminComputed" :to="`${navigationLocations.ADMINDASHBOARD}/${adminRoutes.TOPICCREATE}`"><NavDrawerItem icon="mdi-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
+            </div>
         </v-list>
     </v-navigation-drawer>
 </template>
@@ -50,6 +72,7 @@
 
     import {Routes} from "../../views/router/router";
     import {Route} from "vue-router";
+    import {AdminRoutes} from "../../views/router/adminRoutes";
 
     export default Vue.extend({
         name: "NavDrawer",
@@ -59,7 +82,8 @@
                 activeTopicHash: [],
                 topics: [] as ITopic[],
                 items: [],
-                navigationLocations: Routes
+                navigationLocations: Routes,
+                adminRoutes: AdminRoutes
             };
         },
         computed: {
@@ -74,6 +98,11 @@
             userLoggedInComputed: {
                 get(): boolean {
                     return userState.isLoggedIn;
+                }
+            },
+            userAdminComputed: {
+                get(): boolean {
+                    return userState.isAdmin;
                 }
             }
         },

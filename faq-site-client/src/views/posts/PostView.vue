@@ -9,12 +9,12 @@
 <script lang="ts">
     import Vue from "vue";
 
-    import Post from "../components/posts/Post.vue";
+    import Post from "../../components/posts/Post.vue";
 
-    import {TopicPostsCallBack, TopicPostsRequest} from "../../../faq-site-shared/api-calls";
+    import {TopicPostsCallBack, TopicPostsRequest} from "../../../../faq-site-shared/api-calls/index";
 
-    import {ApiWrapper, LogObjectConsole} from "../utilities";
-    import {Routes} from "./router/router";
+    import {ApiWrapper, LogObjectConsole} from "../../utilities/index";
+    import {Routes} from "../router/router";
     import {Route} from "vue-router";
 
     export default Vue.extend({
