@@ -19,6 +19,7 @@
     "jsonwebtoken": "^8.3.0",
     "moment": "^2.22.2",
     "mysql2": "^1.6.1",
+    "nodemon": "^1.18.4",
     "ssh2": "^0.6.1",
     "tslint": "^5.11.0",
     "winston": "^3.1.0"

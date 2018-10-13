@@ -21,11 +21,11 @@ app.post(UserDashboardChangePasswordRequest.getURL, (req: Request, res: Response
         const inputsValidation = validateMultipleInputs({
             input: userDashboardChangePasswordRequest.currentPassword,
             validationObject: {
-                length: 8
+                minlength: 8
             }
         }, {input: userDashboardChangePasswordRequest.newPassword,
             validationObject: {
-                length: 8
+                minlength: 8
             }
         });
 

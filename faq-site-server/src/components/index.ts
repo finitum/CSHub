@@ -1,2 +1,2 @@
-import "./user";
+import "./account";
 import "./pages";

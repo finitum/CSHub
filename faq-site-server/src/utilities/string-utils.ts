@@ -1,11 +1,11 @@
 export interface ICustomValidatorResponse {
     valid: boolean;
-    value?: string;
+    value?: string | number;
     error?: CustomValidatorReponseTypes;
 }
 
 export interface ICustomValidatorInput {
-    input: string;
+    input: string | number;
     validationObject?: ICustomValidatorInputObject;
 }
 
@@ -14,7 +14,8 @@ export interface ICustomValidatorInputObject {
     null?: boolean;
     undefined?: boolean;
     empty?: boolean;
-    length?: number;
+    minlength?: number;
+    maxlength?: number;
     tuemail?: boolean;
 }
 
@@ -23,7 +24,8 @@ export enum CustomValidatorReponseTypes {
     NULL,
     UNDEFINED,
     EMPTY,
-    LENGTH,
+    MINLENGTH,
+    MAXLENGTH,
     TUEMAIL
 }
 
@@ -38,19 +40,21 @@ export const customValidator = (input: ICustomValidatorInput): ICustomValidatorR
         input.validationObject.nullemptyundefined = true;
     }
 
-    if (input.validationObject.nullemptyundefined && (input === null || input === undefined || input.input === "")) {
+    if (input.validationObject.nullemptyundefined && (input.input === null || input.input === undefined || input.input === "")) {
         return {valid: false, error: CustomValidatorReponseTypes.NULLEMPTYUNDEFINED, value: input.input};
-    } else if (input.validationObject.null && input === null) {
+    } else if (input.validationObject.null && input.input === null) {
         return {valid: false, error: CustomValidatorReponseTypes.NULL, value: input.input};
-    } else if (input.validationObject.undefined && input === undefined) {
+    } else if (input.validationObject.undefined && input.input === undefined) {
         return {valid: false, error: CustomValidatorReponseTypes.UNDEFINED, value: input.input};
     } else if (input.validationObject.empty && input.input === "") {
         return {valid: false, error: CustomValidatorReponseTypes.EMPTY, value: input.input};
-    } else if (input.validationObject.length && input.validationObject.length > 0 && input.input.length < input.validationObject.length) {
-        return {valid: false, error: CustomValidatorReponseTypes.LENGTH, value: input.input};
+    } else if (input.validationObject.minlength && input.validationObject.minlength > 0 && input.input.toString().length < input.validationObject.minlength) {
+        return {valid: false, error: CustomValidatorReponseTypes.MINLENGTH, value: input.input};
+    } else if (input.validationObject.maxlength && input.validationObject.maxlength > 0 && input.input.toString().length > input.validationObject.maxlength) {
+        return {valid: false, error: CustomValidatorReponseTypes.MAXLENGTH, value: input.input};
     } else if (input.validationObject.tuemail) {
         const regex = new RegExp("^[a-zA-Z.]*$");
-        if (!regex.test(input.input)) { return {valid: false, error: CustomValidatorReponseTypes.TUEMAIL, value: input.input}; }
+        if (!regex.test(input.input.toString())) { return {valid: false, error: CustomValidatorReponseTypes.TUEMAIL, value: input.input}; }
     } else {
         return {valid: true};
     }

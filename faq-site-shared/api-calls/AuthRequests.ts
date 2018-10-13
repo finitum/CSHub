@@ -3,4 +3,5 @@ export class AuthRequests {
 
     public static readonly DASHBOARD: string = "/api/1/dashboard";
     public static readonly CHANGEPASSWORD: string = "/api/1/changepassword";
+    public static readonly SUBMITPOST: string = "/api/1/submitpost";
 }
