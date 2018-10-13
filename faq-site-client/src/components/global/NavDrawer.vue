@@ -50,7 +50,7 @@
                     </v-flex>
                 </v-layout>
                 <router-link :to="navigationLocations.POSTCREATE"><NavDrawerItem icon="mdi-pencil" text="Create new post"></NavDrawerItem></router-link>
-                <router-link v-if="userAdminComputed" :to="navigationLocations.ADMINDASHBOARD + adminRoutes.TOPICCREATE"><NavDrawerItem icon="mdi-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
+                <router-link v-if="userAdminComputed" :to="`${navigationLocations.ADMINDASHBOARD}/${adminRoutes.TOPICCREATE}`"><NavDrawerItem icon="mdi-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
             </div>
         </v-list>
     </v-navigation-drawer>
