@@ -1,13 +1,10 @@
-import crypto from "crypto";
 import {Request, Response} from "express";
 
 import {app, logger} from "../../";
-import {Settings} from "../../settings";
 import {DatabaseResultSet, query} from "../../database-connection";
 
 import {CreateAccountRequest, CreateAccountRequestCallBack, CreateAccountResponses} from "../../../../faq-site-shared/api-calls";
 import {validateMultipleInputs} from "../../utilities/string-utils";
-import {secretKey} from "../../auth/jwt-key";
 import {hashPassword} from "../../auth/hashPassword";
 
 app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
@@ -18,7 +15,7 @@ app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
     const inputsValidation = validateMultipleInputs({
         input: createAccountRequest.password,
         validationObject: {
-            length: 8
+            minlength: 8
         }
     }, {input: createAccountRequest.email}, {input: createAccountRequest.firstname}, {input: createAccountRequest.lastname});
 
