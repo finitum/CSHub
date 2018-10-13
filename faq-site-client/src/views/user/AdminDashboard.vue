@@ -1,6 +1,7 @@
 <template>
     <div>
-        p
+        <h1>admin</h1>
+        <router-view></router-view>
     </div>
 </template>
 
