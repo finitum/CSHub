@@ -1,5 +1,5 @@
 import {validateAccessToken} from "../jwt";
-import {DatabaseResultSet, query} from "../../database-connection";
+import {DatabaseResultSet, query} from "../../utilities/database-connection";
 
 // Test whether the user has enough rights to access this post; only admins have access to non-verified posts
 export const hasAccessToPost = (postHash: number, jwt: string): Promise<boolean> => {

@@ -9,7 +9,7 @@ import {
 import {IEdit, IPost, IPostBase, IPostReduced} from "../../../../faq-site-shared/models";
 
 import {getTopicTree} from "../../utilities/topics-utils";
-import {DatabaseResultSet, query} from "../../database-connection";
+import {DatabaseResultSet, query} from "../../utilities/database-connection";
 import {hasAccessToPost} from "../../auth/validateRights/post";
 import {getTopicFromHash} from "../../../../faq-site-shared/utilities/topics";
 
