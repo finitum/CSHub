@@ -2,7 +2,7 @@ import async from "async";
 import {Request, Response} from "express";
 
 import {app, logger} from "../../";
-import {DatabaseResultSet, query} from "../../database-connection";
+import {DatabaseResultSet, query} from "../../utilities/database-connection";
 
 import {TopicPostsCallBack, TopicPostsRequest} from "../../../../faq-site-shared/api-calls";
 import {getTopicTree} from "../../utilities/topics-utils";
