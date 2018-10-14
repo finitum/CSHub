@@ -6,6 +6,7 @@ import {DatabaseResultSet, query} from "../../database-connection";
 import {CreateAccountRequest, CreateAccountRequestCallBack, CreateAccountResponses} from "../../../../faq-site-shared/api-calls";
 import {validateMultipleInputs} from "../../utilities/string-utils";
 import {hashPassword} from "../../auth/hashPassword";
+import {sendMail, sendVerificationEmail} from "../../mail-connection";
 
 app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
 
@@ -36,7 +37,8 @@ app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
                             INSERT INTO users
                             SET email = ?, password = ?, firstname = ?, lastname = ?
                             `, createAccountRequest.email, hashedValue, createAccountRequest.firstname, createAccountRequest.lastname)
-                                .then(() => {
+                                .then((result: DatabaseResultSet) => {
+                                    sendVerificationEmail(createAccountRequest.email, createAccountRequest.firstname, result.getInsertId());
                                     res.json(new CreateAccountRequestCallBack(CreateAccountResponses.SUCCESS));
                                 })
                                 .catch(err => {
