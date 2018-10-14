@@ -7,7 +7,7 @@ import {
 } from "../../../../faq-site-shared/api-calls";
 
 import {Settings} from "../../settings";
-import {query} from "../../database-connection";
+import {query} from "../../utilities/database-connection";
 
 app.get(NonAuthRequests.VERIFYMAIL, (req: Request, res: Response) => {
 

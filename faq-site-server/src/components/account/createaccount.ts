@@ -1,12 +1,12 @@
 import {Request, Response} from "express";
 
 import {app, logger} from "../../";
-import {DatabaseResultSet, query} from "../../database-connection";
+import {DatabaseResultSet, query} from "../../utilities/database-connection";
 
 import {CreateAccountRequest, CreateAccountRequestCallBack, CreateAccountResponses} from "../../../../faq-site-shared/api-calls";
 import {validateMultipleInputs} from "../../utilities/string-utils";
 import {hashPassword} from "../../auth/hashPassword";
-import {sendMail, sendVerificationEmail} from "../../mail-connection";
+import {sendMail, sendVerificationEmail} from "../../utilities/mail-connection";
 
 app.post(CreateAccountRequest.getURL, (req: Request, res: Response) => {
 
