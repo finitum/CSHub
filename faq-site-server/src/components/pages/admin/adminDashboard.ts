@@ -16,7 +16,7 @@ app.get(GetAllUsersRequest.getURL, (req: Request, res: Response) => {
     }
 });
 
-export const getTopicTree = (): Promise<IUser[] | null> => {
+export const getAllUsers = (): Promise<IUser[] | null> => {
     query(`
         SELECT id,email,admin,created,blocked,verified,firstname,lastname
         FROM users
