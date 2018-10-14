@@ -15,9 +15,17 @@ export interface ISettings {
         PORT: number,
         PRIVATEKEYLOCATION: string
     };
-    ALLOWORIGIN: string;
+    SITEADDRESS: string;
     TOKENAGEMILLISECONDS: number;
     PASSWORDITERATIONS: number;
+    MAIL: {
+        APIKEY: string;
+        NOREPLYADDRESS: string;
+        SUFFIX: string;
+        SENDMAIL: boolean;
+        DEBUGMAILADDRESS: string;
+        VERIFYMAILADDRESSPREFIX: string;
+    };
 
 }
 
@@ -36,7 +44,15 @@ export const Settings: ISettings = {
         PORT: 1234,
         PRIVATEKEYLOCATION: ""
     },
-    ALLOWORIGIN: "",
+    SITEADDRESS: "",
     TOKENAGEMILLISECONDS: 7200000,
-    PASSWORDITERATIONS: 45000
+    PASSWORDITERATIONS: 45000,
+    MAIL: {
+        APIKEY: "",
+        NOREPLYADDRESS: "",
+        SENDMAIL: false,
+        SUFFIX: "",
+        DEBUGMAILADDRESS: "",
+        VERIFYMAILADDRESSPREFIX: ""
+    }
 };
