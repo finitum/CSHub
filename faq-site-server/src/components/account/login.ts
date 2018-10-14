@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 
 import {app, logger} from "../../index";
 import {Settings} from "../../settings";
-import {DatabaseResultSet, query} from "../../database-connection";
+import {DatabaseResultSet, query} from "../../utilities/database-connection";
 
 import {LoginRequest, LoginRequestCallBack, LoginResponses} from "../../../../faq-site-shared/api-calls/index";
 import {IUser} from "../../../../faq-site-shared/models/IUser";

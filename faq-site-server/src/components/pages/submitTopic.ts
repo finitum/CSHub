@@ -7,7 +7,7 @@ import {getTopicFromHash} from "../../../../faq-site-shared/utilities/topics";
 
 import {validateMultipleInputs} from "../../utilities/string-utils";
 import {generateRandomTopicHash, getTopicTree} from "../../utilities/topics-utils";
-import {DatabaseResultSet, query} from "../../database-connection";
+import {DatabaseResultSet, query} from "../../utilities/database-connection";
 import {checkTokenValidity} from "../../auth/middleware";
 
 app.post(SubmitTopicRequest.getURL, (req: Request, res: Response) => {
