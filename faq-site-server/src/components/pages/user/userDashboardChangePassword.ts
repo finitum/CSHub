@@ -5,7 +5,7 @@ import {
     UserDashboardChangePasswordResponses
 } from "../../../../../faq-site-shared/api-calls";
 import {Request, Response} from "express";
-import {DatabaseResultSet, query} from "../../../database-connection";
+import {DatabaseResultSet, query} from "../../../utilities/database-connection";
 import {checkTokenValidity} from "../../../auth/middleware";
 import {validateMultipleInputs} from "../../../utilities/string-utils";
 import {hashPassword} from "../../../auth/hashPassword";

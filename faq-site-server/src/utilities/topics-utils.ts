@@ -1,5 +1,5 @@
 import {ITopic} from "../../../faq-site-shared/models";
-import {DatabaseResultSet, query} from "../database-connection";
+import {DatabaseResultSet, query} from "./database-connection";
 import {getTopicFromHash} from "../../../faq-site-shared/utilities/topics";
 
 export const generateRandomTopicHash = (): Promise<number> => {
