@@ -1,8 +1,8 @@
 import mysql from "mysql2";
-import {Settings} from "./settings";
+import {Settings} from "../settings";
 import {Client} from "ssh2";
 import fs from "fs";
-import {logger} from "./index";
+import {logger} from "../index";
 
 const connectionconf = {
     host: Settings.DATABASE.HOST,

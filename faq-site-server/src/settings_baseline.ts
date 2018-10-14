@@ -22,7 +22,6 @@ export interface ISettings {
         APIKEY: string;
         NOREPLYADDRESS: string;
         SUFFIX: string;
-        SENDMAIL: boolean;
         DEBUGMAILADDRESS: string;
         VERIFYMAILADDRESSPREFIX: string;
     };
@@ -50,7 +49,6 @@ export const Settings: ISettings = {
     MAIL: {
         APIKEY: "",
         NOREPLYADDRESS: "",
-        SENDMAIL: false,
         SUFFIX: "",
         DEBUGMAILADDRESS: "",
         VERIFYMAILADDRESSPREFIX: ""

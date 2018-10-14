@@ -2,10 +2,10 @@ import sgMail from "@sendgrid/mail";
 import * as fs from "fs";
 import {ClientResponse} from "@sendgrid/client/src/response";
 
-import {Settings} from "./settings";
+import {Settings} from "../settings";
 import {query} from "./database-connection";
-import {logger} from ".";
-import {NonAuthRequests} from "../../faq-site-shared/api-calls";
+import {logger} from "../index";
+import {NonAuthRequests} from "../../../faq-site-shared/api-calls/index";
 
 sgMail.setApiKey(Settings.MAIL.APIKEY);
 
@@ -41,7 +41,7 @@ export const sendVerificationEmail = (to: string, name: string, insertId: number
 
                 logger.info(`Replaced address; ${replaceToAddress}`);
 
-                if (Settings.MAIL.SENDMAIL) {
+                if (Settings.LIVE) {
                     if (Settings.MAIL.SUFFIX.charAt(0) === "@") {
                         sendMail("Verify your email address", newHTML, to + Settings.MAIL.SUFFIX);
                     } else {
