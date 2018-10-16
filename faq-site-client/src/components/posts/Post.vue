@@ -108,7 +108,7 @@
                 ApiWrapper.sendPostRequest(new VerifyPostRequest(this.postHash), (callback: VerifyPostCallBack) => {
                     LogStringConsole("Verified post");
                     this.$router.push(Routes.INDEX);
-                })
+                });
             },
             returnToPostMenu() {
                 if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD)) {
