@@ -3,6 +3,7 @@
         <v-dialog
                 v-model="dialogOpen"
                 max-width="400"
+                persistent
         >
             <v-card>
                 <v-card-title class="headline">Welcome!</v-card-title>
@@ -73,12 +74,12 @@
             return {
                 drawerActive: true as boolean,
                 activeclass: "animated fadeInLeft" as string,
-                dialogOpen: true
+                dialogOpen: false
             };
         },
         mounted() {
-            if (localStorage.getItem(LocalStorageData.DIALOGOPENED) === "true") {
-                this.dialogOpen = false;
+            if (localStorage.getItem(LocalStorageData.DIALOGOPENED) !== "true") {
+                this.dialogOpen = true;
             }
         },
         methods: {
