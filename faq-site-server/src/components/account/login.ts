@@ -59,7 +59,8 @@ app.post(LoginRequest.getURL, (req: Request, res: Response) => {
                                 // Sign a JWT token which has the usermodel, on this way, we don't have to check in the database when we get a request from the user, we just verify the JWT token, which contains the userModel.
                                 // Also, the token is only valid for 2 hours (7200000)
                                 res.cookie("token", jwt, {
-                                    maxAge: Settings.TOKENAGEMILLISECONDS
+                                    maxAge: Settings.TOKENAGEMILLISECONDS,
+                                    domain: Settings.DOMAIN
                                 });
 
                                 res.json(new LoginRequestCallBack(LoginResponses.SUCCESS, userModel));
