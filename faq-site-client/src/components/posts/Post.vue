@@ -18,6 +18,9 @@
                     >
                         {{postReduced.title}}
                     </v-breadcrumbs-item>
+                    <v-btn color="green" depressed small @click="verifyPost" v-if="!postFull.approved && userAdminComputed">
+                        <v-icon>mdi-check</v-icon>
+                    </v-btn>
                 </v-breadcrumbs>
                 <v-badge right color="green" overlap class="mr-3 pl-3">
                     <span slot="badge">{{postReduced.upvotes}}</span>
@@ -56,11 +59,13 @@
         PostCallBack,
         PostPreviewCallBack,
         PostPreviewRequest,
-        PostRequest
+        PostRequest, VerifyPostCallBack,
+        VerifyPostRequest
     } from "../../../../faq-site-shared/api-calls";
     import {IPost, IPostReduced, ITopic} from "../../../../faq-site-shared/models";
     import {Routes} from "../../views/router/router";
     import dataState from "../../store/data";
+    import userState from "../../store/user";
 
     interface IBreadCrumbType {
         name: string;
@@ -90,10 +95,21 @@
         },
         computed: {
             backgroundColorComputed(): string {
-                return !this.postReduced.approved ? "orange" : "";
+                return !this.postReduced.approved ? "#FFD740" : "";
+            },
+            userAdminComputed: {
+                get(): boolean {
+                    return userState.isAdmin;
+                }
             }
         },
         methods: {
+            verifyPost() {
+                ApiWrapper.sendPostRequest(new VerifyPostRequest(this.postHash), (callback: VerifyPostCallBack) => {
+                    LogStringConsole("Verified post");
+                    this.$router.push(Routes.INDEX);
+                })
+            },
             returnToPostMenu() {
                 if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD)) {
                     this.$router.go(-1);
@@ -148,7 +164,7 @@
                         lastEdit: callbackData.post.edits[0]
                     };
 
-                    if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD)) {
+                    if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD) && !this.$router.currentRoute.path.includes(Routes.ADMINDASHBOARD)) {
                         this.$router.push(`${Routes.POST}/${this.postReduced.hash}`);
                     } else {
                         this.$emit("toggleFullPost", callbackData.post.hash);

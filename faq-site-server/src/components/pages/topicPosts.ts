@@ -45,8 +45,9 @@ app.post(TopicPostsRequest.getURL, (req: Request, res: Response) => {
                     topicHashes = getChildHashes([currTopic]);
                 }
 
-                // Retreiving all post hashes of the current topic
-                query(`
+                if (topicHashes.length > 0) {
+                    // Retreiving all post hashes of the current topic
+                    query(`
                   SELECT T1.hash
                   FROM posts T1
                   INNER JOIN topics T2 ON T1.topic = T2.id
@@ -54,23 +55,27 @@ app.post(TopicPostsRequest.getURL, (req: Request, res: Response) => {
                   ORDER BY datetime DESC
                   LIMIT ?, 5
                 `, topicHashes, topicPostsRequest.startFromResult)
-                    .then((posts: DatabaseResultSet) => {
+                        .then((posts: DatabaseResultSet) => {
 
-                        const postHashes: number[] = [];
+                            const postHashes: number[] = [];
 
-                        for (const post of posts.convertRowsToResultObjects()) {
-                            postHashes.push(post.getNumberFromDB("hash"));
-                        }
+                            for (const post of posts.convertRowsToResultObjects()) {
+                                postHashes.push(post.getNumberFromDB("hash"));
+                            }
 
-                        const callbackObj = new TopicPostsCallBack(postHashes);
+                            const callbackObj = new TopicPostsCallBack(postHashes);
 
-                        res.json(callbackObj);
-                    })
-                    .catch(err => {
-                        logger.error(`Getting posts hash failed`);
-                        logger.error(err);
-                        res.status(500).send();
-                    });
+                            res.json(callbackObj);
+                        })
+                        .catch(err => {
+                            logger.error(`Getting posts hash failed`);
+                            logger.error(err);
+                            res.status(500).send();
+                        });
+                } else {
+                    res.json(new TopicPostsCallBack([]));
+                }
+
             }
         });
 });
