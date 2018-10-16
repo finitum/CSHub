@@ -44,6 +44,16 @@ if (Settings.USESSH) {
                             resolve(currConnection);
                         }
                     });
+
+                    connectionPromise.then((connection: any) => {
+                        if (toExecuteQueries.length > 0) {
+                            for (const queryobj of toExecuteQueries) {
+                                query(queryobj.query, ...queryobj.args).then((data: any) => {
+                                    queryobj.resolve(data);
+                                });
+                            }
+                        }
+                    });
                 });
         }).connect({
             host: Settings.SSH.HOST,
@@ -53,6 +63,10 @@ if (Settings.USESSH) {
         });
 
     });
+} else {
+    connection = mysql.createConnection({
+        ...connectionconf
+    });
 }
 
 const toExecuteQueries: {
@@ -60,16 +74,6 @@ const toExecuteQueries: {
     resolve: any,
     args: any[]
 }[] = [];
-
-connectionPromise.then((connection: any) => {
-    if (toExecuteQueries.length > 0) {
-        for (const queryobj of toExecuteQueries) {
-            query(queryobj.query, ...queryobj.args).then((data: any) => {
-                queryobj.resolve(data);
-            });
-        }
-    }
-});
 
 export const query = (query: string, ...args: any[]) => {
     return new Promise<DatabaseResultSet>((resolve, reject) => {
