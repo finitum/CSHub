@@ -98,6 +98,7 @@
     import "../../plugins/quill/highlight.pack.min"; // Needs to be loaded before quill
     import "../../plugins/quill/gruvbox-dark.min.css"; // Highlight.js style sheet
     import "../../plugins/quill/Sailec-Light.otf"; // Font file
+    import "../../plugins/quill/Symbola.ttf";
     import "../../plugins/quill/quill2.min";
     import "../../plugins/quill/quill2.min.css";
     import defaultOptions from "./options";

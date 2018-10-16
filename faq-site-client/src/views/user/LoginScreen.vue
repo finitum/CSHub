@@ -32,6 +32,7 @@
                                     v-validate="'required|min:8'"
                                     box
                                     required
+                                    autocomplete="current-password"
                                     @change="userData.passworderror = ''"
                                     @keyup.enter="doLogin"
                             ></v-text-field>
