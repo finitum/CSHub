@@ -35,7 +35,7 @@ export const sendVerificationEmail = (to: string, name: string, insertId: number
       WHERE id = ?
     `, hash, insertId)
         .then(() => {
-            fs.readFile(`${__dirname}/utilities/verifyMailHTML.html`, "utf8", (err, html: string) => {
+            fs.readFile(`${__dirname}/verifyMailHTML.html`, "utf8", (err, html: string) => {
                 const replaceToAddress = `${Settings.MAIL.VERIFYMAILADDRESSPREFIX + NonAuthRequests.VERIFYMAIL}?hash=${hash}&accId=${insertId}`;
                 const newHTML = html.replace("{0}", name).replace("{1}", replaceToAddress);
 
