@@ -12,11 +12,12 @@ app.post(GetAllUsersRequest.getURL, (req: Request, res: Response) => {
 
     // Check if token is valid and user is admin
     if (token.valid && token.tokenObj.user.admin) {
+
         query(`
         SELECT id, email, firstname, lastname, blocked, verified, admin, avatar
         FROM users
         LIMIT ?, ?
-        `, ((getAllUsersRequest.page - 1) * getAllUsersRequest.rowsPerPage), getAllUsersRequest.rowsPerPage)
+        `, (getAllUsersRequest.page - 1) * getAllUsersRequest.rowsPerPage, getAllUsersRequest.rowsPerPage)
             .then((data: DatabaseResultSet) => {
 
                 const users: IUser[] = [];

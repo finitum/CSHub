@@ -46,11 +46,11 @@
                 ],
                 loading: true,
                 amountItems: 0 as number
-            }
+            };
         },
         watch: {
             pagination: {
-                handler () {
+                handler() {
                     this.getData(this.pagination.rowsPerPage, this.pagination.page);
                 },
                 deep: true
@@ -63,7 +63,7 @@
                     this.items = callback.users;
                     this.amountItems = callback.totalItems;
                     this.loading = false;
-                })
+                });
             }
         },
         mounted() {

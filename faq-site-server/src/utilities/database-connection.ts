@@ -64,7 +64,7 @@ const toExecuteQueries: {
 connectionPromise.then((connection: any) => {
     if (toExecuteQueries.length > 0) {
         for (const queryobj of toExecuteQueries) {
-            query(queryobj.query, queryobj.args).then((data: any) => {
+            query(queryobj.query, ...queryobj.args).then((data: any) => {
                 queryobj.resolve(data);
             });
         }
