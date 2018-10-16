@@ -18,7 +18,8 @@ app.use((req: Request, res: Response, next: Function) => {
             const newtoken: string = sign(tokenValidity.tokenObj.user);
 
             res.cookie("token", newtoken, {
-                maxAge: Settings.TOKENAGEMILLISECONDS
+                maxAge: Settings.TOKENAGEMILLISECONDS,
+                domain: Settings.DOMAIN
             });
         }
 

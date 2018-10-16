@@ -15,6 +15,7 @@ export interface ISettings {
         PORT: number,
         PRIVATEKEYLOCATION: string
     };
+    DOMAIN: string;
     SITEADDRESS: string;
     TOKENAGEMILLISECONDS: number;
     PASSWORDITERATIONS: number;
@@ -43,6 +44,7 @@ export const Settings: ISettings = {
         PORT: 1234,
         PRIVATEKEYLOCATION: ""
     },
+    DOMAIN: "",
     SITEADDRESS: "",
     TOKENAGEMILLISECONDS: 7200000,
     PASSWORDITERATIONS: 45000,
