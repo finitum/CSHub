@@ -9,7 +9,7 @@ import Toolbar from "./components/global/Toolbar.vue";
 declare var process: {
     env: {
         NODE_ENV: string,
-        VUE_APP_SOCKETURL: string,
+        VUE_APP_API_URL: string,
         VUE_APP_DEBUG: string
     }
 };

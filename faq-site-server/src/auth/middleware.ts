@@ -10,12 +10,12 @@ import {Settings} from "../settings";
 app.use((req: Request, res: Response, next: Function) => {
 
 
-    const tokenVailidity = checkTokenValidity(req);
+    const tokenValidity = checkTokenValidity(req);
 
-    if (tokenVailidity.valid) {
+    if (tokenValidity.valid) {
 
-        if (tokenVailidity.tokenObj.user !== undefined) {
-            const newtoken: string = sign(tokenVailidity.tokenObj.user);
+        if (tokenValidity.tokenObj.user !== undefined) {
+            const newtoken: string = sign(tokenValidity.tokenObj.user);
 
             res.cookie("token", newtoken, {
                 maxAge: Settings.TOKENAGEMILLISECONDS
