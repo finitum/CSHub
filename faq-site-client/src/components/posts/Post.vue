@@ -43,7 +43,7 @@
             </v-card-text>
 
             <v-card-actions>
-                <v-btn class="viewButton" flat color="primary" @click="navigateToPost" v-if="!isFullPost">View</v-btn>
+                <v-btn class="viewButton" flat color="primary" @click="navigateToPost" v-if="!isFullPost"><b>View</b></v-btn>
             </v-card-actions>
         </v-card>
     </div>
@@ -207,7 +207,7 @@
         bottom: 0;
         left: 0;
         width: 100%;
-        text-align: center;
+        text-align: right;
         margin: 0;
         padding: 0;
         background-image: linear-gradient(to bottom, transparent, white);

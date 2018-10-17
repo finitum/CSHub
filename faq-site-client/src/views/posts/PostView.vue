@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-for="postHash in postHashes" :key="postHash.index">
-            <Post :postHash="postHash" :isFullPost="currentPostHash !== -1" v-if="currentPostHash !== -1 && postHash === currentPostHash || currentPostHash === -1"></Post>
+            <Post :postHash="postHash" :isFullPost="currentPostHash !== -1" v-if="currentPostHash === -1 || postHash === currentPostHash"></Post>
         </div>
     </div>
 </template>
@@ -62,6 +62,8 @@
                 // Ts gives an error here, have no clue as to why as it normally also works
                 // @ts-ignore
                 this.currentPostHash = -1;
+
+                this.postHashes = [];
 
                 ApiWrapper.sendPostRequest(new TopicPostsRequest(topicHash, 0), (callbackData: TopicPostsCallBack) => {
                     // Ts gives an error here, have no clue as to why as it normally also works

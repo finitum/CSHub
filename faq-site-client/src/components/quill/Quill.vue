@@ -281,7 +281,7 @@
         /* Specify a sane default height and width */
         min-height: 100px;
         height: 60vh;
-        width: 70vw;
+        /*width: 70vw;*/
     }
 
     td {
