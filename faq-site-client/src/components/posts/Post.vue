@@ -111,7 +111,7 @@
             userOwnsThisPostComputed: {
                 get(): boolean {
                     if (userState.userModel !== null) {
-                        return userState.userModel.id === this.postReduced.id;
+                        return userState.userModel.id === this.postReduced.author.id;
                     } else {
                         return false;
                     }
