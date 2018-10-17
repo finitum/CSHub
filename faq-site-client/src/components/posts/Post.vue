@@ -21,6 +21,12 @@
                     <v-btn color="green" depressed small @click="verifyPost" v-if="!postFull.approved && userAdminComputed">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
+                    <v-btn color="orange" depressed small @click="editMode = true" v-if="userOwnsThisPostComputed || userAdminComputed">
+                        <v-icon>mdi-pencil</v-icon>
+                    </v-btn>
+                    <v-btn v-if="editMode" depressed small color="primary" @click="editPost">
+                        <span>Submit</span>
+                    </v-btn>
                 </v-breadcrumbs>
                 <v-badge right color="green" overlap class="mr-3 pl-3">
                     <span slot="badge">{{postReduced.upvotes}}</span>
@@ -39,7 +45,9 @@
             </v-card-title>
 
             <v-card-text>
-                <Quill ref="quillView" :editorSetup="{allowEdit: false, showToolbar: false}" :value="postReduced.lastEdit.content"></Quill>
+                <Quill key="viewQuill" v-if="!editMode" :editorSetup="{allowEdit: false, showToolbar: false}" :value="postReduced.lastEdit.content"></Quill>
+                <Quill key="editQuill" ref="editQuill" v-if="editMode" :editorSetup="{allowEdit: true, showToolbar: true}" :value="postReduced.lastEdit.content"></Quill>
+
             </v-card-text>
 
             <v-card-actions>
@@ -60,12 +68,14 @@
         PostPreviewCallBack,
         PostPreviewRequest,
         PostRequest, VerifyPostCallBack,
-        VerifyPostRequest
+        VerifyPostRequest,
+        EditPostRequest, EditPostCallback
     } from "../../../../faq-site-shared/api-calls";
     import {IPost, IPostReduced, ITopic} from "../../../../faq-site-shared/models";
     import {Routes} from "../../views/router/router";
     import dataState from "../../store/data";
     import userState from "../../store/user";
+    import Delta from "quill-delta/dist/Delta";
 
     interface IBreadCrumbType {
         name: string;
@@ -79,6 +89,7 @@
             return {
                 postReduced: null as IPostReduced,
                 postFull: null as IPost,
+                editMode: false as boolean,
                 topicNames: [] as IBreadCrumbType[]
             };
         },
@@ -96,6 +107,15 @@
         computed: {
             backgroundColorComputed(): string {
                 return !this.postReduced.approved ? "#FFD740" : "";
+            },
+            userOwnsThisPostComputed: {
+                get(): boolean {
+                    if (userState.userModel !== null) {
+                        return userState.userModel.id === this.postReduced.id;
+                    } else {
+                        return false;
+                    }
+                }
             },
             userAdminComputed: {
                 get(): boolean {
@@ -144,6 +164,14 @@
                 } else {
                     return [currTopic];
                 }
+            },
+            editPost() {
+                LogStringConsole("Edited post");
+                const delta: Delta = (this.$refs as any).editQuill.getDelta();
+                ApiWrapper.sendPostRequest(new EditPostRequest(this.postHash, delta), (callbackData: EditPostCallback) => {
+                    this.$router.push(Routes.INDEX);
+                });
+
             },
             getPreviewPostRequest() {
                 ApiWrapper.sendPostRequest(new PostPreviewRequest(this.postHash), (callbackData: PostPreviewCallBack) => {

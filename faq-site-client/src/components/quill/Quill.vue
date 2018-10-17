@@ -108,6 +108,7 @@
     import "katex/dist/katex.min.css";
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
     import {ImageResize} from "../../plugins/quill/ImageResize.min";
+    import {LogStringConsole} from "../../utilities";
 
     const Quill = window.Quill;
     Quill.register("modules/resize", ImageResize);
@@ -141,10 +142,6 @@
                 required: false,
                 default: () => ({})
             },
-            disabled: {
-                type: Boolean,
-                default: false
-            },
             options: {
                 type: Object,
                 required: false,
@@ -157,6 +154,7 @@
         },
 
         mounted() {
+            LogStringConsole("Mounted quill with edit: " + this.editorSetup.allowEdit);
 
             let id = "";
             const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -171,6 +169,7 @@
 
             // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
             setTimeout(() => {
+                LogStringConsole("Initializing quill with edit: " + this.editorSetup.allowEdit);
                 this.initQuill(); // Actually init quill itself
             });
         },
@@ -182,9 +181,6 @@
         methods: {
             getDelta() {
                 return this.editor.getContents();
-            },
-            setDelta(contents) {
-                this.editor.setContents(contents);
             },
             performTableAction(type) {
                 const table = this.editor.getModule("table");

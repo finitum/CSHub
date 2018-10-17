@@ -63,6 +63,7 @@
                 // @ts-ignore
                 this.currentPostHash = -1;
 
+                // @ts-ignore
                 this.postHashes = [];
 
                 ApiWrapper.sendPostRequest(new TopicPostsRequest(topicHash, 0), (callbackData: TopicPostsCallBack) => {
