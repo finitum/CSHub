@@ -1,4 +1,6 @@
 import sgMail from "@sendgrid/mail";
+import nodemailer from "nodemailer";
+
 import * as fs from "fs";
 import {ClientResponse} from "@sendgrid/client/src/response";
 
@@ -8,22 +10,45 @@ import {logger} from "../index";
 import {NonAuthRequests} from "../../../faq-site-shared/api-calls/index";
 
 sgMail.setApiKey(Settings.MAIL.APIKEY);
+const nodeMailer = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: Settings.MAIL.NOREPLYADDRESS,
+        pass: Settings.MAIL.GMAILPASSWORD
+    }
+});
 
 export const sendMail = (subject: string, html: string, to: string) => {
-    sgMail.send({
+    const emailObj = {
         to,
         from: Settings.MAIL.NOREPLYADDRESS,
         subject,
         html
-    })
-        .then((response: [ClientResponse, {}]) => {
-            logger.info("Mail sent: ");
-            logger.info(response[0]);
-        })
-        .catch(err => {
-            logger.error(`Mail sending failed`);
-            logger.error(err);
+    };
+
+    if (Settings.MAIL.USEGMAIL) {
+        nodeMailer.sendMail(emailObj, function (err, info) {
+            if (err){
+                logger.error(`Mail sending failed`);
+                logger.error(err);
+            }
+            else {
+                logger.info("Mail sent: ");
+                logger.info(info);
+            }
         });
+
+    } else {
+        sgMail.send(emailObj)
+            .then((response: [ClientResponse, {}]) => {
+                logger.info("Mail sent: ");
+                logger.info(response[0]);
+            })
+            .catch(err => {
+                logger.error(`Mail sending failed`);
+                logger.error(err);
+            });
+    }
 };
 
 export const sendVerificationEmail = (to: string, name: string, insertId: number) => {

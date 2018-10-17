@@ -20,6 +20,8 @@ export interface ISettings {
     TOKENAGEMILLISECONDS: number;
     PASSWORDITERATIONS: number;
     MAIL: {
+        USEGMAIL: boolean;
+        GMAILPASSWORD: string;
         APIKEY: string;
         NOREPLYADDRESS: string;
         SUFFIX: string;
@@ -49,6 +51,8 @@ export const Settings: ISettings = {
     TOKENAGEMILLISECONDS: 7200000,
     PASSWORDITERATIONS: 45000,
     MAIL: {
+        USEGMAIL: false,
+        GMAILPASSWORD: "",
         APIKEY: "",
         NOREPLYADDRESS: "",
         SUFFIX: "",
