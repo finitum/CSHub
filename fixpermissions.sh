@@ -7,4 +7,3 @@ chmod 770 ./faq-site-shared -R
 chmod 771 ./faq-site-client -R
 
 chmod 700 ./faq-site-server/src/settings.*
-chmod 700 ./faq-site-server/src/auth/jwt-key.*

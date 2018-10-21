@@ -19,9 +19,14 @@ export interface ISettings {
     SITEADDRESS: string;
     TOKENAGEMILLISECONDS: number;
     PASSWORDITERATIONS: number;
+    JWTHASH: string;
+    PASSWORDSALT: string;
     MAIL: {
         USEGMAIL: boolean;
-        GMAILPASSWORD: string;
+        GMAILSETTINGS: {
+            PASSWORD: string;
+            MAILADDRESS: string
+        };
         APIKEY: string;
         NOREPLYADDRESS: string;
         SUFFIX: string;
@@ -43,16 +48,21 @@ export const Settings: ISettings = {
     SSH: {
         HOST: "",
         USER: "",
-        PORT: 1234,
+        PORT: 0,
         PRIVATEKEYLOCATION: ""
     },
     DOMAIN: "",
     SITEADDRESS: "",
-    TOKENAGEMILLISECONDS: 7200000,
-    PASSWORDITERATIONS: 45000,
+    TOKENAGEMILLISECONDS: 0,
+    PASSWORDITERATIONS: 0,
+    JWTHASH: "",
+    PASSWORDSALT: "",
     MAIL: {
         USEGMAIL: false,
-        GMAILPASSWORD: "",
+        GMAILSETTINGS: {
+            PASSWORD: "",
+            MAILADDRESS: ""
+        },
         APIKEY: "",
         NOREPLYADDRESS: "",
         SUFFIX: "",

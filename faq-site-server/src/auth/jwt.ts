@@ -4,7 +4,6 @@ import moment from "moment";
 import {IUser} from "../../../faq-site-shared/models/IUser";
 import {IJWTToken} from "../../../faq-site-shared/models/IJWTToken";
 
-import {secretKey} from "./jwt-key";
 import {Settings} from "../settings";
 
 // Sign the object, add the expirydate of 2 hours and then convert to unix timeformat
@@ -15,12 +14,12 @@ export const sign = (obj: IUser): string => {
         expirydate: moment().add(Settings.TOKENAGEMILLISECONDS, "ms").unix()
     };
 
-    return jwt.sign(jwtobj, secretKey);
+    return jwt.sign(jwtobj, Settings.JWTHASH);
 };
 
 export const validateAccessToken = (accessToken: string) => {
     try {
-        return jwt.verify(accessToken, secretKey) as IJWTToken;
+        return jwt.verify(accessToken, Settings.JWTHASH) as IJWTToken;
     } catch (e) {
         // console.warn('Dropping unverified accessToken', e);
     }

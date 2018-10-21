@@ -13,20 +13,21 @@ sgMail.setApiKey(Settings.MAIL.APIKEY);
 const nodeMailer = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: Settings.MAIL.NOREPLYADDRESS,
-        pass: Settings.MAIL.GMAILPASSWORD
+        user: Settings.MAIL.GMAILSETTINGS.MAILADDRESS,
+        pass: Settings.MAIL.GMAILSETTINGS.PASSWORD
     }
 });
 
 export const sendMail = (subject: string, html: string, to: string) => {
+    
     const emailObj = {
         to,
-        from: Settings.MAIL.NOREPLYADDRESS,
         subject,
         html
     };
 
     if (Settings.MAIL.USEGMAIL) {
+        emailObj["from"] = Settings.MAIL.GMAILSETTINGS.MAILADDRESS;
         nodeMailer.sendMail(emailObj, function (err, info) {
             if (err){
                 logger.error(`Mail sending failed`);
@@ -39,6 +40,7 @@ export const sendMail = (subject: string, html: string, to: string) => {
         });
 
     } else {
+        emailObj["from"] = Settings.MAIL.NOREPLYADDRESS;
         sgMail.send(emailObj)
             .then((response: [ClientResponse, {}]) => {
                 logger.info("Mail sent: ");
