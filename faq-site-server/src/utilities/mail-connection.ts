@@ -40,8 +40,12 @@ export const sendMail = (subject: string, html: string, to: string) => {
         });
 
     } else {
-        emailObj["from"] = Settings.MAIL.NOREPLYADDRESS;
-        sgMail.send(emailObj)
+        const sendGridEmailObject = {
+            ...emailObj,
+            from: Settings.MAIL.NOREPLYADDRESS
+        };
+        
+        sgMail.send(sendGridEmailObject)
             .then((response: [ClientResponse, {}]) => {
                 logger.info("Mail sent: ");
                 logger.info(response[0]);
