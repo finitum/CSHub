@@ -21,7 +21,9 @@ matrix:
     before_script:
         - cd faq-site-server/src/
         - cp settings_baseline.ts settings.ts
-        - cd ..
+        - cd auth
+        - cp jwt-key_baseline.ts jwt-key.ts
+        - cd ../..
     script:
         - npm install
         - tsc
