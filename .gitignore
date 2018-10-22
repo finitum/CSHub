@@ -2,12 +2,12 @@
 .idea
 FAQSite.iml
 
-faq-site-server/src/**/*.js
-faq-site-server/src/**/*.map
+cshub-server/src/**/*.js
+cshub-server/src/**/*.map
 
-faq-site-shared/**/*.js
-faq-site-shared/**/*.map
+cshub-shared/**/*.js
+cshub-shared/**/*.map
 
 # Yarn lock files (un-ignore if everyone uses yarn)
-faq-site-client/yarn.lock
-faq-site-server/yarn.lock
+cshub-client/yarn.lock
+cshub-server/yarn.lock

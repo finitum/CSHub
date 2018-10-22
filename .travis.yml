@@ -7,7 +7,7 @@ matrix:
         - "8"
         - "10"
     before_script:
-        - cd faq-site-client
+        - cd cshub-client
     script:
         - npm install
         - npm run build
@@ -19,7 +19,7 @@ matrix:
         - "8"
         - "10"
     before_script:
-        - cd faq-site-server/src/
+        - cd cshub-server/src/
         - cp settings_baseline.ts settings.ts
         - cd ..
     script:
@@ -28,5 +28,5 @@ matrix:
 
 cache:
     directories:
-        - faq-site-client/node_modules
-        - faq-site-server/node_modules
+        - cshub-client/node_modules
+        - cshub-server/node_modules

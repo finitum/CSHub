@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Vue CLI Server" type="js.build_tools.npm" factoryName="npm">
-    <package-json value="$PROJECT_DIR$/faq-site-client/package.json" />
+    <package-json value="$PROJECT_DIR$/cshub-client/package.json" />
     <command value="run" />
     <scripts>
       <script value="serve" />

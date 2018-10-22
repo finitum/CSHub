@@ -1,0 +1,138 @@
+<template>
+    <v-container fluid fill-height class="grey lighten-4">
+        <v-layout justify-center align-center>
+            <v-flex shrink>
+                <v-card>
+                    <v-card-title class="title font-weight-regular justify-space-between">
+                        <span>Create account</span>
+                    </v-card-title>
+                    <v-card-text>
+                        <v-text-field
+                                label="Email"
+                                v-model="userData.email"
+                                :error-messages="errors.collect('email') + userData.emailerror"
+                                name="email"
+                                v-validate="'required|checkTUEmail'"
+                                suffix="@student.tudelft.nl"
+                                required
+                                box
+                                @change="userData.emailerror = ''"
+                                @keyup.enter="doCreateAccount"
+                        ></v-text-field>
+                        <v-text-field
+                                label="Password"
+                                v-model="userData.password"
+                                :error-messages="errors.collect('password')"
+                                name="password"
+                                :append-icon="userData.passwordvisible ? 'mdi-eye-off' : 'mdi-eye'"
+                                @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
+                                :type="userData.passwordvisible ? 'text' : 'password'"
+                                v-validate="'required|min:8|confirmed:password confirmation'"
+                                box
+                                required
+                                @change="userData.passworderror = ''"
+                                @keyup.enter="doCreateAccount"
+                        ></v-text-field>
+                        <v-text-field
+                                label="Confirm password"
+                                v-model="userData.confirmPassword"
+                                :error-messages="errors.collect('password confirmation')"
+                                name="password confirmation"
+                                :append-icon="userData.passwordvisible ? 'mdi-eye-off' : 'mdi-eye'"
+                                @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
+                                :type="userData.passwordvisible ? 'text' : 'password'"
+                                v-validate="'required|min:8'"
+                                box
+                                ref="password confirmation"
+                                required
+                                @change="userData.passworderror = ''"
+                                @keyup.enter="doCreateAccount"
+                        ></v-text-field>
+                        <v-text-field
+                                label="First name"
+                                v-model="userData.firstname"
+                                :error-messages="errors.collect('firstname')"
+                                name="firstname"
+                                v-validate="'required'"
+                                required
+                                box
+                                @keyup.enter="doCreateAccount"
+                        ></v-text-field>
+                        <v-text-field
+                                label="Last name"
+                                v-model="userData.lastname"
+                                :error-messages="errors.collect('lastname')"
+                                name="lastname"
+                                v-validate="'required'"
+                                required
+                                box
+                                @keyup.enter="doCreateAccount"
+                        ></v-text-field>
+                        <div>
+                            <v-btn depressed color="primary" @click="doCreateAccount">Create account</v-btn>
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-flex>
+        </v-layout>
+    </v-container>
+</template>
+
+<script lang="ts">
+    import Vue from "vue";
+
+    import {emailValidator, ApiWrapper, LogStringConsole} from "../../utilities";
+
+    import {
+        CreateAccountRequest,
+        CreateAccountRequestCallBack,
+        CreateAccountResponses
+    } from "../../../../cshub-shared/api-calls/index";
+
+    import router, {Routes} from "../router/router";
+
+    export default Vue.extend({
+        name: "CreateAccount",
+        data() {
+            return {
+                userData: {
+                    email: "" as string,
+                    emailerror: "" as string,
+                    password: "" as string,
+                    confirmPassword: "" as string,
+                    passwordvisible: false as boolean,
+                    firstname: "" as string,
+                    lastname: "" as string
+                }
+            };
+        },
+        mounted() {
+            this.$validator.extend("checkTUEmail", emailValidator);
+        },
+        inject: ["$validator"],
+        methods: {
+            doCreateAccount() {
+                this.$validator.validateAll()
+                    .then((allValid: boolean) => {
+                        if (allValid) {
+                            ApiWrapper.sendPostRequest(new CreateAccountRequest(this.userData.email, this.userData.password, this.userData.firstname, this.userData.lastname), (callbackData: CreateAccountRequestCallBack) => {
+                                if (callbackData.response === CreateAccountResponses.SUCCESS) {
+                                    router.push(Routes.LOGIN);
+                                } else if (callbackData.response === CreateAccountResponses.ALREADYEXISTS) {
+                                    LogStringConsole("Account already exists");
+                                    this.userData.emailerror = "Account already exists.";
+                                } else if (callbackData.response === CreateAccountResponses.INVALIDINPUT) {
+                                    LogStringConsole("Invalid input");
+                                    this.userData.emailerror = "Invalid input.";
+                                }
+                            });
+                        }
+                    });
+            }
+        }
+    });
+</script>
+
+<style scoped>
+
+</style>
