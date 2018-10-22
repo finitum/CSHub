@@ -1,45 +1,23 @@
 import {IApiRequest} from "../../models/IApiRequest";
-import {IPost, IPostReduced} from "../../models/IPost";
+import {IPost} from "../../models/IPost";
 
 import {NonAuthRequests} from "../NonAuthRequests";
-
-export interface IPostRequest {
-
-    isReduced: boolean;
-    postHash: number;
-}
+// @ts-ignore
+import Delta from "quill-delta/dist/Delta";
 
 export class PostCallBack {
 
     constructor(
-        public post: IPost
+        public post: IPost,
+        public content?: Delta
     ) {}
 }
 
-export class PostRequest implements IApiRequest, IPostRequest {
+export class PostRequest implements IApiRequest {
 
     public static getURL: string = NonAuthRequests.POSTDATA;
     public URL: string = PostRequest.getURL;
-    public isReduced: boolean = false;
 
-    constructor(public postHash: number) {}
+    constructor(public postHash: number, public giveContent: boolean) {}
 
 }
-
-export class PostPreviewCallBack {
-
-    constructor(
-        public post: IPostReduced
-    ) {}
-}
-
-export class PostPreviewRequest implements IApiRequest, IPostRequest {
-
-    public static getURL: string = NonAuthRequests.POSTDATA;
-    public URL: string = PostRequest.getURL;
-    public isReduced: boolean = true;
-
-    constructor(public postHash: number) {}
-}
-
-

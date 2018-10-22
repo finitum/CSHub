@@ -1,7 +1,7 @@
 <template>
     <!-- Shamelessly stolen from the quilljs homepage -->
-    <div class="snow-wrapper">
-        <div class="snow-container" :id="quillId">
+    <div class="snow-wrapper" style="height: 100%">
+        <div class="snow-container" :id="quillId" style="height: 100%">
             <div class="toolbar" v-show="editorSetup.showToolbar" style="border: none; padding: 1%;">
                 <span class="ql-formats">
                       <select class="ql-header" title="Header">
@@ -15,6 +15,38 @@
                       <button class="ql-italic"></button>
                       <button class="ql-underline"></button>
                       <button class="ql-clean"></button>
+                      <select class="ql-color">
+                            <option value="rgb(0, 0, 0)"/>
+                            <option value="rgb(230, 0, 0)"/>
+                            <option value="rgb(255, 153, 0)"/>
+                            <option value="rgb(255, 255, 0)"/>
+                            <option value="rgb(0, 138, 0)"/>
+                            <option value="rgb(0, 102, 204)"/>
+                            <option value="rgb(153, 51, 255)"/>
+                            <option value="rgb(255, 255, 255)"/>
+                            <option value="rgb(250, 204, 204)"/>
+                            <option value="rgb(255, 235, 204)"/>
+                            <option value="rgb(204, 224, 245)"/>
+                            <option value="rgb(235, 214, 255)"/>
+                            <option value="rgb(187, 187, 187)"/>
+                            <option value="rgb(102, 185, 102)"/>
+                      </select>
+                      <select class="ql-background">
+                            <option value="rgb(0, 0, 0)"/>
+                            <option value="rgb(230, 0, 0)"/>
+                            <option value="rgb(255, 153, 0)"/>
+                            <option value="rgb(255, 255, 0)"/>
+                            <option value="rgb(0, 138, 0)"/>
+                            <option value="rgb(0, 102, 204)"/>
+                            <option value="rgb(153, 51, 255)"/>
+                            <option value="rgb(255, 255, 255)"/>
+                            <option value="rgb(250, 204, 204)"/>
+                            <option value="rgb(255, 235, 204)"/>
+                            <option value="rgb(204, 224, 245)"/>
+                            <option value="rgb(235, 214, 255)"/>
+                            <option value="rgb(187, 187, 187)"/>
+                            <option value="rgb(102, 185, 102)"/>
+                      </select>
                 </span>
                 <span class="ql-formats">
                       <button class="ql-list" value="ordered"></button>
@@ -43,11 +75,11 @@
                             offset-x
                     >
                           <v-btn
-                              slot="activator"
-                              dark
-                              flat
-                              small
-                              id="tableButton"
+                                  slot="activator"
+                                  dark
+                                  flat
+                                  small
+                                  id="tableButton"
                           >
                               <v-icon color="black" id="tableIcon">mdi-table</v-icon>
                           </v-btn>
@@ -114,14 +146,14 @@
     Quill.register("modules/resize", ImageResize);
 
     const TableActions = Object.freeze({
-            CREATETABLE: 1,
-            CREATENEWROWUP: 2,
-            CREATENEWROWDOWN: 3,
-            CREATENEWCOLUMNLEFT: 4,
-            CREATENEWCOLUMNRIGHT: 5,
-            REMOVEROW: 6,
-            REMOVECOLUMN: 7,
-            REMOVETABLE: 8
+        CREATETABLE: 1,
+        CREATENEWROWUP: 2,
+        CREATENEWROWDOWN: 3,
+        CREATENEWCOLUMNLEFT: 4,
+        CREATENEWCOLUMNRIGHT: 5,
+        REMOVEROW: 6,
+        REMOVECOLUMN: 7,
+        REMOVETABLE: 8
     });
 
     export default {
@@ -179,6 +211,10 @@
             delete this.editor;
         },
         methods: {
+            getInnerHTML() {
+                console.log(this.editor)
+                return this.editor.container.firstChild.innerHTML //.split(' ').join(' &nbsp;');
+            },
             getDelta() {
                 return this.editor.getContents();
             },
@@ -276,12 +312,12 @@
     .editor {
         /* Specify a sane default height and width */
         min-height: 100px;
-        height: 60vh;
+        height: 100%;
         /*width: 70vw;*/
     }
 
     td {
-        border: 1px solid rgba(0,0,0,0.12) !important;
+        border: 1px solid rgba(0, 0, 0, 0.12) !important;
     }
 
     #tableButton {
