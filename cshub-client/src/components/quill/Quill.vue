@@ -212,8 +212,7 @@
         },
         methods: {
             getInnerHTML() {
-                console.log(this.editor)
-                return this.editor.container.firstChild.innerHTML //.split(' ').join(' &nbsp;');
+                return this.editor.container.firstChild.innerHTML; // .split(' ').join(' &nbsp;');
             },
             getDelta() {
                 return this.editor.getContents();
