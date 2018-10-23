@@ -19,7 +19,6 @@ app.post(GetUnverifiedPostsRequest.getURL, (req: Request, res: Response) => {
         FROM posts
         WHERE approved = 0
         ORDER BY datetime DESC
-        LIMIT ?, 5
         `, getUnverifiedPostsRequest.startFromResult)
             .then((result: DatabaseResultSet) => {
 

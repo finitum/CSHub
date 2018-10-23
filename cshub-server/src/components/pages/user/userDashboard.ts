@@ -16,7 +16,6 @@ app.post(UserDashboardRequest.getURL, (req: Request, res: Response) => {
         FROM posts
         WHERE author = ?
         ORDER BY datetime DESC
-        LIMIT ?, 5
         `, token.tokenObj.user.id, userDashboardRequest.startFromResult)
             .then((result: DatabaseResultSet) => {
 

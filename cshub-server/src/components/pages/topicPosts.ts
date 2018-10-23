@@ -53,7 +53,6 @@ app.post(TopicPostsRequest.getURL, (req: Request, res: Response) => {
                   INNER JOIN topics T2 ON T1.topic = T2.id
                   WHERE approved = 1 AND T2.hash IN (?)
                   ORDER BY datetime DESC
-                  LIMIT ?, 5
                 `, topicHashes, topicPostsRequest.startFromResult)
                         .then((posts: DatabaseResultSet) => {
 
