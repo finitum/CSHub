@@ -47,7 +47,7 @@ import "./auth/middleware";
 let server: http.Server | https.Server;
 
 // Run the server on port 3000 if running local
-server = http.createServer(app).listen(3000);
+server = http.createServer(app).listen(Settings.PORT);
 
 // Here all the connectors will be defined
 import "./components";
