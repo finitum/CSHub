@@ -20,6 +20,8 @@ import userState from "../../store/user";
 import {ApiWrapper, LogStringConsole} from "../../utilities";
 
 import Quill from "../../components/quill/Quill.vue";
+import {AxiosError} from "axios";
+import dataState from "../../store/data";
 
 Vue.use(Router);
 
@@ -94,8 +96,14 @@ const router = new Router({
 });
 
 router.beforeEach((to: Route, from: Route, next) => {
+    next();
+
     if (!userState.hasCheckedToken) {
         ApiWrapper.sendGetRequest(new VerifyTokenRequest(), (verified: VerifyTokenRequestCallBack) => {
+
+            if (!dataState.hasConnection) {
+                dataState.setConnection(true);
+            }
 
             if (verified.response === VerifyTokenResponses.VALID) {
                 LogStringConsole("User is logged in", "isLoggedIn after API");
@@ -105,10 +113,9 @@ router.beforeEach((to: Route, from: Route, next) => {
             }
             userState.setCheckedToken();
 
-            next();
+        }, (err: AxiosError) => {
+            dataState.setConnection(false);
         });
-    } else {
-        next();
     }
 
 });

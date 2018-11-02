@@ -1,17 +1,15 @@
 import {dataStateGetter, dataStoreBuilder} from "./state";
-import {topics, quillContents} from "./getters";
-import {setTopics, setQuillContents} from "./mutations";
+import {hasConnection, topics} from "./getters";
+import {setConnection, setTopics} from "./mutations";
 
 const dataState = {
     get state() { return dataStateGetter(); },
 
     get topics() { return topics(); },
+    get hasConnection() { return hasConnection(); },
 
-    get quillContents() { return quillContents(); },
-
+    setConnection: dataStoreBuilder.commit(setConnection),
     setTopics: dataStoreBuilder.commit(setTopics),
-
-    setQuillContents: dataStoreBuilder.commit(setQuillContents)
 
 };
 

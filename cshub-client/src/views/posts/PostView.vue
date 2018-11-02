@@ -8,14 +8,17 @@
 
 <script lang="ts">
     import Vue from "vue";
+    import localForage from "localforage";
 
     import Post from "../../components/posts/Post.vue";
 
     import {TopicPostsCallBack, TopicPostsRequest} from "../../../../cshub-shared/api-calls/index";
 
-    import {ApiWrapper, LogObjectConsole} from "../../utilities/index";
+    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities/index";
     import {Routes} from "../router/router";
     import {Route} from "vue-router";
+    import {AxiosError} from "axios";
+    import {CacheTypes} from "../../utilities/cache-types";
 
     export default Vue.extend({
         name: "PostView",
@@ -26,9 +29,6 @@
             };
         },
         components: {Post},
-        props: {
-            inputHashes: Array
-        },
         watch: {
             $route(to: Route, from: Route) {
                 if (to.fullPath.includes(Routes.POST)) {
@@ -45,9 +45,7 @@
             }
         },
         mounted() {
-            if (this.inputHashes !== undefined && this.inputHashes !== null) {
-                this.postHashes = (this.inputHashes as number[]);
-            } else if (this.$router.currentRoute.fullPath.includes(Routes.POST)) {
+            if (this.$router.currentRoute.fullPath.includes(Routes.POST)) {
                 this.currentPostHash = +this.$router.currentRoute.params.hash;
                 this.postHashes = [this.currentPostHash];
             } else if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
@@ -72,6 +70,22 @@
                     this.postHashes = callbackData.postHashes;
 
                     LogObjectConsole(callbackData.postHashes, "Topic posthashes");
+
+                    localForage.setItem(CacheTypes.TOPICPOST + topicHash, callbackData.postHashes)
+                        .then(() => {
+                            LogStringConsole("Added current topic to cache", "getTopicRequest");
+                        });
+
+                }, (err: AxiosError) => {
+                    localForage.getItem(CacheTypes.TOPICPOST + topicHash)
+                        // @ts-ignore
+                        .then((value: number[]) => {
+
+                            // @ts-ignore
+                            this.postHashes = value;
+
+                            LogStringConsole("Set topicPosts from cache", "getTopicRequest error axios")
+                        });
                 });
             }
         }

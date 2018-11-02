@@ -4,12 +4,12 @@ import {IPost, ITopic} from "../../../../cshub-shared/models";
 
 export interface IDataState {
     topics: ITopic[];
-    quillContents: object;
+    hasConnection: boolean;
 }
 
 export const DataState: IDataState = {
     topics: null,
-    quillContents: null
+    hasConnection: true
 };
 
 export const dataStoreBuilder = getStoreBuilder<IRootState>().module("data", DataState);

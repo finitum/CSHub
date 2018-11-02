@@ -77,6 +77,7 @@
     import {Route} from "vue-router";
     import {AdminRoutes} from "../../views/router/adminRoutes";
     import {CacheTypes} from "../../utilities/cache-types";
+    import {AxiosError} from "axios";
 
     export default Vue.extend({
         name: "NavDrawer",
@@ -161,14 +162,22 @@
                                 .then(() => {
                                     LogStringConsole("Added topics to cache", "NavDrawer");
                                 });
+                        } else {
+                            this.topics = value.topics;
+                            dataState.setTopics(value.topics);
                         }
 
                         if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
                             this.activeTopicHash = [this.$router.currentRoute.params.hash];
                         }
 
-                        LogObjectConsole(callbackData.topics, "NavDrawer mounted");
+                        LogObjectConsole(this.topics, "NavDrawer mounted");
 
+                    }, (err: AxiosError) => {
+
+                        LogStringConsole("Set topics from cache", "NavDrawer mounted error axios")
+                        this.topics = value.topics;
+                        dataState.setTopics(value.topics);
                     });
                 });
         }

@@ -1,3 +1,4 @@
+import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
 <template>
     <div v-if="post !== null">
         <v-card :class="{previewCard: !isFullPost, fullCard: isFullPost}"
@@ -85,6 +86,7 @@
     import localForage from "localforage";
     import {getTopicFromHash} from "../../../../cshub-shared/utilities/topics";
     import {CacheTypes} from "../../utilities/cache-types";
+    import {AxiosError} from "axios";
 
     interface IBreadCrumbType {
         name: string;
@@ -193,8 +195,8 @@
                 localForage.getItem(CacheTypes.POSTS + this.postHash)
                 // The compiler is unaware of localForage it seems, so:
                 // @ts-ignore
-                    .then((value: IPost) => {
-                        if (value === null) {
+                    .then((cachedValue: IPost) => {
+                        if (cachedValue === null) {
                             ApiWrapper.sendPostRequest(new PostRequest(this.postHash), (callbackData: PostCallBack) => {
                                 this.post = callbackData.post;
                                 this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
@@ -202,7 +204,7 @@
                                 LogObjectConsole(callbackData.post, "getPostRequest");
 
                                 if (this.isFullPost) {
-                                    this.getContentRequest();
+                                    this.getContentRequest(this.post);
                                 } else {
                                     localForage.setItem(CacheTypes.POSTS + this.postHash, callbackData.post)
                                         .then(() => {
@@ -212,29 +214,29 @@
                             });
                         } else {
                             LogStringConsole("Gotten post from cache", "getPostRequest");
-                            this.post = value as IPost;
-                            this.getContentRequest();
+                            this.post = Object.create(cachedValue);
+                            this.post.htmlContent = undefined;
+
+                            this.getContentRequest(cachedValue);
                         }
                     });
             },
-            getContentRequest() {
+            getContentRequest(cachedValue: IPost) {
                 ApiWrapper.sendPostRequest(new PostVersionRequest(this.postHash, !this.isContentSet(), this.post.postVersion), (callbackContent: PostVersionCallBack) => {
 
                     let hasBeenUpdated = false;
 
                     if (callbackContent.postVersionType === PostVersionTypes.POSTDELETED) {
                         this.$router.push(Routes.INDEX);
-                    }
-
-                    if (callbackContent.postVersionType === PostVersionTypes.UPDATEDPOST) {
+                    } else if (callbackContent.postVersionType === PostVersionTypes.UPDATEDPOST) {
                         this.post = callbackContent.postUpdated;
                         this.post.htmlContent = callbackContent.htmlContent;
                         hasBeenUpdated = true;
-                    }
-
-                    if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
+                    } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
                         this.post.htmlContent = callbackContent.htmlContent;
                         hasBeenUpdated = true;
+                    } else if (callbackContent.postVersionType === PostVersionTypes.NOCHANGE) {
+                        this.post.htmlContent = cachedValue.htmlContent;
                     }
 
                     if (hasBeenUpdated) {
@@ -244,6 +246,9 @@
                                 LogStringConsole("Changed post in cache", "getContentRequest");
                             });
                     }
+                }, (err: AxiosError) => {
+                    this.post.htmlContent = cachedValue.htmlContent;
+                    this.$forceUpdate();
                 });
             },
             navigateToPost(): void {

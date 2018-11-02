@@ -7,6 +7,6 @@ export const setTopics = (state: IDataState, payload: ITopic[]) => {
     state.topics = payload;
 };
 
-export const setQuillContents = (state: IDataState, payload: Delta) => {
-    state.quillContents = payload;
+export const setConnection = (state: IDataState, payload: boolean) => {
+    state.hasConnection = payload;
 };
