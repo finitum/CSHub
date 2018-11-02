@@ -116,6 +116,7 @@
             </div>
             <div class="editor">
             </div>
+          <div id="stuff" v-html="stuff"></div>
         </div>
     </div>
 
@@ -141,6 +142,7 @@
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
     import {ImageResize} from "../../plugins/quill/ImageResize.min";
     import {LogStringConsole} from "../../utilities";
+    import { QuillDeltaToHtmlConverter } from "quill-delta-to-html";
 
     const Quill = window.Quill;
     Quill.register("modules/resize", ImageResize);
@@ -165,6 +167,7 @@
                 tableMenuOpen: false,
                 tableActions: TableActions,
                 quillId: "",
+                stuff: "",
                 defaultOptions
             };
         },
@@ -199,7 +202,7 @@
 
             this.initRequirements(); // Init quill dependencies (mathquill4quillMin)
 
-            // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
+            // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next "JS clock tick", so probably a Vue thing that hasn"t been synchronized yet with the DOM and so quill will error)
             setTimeout(() => {
                 LogStringConsole("Initializing quill with edit: " + this.editorSetup.allowEdit);
                 this.initQuill(); // Actually init quill itself
@@ -211,8 +214,29 @@
             delete this.editor;
         },
         methods: {
-            getInnerHTML() {
-                return this.editor.container.firstChild.innerHTML; // .split(' ').join(' &nbsp;');
+            deltaToHtml() {
+                const delta = this.getDelta().ops;
+
+
+                // Convert all formula elements to katex elements so that it can be handled by a custom converter
+                for (const elem of delta) {
+                    if (elem.hasOwnProperty("insert") && typeof elem.insert.formula !== "undefined") {
+                      elem.insert.katex = elem.insert.formula;
+                      delete elem.insert.formula;
+                    }
+                }
+
+                const converter = new QuillDeltaToHtmlConverter(delta, {inlineStyles: true});
+
+                converter.renderCustomWith((customOp) => {
+                    if (customOp.insert.type === "katex") {
+                        return katex.renderToString(customOp.insert.value);
+                    } else {
+                        return "Unmanaged custom blot!";
+                    }
+                });
+
+                this.stuff = converter.convert();
             },
             getDelta() {
                 return this.editor.getContents();
@@ -292,6 +316,7 @@
                 // Delta is the single changed made that triggered this function
                 // OldDelta is everything that was typed previous to the edit
                 this.$emit("textChanged");
+                this.deltaToHtml();
             }
         }
     };
@@ -299,13 +324,13 @@
 
 <style scoped>
     @font-face {
-        font-family: 'SailecLight';
+        font-family: "SailecLight";
         src: url("../../plugins/quill/Sailec-Light.otf");
     }
 
     #snow-wrapper, .editor {
         border: none;
-        font-family: 'SailecLight', sans-serif;
+        font-family: "SailecLight", sans-serif;
     }
 
     .editor {
