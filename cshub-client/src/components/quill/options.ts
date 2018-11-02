@@ -1,3 +1,5 @@
+import hljs from "highlight.js";
+
 export default {
     theme: "snow",
     placeholder: "Type here ...",

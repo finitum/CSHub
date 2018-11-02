@@ -119,7 +119,6 @@
           <div id="stuff" v-html="stuff"></div>
         </div>
     </div>
-
 </template>
 
 <script>
@@ -129,6 +128,7 @@
     import JQuery from "jquery";
 
     import "../../plugins/quill/highlight.pack.min"; // Needs to be loaded before quill
+    import hljs from "highlight.js";
     import "../../plugins/quill/gruvbox-dark.min.css"; // Highlight.js style sheet
     import "../../plugins/quill/Sailec-Light.otf"; // Font file
     import "../../plugins/quill/Symbola.ttf";
@@ -215,8 +215,9 @@
         },
         methods: {
             deltaToHtml() {
-                const delta = this.getDelta().ops;
+                /*
 
+                const delta = this.getDelta().ops;
 
                 // Convert all formula elements to katex elements so that it can be handled by a custom converter
                 for (const elem of delta) {
@@ -236,7 +237,18 @@
                     }
                 });
 
-                this.stuff = converter.convert();
+                converter.afterRender((_, data) => {
+                    return data.replace(/<pre>/g, "<pre><code class='hljs'>").replace(/<\/pre>/g, "</code></pre>");
+                });
+                */
+
+                this.stuff = this.editor.container.firstChild.innerHTML;
+
+                let divs = document.getElementsByClassName("ql-code-block");
+                for(let i = 0; i < divs.length; i++){
+                    divs[i].className += " hljs";
+                    hljs.highlightBlock(divs[i]);
+                }
             },
             getDelta() {
                 return this.editor.getContents();
