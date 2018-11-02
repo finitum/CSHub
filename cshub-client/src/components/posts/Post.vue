@@ -1,6 +1,7 @@
 <template>
     <div v-if="post !== null">
-        <v-card :class="{previewCard: !isFullPost, fullCard: isFullPost}" :style="{backgroundColor: backgroundColorComputed}" id="postCard">
+        <v-card :class="{previewCard: !isFullPost, fullCard: isFullPost}"
+                :style="{backgroundColor: backgroundColorComputed}" id="postCard">
             <v-card-title primary-title id="postCardTitle">
                 <v-breadcrumbs divider="/" style="width: 100%" v-if="isFullPost">
                     <v-btn color="primary" depressed small dark @click="returnToPostMenu">
@@ -21,7 +22,8 @@
                     <v-btn color="green" depressed small @click="verifyPost" v-if="!post.approved && userAdminComputed">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
-                    <v-btn color="orange" depressed small @click="editMode = true" v-if="userOwnsThisPostComputed || userAdminComputed">
+                    <v-btn color="orange" depressed small @click="editMode = true"
+                           v-if="userOwnsThisPostComputed || userAdminComputed">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
                     <v-btn v-if="editMode" depressed small color="primary" @click="editPost">
@@ -45,12 +47,14 @@
             </v-card-title>
 
             <v-card-text v-show="isFullPost" v-if="post.htmlContent !== null" id="postCardText">
-                <Quill key="editQuill" ref="editQuill" v-if="editMode" :editorSetup="{allowEdit: true, showToolbar: true}" :value="post.htmlContent"></Quill>
+                <Quill key="editQuill" ref="editQuill" v-if="editMode"
+                       :editorSetup="{allowEdit: true, showToolbar: true}" :value="post.htmlContent"></Quill>
                 <div v-html="post.htmlContent"></div>
             </v-card-text>
 
             <v-card-actions>
-                <v-btn class="viewButton" flat color="primary" @click="navigateToPost" v-if="!isFullPost"><b>View</b></v-btn>
+                <v-btn class="viewButton" flat color="primary" @click="navigateToPost" v-if="!isFullPost"><b>View</b>
+                </v-btn>
             </v-card-actions>
         </v-card>
     </div>
@@ -63,10 +67,15 @@
 
     import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
     import {
+        EditPostCallback,
+        EditPostRequest,
         PostCallBack,
-        PostRequest, VerifyPostCallBack,
-        VerifyPostRequest,
-        EditPostRequest, EditPostCallback, PostVersionRequest, PostVersionCallBack
+        PostRequest,
+        PostVersionCallBack,
+        PostVersionRequest,
+        PostVersionTypes,
+        VerifyPostCallBack,
+        VerifyPostRequest
     } from "../../../../cshub-shared/api-calls";
     import {IPost, ITopic} from "../../../../cshub-shared/models";
     import {Routes} from "../../views/router/router";
@@ -182,6 +191,8 @@
             },
             getPostRequest() {
                 localForage.getItem(CacheTypes.POSTS + this.postHash)
+                // The compiler is unaware of localForage it seems, so:
+                // @ts-ignore
                     .then((value: IPost) => {
                         if (value === null) {
                             ApiWrapper.sendPostRequest(new PostRequest(this.postHash), (callbackData: PostCallBack) => {
@@ -211,13 +222,17 @@
 
                     let hasBeenUpdated = false;
 
-                    if (callbackContent.postUpdated !== undefined) {
+                    if (callbackContent.postVersionType === PostVersionTypes.POSTDELETED) {
+                        this.$router.push(Routes.INDEX);
+                    }
+
+                    if (callbackContent.postVersionType === PostVersionTypes.UPDATEDPOST) {
                         this.post = callbackContent.postUpdated;
                         this.post.htmlContent = callbackContent.htmlContent;
                         hasBeenUpdated = true;
                     }
 
-                    if (callbackContent.htmlContent !== undefined) {
+                    if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
                         this.post.htmlContent = callbackContent.htmlContent;
                         hasBeenUpdated = true;
                     }

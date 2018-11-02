@@ -33,7 +33,9 @@ app.post(PostVersionRequest.getURL, (req: Request, res: Response) => {
                 .then((post: DatabaseResultSet) => {
                     const htmlContent: string = post.getStringFromDB("htmlContent");
 
-                    if (post.getNumberFromDB("postVersion") !== postContentRequest.postVersion) {
+                    if (post.convertRowsToResultObjects().length === 0) {
+                        res.json(new PostVersionCallBack(PostVersionTypes.POSTDELETED));
+                    } else if (post.getNumberFromDB("postVersion") !== postContentRequest.postVersion) {
                         getPostData(postContentRequest.postHash)
                             .then((data: PostCallBack) => {
                                 res.json(new PostVersionCallBack(PostVersionTypes.UPDATEDPOST, htmlContent, data.post));

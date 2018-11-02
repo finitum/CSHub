@@ -59,8 +59,10 @@
 
 <script lang="ts">
     import Vue from "vue";
+    import localForage from "localforage";
+
     import {ITopic, IUser} from "../../../../cshub-shared/models";
-    import {ApiWrapper, LogObjectConsole} from "../../utilities";
+    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
     import {
         TopicsCallBack,
         TopicsRequest} from "../../../../cshub-shared/api-calls";
@@ -74,6 +76,7 @@
     import {Routes} from "../../views/router/router";
     import {Route} from "vue-router";
     import {AdminRoutes} from "../../views/router/adminRoutes";
+    import {CacheTypes} from "../../utilities/cache-types";
 
     export default Vue.extend({
         name: "NavDrawer",
@@ -126,17 +129,48 @@
             }
         },
         mounted() {
-            // Sends a get request to the server, and sets the correct store value after receiving the topics in the TopicsCallBack
-            ApiWrapper.sendGetRequest(new TopicsRequest(), (callbackData: TopicsCallBack) => {
-                LogObjectConsole(callbackData.topics, "NavDrawer mounted");
+            type topicCache = {
+                version: number,
+                topics: ITopic[]
+            };
 
-                if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
-                    this.activeTopicHash = [this.$router.currentRoute.params.hash];
+            localForage.getItem(CacheTypes.TOPICS)
+                // The compiler is unaware of localForage it seems, so:
+                // @ts-ignore
+                .then((value: topicCache) => {
 
-                }
-                this.topics = callbackData.topics;
-                dataState.setTopics(callbackData.topics);
-            });
+                    let currentVersion = -1;
+
+                    if (value !== null) {
+                        currentVersion = value.version;
+                    }
+
+                    // Sends a get request to the server, and sets the correct store value after receiving the topics in the TopicsCallBack
+                    ApiWrapper.sendPostRequest(new TopicsRequest(currentVersion), (callbackData: TopicsCallBack) => {
+
+                        if (callbackData.topics !== undefined) {
+                            this.topics = callbackData.topics;
+                            dataState.setTopics(callbackData.topics);
+
+                            const topicData: topicCache = {
+                                version: callbackData.version,
+                                topics: callbackData.topics
+                            };
+
+                            localForage.setItem(CacheTypes.TOPICS, topicData)
+                                .then(() => {
+                                    LogStringConsole("Added topics to cache", "NavDrawer");
+                                });
+                        }
+
+                        if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
+                            this.activeTopicHash = [this.$router.currentRoute.params.hash];
+                        }
+
+                        LogObjectConsole(callbackData.topics, "NavDrawer mounted");
+
+                    });
+                });
         }
     });
 </script>

@@ -1,3 +1,4 @@
 export enum CacheTypes {
-    POSTS = "POST_"
+    POSTS = "POST_",
+    TOPICS = "TOPICS"
 }

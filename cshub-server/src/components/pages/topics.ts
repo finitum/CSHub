@@ -2,19 +2,37 @@ import {Request, Response} from "express";
 
 import {app, logger} from "../../";
 
-import {TopicsCallBack, TopicsRequest} from "../../../../cshub-shared/api-calls";
+import {PostVersionRequest, TopicsCallBack, TopicsRequest} from "../../../../cshub-shared/api-calls";
 import {getTopicTree} from "../../utilities/topics-utils";
+import {DatabaseResultSet, query} from "../../utilities/database-connection";
 
-app.get(TopicsRequest.getURL, (req: Request, res: Response) => {
+app.post(TopicsRequest.getURL, (req: Request, res: Response) => {
 
-    const topics = getTopicTree();
-    topics
-        .then((result) => {
-            if (result === null) {
-                logger.error(`No topics found`);
-                res.status(500).send();
+    const topicsRequest = req.body as TopicsRequest;
+
+    query(`
+        SELECT version
+        FROM cacheversion
+        WHERE type = "TOPICS"
+    `)
+        .then((versionData: DatabaseResultSet) => {
+            const version = versionData.getNumberFromDB("version");
+
+            if (version !== topicsRequest.topicVersion || topicsRequest.topicVersion === -1) {
+                const topics = getTopicTree();
+                topics
+                    .then((result) => {
+                        if (result === null) {
+                            logger.error(`No topics found`);
+                            res.status(500).send();
+                        } else {
+                            res.json(new TopicsCallBack(result, version));
+                        }
+                    });
             } else {
-                res.json(new TopicsCallBack(result));
+                res.json(new TopicsCallBack());
             }
-        });
+        })
+
+
 });
