@@ -44,9 +44,9 @@
                 </div>
             </v-card-title>
 
-            <v-card-text v-show="isFullPost" v-if="content !== null" id="postCardText">
-                <Quill key="editQuill" ref="editQuill" v-if="editMode" :editorSetup="{allowEdit: true, showToolbar: true}" :value="content"></Quill>
-                <Quill key="viewQuill" ref="viewQuill" v-if="!editMode" :editorSetup="{allowEdit: false, showToolbar: false}" :value="content"></Quill>
+            <v-card-text v-show="isFullPost" v-if="post.htmlContent !== null" id="postCardText">
+                <Quill key="editQuill" ref="editQuill" v-if="editMode" :editorSetup="{allowEdit: true, showToolbar: true}" :value="post.htmlContent"></Quill>
+                <div v-html="post.htmlContent"></div>
             </v-card-text>
 
             <v-card-actions>
@@ -66,14 +66,16 @@
         PostCallBack,
         PostRequest, VerifyPostCallBack,
         VerifyPostRequest,
-        EditPostRequest, EditPostCallback, PostContentRequest, PostContentCallBack
+        EditPostRequest, EditPostCallback, PostVersionRequest, PostVersionCallBack
     } from "../../../../cshub-shared/api-calls";
     import {IPost, ITopic} from "../../../../cshub-shared/models";
     import {Routes} from "../../views/router/router";
     import dataState from "../../store/data";
     import userState from "../../store/user";
     import Delta from "quill-delta/dist/Delta";
+    import localForage from "localforage";
     import {getTopicFromHash} from "../../../../cshub-shared/utilities/topics";
+    import {CacheTypes} from "../../utilities/cache-types";
 
     interface IBreadCrumbType {
         name: string;
@@ -87,8 +89,7 @@
             return {
                 post: null as IPost,
                 editMode: false as boolean,
-                topicNames: [] as IBreadCrumbType[],
-                content: null as Delta
+                topicNames: [] as IBreadCrumbType[]
             };
         },
         props: {
@@ -98,11 +99,7 @@
         mounted() {
             window.addEventListener("resize", this.windowHeightChanged);
 
-            if (this.isFullPost) {
-                this.getFullPostRequest();
-            } else {
-                this.getPreviewPostRequest();
-            }
+            this.getPostRequest();
         },
         computed: {
             backgroundColorComputed(): string {
@@ -180,54 +177,63 @@
                 });
 
             },
-            getPreviewPostRequest() {
-                ApiWrapper.sendPostRequest(new PostRequest(this.postHash, false), (callbackData: PostCallBack) => {
-                    this.post = callbackData.post;
-                    LogObjectConsole(callbackData.post, "PostPreview");
+            isContentSet() {
+                return typeof this.post.htmlContent === "string";
+            },
+            getPostRequest() {
+                localForage.getItem(CacheTypes.POSTS + this.postHash)
+                    .then((value: IPost) => {
+                        if (value === null) {
+                            ApiWrapper.sendPostRequest(new PostRequest(this.postHash), (callbackData: PostCallBack) => {
+                                this.post = callbackData.post;
+                                this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
 
-                    this.getContentRequest();
-                });
+                                LogObjectConsole(callbackData.post, "getPostRequest");
+
+                                if (this.isFullPost) {
+                                    this.getContentRequest();
+                                } else {
+                                    localForage.setItem(CacheTypes.POSTS + this.postHash, callbackData.post)
+                                        .then(() => {
+                                            LogStringConsole("Added post to cache", "getPostRequest");
+                                        });
+                                }
+                            });
+                        } else {
+                            LogStringConsole("Gotten post from cache", "getPostRequest");
+                            this.post = value as IPost;
+                            this.getContentRequest();
+                        }
+                    });
             },
             getContentRequest() {
-                ApiWrapper.sendPostRequest(new PostContentRequest(this.postHash), (callbackContent: PostContentCallBack) => {
-                    LogStringConsole("Preview post gotten content");
-                    this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
-                    this.content = callbackContent.content;
-                });
-            },
-            getFullPostRequest() {
-                if (this.post === null) {
-                    ApiWrapper.sendPostRequest(new PostRequest(this.postHash, this.content === null), (callbackData: PostCallBack) => {
+                ApiWrapper.sendPostRequest(new PostVersionRequest(this.postHash, !this.isContentSet(), this.post.postVersion), (callbackContent: PostVersionCallBack) => {
 
-                        LogObjectConsole(callbackData.post, `Getting data for ${callbackData.post.title} fullpostrequest`);
+                    let hasBeenUpdated = false;
 
-                        const currTopic: ITopic = getTopicFromHash(callbackData.post.topicHash, dataState.topics);
-                        this.topicNames = this.getTopicListWhereFinalChildIs(currTopic);
-                        this.post = callbackData.post;
+                    if (callbackContent.postUpdated !== undefined) {
+                        this.post = callbackContent.postUpdated;
+                        this.post.htmlContent = callbackContent.htmlContent;
+                        hasBeenUpdated = true;
+                    }
 
-                        if (this.content === null && callbackData.content !== null) {
-                            this.content = callbackData.content;
-                        }
+                    if (callbackContent.htmlContent !== undefined) {
+                        this.post.htmlContent = callbackContent.htmlContent;
+                        hasBeenUpdated = true;
+                    }
 
-                        // Wait for one tick, then init height
-                        Vue.nextTick()
+                    if (hasBeenUpdated) {
+                        this.$forceUpdate();
+                        localForage.setItem(CacheTypes.POSTS + this.postHash, this.post)
                             .then(() => {
-                                this.windowHeightChanged();
+                                LogStringConsole("Changed post in cache", "getContentRequest");
                             });
-                    });
-                } else if (this.content === null) {
-                    this.getContentRequest();
-                }
-
-                // Wait for one tick, then init height
-                Vue.nextTick()
-                    .then(() => {
-                        this.windowHeightChanged();
-                    });
+                    }
+                });
             },
             navigateToPost(): void {
                 LogStringConsole(`Going to post ${this.post.title}`, "PostPreview navigateToPost");
-                this.getFullPostRequest();
+                this.getPostRequest();
 
                 if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD) && !this.$router.currentRoute.path.includes(Routes.ADMINDASHBOARD)) {
                     this.$router.push(`${Routes.POST}/${this.post.hash}`);
