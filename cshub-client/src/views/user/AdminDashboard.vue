@@ -1,24 +1,22 @@
 <template>
     <div>
-        <div v-show="currentPostHash === -1">
-            <router-view></router-view>
-            <v-subheader>
-                Your profile
-            </v-subheader>
-            <v-container fluid fill-height class="grey lighten-4">
-                <v-layout justify-center align-center>
-                    <v-flex>
-                        <UserTable></UserTable>
-                    </v-flex>
-                </v-layout>
-            </v-container>
-            <v-subheader>
-                Unverified posts
-            </v-subheader>
-        </div>
+        <router-view></router-view>
+        <v-subheader>
+            Your profile
+        </v-subheader>
+        <v-container fluid fill-height class="grey lighten-4">
+            <v-layout justify-center align-center>
+                <v-flex>
+                    <UserTable></UserTable>
+                </v-flex>
+            </v-layout>
+        </v-container>
+        <v-subheader>
+            Unverified posts
+        </v-subheader>
         <div>
             <div v-for="postHash in postHashes" :key="postHash.index">
-                <Post :postHash="postHash" v-if="currentPostHash !== -1 && postHash === currentPostHash || currentPostHash === -1"></Post>
+                <Post :postHash="postHash" :key="postHash"></Post>
             </div>
         </div>
     </div>
@@ -40,8 +38,7 @@
         components: {UserTable, Post},
         data() {
             return {
-                postHashes: [] as number[],
-                currentPostHash: -1 as number
+                postHashes: [] as number[]
             };
         },
         mounted() {

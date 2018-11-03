@@ -1,8 +1,17 @@
 <template>
     <div>
+        <transition
+                name="breadCrumb"
+                enter-active-class="animated fadeIn"
+                leave-active-class="animated fadeOut">
+            <v-subheader v-if="!fullPostComputed">
+                Posts in {{currentTopicNameComputed}}
+            </v-subheader>
+        </transition>
         <div v-for="postHash in postHashes" :key="postHash.index">
             <Post :postHash="postHash" :key="postHash"></Post>
         </div>
+        <h2 v-if="postHashes.length === 0" style="text-align: center; width: 100%">No posts found!</h2>
     </div>
 </template>
 
@@ -19,18 +28,45 @@
     import {Route} from "vue-router";
     import {AxiosError} from "axios";
     import {CacheTypes} from "../../utilities/cache-types";
+    import {getTopicFromHash} from "../../../../cshub-shared/utilities/Topics";
+    import dataState from "../../store/data";
 
     export default Vue.extend({
         name: "PostView",
         data() {
             return {
                 postHashes: [] as number[],
-                currentPostHash: -1 as number
+                currentPostHash: -1 as number,
+                currentTopicHash: -1 as number
             };
+        },
+        computed: {
+            fullPostComputed: {
+                get(): boolean {
+                    if (this.postHashes.length === 1) {
+                        return this.$route.fullPath.includes(this.postHashes[0].toString());
+                    } else {
+                        return false;
+                    }
+                }
+            },
+            currentTopicNameComputed: {
+                get(): string {
+                    if (dataState.topics !== null) {
+                        if (this.currentTopicHash > 0) {
+                            return getTopicFromHash(this.currentTopicHash, dataState.topics).name;
+                        } else {
+                            return "Index";
+                        }
+                    }
+
+                }
+            }
         },
         components: {Post},
         watch: {
             $route(to: Route, from: Route) {
+                this.setCurrentTopic();
                 if (to.fullPath.includes(Routes.POST)) {
                     this.currentPostHash = +to.params.hash;
                 } else if (to.fullPath === Routes.INDEX) {
@@ -41,16 +77,24 @@
             }
         },
         mounted() {
+            this.setCurrentTopic();
             if (this.$router.currentRoute.fullPath.includes(Routes.POST)) {
+                this.currentTopicHash = -1;
                 this.currentPostHash = +this.$router.currentRoute.params.hash;
                 this.postHashes = [this.currentPostHash];
             } else if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
+                this.currentTopicHash = +this.$router.currentRoute.params.hash;
                 this.getTopicRequest(+this.$router.currentRoute.params.hash);
             } else if (this.$router.currentRoute.fullPath === Routes.INDEX) {
+                this.currentTopicHash = 0;
                 this.getTopicRequest(0);
             }
         },
         methods: {
+            setCurrentTopic(): void {
+
+
+            },
             getTopicRequest(topicHash: number) {
 
                 // Ts gives an error here, have no clue as to why as it normally also works

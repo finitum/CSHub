@@ -26,15 +26,15 @@ import dataState from "../../store/data";
 Vue.use(Router);
 
 export class Routes {
-    static readonly INDEX: string = "/";
-    static readonly LOGIN = "/login";
-    static readonly EDITOR = "/editor";
-    static readonly CREATEACCOUNT = "/createaccount";
-    static readonly POST = "/post";
-    static readonly POSTCREATE = "/post/create";
-    static readonly TOPIC = "/topic";
-    static readonly USERDASHBOARD = "/user";
-    static readonly ADMINDASHBOARD = "/admin";
+    public static readonly INDEX: string = "/";
+    public static readonly LOGIN = "/login";
+    public static readonly EDITOR = "/editor";
+    public static readonly CREATEACCOUNT = "/createaccount";
+    public static readonly POST = "/post";
+    public static readonly POSTCREATE = "/post/create";
+    public static readonly TOPIC = "/topic";
+    public static readonly USERDASHBOARD = "/user";
+    public static readonly ADMINDASHBOARD = "/admin";
 }
 
 const router = new Router({
@@ -89,16 +89,6 @@ const router = new Router({
             name: "user",
             component: UserDashboard,
             beforeEnter: userBeforeEnter
-        },
-        {
-            path: `${Routes.USERDASHBOARD}/:hash`,
-            name: "post",
-            component: PostView
-        },
-        {
-            path: `${Routes.USERDASHBOARD}/:hash/edit`,
-            name: "postEdit",
-            component: PostView
         },
         {
             path: Routes.ADMINDASHBOARD,

@@ -1,13 +1,12 @@
 <template>
     <div>
-        <div v-if="post !== null && post.author !== undefined">
+        <div v-if="post !== null">
             <!-- The following transition is just a trick so I get an event on the change from preview to full post (performance of the animation when the viewer is on is terrible) -->
             <transition :duration="1000" @before-leave="showContent = false" @before-enter="showContent = false" @after-enter="afterAnimation">
                 <div v-if="fullPostComputed"></div>
             </transition>
 
-            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}"
-                    :style="{backgroundColor: backgroundColorComputed}" id="postCard">
+            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}" id="postCard">
                 <v-card-title primary-title id="postCardTitle">
                     <transition name="breadCrumb"
                                 enter-active-class="animated fadeInLeft"
@@ -52,7 +51,7 @@
                         </v-avatar>
                     </v-badge>
                     <div>
-                        <h3 class="headline mb-0">{{post.title}}</h3>
+                        <h3 class="headline mb-0">{{post.title}}</h3><p v-if="!post.approved && fullPostComputed" style="color: grey">(unverified)</p>
                         <div>{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</div>
                     </div>
                 </v-card-title>
@@ -131,6 +130,7 @@
     import {getTopicFromHash} from "../../../../cshub-shared/utilities/Topics";
     import {CacheTypes} from "../../utilities/cache-types";
     import {AxiosError} from "axios";
+    import {ImgurUpload} from "../../utilities/imgur";
 
     interface IBreadCrumbType {
         name: string;
@@ -155,7 +155,6 @@
         },
         mounted() {
             window.addEventListener("resize", this.windowHeightChanged);
-
             this.getPostRequest();
 
             if (this.editModeComputed) {
@@ -163,9 +162,6 @@
             }
         },
         computed: {
-            backgroundColorComputed(): string {
-                return !this.post.approved ? "#FFD740" : "";
-            },
             userOwnsThisPostComputed: {
                 get(): boolean {
                     if (userState.userModel !== null) {
@@ -187,7 +183,7 @@
             },
             fullPostComputed: {
                 get(): boolean {
-                    return this.$route.fullPath.includes(this.postHash);
+                    return this.$route.fullPath.includes(this.postHash.toString());
                 }
             },
             editModeComputed: {
@@ -202,12 +198,14 @@
                     // Calculate the right height for the postcardtext, 100px padding
                     this.canResize = false;
 
-                    const newHeight = document.getElementById("postCard").clientHeight - document.getElementById("postCardTitle").clientHeight - 100;
+                    const postCard = document.getElementById("postCard");
+                    const postCardTitle = document.getElementById("postCardTitle");
+                    const newHeight = postCard.clientHeight - postCardTitle.clientHeight - 50;
                     document.getElementById("post-scroll-target").style.maxHeight = `${newHeight}px`;
 
                     setTimeout(() => {
                         this.canResize = true;
-                    }, 500)
+                    }, 500);
                 }
 
             },
@@ -264,13 +262,15 @@
                 logStringConsole("Edited post");
                 const delta: Delta = (this.$refs as any).editQuill.getDelta();
 
-                const diff = this.editContent.diff(delta);
+                ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
+                    .then((newValue: Delta) => {
+                        const diff = this.editContent.diff(newValue);
 
-                ApiWrapper.sendPostRequest(new EditPost(this.postHash, diff), (callbackData: EditPostCallback) => {
-                    this.$router.push(this.currentPostURLComputed);
-                    this.getPostRequest();
-                });
-
+                        ApiWrapper.sendPostRequest(new EditPost(this.postHash, diff), (callbackData: EditPostCallback) => {
+                            this.$router.push(this.currentPostURLComputed);
+                            this.getPostRequest();
+                        });
+                    });
             },
             getPostRequest() {
                 localForage.getItem(CacheTypes.POSTS + this.postHash)
@@ -341,7 +341,7 @@
                     Vue.nextTick()
                         .then(() => {
                             this.windowHeightChanged();
-                        })
+                        });
                 }, (err: AxiosError) => {
 
                     clearTimeout(timeOut);
@@ -357,10 +357,8 @@
             },
             navigateToPost(): void {
                 logStringConsole(`Going to post ${this.post.title}`, "PostPreview navigateToPost");
+
                 this.$router.push(this.currentPostURLComputed);
-
-                this.getContentRequest(this.post);
-
             }
         }
     });

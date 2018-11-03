@@ -90,9 +90,12 @@
         },
         watch: {
             $route(to: Route, from: Route) {
-                if (from.fullPath === Routes.INDEX && to.name === "post") {
-                    this.activeclass = "";
-                } else if (to.fullPath === Routes.INDEX && from.name === "post") {
+                const excludeTransition = (from.fullPath === Routes.INDEX && to.name === "post") ||
+                    (to.fullPath === Routes.INDEX && from.name === "post") ||
+                    (from.name === "user" && to.name === "post") ||
+                    (from.name === "admin" && to.name === "post");
+
+                if (excludeTransition) {
                     this.activeclass = "";
                 } else {
                     this.activeclass = "animated fadeInLeft";
