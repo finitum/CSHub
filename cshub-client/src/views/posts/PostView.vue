@@ -61,32 +61,46 @@
                 // @ts-ignore
                 this.currentPostHash = -1;
 
+                localForage.getItem(CacheTypes.TOPICPOST + topicHash)
                 // @ts-ignore
-                this.postHashes = [];
+                    .then((value: number[]) => {
 
-                ApiWrapper.sendPostRequest(new TopicPostsRequest(topicHash, 0), (callbackData: TopicPostsCallBack) => {
-                    // Ts gives an error here, have no clue as to why as it normally also works
-                    // @ts-ignore
-                    this.postHashes = callbackData.postHashes;
-
-                    LogObjectConsole(callbackData.postHashes, "Topic posthashes");
-
-                    localForage.setItem(CacheTypes.TOPICPOST + topicHash, callbackData.postHashes)
-                        .then(() => {
-                            LogStringConsole("Added current topic to cache", "getTopicRequest");
-                        });
-
-                }, (err: AxiosError) => {
-                    localForage.getItem(CacheTypes.TOPICPOST + topicHash)
-                        // @ts-ignore
-                        .then((value: number[]) => {
-
+                        if (value !== null) {
                             // @ts-ignore
                             this.postHashes = value;
 
-                            LogStringConsole("Set topicPosts from cache", "getTopicRequest error axios")
+                            LogStringConsole("Set topicPosts from cache", "getTopicRequest");
+                        }
+
+                        ApiWrapper.sendPostRequest(new TopicPostsRequest(topicHash, 0), (callbackData: TopicPostsCallBack) => {
+
+                            if (callbackData.postHashes !== this.postHashes) {
+                                // Ts gives an error here, have no clue as to why as it normally also works
+                                // @ts-ignore
+                                this.postHashes = callbackData.postHashes;
+
+                                LogObjectConsole(callbackData.postHashes, "Topic posthashes");
+
+                                localForage.setItem(CacheTypes.TOPICPOST + topicHash, callbackData.postHashes)
+                                    .then(() => {
+                                        LogStringConsole("Updated postHashes from server", "getTopicRequest");
+                                    });
+                            }
+                        }, (err: AxiosError) => {
+                            localForage.getItem(CacheTypes.TOPICPOST + topicHash)
+                            // @ts-ignore
+                                .then((cachedValue: number[]) => {
+
+                                    // @ts-ignore
+                                    this.postHashes = cachedValue;
+
+                                    LogStringConsole("Set topicPosts from cache", "getTopicRequest error axios");
+                                });
                         });
-                });
+
+                    });
+
+
             }
         }
     });

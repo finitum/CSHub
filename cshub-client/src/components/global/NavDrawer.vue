@@ -175,7 +175,7 @@
 
                     }, (err: AxiosError) => {
 
-                        LogStringConsole("Set topics from cache", "NavDrawer mounted error axios")
+                        LogStringConsole("Set topics from cache", "NavDrawer mounted error axios");
                         this.topics = value.topics;
                         dataState.setTopics(value.topics);
                     });

@@ -5,10 +5,10 @@ import {AuthRequests} from "../AuthRequests";
 export class EditPostCallback {
 }
 
-export class EditPostRequest implements IApiRequest {
+export class EditPost implements IApiRequest {
 
     public static getURL: string = AuthRequests.EDITPOST;
-    public URL: string = EditPostRequest.getURL;
+    public URL: string = EditPost.getURL;
 
     constructor(
         public postHash: number,

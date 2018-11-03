@@ -51,21 +51,28 @@ app.post(SubmitTopicRequest.getURL, (req: Request, res: Response) => {
                             })
                             .then((topicHash) => {
                                 if (topicHash !== undefined) {
-                                    query(`
+                                    return query(`
                                       INSERT INTO topics
                                       SET name     = ?,
                                           parentid = ?,
                                           hash     = ?
                                     `, submitTopicRequest.topicTitle, requestTopic.id, topicHash)
-                                        .then((insertResult: DatabaseResultSet) => {
-                                            res.json(new SubmitTopicCallback(SubmitTopicResponse.SUCCESS));
-                                        })
-                                        .catch((err) => {
-                                            logger.error(`Inserting into db failed`);
-                                            logger.error(err);
-                                            res.status(500).send();
-                                        });
                                 }
+                            })
+                            .then(() => {
+                                return query(`
+                                    UPDATE cacheversion
+                                    SET version = version + 1
+                                    WHERE type = "TOPICS"
+                                `)
+                            })
+                            .then(() => {
+                                res.json(new SubmitTopicCallback(SubmitTopicResponse.SUCCESS));
+                            })
+                            .catch((err) => {
+                                logger.error(`Inserting into db failed`);
+                                logger.error(err);
+                                res.status(500).send();
                             });
                     }
                 }

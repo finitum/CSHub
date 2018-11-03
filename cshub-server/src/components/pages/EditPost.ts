@@ -5,12 +5,12 @@ import {app, logger} from "../../";
 import {validateMultipleInputs} from "../../utilities/string-utils";
 import {DatabaseResultSet, query} from "../../utilities/database-connection";
 import {checkTokenValidity} from "../../auth/middleware";
-import {EditPostCallback, EditPostRequest} from "../../../../cshub-shared/api-calls/pages/EditPostRequest";
+import {EditPostCallback, EditPost} from "../../../../cshub-shared/api-calls/pages/EditPost";
 import {hasAccessToPost} from "../../auth/validateRights/post";
 
-app.post(EditPostRequest.getURL, (req: Request, res: Response) => {
+app.post(EditPost.getURL, (req: Request, res: Response) => {
 
-    const editPostRequest: EditPostRequest = req.body as EditPostRequest;
+    const editPostRequest: EditPost = req.body as EditPost;
 
     const userObj = checkTokenValidity(req);
 
@@ -25,9 +25,17 @@ app.post(EditPostRequest.getURL, (req: Request, res: Response) => {
                       SET post     = (SELECT id
                                       FROM posts
                                       WHERE hash = ?),
+                          htmlContent = ?,
                           content  = ?,
                           editedBy = ?
-                    `, editPostRequest.postHash, JSON.stringify(editPostRequest.postBody), userObj.tokenObj.user.id)
+                    `, editPostRequest.postHash, JSON.stringify(editPostRequest.postBody), JSON.stringify(editPostRequest.postBody), userObj.tokenObj.user.id)
+                        .then(() => {
+                            return query(`
+                                UPDATE posts
+                                SET postVersion = postVersion + 1
+                                WHERE hash = ?
+                            `, editPostRequest.postHash)
+                        })
                         .then(() => {
                             return query(`
                               SELECT COUNT(*) AS editCount

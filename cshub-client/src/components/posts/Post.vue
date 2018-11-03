@@ -1,6 +1,6 @@
 import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
 <template>
-    <div v-if="post !== null">
+    <div v-if="post !== null && post.author !== undefined">
         <v-card :class="{previewCard: !isFullPost, fullCard: isFullPost}"
                 :style="{backgroundColor: backgroundColorComputed}" id="postCard">
             <v-card-title primary-title id="postCardTitle">
@@ -23,12 +23,11 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                     <v-btn color="green" depressed small @click="verifyPost" v-if="!post.approved && userAdminComputed">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
-                    <v-btn color="orange" depressed small @click="editMode = true"
-                           v-if="userOwnsThisPostComputed || userAdminComputed">
+                    <v-btn color="orange" depressed small @click="enableEdit" v-if="(userOwnsThisPostComputed || userAdminComputed) && !editMode">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
                     <v-btn v-if="editMode" depressed small color="primary" @click="editPost">
-                        <span>Submit</span>
+                        <span>Submit edit</span>
                     </v-btn>
                 </v-breadcrumbs>
                 <v-badge right color="green" overlap class="mr-3 pl-3">
@@ -48,9 +47,8 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
             </v-card-title>
 
             <v-card-text v-show="isFullPost" v-if="post.htmlContent !== null" id="postCardText">
-                <Quill key="editQuill" ref="editQuill" v-if="editMode"
-                       :editorSetup="{allowEdit: true, showToolbar: true}" :value="post.htmlContent"></Quill>
-                <div v-html="post.htmlContent"></div>
+                <Quill key="editQuill" ref="editQuill" v-if="editMode" :editorSetup="{allowEdit: true, showToolbar: true}" :value="editContent"></Quill>
+                <div v-if="!editMode" v-html="post.htmlContent"></div>
             </v-card-text>
 
             <v-card-actions>
@@ -69,14 +67,14 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
     import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
     import {
         EditPostCallback,
-        EditPostRequest,
+        EditPost,
         PostCallBack,
         PostRequest,
         PostVersionCallBack,
         PostVersionRequest,
         PostVersionTypes,
         VerifyPostCallBack,
-        VerifyPostRequest
+        VerifyPostRequest, GetEditContent, GetEditContentCallback
     } from "../../../../cshub-shared/api-calls";
     import {IPost, ITopic} from "../../../../cshub-shared/models";
     import {Routes} from "../../views/router/router";
@@ -100,6 +98,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
             return {
                 post: null as IPost,
                 editMode: false as boolean,
+                editContent: {} as Delta,
                 topicNames: [] as IBreadCrumbType[]
             };
         },
@@ -164,6 +163,17 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                 }
                 return null;
             },
+            enableEdit() {
+                ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
+                    let baseDelta = new Delta(callbackData.deltas[0]);
+                    for (let i = 1; i < callbackData.deltas.length; i++) {
+                        baseDelta = baseDelta.compose(callbackData.deltas[i]);
+                    }
+
+                    this.editContent = baseDelta;
+                    this.editMode = true;
+                });
+            },
             getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
                 const parentTopic = this.getParentTopic(child, dataState.topics);
 
@@ -183,20 +193,18 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                 LogStringConsole("Edited post");
                 const delta: Delta = (this.$refs as any).editQuill.getDelta();
 
-                ApiWrapper.sendPostRequest(new EditPostRequest(this.postHash, delta), (callbackData: EditPostCallback) => {
-                    this.$router.push(Routes.INDEX);
+                ApiWrapper.sendPostRequest(new EditPost(this.postHash, delta), (callbackData: EditPostCallback) => {
+                    this.editMode = false;
+                    this.getPostRequest();
                 });
 
-            },
-            isContentSet() {
-                return typeof this.post.htmlContent === "string";
             },
             getPostRequest() {
                 localForage.getItem(CacheTypes.POSTS + this.postHash)
                 // The compiler is unaware of localForage it seems, so:
                 // @ts-ignore
                     .then((cachedValue: IPost) => {
-                        if (cachedValue === null) {
+                        if (cachedValue === null || cachedValue.id === undefined) {
                             ApiWrapper.sendPostRequest(new PostRequest(this.postHash), (callbackData: PostCallBack) => {
                                 this.post = callbackData.post;
                                 this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
@@ -204,25 +212,22 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                                 LogObjectConsole(callbackData.post, "getPostRequest");
 
                                 if (this.isFullPost) {
-                                    this.getContentRequest(this.post);
-                                } else {
-                                    localForage.setItem(CacheTypes.POSTS + this.postHash, callbackData.post)
-                                        .then(() => {
-                                            LogStringConsole("Added post to cache", "getPostRequest");
-                                        });
+                                    this.getContentRequest(callbackData.post);
                                 }
                             });
                         } else {
                             LogStringConsole("Gotten post from cache", "getPostRequest");
-                            this.post = Object.create(cachedValue);
-                            this.post.htmlContent = undefined;
 
-                            this.getContentRequest(cachedValue);
+                            if (this.isFullPost) {
+                                this.getContentRequest(cachedValue);
+                            } else {
+                                this.post = cachedValue;
+                            }
                         }
                     });
             },
             getContentRequest(cachedValue: IPost) {
-                ApiWrapper.sendPostRequest(new PostVersionRequest(this.postHash, !this.isContentSet(), this.post.postVersion), (callbackContent: PostVersionCallBack) => {
+                ApiWrapper.sendPostRequest(new PostVersionRequest(this.postHash, typeof cachedValue.htmlContent !== "string", cachedValue.postVersion), (callbackContent: PostVersionCallBack) => {
 
                     let hasBeenUpdated = false;
 
@@ -233,10 +238,11 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                         this.post.htmlContent = callbackContent.htmlContent;
                         hasBeenUpdated = true;
                     } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
+                        this.post = cachedValue;
                         this.post.htmlContent = callbackContent.htmlContent;
                         hasBeenUpdated = true;
                     } else if (callbackContent.postVersionType === PostVersionTypes.NOCHANGE) {
-                        this.post.htmlContent = cachedValue.htmlContent;
+                        this.post = cachedValue;
                     }
 
                     if (hasBeenUpdated) {

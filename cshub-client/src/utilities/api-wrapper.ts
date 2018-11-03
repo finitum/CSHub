@@ -15,7 +15,7 @@ const axiosApi = axios.create({
 
 axiosApi.interceptors.request.use((config: AxiosRequestConfig) => {
 
-    if(!dataState.hasConnection && config.url !== NonAuthRequests.VERIFYTOKEN) {
+    if (!dataState.hasConnection && config.url !== NonAuthRequests.VERIFYTOKEN) {
         throw new axios.Cancel();
     } else {
         return config;
@@ -35,7 +35,9 @@ export class ApiWrapper {
                 }
             })
             .catch((err: AxiosError) => {
-                error(err);
+                if (error) {
+                    error(err);
+                }
             });
     }
 
@@ -48,7 +50,9 @@ export class ApiWrapper {
                 }
             })
             .catch((err: AxiosError) => {
-                error(err);
+                if (error) {
+                    error(err);
+                }
             });
     }
 }
