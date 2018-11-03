@@ -20,7 +20,7 @@ matrix:
         - "10"
     before_script:
         - cd cshub-server/src/
-        - cp settings_baseline.ts settings.ts
+        - cp SettingsBaseline.ts settings.ts
         - cd ..
     script:
         - npm install

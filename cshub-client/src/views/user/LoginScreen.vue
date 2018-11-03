@@ -56,11 +56,11 @@
     import Vue from "vue";
 
     import {ApiWrapper} from "../../utilities/api-wrapper";
-    import {LogStringConsole} from "../../utilities/debugConsole";
+    import {logStringConsole} from "../../utilities/debugConsole";
 
     import {LocalStorageData} from "../../store/localStorageData";
 
-    import {LoginRequest, LoginRequestCallBack, LoginResponses} from "../../../../cshub-shared/api-calls/index";
+    import {Login, LoginCallBack, LoginResponseTypes} from "../../../../cshub-shared/api-calls/index";
 
     import userState from "../../store/user/index";
     import router, {Routes} from "../router/router";
@@ -105,27 +105,27 @@
                 this.$validator.validateAll()
                     .then((allValid: boolean) => {
                         if (allValid) {
-                            ApiWrapper.sendPostRequest(new LoginRequest(this.userData.email, this.userData.password), (callbackData: LoginRequestCallBack) => {
-                                if (callbackData.response === LoginResponses.SUCCESS && callbackData.userModel) {
+                            ApiWrapper.sendPostRequest(new Login(this.userData.email, this.userData.password), (callbackData: LoginCallBack) => {
+                                if (callbackData.response === LoginResponseTypes.SUCCESS && callbackData.userModel) {
                                     if (this.userData.rememberuser) {
                                         localStorage.setItem(LocalStorageData.EMAIL, this.userData.email);
                                     }
                                     userState.changeUserModel(callbackData.userModel);
                                     router.push(Routes.INDEX);
-                                } else if (callbackData.response === LoginResponses.NOEXISTINGACCOUNT) {
-                                    LogStringConsole("Account does not exist");
+                                } else if (callbackData.response === LoginResponseTypes.NOEXISTINGACCOUNT) {
+                                    logStringConsole("Account does not exist");
                                     this.userData.emailerror = "Account does not exist.";
-                                } else if (callbackData.response === LoginResponses.ACCOUNTNOTVERIFIED) {
-                                    LogStringConsole("Account is not verified");
+                                } else if (callbackData.response === LoginResponseTypes.ACCOUNTNOTVERIFIED) {
+                                    logStringConsole("Account is not verified");
                                     this.userData.emailerror = "Account has not been verified.";
-                                } else if (callbackData.response === LoginResponses.ACCOUNTBLOCKED) {
-                                    LogStringConsole("Account is blocked");
+                                } else if (callbackData.response === LoginResponseTypes.ACCOUNTBLOCKED) {
+                                    logStringConsole("Account is blocked");
                                     this.userData.emailerror = "Account has been blocked.";
-                                } else if (callbackData.response === LoginResponses.INCORRECTPASS) {
-                                    LogStringConsole("Incorrect password was entered");
+                                } else if (callbackData.response === LoginResponseTypes.INCORRECTPASS) {
+                                    logStringConsole("Incorrect password was entered");
                                     this.userData.passworderror = "Incorrect password.";
-                                } else if (callbackData.response === LoginResponses.INVALIDINPUT) {
-                                    LogStringConsole("Invalid input");
+                                } else if (callbackData.response === LoginResponseTypes.INVALIDINPUT) {
+                                    logStringConsole("Invalid input");
                                     this.userData.passworderror = "Invalid input.";
                                     this.userData.emailerror = "Invalid input.";
                                 }

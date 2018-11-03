@@ -29,11 +29,11 @@
 
     import UserTable from "../../components/admin/UserTable.vue";
     import Post from "../../components/posts/Post.vue";
-    import {ApiWrapper, LogObjectConsole} from "../../utilities";
+    import {ApiWrapper, logObjectConsole} from "../../utilities";
     import {
         GetUnverifiedPostsCallBack,
-        GetUnverifiedPostsRequest
-    } from "../../../../cshub-shared/api-calls/admin/GetUnverifiedPostsRequest";
+        GetUnverifiedPosts
+    } from "../../../../cshub-shared/api-calls/admin/GetUnverifiedPosts";
 
     export default Vue.extend({
         name: "AdminDashboard",
@@ -49,9 +49,9 @@
         },
         methods: {
             getHashes(startIndex: number) {
-                ApiWrapper.sendPostRequest(new GetUnverifiedPostsRequest(startIndex), (callbackData: GetUnverifiedPostsCallBack) => {
+                ApiWrapper.sendPostRequest(new GetUnverifiedPosts(startIndex), (callbackData: GetUnverifiedPostsCallBack) => {
                     this.postHashes = callbackData.postHashes;
-                    LogObjectConsole(callbackData.postHashes, "User dashboard posthashes");
+                    logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
                 });
             },
             toggleFullPost(postHash: number) {

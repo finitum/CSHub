@@ -81,12 +81,12 @@
 <script lang="ts">
     import Vue from "vue";
 
-    import {emailValidator, ApiWrapper, LogStringConsole} from "../../utilities";
+    import {emailValidator, ApiWrapper, logStringConsole} from "../../utilities";
 
     import {
-        CreateAccountRequest,
-        CreateAccountRequestCallBack,
-        CreateAccountResponses
+        CreateAccount,
+        CreateAccountCallBack,
+        CreateAccountResponseTypes
     } from "../../../../cshub-shared/api-calls/index";
 
     import router, {Routes} from "../router/router";
@@ -115,14 +115,14 @@
                 this.$validator.validateAll()
                     .then((allValid: boolean) => {
                         if (allValid) {
-                            ApiWrapper.sendPostRequest(new CreateAccountRequest(this.userData.email, this.userData.password, this.userData.firstname, this.userData.lastname), (callbackData: CreateAccountRequestCallBack) => {
-                                if (callbackData.response === CreateAccountResponses.SUCCESS) {
+                            ApiWrapper.sendPostRequest(new CreateAccount(this.userData.email, this.userData.password, this.userData.firstname, this.userData.lastname), (callbackData: CreateAccountCallBack) => {
+                                if (callbackData.response === CreateAccountResponseTypes.SUCCESS) {
                                     router.push(Routes.LOGIN);
-                                } else if (callbackData.response === CreateAccountResponses.ALREADYEXISTS) {
-                                    LogStringConsole("Account already exists");
+                                } else if (callbackData.response === CreateAccountResponseTypes.ALREADYEXISTS) {
+                                    logStringConsole("Account already exists");
                                     this.userData.emailerror = "Account already exists.";
-                                } else if (callbackData.response === CreateAccountResponses.INVALIDINPUT) {
-                                    LogStringConsole("Invalid input");
+                                } else if (callbackData.response === CreateAccountResponseTypes.INVALIDINPUT) {
+                                    logStringConsole("Invalid input");
                                     this.userData.emailerror = "Invalid input.";
                                 }
                             });

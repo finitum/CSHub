@@ -2,10 +2,10 @@ import {Request, Response} from "express";
 
 import {app, logger} from "../../";
 
-import {validateMultipleInputs} from "../../utilities/string-utils";
-import {DatabaseResultSet, query} from "../../utilities/database-connection";
-import {checkTokenValidity} from "../../auth/middleware";
-import {hasAccessToPost} from "../../auth/validateRights/post";
+import {validateMultipleInputs} from "../../utilities/StringUtils";
+import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import {hasAccessToPost} from "../../auth/validateRights/PostAccess";
 
 import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/api-calls";
 

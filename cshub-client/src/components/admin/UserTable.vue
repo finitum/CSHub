@@ -25,7 +25,7 @@
 <script lang="ts">
     import Vue from "vue";
     import {ApiWrapper} from "../../utilities";
-    import {GetAllUsersCallBack, GetAllUsersRequest} from "../../../../cshub-shared/api-calls/admin";
+    import {GetAllUsersCallBack, GetAllUsers} from "../../../../cshub-shared/api-calls/admin";
     import {IUser} from "../../../../cshub-shared/models";
 
     export default Vue.extend({
@@ -59,7 +59,7 @@
         methods: {
             getData(rowsPerPage: number, page: number) {
                 this.loading = true;
-                ApiWrapper.sendPostRequest(new GetAllUsersRequest(rowsPerPage, page), (callback: GetAllUsersCallBack) => {
+                ApiWrapper.sendPostRequest(new GetAllUsers(rowsPerPage, page), (callback: GetAllUsersCallBack) => {
                     this.items = callback.users;
                     this.amountItems = callback.totalItems;
                     this.loading = false;

@@ -1,10 +1,10 @@
-export * from "./TopicPostsRequest";
-export * from "./PostRequest";
-export * from "./TopicsRequest";
-export * from "./SubmitPostRequest";
-export * from "./SubmitTopicRequest";
+export * from "./GetTopicPosts";
+export * from "./GetPost";
+export * from "./GetTopics";
+export * from "./CreatePost";
+export * from "./CreateTopic";
 export * from "./EditPost";
-export * from "./PostVersionRequest";
+export * from "./GetPostContent";
 export * from "./GetEditContent";
 
 export * from "./user";

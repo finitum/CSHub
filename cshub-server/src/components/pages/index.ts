@@ -1,10 +1,10 @@
-import "./topicPosts";
-import "./topics";
-import "./post";
-import "./submitPost";
-import "./submitTopic";
+import "./GetTopicPosts";
+import "./GetTopics";
+import "./GetPost";
+import "./CreatePost";
+import "./CreateTopic";
 import "./EditPost";
-import "./postContent";
+import "./GetPostContent";
 import "./GetEditContent";
 
 import "./admin";

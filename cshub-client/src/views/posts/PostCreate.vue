@@ -93,8 +93,8 @@
     import {ImgurUpload} from "../../utilities/imgur";
     import {ApiWrapper} from "../../utilities";
     import {
-        SubmitPostCallback,
-        SubmitPostRequest,
+        CreatePostCallback,
+        CreatePost,
         SubmitPostResponse
     } from "../../../../cshub-shared/api-calls/pages";
     import {Routes} from "../router/router";
@@ -127,7 +127,7 @@
         },
         methods: {
             submitPost() {
-                if (this.activeTopicHash[0] !== undefined) {
+                if (typeof this.activeTopicHash[0] !== "undefined") {
                     this.$validator.validateAll()
                         .then((allValid: boolean) => {
                             if (allValid) {
@@ -136,7 +136,7 @@
                                     this.showLoadingIcon = true;
                                     ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
                                         .then((newValue: Delta) => {
-                                            ApiWrapper.sendPostRequest(new SubmitPostRequest(this.postTitle, newValue, this.activeTopicHash[0]), (response: SubmitPostCallback) => {
+                                            ApiWrapper.sendPostRequest(new CreatePost(this.postTitle, newValue, this.activeTopicHash[0]), (response: CreatePostCallback) => {
                                                 this.showLoadingIcon = false;
                                                 if (response.response === SubmitPostResponse.SUCCESS) {
                                                     this.$router.push(Routes.USERDASHBOARD);

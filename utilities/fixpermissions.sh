@@ -1,3 +1,4 @@
+#!/bin/bash
 chown pm2:faqsite ./cshub-server -R
 chown pm2:faqsite ./cshub-shared -R
 chown victor:faqsite ./cshub-client -R

@@ -152,7 +152,7 @@
     import localForage from "localforage";
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
     import {ImageResize} from "../../plugins/quill/ImageResize.min";
-    import {LogStringConsole} from "../../utilities";
+    import {logStringConsole} from "../../utilities";
 
     const Quill = window.Quill;
     Quill.register("modules/resize", ImageResize);
@@ -204,7 +204,6 @@
         mounted() {
 
             this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
-            console.log(this.postHashCacheItemID);
             localForage.getItem(this.postHashCacheItemID)
                 .then((cachedDraft) => {
                     if (cachedDraft !== null) {
@@ -213,7 +212,7 @@
                     }
                 });
 
-            LogStringConsole("Mounted quill with edit: " + this.editorSetup.allowEdit);
+            logStringConsole("Mounted quill with edit: " + this.editorSetup.allowEdit);
 
             let id = "";
             const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -228,7 +227,7 @@
 
             // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
             setTimeout(() => {
-                LogStringConsole("Initializing quill with edit: " + this.editorSetup.allowEdit);
+                logStringConsole("Initializing quill with edit: " + this.editorSetup.allowEdit);
                 this.initQuill(); // Actually init quill itself
             });
         },
@@ -255,7 +254,7 @@
             },
             performTableAction(type) {
                 const table = this.editor.getModule("table");
-                if (table !== undefined) {
+                if (typeof table !== "undefined") {
                     switch (type) {
                         case TableActions.CREATETABLE:
                             table.insertTable(2, 2);
@@ -330,7 +329,7 @@
                     // No cache-type as it's not a TS component :(
                     localForage.setItem(this.postHashCacheItemID, this.getDelta())
                         .then(() => {
-                            LogStringConsole("Drafted current post", "textchanged quill");
+                            logStringConsole("Drafted current post", "textchanged quill");
                         });
                 }, 1000);
             }

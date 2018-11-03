@@ -55,9 +55,9 @@
     import dataState from "../../store/data";
     import {ApiWrapper} from "../../utilities";
     import {
-        SubmitTopicCallback,
-        SubmitTopicRequest,
-        SubmitTopicResponse
+        CreateTopicCallback,
+        CreateTopic,
+        CreateTopicResponseTypes
     } from "../../../../cshub-shared/api-calls/pages";
     import {Routes} from "../router/router";
 
@@ -82,10 +82,10 @@
                     this.$validator.validateAll()
                         .then((allValid: boolean) => {
                             if (allValid) {
-                                ApiWrapper.sendPostRequest(new SubmitTopicRequest(this.topicTitle, this.activeTopicHash[0]), (response: SubmitTopicCallback) => {
-                                    if (response.response === SubmitTopicResponse.SUCCESS) {
+                                ApiWrapper.sendPostRequest(new CreateTopic(this.topicTitle, this.activeTopicHash[0]), (response: CreateTopicCallback) => {
+                                    if (response.response === CreateTopicResponseTypes.SUCCESS) {
                                         this.$router.push(Routes.ADMINDASHBOARD);
-                                    } else if (response.response === SubmitTopicResponse.TITLEALREADYINUSE) {
+                                    } else if (response.response === CreateTopicResponseTypes.TITLEALREADYINUSE) {
                                         this.topicTitleError = "Title is already in use!";
                                     }
                                 });

@@ -27,7 +27,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
                     <v-btn v-if="editModeComputed" depressed small color="orange" @click="editPost">
-                        <span>Submit edit</span>
+                        <v-icon>mdi-circle-edit-outline</v-icon>
                     </v-btn>
                 </v-breadcrumbs>
                 <v-badge right color="green" overlap class="mr-3 pl-3">
@@ -64,17 +64,17 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
 
     import Quill from "../quill/Quill.vue";
 
-    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
+    import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
     import {
         EditPostCallback,
         EditPost,
-        PostCallBack,
-        PostRequest,
-        PostVersionCallBack,
-        PostVersionRequest,
+        GetPostCallBack,
+        GetPost,
+        GetPostContentCallBack,
+        GetPostContent,
         PostVersionTypes,
         VerifyPostCallBack,
-        VerifyPostRequest, GetEditContent, GetEditContentCallback
+        VerifyPost, GetEditContent, GetEditContentCallback
     } from "../../../../cshub-shared/api-calls";
     import {IPost, ITopic} from "../../../../cshub-shared/models";
     import {Routes} from "../../views/router/router";
@@ -82,7 +82,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
     import userState from "../../store/user";
     import Delta from "quill-delta/dist/Delta";
     import localForage from "localforage";
-    import {getTopicFromHash} from "../../../../cshub-shared/utilities/topics";
+    import {getTopicFromHash} from "../../../../cshub-shared/utilities/Topics";
     import {CacheTypes} from "../../utilities/cache-types";
     import {AxiosError} from "axios";
 
@@ -150,13 +150,13 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
         methods: {
             windowHeightChanged() {
                 // Calculate the right height for the postcardtext, 100px padding
-                LogStringConsole("Resizing viewport");
+                logStringConsole("Resizing viewport");
                 const newHeight = $("#postCard").height() - $("#postCardTitle").height() - 100;
                 $("#postCardText").height(newHeight);
             },
             verifyPost() {
-                ApiWrapper.sendPostRequest(new VerifyPostRequest(this.postHash), (callback: VerifyPostCallBack) => {
-                    LogStringConsole("Verified post");
+                ApiWrapper.sendPostRequest(new VerifyPost(this.postHash), (callback: VerifyPostCallBack) => {
+                    logStringConsole("Verified post");
                     this.$router.push(Routes.INDEX);
                 });
             },
@@ -208,7 +208,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                 }
             },
             editPost() {
-                LogStringConsole("Edited post");
+                logStringConsole("Edited post");
                 const delta: Delta = (this.$refs as any).editQuill.getDelta();
 
                 const diff = this.editContent.diff(delta);
@@ -225,18 +225,18 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                 // @ts-ignore
                     .then((cachedValue: IPost) => {
                         if (cachedValue === null || cachedValue.id === undefined) {
-                            ApiWrapper.sendPostRequest(new PostRequest(this.postHash), (callbackData: PostCallBack) => {
+                            ApiWrapper.sendPostRequest(new GetPost(this.postHash), (callbackData: GetPostCallBack) => {
                                 this.post = callbackData.post;
                                 this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
 
-                                LogObjectConsole(callbackData.post, "getPostRequest");
+                                logObjectConsole(callbackData.post, "getPostRequest");
 
                                 if (this.fullPostComputed) {
                                     this.getContentRequest(callbackData.post);
                                 }
                             });
                         } else {
-                            LogStringConsole("Gotten post from cache", "getPostRequest");
+                            logStringConsole("Gotten post from cache", "getPostRequest");
 
                             if (this.fullPostComputed) {
                                 this.getContentRequest(cachedValue);
@@ -247,7 +247,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                     });
             },
             getContentRequest(cachedValue: IPost) {
-                ApiWrapper.sendPostRequest(new PostVersionRequest(this.postHash, typeof cachedValue.htmlContent !== "string", cachedValue.postVersion), (callbackContent: PostVersionCallBack) => {
+                ApiWrapper.sendPostRequest(new GetPostContent(this.postHash, typeof cachedValue.htmlContent !== "string", cachedValue.postVersion), (callbackContent: GetPostContentCallBack) => {
 
                     let hasBeenUpdated = false;
 
@@ -269,7 +269,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                         this.$forceUpdate();
                         localForage.setItem(CacheTypes.POSTS + this.postHash, this.post)
                             .then(() => {
-                                LogStringConsole("Changed post in cache", "getContentRequest");
+                                logStringConsole("Changed post in cache", "getContentRequest");
                             });
                     }
                 }, (err: AxiosError) => {
@@ -278,7 +278,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                 });
             },
             navigateToPost(): void {
-                LogStringConsole(`Going to post ${this.post.title}`, "PostPreview navigateToPost");
+                logStringConsole(`Going to post ${this.post.title}`, "PostPreview navigateToPost");
                 this.getPostRequest();
 
                 if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD) && !this.$router.currentRoute.path.includes(Routes.ADMINDASHBOARD)) {

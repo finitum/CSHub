@@ -62,10 +62,10 @@
     import localForage from "localforage";
 
     import {ITopic, IUser} from "../../../../cshub-shared/models";
-    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
+    import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
     import {
-        TopicsCallBack,
-        TopicsRequest} from "../../../../cshub-shared/api-calls";
+        GetTopicsCallBack,
+        GetTopics} from "../../../../cshub-shared/api-calls";
 
     import NavDrawerItem from "./NavDrawerItem.vue";
 
@@ -146,10 +146,10 @@
                         currentVersion = value.version;
                     }
 
-                    // Sends a get request to the server, and sets the correct store value after receiving the topics in the TopicsCallBack
-                    ApiWrapper.sendPostRequest(new TopicsRequest(currentVersion), (callbackData: TopicsCallBack) => {
+                    // Sends a get request to the server, and sets the correct store value after receiving the topics in the GetTopicsCallBack
+                    ApiWrapper.sendPostRequest(new GetTopics(currentVersion), (callbackData: GetTopicsCallBack) => {
 
-                        if (callbackData.topics !== undefined) {
+                        if (typeof callbackData.topics !== "undefined") {
                             this.topics = callbackData.topics;
                             dataState.setTopics(callbackData.topics);
 
@@ -160,7 +160,7 @@
 
                             localForage.setItem(CacheTypes.TOPICS, topicData)
                                 .then(() => {
-                                    LogStringConsole("Added topics to cache", "NavDrawer");
+                                    logStringConsole("Added topics to cache", "NavDrawer");
                                 });
                         } else {
                             this.topics = value.topics;
@@ -171,11 +171,11 @@
                             this.activeTopicHash = [this.$router.currentRoute.params.hash];
                         }
 
-                        LogObjectConsole(this.topics, "NavDrawer mounted");
+                        logObjectConsole(this.topics, "NavDrawer mounted");
 
                     }, (err: AxiosError) => {
 
-                        LogStringConsole("Set topics from cache", "NavDrawer mounted error axios");
+                        logStringConsole("Set topics from cache", "NavDrawer mounted error axios");
                         this.topics = value.topics;
                         dataState.setTopics(value.topics);
                     });

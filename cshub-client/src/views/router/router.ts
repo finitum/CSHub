@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Router, {Route} from "vue-router";
 
-import {VerifyTokenRequest, VerifyTokenRequestCallBack, VerifyTokenResponses} from "../../../../cshub-shared/api-calls/account";
+import {VerifyUserToken, VerifyUserTokenCallback, VerifyUserTokenResponseTypes} from "../../../../cshub-shared/api-calls/account";
 
 import LoginScreen from "../user/LoginScreen.vue";
 import CreateAccount from "../user/CreateAccount.vue";
@@ -17,7 +17,7 @@ import {onlyIfNotLoggedIn} from "./guards/onlyIfNotLoggedInGuard";
 
 import {adminChildrenRoutes} from "./adminRoutes";
 import userState from "../../store/user";
-import {ApiWrapper, LogStringConsole} from "../../utilities";
+import {ApiWrapper, logStringConsole} from "../../utilities";
 
 import Quill from "../../components/quill/Quill.vue";
 import {AxiosError} from "axios";
@@ -104,17 +104,17 @@ router.beforeEach((to: Route, from: Route, next) => {
     next();
 
     if (!userState.hasCheckedToken) {
-        ApiWrapper.sendGetRequest(new VerifyTokenRequest(), (verified: VerifyTokenRequestCallBack) => {
+        ApiWrapper.sendGetRequest(new VerifyUserToken(), (verified: VerifyUserTokenCallback) => {
 
             if (!dataState.hasConnection) {
                 dataState.setConnection(true);
             }
 
-            if (verified.response === VerifyTokenResponses.VALID) {
-                LogStringConsole("User is logged in", "isLoggedIn after API");
+            if (verified.response === VerifyUserTokenResponseTypes.VALID) {
+                logStringConsole("User is logged in", "isLoggedIn after API");
                 userState.changeUserModel(verified.userModel);
             } else {
-                LogStringConsole("User is not logged in", "isLoggedIn after API");
+                logStringConsole("User is not logged in", "isLoggedIn after API");
             }
             userState.setCheckedToken();
 

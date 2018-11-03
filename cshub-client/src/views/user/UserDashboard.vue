@@ -94,13 +94,13 @@
 
     import Post from "../../components/posts/Post.vue";
 
-    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
+    import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
     import {
-        UserDashboardCallBack,
-        UserDashboardChangePasswordCallBack,
-        UserDashboardChangePasswordRequest,
-        UserDashboardChangePasswordResponses,
-        UserDashboardRequest
+        GetUserPostsCallback,
+        ChangeUserPasswordCallback,
+        ChangeUserPassword,
+        ChangeUserPasswordReponseTypes,
+        GetUserPosts
     } from "../../../../cshub-shared/api-calls/pages/user";
     import userState from "../../store/user";
     import {IUser} from "../../../../cshub-shared/models";
@@ -132,9 +132,9 @@
         },
         methods: {
             getHashes(startIndex: number) {
-                ApiWrapper.sendPostRequest(new UserDashboardRequest(startIndex), (callbackData: UserDashboardCallBack) => {
+                ApiWrapper.sendPostRequest(new GetUserPosts(startIndex), (callbackData: GetUserPostsCallback) => {
                     this.postHashes = callbackData.postHashes;
-                    LogObjectConsole(callbackData.postHashes, "User dashboard posthashes");
+                    logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
                 });
             },
             toggleFullPost(postHash: number) {
@@ -145,15 +145,15 @@
                 }
             },
             changePassword() {
-                ApiWrapper.sendPostRequest(new UserDashboardChangePasswordRequest(this.userData.currentPassword, this.userData.newPassword), (callBack: UserDashboardChangePasswordCallBack) => {
-                    if (callBack.response === UserDashboardChangePasswordResponses.SUCCESS) {
+                ApiWrapper.sendPostRequest(new ChangeUserPassword(this.userData.currentPassword, this.userData.newPassword), (callBack: ChangeUserPasswordCallback) => {
+                    if (callBack.response === ChangeUserPasswordReponseTypes.SUCCESS) {
                         // TODO: If the dialog wrapper works, show a success dialog
-                        LogStringConsole("User changed password");
-                    } else if (callBack.response === UserDashboardChangePasswordResponses.WRONGPASSWORD) {
-                        LogStringConsole("Wrong password was entered so password not changed");
+                        logStringConsole("User changed password");
+                    } else if (callBack.response === ChangeUserPasswordReponseTypes.WRONGPASSWORD) {
+                        logStringConsole("Wrong password was entered so password not changed");
                         this.userData.currentPasswordError = "Wrong password!";
-                    } else if (callBack.response === UserDashboardChangePasswordResponses.INVALIDINPUT) {
-                        LogStringConsole("Invalid input at password change");
+                    } else if (callBack.response === ChangeUserPasswordReponseTypes.INVALIDINPUT) {
+                        logStringConsole("Invalid input at password change");
                         this.userData.currentPasswordError = "Wrong input!";
                     }
                 });

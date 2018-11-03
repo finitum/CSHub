@@ -12,9 +12,9 @@
 
     import Post from "../../components/posts/Post.vue";
 
-    import {TopicPostsCallBack, TopicPostsRequest} from "../../../../cshub-shared/api-calls/index";
+    import {GetTopicPostsCallBack, GetTopicPosts} from "../../../../cshub-shared/api-calls/index";
 
-    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities/index";
+    import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities/index";
     import {Routes} from "../router/router";
     import {Route} from "vue-router";
     import {AxiosError} from "axios";
@@ -69,21 +69,21 @@
                             // @ts-ignore
                             this.postHashes = value;
 
-                            LogStringConsole("Set topicPosts from cache", "getTopicRequest");
+                            logStringConsole("Set topicPosts from cache", "getTopicRequest");
                         }
 
-                        ApiWrapper.sendPostRequest(new TopicPostsRequest(topicHash, 0), (callbackData: TopicPostsCallBack) => {
+                        ApiWrapper.sendPostRequest(new GetTopicPosts(topicHash, 0), (callbackData: GetTopicPostsCallBack) => {
 
                             if (callbackData.postHashes !== this.postHashes) {
                                 // Ts gives an error here, have no clue as to why as it normally also works
                                 // @ts-ignore
                                 this.postHashes = callbackData.postHashes;
 
-                                LogObjectConsole(callbackData.postHashes, "Topic posthashes");
+                                logObjectConsole(callbackData.postHashes, "Topic posthashes");
 
                                 localForage.setItem(CacheTypes.TOPICPOST + topicHash, callbackData.postHashes)
                                     .then(() => {
-                                        LogStringConsole("Updated postHashes from server", "getTopicRequest");
+                                        logStringConsole("Updated postHashes from server", "getTopicRequest");
                                     });
                             }
                         }, (err: AxiosError) => {
@@ -94,7 +94,7 @@
                                     // @ts-ignore
                                     this.postHashes = cachedValue;
 
-                                    LogStringConsole("Set topicPosts from cache", "getTopicRequest error axios");
+                                    logStringConsole("Set topicPosts from cache", "getTopicRequest error axios");
                                 });
                         });
 
