@@ -77,7 +77,7 @@
                                 </v-menu>
                             </v-flex>
                         </v-layout>
-                        <Quill ref="quillEdit" :editorSetup="{allowEdit: true, showToolbar: true}"></Quill>
+                        <Quill ref="quillEdit" :editorSetup="{allowEdit: true, showToolbar: true, postHash: -1}"></Quill>
                     </v-card-text>
                 </v-card>
             </v-flex>

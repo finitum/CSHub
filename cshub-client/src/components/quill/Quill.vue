@@ -32,14 +32,14 @@
                             <option value="rgb(102, 185, 102)"/>
                       </select>
                       <select class="ql-background">
-                            <option value="rgb(0, 0, 0)"/>
+                            <option value="rgba(0, 0, 0, 0)"/>
                             <option value="rgb(230, 0, 0)"/>
                             <option value="rgb(255, 153, 0)"/>
                             <option value="rgb(255, 255, 0)"/>
                             <option value="rgb(0, 138, 0)"/>
                             <option value="rgb(0, 102, 204)"/>
                             <option value="rgb(153, 51, 255)"/>
-                            <option value="rgb(255, 255, 255)"/>
+                            <option value="rgb(0, 0, 0)"/>
                             <option value="rgb(250, 204, 204)"/>
                             <option value="rgb(255, 235, 204)"/>
                             <option value="rgb(204, 224, 245)"/>
@@ -117,6 +117,17 @@
             <div class="editor">
             </div>
         </div>
+        <v-dialog v-model="loadDraftDialog" persistent max-width="290">
+            <v-card>
+                <v-card-title class="headline">Open draft?</v-card-title>
+                <v-card-text>A draft of this post was saved. Load this draft? If you don't load the draft, it will be discarded once you type.</v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="green darken-1" flat @click="loadDraft(true)">Load</v-btn>
+                    <v-btn color="green darken-1" flat @click="loadDraft(false)">Discard</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 
 </template>
@@ -138,6 +149,7 @@
     import "../../plugins/quill/mathquill.min.css";
     import katex from "katex/dist/katex.min";
     import "katex/dist/katex.min.css";
+    import localForage from "localforage";
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
     import {ImageResize} from "../../plugins/quill/ImageResize.min";
     import {LogStringConsole} from "../../utilities";
@@ -162,8 +174,12 @@
             return {
                 editor: {},
                 _options: {},
+                typingTimeout: null,
+                draftValue: {},
+                loadDraftDialog: false,
                 tableMenuOpen: false,
                 tableActions: TableActions,
+                postHashCacheItemID: "",
                 quillId: "",
                 defaultOptions
             };
@@ -181,11 +197,22 @@
             },
             editorSetup: {
                 type: null,
-                default: {allowEdit: true, showToolbar: true}
+                default: {allowEdit: true, showToolbar: true, postHash: -1}
             }
         },
 
         mounted() {
+
+            this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
+            console.log(this.postHashCacheItemID);
+            localForage.getItem(this.postHashCacheItemID)
+                .then((cachedDraft) => {
+                    if (cachedDraft !== null) {
+                        this.loadDraftDialog = true;
+                        this.draftValue = cachedDraft;
+                    }
+                });
+
             LogStringConsole("Mounted quill with edit: " + this.editorSetup.allowEdit);
 
             let id = "";
@@ -211,6 +238,15 @@
             delete this.editor;
         },
         methods: {
+            loadDraft(load) {
+                if (load) {
+                    this.editor.setContents(this.draftValue);
+                } else {
+                    this.draftValue = {};
+                }
+
+                this.loadDraftDialog = false;
+            },
             getInnerHTML() {
                 return this.editor.container.firstChild.innerHTML; // .split(' ').join(' &nbsp;');
             },
@@ -289,9 +325,14 @@
                 this.editor.on("text-change", this.textChanged);
             },
             textChanged(delta, oldContents, source) {
-                // Delta is the single changed made that triggered this function
-                // OldDelta is everything that was typed previous to the edit
-                this.$emit("textChanged");
+                clearTimeout(this.typingTimeout);
+                this.typingTimeout = setTimeout(() => {
+                    // No cache-type as it's not a TS component :(
+                    localForage.setItem(this.postHashCacheItemID, this.getDelta())
+                        .then(() => {
+                            LogStringConsole("Drafted current post", "textchanged quill")
+                        })
+                }, 1000)
             }
         }
     };

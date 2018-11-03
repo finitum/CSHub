@@ -70,6 +70,11 @@ const router = new Router({
             component: PostView
         },
         {
+            path: `${Routes.POST}/:hash/edit`,
+            name: "postEdit",
+            component: PostView
+        },
+        {
             path: Routes.EDITOR, // TODO: Same as import
             name: "editor",
             component: Quill

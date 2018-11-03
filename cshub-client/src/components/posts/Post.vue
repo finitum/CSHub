@@ -1,10 +1,10 @@
 import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
 <template>
     <div v-if="post !== null && post.author !== undefined">
-        <v-card :class="{previewCard: !isFullPost, fullCard: isFullPost}"
+        <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}"
                 :style="{backgroundColor: backgroundColorComputed}" id="postCard">
             <v-card-title primary-title id="postCardTitle">
-                <v-breadcrumbs divider="/" style="width: 100%" v-if="isFullPost">
+                <v-breadcrumbs divider="/" style="width: 100%" v-if="fullPostComputed">
                     <v-btn color="primary" depressed small dark @click="returnToPostMenu">
                         <v-icon>mdi-chevron-left</v-icon>
                     </v-btn>
@@ -23,10 +23,10 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                     <v-btn color="green" depressed small @click="verifyPost" v-if="!post.approved && userAdminComputed">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
-                    <v-btn color="orange" depressed small @click="enableEdit" v-if="(userOwnsThisPostComputed || userAdminComputed) && !editMode">
+                    <v-btn color="orange" depressed small @click="enableEdit" v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
-                    <v-btn v-if="editMode" depressed small color="orange" @click="editPost">
+                    <v-btn v-if="editModeComputed" depressed small color="orange" @click="editPost">
                         <span>Submit edit</span>
                     </v-btn>
                 </v-breadcrumbs>
@@ -46,13 +46,13 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                 </div>
             </v-card-title>
 
-            <v-card-text v-show="isFullPost" v-if="post.htmlContent !== null" id="postCardText">
-                <Quill key="editQuill" ref="editQuill" v-if="editMode" :editorSetup="{allowEdit: true, showToolbar: true}" :value="editContent"></Quill>
-                <div v-if="!editMode" v-html="post.htmlContent"></div>
+            <v-card-text v-show="fullPostComputed" v-if="post.htmlContent !== null" id="postCardText">
+                <Quill key="editQuill" ref="editQuill" v-if="editModeComputed" :editorSetup="{allowEdit: true, showToolbar: true, postHash}" :value="editContent"></Quill>
+                <div v-if="!editModeComputed" v-html="post.htmlContent"></div>
             </v-card-text>
 
             <v-card-actions>
-                <v-btn class="viewButton" flat color="primary" @click="navigateToPost" v-if="!isFullPost"><b>View</b>
+                <v-btn class="viewButton" flat color="primary" @click="navigateToPost" v-if="!fullPostComputed"><b>View</b>
                 </v-btn>
             </v-card-actions>
         </v-card>
@@ -97,19 +97,21 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
         data() {
             return {
                 post: null as IPost,
-                editMode: false as boolean,
                 editContent: {} as Delta,
                 topicNames: [] as IBreadCrumbType[]
             };
         },
         props: {
-            postHash: Number,
-            isFullPost: Boolean
+            postHash: Number
         },
         mounted() {
             window.addEventListener("resize", this.windowHeightChanged);
 
             this.getPostRequest();
+
+            if (this.editModeComputed) {
+                this.enableEdit();
+            }
         },
         computed: {
             backgroundColorComputed(): string {
@@ -127,6 +129,21 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
             userAdminComputed: {
                 get(): boolean {
                     return userState.isAdmin;
+                }
+            },
+            currentPostURLComputed: {
+                get(): string {
+                    return `${Routes.POST}/${this.postHash}`;
+                }
+            },
+            fullPostComputed: {
+                get(): boolean {
+                    return this.$route.fullPath.includes(this.currentPostURLComputed);
+                }
+            },
+            editModeComputed: {
+                get(): boolean {
+                    return this.$route.fullPath.includes(`${this.currentPostURLComputed}/edit`);
                 }
             }
         },
@@ -171,7 +188,8 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                     }
 
                     this.editContent = baseDelta;
-                    this.editMode = true;
+
+                    this.$router.push(`${this.currentPostURLComputed}/edit`)
                 });
             },
             getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
@@ -196,7 +214,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                 const diff = this.editContent.diff(delta);
 
                 ApiWrapper.sendPostRequest(new EditPost(this.postHash, diff), (callbackData: EditPostCallback) => {
-                    this.editMode = false;
+                    this.router.push(this.currentPostURLComputed);
                     this.getPostRequest();
                 });
 
@@ -213,14 +231,14 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
 
                                 LogObjectConsole(callbackData.post, "getPostRequest");
 
-                                if (this.isFullPost) {
+                                if (this.fullPostComputed) {
                                     this.getContentRequest(callbackData.post);
                                 }
                             });
                         } else {
                             LogStringConsole("Gotten post from cache", "getPostRequest");
 
-                            if (this.isFullPost) {
+                            if (this.fullPostComputed) {
                                 this.getContentRequest(cachedValue);
                             } else {
                                 this.post = cachedValue;
@@ -264,7 +282,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                 this.getPostRequest();
 
                 if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD) && !this.$router.currentRoute.path.includes(Routes.ADMINDASHBOARD)) {
-                    this.$router.push(`${Routes.POST}/${this.post.hash}`);
+                    this.$router.push(this.currentPostURLComputed);
                 } else {
                     this.$emit("toggleFullPost", this.post.hash);
                 }

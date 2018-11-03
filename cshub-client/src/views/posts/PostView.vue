@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-for="postHash in postHashes" :key="postHash.index">
-            <Post :postHash="postHash" :isFullPost="currentPostHash !== -1" v-if="currentPostHash === -1 || postHash === currentPostHash"></Post>
+            <Post :postHash="postHash"></Post>
         </div>
     </div>
 </template>
