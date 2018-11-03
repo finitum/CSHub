@@ -189,7 +189,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
 
                     this.editContent = baseDelta;
 
-                    this.$router.push(`${this.currentPostURLComputed}/edit`)
+                    this.$router.push(`${this.currentPostURLComputed}/edit`);
                 });
             },
             getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
@@ -214,7 +214,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                 const diff = this.editContent.diff(delta);
 
                 ApiWrapper.sendPostRequest(new EditPost(this.postHash, diff), (callbackData: EditPostCallback) => {
-                    this.router.push(this.currentPostURLComputed);
+                    this.$router.push(this.currentPostURLComputed);
                     this.getPostRequest();
                 });
 

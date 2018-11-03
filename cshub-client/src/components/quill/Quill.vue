@@ -330,9 +330,9 @@
                     // No cache-type as it's not a TS component :(
                     localForage.setItem(this.postHashCacheItemID, this.getDelta())
                         .then(() => {
-                            LogStringConsole("Drafted current post", "textchanged quill")
-                        })
-                }, 1000)
+                            LogStringConsole("Drafted current post", "textchanged quill");
+                        });
+                }, 1000);
             }
         }
     };
