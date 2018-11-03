@@ -36,25 +36,7 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                                 WHERE hash = ?
                             `, editPostRequest.postHash)
                         })
-                        .then(() => {
-                            return query(`
-                              SELECT COUNT(*) AS editCount
-                              FROM edits
-                              WHERE post = (SELECT id FROM posts WHERE hash = ?)
-                            `, editPostRequest.postHash)
-                        })
                         .then((count: DatabaseResultSet) => {
-                            const countNr = count.getNumberFromDB("editCount");
-                            if (countNr > 5) {
-                                query(`
-                                  DELETE
-                                  FROM edits
-                                  WHERE post = (SELECT id FROM posts WHERE hash = ?)
-                                  ORDER BY datetime ASC
-                                  LIMIT ?
-                                `, editPostRequest.postHash, countNr - 5)
-                            }
-
                             res.json(new EditPostCallback());
                         })
                         .catch(err => {

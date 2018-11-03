@@ -26,7 +26,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                     <v-btn color="orange" depressed small @click="enableEdit" v-if="(userOwnsThisPostComputed || userAdminComputed) && !editMode">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
-                    <v-btn v-if="editMode" depressed small color="primary" @click="editPost">
+                    <v-btn v-if="editMode" depressed small color="orange" @click="editPost">
                         <span>Submit edit</span>
                     </v-btn>
                 </v-breadcrumbs>
@@ -193,7 +193,9 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                 LogStringConsole("Edited post");
                 const delta: Delta = (this.$refs as any).editQuill.getDelta();
 
-                ApiWrapper.sendPostRequest(new EditPost(this.postHash, delta), (callbackData: EditPostCallback) => {
+                const diff = this.editContent.diff(delta);
+
+                ApiWrapper.sendPostRequest(new EditPost(this.postHash, diff), (callbackData: EditPostCallback) => {
                     this.editMode = false;
                     this.getPostRequest();
                 });
