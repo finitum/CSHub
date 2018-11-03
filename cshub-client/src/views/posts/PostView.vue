@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-for="postHash in postHashes" :key="postHash.index">
-            <Post :postHash="postHash"></Post>
+            <Post :postHash="postHash" :key="postHash"></Post>
         </div>
     </div>
 </template>
@@ -33,13 +33,9 @@
             $route(to: Route, from: Route) {
                 if (to.fullPath.includes(Routes.POST)) {
                     this.currentPostHash = +to.params.hash;
-                }
-
-                if (to.fullPath === Routes.INDEX) {
+                } else if (to.fullPath === Routes.INDEX) {
                     this.getTopicRequest(0);
-                }
-
-                if (to.fullPath.includes(Routes.TOPIC)) {
+                } else if (to.fullPath.includes(Routes.TOPIC)) {
                     this.getTopicRequest(+this.$router.currentRoute.params.hash);
                 }
             }

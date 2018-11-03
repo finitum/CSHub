@@ -84,7 +84,7 @@
         </div>
 
         <div v-for="postHash in postHashes" :key="postHash.index">
-            <Post :postHash="postHash" @toggleFullPost="toggleFullPost" :isFullPost="currentPostHash !== -1" v-if="currentPostHash !== -1 && postHash === currentPostHash || currentPostHash === -1"></Post>
+            <Post :postHash="postHash" v-if="currentPostHash !== -1 && postHash === currentPostHash || currentPostHash === -1"></Post>
         </div>
     </div>
 </template>
@@ -136,13 +136,6 @@
                     this.postHashes = callbackData.postHashes;
                     logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
                 });
-            },
-            toggleFullPost(postHash: number) {
-                if (postHash !== null) {
-                    this.currentPostHash = postHash;
-                } else {
-                    this.currentPostHash = -1;
-                }
             },
             changePassword() {
                 ApiWrapper.sendPostRequest(new ChangeUserPassword(this.userData.currentPassword, this.userData.newPassword), (callBack: ChangeUserPasswordCallback) => {

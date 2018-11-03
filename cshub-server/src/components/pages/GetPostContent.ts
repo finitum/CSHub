@@ -2,8 +2,8 @@ import {app, logger} from "../../.";
 import {Request, Response} from "express";
 import {
     GetPostCallBack,
-    GetPostContentCallBack,
     GetPostContent,
+    GetPostContentCallBack,
     PostVersionTypes
 } from "../../../../cshub-shared/api-calls";
 
@@ -23,7 +23,7 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
             }
 
             query(`
-              SELECT T1.htmlContent, T2.postVersion
+              SELECT T2.postVersion
               FROM edits T1
                      INNER JOIN posts T2 ON T1.post = T2.id
               WHERE T2.hash = ?
@@ -31,17 +31,26 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
               LIMIT 1
             `,  postContentRequest.postHash)
                 .then((post: DatabaseResultSet) => {
-                    const htmlContent: string = post.getStringFromDB("htmlContent");
 
                     if (post.convertRowsToResultObjects().length === 0) {
                         res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
                     } else if (post.getNumberFromDB("postVersion") !== postContentRequest.postVersion) {
-                        getPostData(postContentRequest.postHash)
-                            .then((data: GetPostCallBack) => {
-                                res.json(new GetPostContentCallBack(PostVersionTypes.UPDATEDPOST, htmlContent, data.post));
+                        getContent()
+                            .then((htmlContent: string) => {
+                                getPostData(postContentRequest.postHash)
+                                    .then((data: GetPostCallBack) => {
+                                        if (data !== null) {
+                                            res.json(new GetPostContentCallBack(PostVersionTypes.UPDATEDPOST, htmlContent, data.post));
+                                        } else {
+                                            res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
+                                        }
+                                    })
                             })
                     } else if (postContentRequest.getHTMLOnNoUpdate) {
-                        res.json(new GetPostContentCallBack(PostVersionTypes.RETRIEVEDCONTENT, htmlContent));
+                        getContent()
+                            .then((htmlContent: string) => {
+                                res.json(new GetPostContentCallBack(PostVersionTypes.RETRIEVEDCONTENT, htmlContent));
+                            })
                     } else {
                         res.json(new GetPostContentCallBack(PostVersionTypes.NOCHANGE));
                     }
@@ -53,4 +62,18 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
                     res.status(500).send();
                 });
         });
+
+    const getContent = () => {
+        return query(`
+              SELECT T1.htmlContent
+              FROM edits T1
+                     INNER JOIN posts T2 ON T1.post = T2.id
+              WHERE T2.hash = ?
+              ORDER BY T1.datetime DESC
+              LIMIT 1
+            `,  postContentRequest.postHash)
+            .then((content: DatabaseResultSet) => {
+                return content.getStringFromDB("htmlContent");
+            })
+    }
 });

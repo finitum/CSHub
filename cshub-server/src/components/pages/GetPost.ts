@@ -56,6 +56,9 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
         `, postHash)
         .then((post: DatabaseResultSet) => {
 
+            if (post.convertRowsToResultObjects().length === 0) {
+                return new GetPostCallBack(null);
+            }
             // Create the postBase object, it will be expanded depending on the type of request (Preview or full, preview has less data)
             // The author is of typed IUserCensored as it protects a bit of privacy, it doesn't get all their data, just name and avatar
             const postBase: IPost = {

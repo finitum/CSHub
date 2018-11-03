@@ -1,61 +1,107 @@
-import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
 <template>
-    <div v-if="post !== null && post.author !== undefined">
-        <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}"
-                :style="{backgroundColor: backgroundColorComputed}" id="postCard">
-            <v-card-title primary-title id="postCardTitle">
-                <v-breadcrumbs divider="/" style="width: 100%" v-if="fullPostComputed">
-                    <v-btn color="primary" depressed small dark @click="returnToPostMenu">
-                        <v-icon>mdi-chevron-left</v-icon>
-                    </v-btn>
-                    <v-breadcrumbs-item
-                            v-for="item in topicNames"
-                            :key="item.index"
-                            :disabled="false"
-                    >
-                        <router-link :to="item.url">{{item.name}}</router-link>
-                    </v-breadcrumbs-item>
-                    <v-breadcrumbs-item
-                            :disabled="true"
-                    >
-                        {{post.title}}
-                    </v-breadcrumbs-item>
-                    <v-btn color="green" depressed small @click="verifyPost" v-if="!post.approved && userAdminComputed">
-                        <v-icon>mdi-check</v-icon>
-                    </v-btn>
-                    <v-btn color="orange" depressed small @click="enableEdit" v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
-                        <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
-                    <v-btn v-if="editModeComputed" depressed small color="orange" @click="editPost">
-                        <v-icon>mdi-circle-edit-outline</v-icon>
-                    </v-btn>
-                </v-breadcrumbs>
-                <v-badge right color="green" overlap class="mr-3 pl-3">
-                    <span slot="badge">{{post.upvotes}}</span>
-                    <v-avatar
-                            :tile="false"
-                            :size="50"
-                            :class="{adminBorder: post.author.admin}"
-                    >
-                        <img :src="post.author.avatar" alt="avatar">
-                    </v-avatar>
-                </v-badge>
-                <div>
-                    <h3 class="headline mb-0">{{post.title}}</h3>
-                    <div>{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</div>
+    <div>
+        <div v-if="post !== null && post.author !== undefined">
+            <!-- The following transition is just a trick so I get an event on the change from preview to full post (performance of the animation when the viewer is on is terrible) -->
+            <transition :duration="1000" @before-leave="showContent = false" @before-enter="showContent = false" @after-enter="afterAnimation">
+                <div v-if="fullPostComputed"></div>
+            </transition>
+
+            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}"
+                    :style="{backgroundColor: backgroundColorComputed}" id="postCard">
+                <v-card-title primary-title id="postCardTitle">
+                    <transition name="breadCrumb"
+                                enter-active-class="animated fadeInLeft"
+                                leave-active-class="animated fadeOutRight">
+                        <v-breadcrumbs divider="/" style="width: 100%" v-if="fullPostComputed">
+                            <v-btn color="primary" depressed small dark @click="returnToPostMenu">
+                                <v-icon>mdi-chevron-left</v-icon>
+                            </v-btn>
+                            <v-breadcrumbs-item
+                                    v-for="item in topicNames"
+                                    :key="item.index"
+                                    :disabled="false"
+                            >
+                                <router-link :to="item.url">{{item.name}}</router-link>
+                            </v-breadcrumbs-item>
+                            <v-breadcrumbs-item
+                                    :disabled="true"
+                            >
+                                {{post.title}}
+                            </v-breadcrumbs-item>
+                            <v-btn color="green" depressed small @click="verifyPost"
+                                   v-if="!post.approved && userAdminComputed">
+                                <v-icon>mdi-check</v-icon>
+                            </v-btn>
+                            <v-btn color="orange" depressed small @click="enableEdit"
+                                   v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
+                                <v-icon>mdi-pencil</v-icon>
+                            </v-btn>
+                            <v-btn v-if="editModeComputed" depressed small color="orange" @click="editPost">
+                                <v-icon>mdi-circle-edit-outline</v-icon>
+                            </v-btn>
+                        </v-breadcrumbs>
+                    </transition>
+                    <v-badge right color="green" overlap class="mr-3 pl-3">
+                        <span slot="badge">{{post.upvotes}}</span>
+                        <v-avatar
+                                :tile="false"
+                                :size="50"
+                                :class="{adminBorder: post.author.admin}"
+                        >
+                            <img :src="post.author.avatar" alt="avatar">
+                        </v-avatar>
+                    </v-badge>
+                    <div>
+                        <h3 class="headline mb-0">{{post.title}}</h3>
+                        <div>{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</div>
+                    </div>
+                </v-card-title>
+
+                <v-container
+                    v-show="fullPostComputed"
+                    position="relative"
+                    class="scroll-y"
+                    id="post-scroll-target"
+                    style="margin: 0; max-width: none; overflow-wrap: break-word"
+                >
+                    <v-layout
+                      column
+                      align-center
+                      justify-center
+                      v-scroll:#post-scroll-target>
+                        <v-card-text v-if="!loadingIcon" id="postCardText">
+                            <Quill key="editQuill" ref="editQuill" v-if="editModeComputed"
+                                   :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
+                                   :value="editContent"></Quill>
+                            <div v-if="!editModeComputed" v-show="showContent" v-html="post.htmlContent"></div>
+                        </v-card-text>
+                    </v-layout>
+                </v-container>
+                <div v-if="loadingIcon">
+                    <v-progress-circular
+                            :size="150"
+                            :width="5"
+                            color="primary"
+                            indeterminate
+                            style="width: 100%; margin: 10% auto;"
+                    ></v-progress-circular>
                 </div>
-            </v-card-title>
 
-            <v-card-text v-show="fullPostComputed" v-if="post.htmlContent !== null" id="postCardText">
-                <Quill key="editQuill" ref="editQuill" v-if="editModeComputed" :editorSetup="{allowEdit: true, showToolbar: true, postHash}" :value="editContent"></Quill>
-                <div v-if="!editModeComputed" v-html="post.htmlContent"></div>
-            </v-card-text>
-
-            <v-card-actions>
-                <v-btn class="viewButton" flat color="primary" @click="navigateToPost" v-if="!fullPostComputed"><b>View</b>
-                </v-btn>
-            </v-card-actions>
-        </v-card>
+                <v-card-actions>
+                    <v-btn class="viewButton" flat color="primary" @click="navigateToPost" v-if="!fullPostComputed"><b>View</b>
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </div>
+        <div v-else-if="loadingIcon">
+            <v-progress-circular
+                    :size="150"
+                    :width="5"
+                    color="primary"
+                    indeterminate
+                    style="width: 100%; margin: 10% auto;"
+            ></v-progress-circular>
+        </div>
     </div>
 </template>
 
@@ -97,8 +143,11 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
         data() {
             return {
                 post: null as IPost,
+                canResize: true,
                 editContent: {} as Delta,
-                topicNames: [] as IBreadCrumbType[]
+                showContent: true,
+                topicNames: [] as IBreadCrumbType[],
+                loadingIcon: false
             };
         },
         props: {
@@ -138,21 +187,29 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
             },
             fullPostComputed: {
                 get(): boolean {
-                    return this.$route.fullPath.includes(this.currentPostURLComputed);
+                    return this.$route.fullPath.includes(this.postHash);
                 }
             },
             editModeComputed: {
                 get(): boolean {
-                    return this.$route.fullPath.includes(`${this.currentPostURLComputed}/edit`);
+                    return this.$route.fullPath.includes(`${this.postHash}/edit`);
                 }
             }
         },
         methods: {
             windowHeightChanged() {
-                // Calculate the right height for the postcardtext, 100px padding
-                logStringConsole("Resizing viewport");
-                const newHeight = $("#postCard").height() - $("#postCardTitle").height() - 100;
-                $("#postCardText").height(newHeight);
+                if (this.canResize) {
+                    // Calculate the right height for the postcardtext, 100px padding
+                    this.canResize = false;
+
+                    const newHeight = document.getElementById("postCard").clientHeight - document.getElementById("postCardTitle").clientHeight - 100;
+                    document.getElementById("post-scroll-target").style.maxHeight = `${newHeight}px`;
+
+                    setTimeout(() => {
+                        this.canResize = true;
+                    }, 500)
+                }
+
             },
             verifyPost() {
                 ApiWrapper.sendPostRequest(new VerifyPost(this.postHash), (callback: VerifyPostCallBack) => {
@@ -161,11 +218,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                 });
             },
             returnToPostMenu() {
-                if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD)) {
-                    this.$router.go(-1);
-                } else {
-                    this.$emit("toggleFullPost", null);
-                }
+                this.$router.go(-1);
             },
             getParentTopic(child: ITopic, topics: ITopic[]): ITopic {
                 for (const topic of topics) {
@@ -226,14 +279,19 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                     .then((cachedValue: IPost) => {
                         if (cachedValue === null || cachedValue.id === undefined) {
                             ApiWrapper.sendPostRequest(new GetPost(this.postHash), (callbackData: GetPostCallBack) => {
-                                this.post = callbackData.post;
-                                this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
+                                if (callbackData.post !== null) {
+                                    this.post = callbackData.post;
+                                    this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
 
-                                logObjectConsole(callbackData.post, "getPostRequest");
+                                    logObjectConsole(callbackData.post, "getPostRequest");
 
-                                if (this.fullPostComputed) {
-                                    this.getContentRequest(callbackData.post);
+                                    if (this.fullPostComputed) {
+                                        this.getContentRequest(callbackData.post);
+                                    }
+                                } else {
+                                    this.$router.push(Routes.INDEX);
                                 }
+
                             });
                         } else {
                             logStringConsole("Gotten post from cache", "getPostRequest");
@@ -247,7 +305,14 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                     });
             },
             getContentRequest(cachedValue: IPost) {
+                const timeOut = setTimeout(() => {
+                    this.loadingIcon = true;
+                }, 250);
+
                 ApiWrapper.sendPostRequest(new GetPostContent(this.postHash, typeof cachedValue.htmlContent !== "string", cachedValue.postVersion), (callbackContent: GetPostContentCallBack) => {
+
+                    clearTimeout(timeOut);
+                    this.loadingIcon = false;
 
                     let hasBeenUpdated = false;
 
@@ -272,20 +337,29 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
                                 logStringConsole("Changed post in cache", "getContentRequest");
                             });
                     }
+
+                    Vue.nextTick()
+                        .then(() => {
+                            this.windowHeightChanged();
+                        })
                 }, (err: AxiosError) => {
+
+                    clearTimeout(timeOut);
+                    this.loadingIcon = false;
+
                     this.post.htmlContent = cachedValue.htmlContent;
                     this.$forceUpdate();
                 });
             },
+            afterAnimation() {
+                this.showContent = true;
+                this.windowHeightChanged();
+            },
             navigateToPost(): void {
                 logStringConsole(`Going to post ${this.post.title}`, "PostPreview navigateToPost");
-                this.getPostRequest();
+                this.$router.push(this.currentPostURLComputed);
 
-                if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD) && !this.$router.currentRoute.path.includes(Routes.ADMINDASHBOARD)) {
-                    this.$router.push(this.currentPostURLComputed);
-                } else {
-                    this.$emit("toggleFullPost", this.post.hash);
-                }
+                this.getContentRequest(this.post);
 
             }
         }
@@ -300,9 +374,11 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
 
     .previewCard {
         position: relative;
+        max-height: 110px;
         width: 90%;
         overflow: hidden;
         margin: 20px 5% 20px 5%;
+        transition: 1s;
     }
 
     .fullCard {
@@ -312,6 +388,7 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
         margin: 0;
         height: 100%;
         max-height: 100%;
+        transition: 1s;
     }
 
     .viewButton {
@@ -322,6 +399,5 @@ import {PostVersionTypes} from "../../../../cshub-shared/api-calls/pages";
         text-align: right;
         margin: 0;
         padding: 0;
-        background-image: linear-gradient(to bottom, transparent, white);
     }
 </style>
