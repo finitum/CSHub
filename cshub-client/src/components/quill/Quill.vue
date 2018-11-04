@@ -139,7 +139,8 @@
     import Delta from "quill-delta/dist/Delta";
     import {Component, Prop} from "vue-property-decorator";
 
-    import "katex/dist/katex.min";
+    // @ts-ignore
+    import katex from "katex/dist/katex.min";
     import "katex/dist/katex.min.css";
 
     import "../../plugins/quill/highlight.pack.min"; // Needs to be loaded before quill
@@ -182,12 +183,10 @@
          * Data
          */
         @Prop(Object) private initialValue: Delta;
-        @Prop(Object) private intialOptions: any;
-        @Prop({type: null, default: {allowEdit: true, showToolbar: true, postHash: -1}}) private editorSetup: IQuillEditSetup;
+        @Prop({type: null, required: true, default: {allowEdit: true, showToolbar: true, postHash: -1}}) private editorSetup: IQuillEditSetup;
 
         private editor: any = null;
-        private editorOptions: QuillOptionsStatic = {};
-        private defaultOptions: QuillOptionsStatic = defaultOptions;
+        private editorOptions: QuillOptionsStatic = defaultOptions;
 
         private typingTimeout: number = null;
         private draftValue: Delta = null;
@@ -226,7 +225,7 @@
 
             // Assign jquery and katex for use by mathquillMin
             (window as any).jQuery = JQuery;
-            // (window as any).katex = katex;
+            (window as any).katex = katex;
 
             mathquill(); // Load mathquillMin after jquery and katex were defined
             mathquill4quill(QuillWindow, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
@@ -297,9 +296,6 @@
         }
 
         private initQuill() {
-            // Set options and override the default with the user specified ones (Order of importance if right to left)
-            this.editorOptions = Object.assign({}, this.defaultOptions, this.intialOptions);
-
             // Create the editor
             this.editorOptions.bounds = `#${this.quillId} .editor`;
             this.editorOptions.modules.toolbar = `#${this.quillId} .toolbar`;

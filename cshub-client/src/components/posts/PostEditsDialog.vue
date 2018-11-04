@@ -35,7 +35,7 @@
                 </v-timeline>
                 <Quill key="currEditQuill" ref="currEditQuill" v-if="showIndex !== -1 && (initQuill || edits.length === 1)"
                        :editorSetup="{allowEdit: false, showToolbar: false, postHash}"
-                       :value="edits[showIndex].content"></Quill>
+                       :initialValue="edits[showIndex].content"></Quill>
             </v-card-text>
         </v-card>
     </v-dialog>
@@ -69,6 +69,9 @@
         @Prop(Number) private postHash: number;
 
         private edits: IEdit[] = [];
+
+        // In the template you loop through edits, with an index attached to all of them. This is the index of that list that is to be shown
+        // -1 = all of them
         private showIndex = -1;
         private initQuill = false;
 
@@ -103,8 +106,8 @@
                             if (op.hasOwnProperty("insert")) {
                                 op.attributes = {
                                     ...op.attributes,
-                                    background: "#65e832",
-                                    color: "#003700"
+                                    background: this.$vuetify.theme.success,
+                                    color: this.$vuetify.theme.secondary
                                 };
                             }
                             if (op.hasOwnProperty("delete")) {
@@ -112,8 +115,8 @@
                                 delete op.delete;
                                 op.attributes = {
                                     ...op.attributes,
-                                    background: "#e8553e",
-                                    color: "#370000",
+                                    background: this.$vuetify.theme.warning,
+                                    color: this.$vuetify.theme.secondary,
                                     strike: true
                                 };
                             }

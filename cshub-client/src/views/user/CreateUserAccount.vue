@@ -80,6 +80,7 @@
 
 <script lang="ts">
     import Vue from "vue";
+    import {Component} from "vue-property-decorator";
 
     import {emailValidator, ApiWrapper, logStringConsole} from "../../utilities";
 
@@ -87,50 +88,58 @@
         CreateAccount,
         CreateAccountCallBack,
         CreateAccountResponseTypes
-    } from "../../../../cshub-shared/api-calls/index";
+    } from "../../../../cshub-shared/api-calls";
 
     import router, {Routes} from "../router/router";
 
-    export default Vue.extend({
-        name: "CreateAccount",
-        data() {
-            return {
-                userData: {
-                    email: "" as string,
-                    emailerror: "" as string,
-                    password: "" as string,
-                    confirmPassword: "" as string,
-                    passwordvisible: false as boolean,
-                    firstname: "" as string,
-                    lastname: "" as string
-                }
-            };
-        },
-        mounted() {
+    @Component({
+        name: "CreateUserAccount",
+        inject: ["$validator"]
+    })
+    export default class CreateUserAccount extends Vue {
+
+        /**
+         * Data
+         */
+        private userData = {
+            email: "",
+            emailerror: "",
+            password: "",
+            confirmPassword: "",
+            passwordvisible: false,
+            firstname: "",
+            lastname: ""
+        };
+
+        /**
+         * Lifecycle hooks
+         */
+        private mounted() {
             this.$validator.extend("checkTUEmail", emailValidator);
-        },
-        inject: ["$validator"],
-        methods: {
-            doCreateAccount() {
-                this.$validator.validateAll()
-                    .then((allValid: boolean) => {
-                        if (allValid) {
-                            ApiWrapper.sendPostRequest(new CreateAccount(this.userData.email, this.userData.password, this.userData.firstname, this.userData.lastname), (callbackData: CreateAccountCallBack) => {
-                                if (callbackData.response === CreateAccountResponseTypes.SUCCESS) {
-                                    router.push(Routes.LOGIN);
-                                } else if (callbackData.response === CreateAccountResponseTypes.ALREADYEXISTS) {
-                                    logStringConsole("Account already exists");
-                                    this.userData.emailerror = "Account already exists.";
-                                } else if (callbackData.response === CreateAccountResponseTypes.INVALIDINPUT) {
-                                    logStringConsole("Invalid input");
-                                    this.userData.emailerror = "Invalid input.";
-                                }
-                            });
-                        }
-                    });
-            }
         }
-    });
+
+        /**
+         * Methods
+         */
+        private doCreateAccount() {
+            this.$validator.validateAll()
+                .then((allValid: boolean) => {
+                    if (allValid) {
+                        ApiWrapper.sendPostRequest(new CreateAccount(this.userData.email, this.userData.password, this.userData.firstname, this.userData.lastname), (callbackData: CreateAccountCallBack) => {
+                            if (callbackData.response === CreateAccountResponseTypes.SUCCESS) {
+                                router.push(Routes.LOGIN);
+                            } else if (callbackData.response === CreateAccountResponseTypes.ALREADYEXISTS) {
+                                logStringConsole("Account already exists");
+                                this.userData.emailerror = "Account already exists.";
+                            } else if (callbackData.response === CreateAccountResponseTypes.INVALIDINPUT) {
+                                logStringConsole("Invalid input");
+                                this.userData.emailerror = "Invalid input.";
+                            }
+                        });
+                    }
+                });
+        }
+    }
 </script>
 
 <style scoped>

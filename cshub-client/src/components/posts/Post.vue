@@ -74,7 +74,7 @@
                       v-scroll:#post-scroll-target>
                         <v-card-text v-if="!loadingIcon" id="postCardText">
                             <Quill key="editQuill" ref="editQuill" v-if="editModeComputed"
-                                   :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
+                                   :initialValue="{allowEdit: true, showToolbar: true, postHash}"
                                    :value="editContent"></Quill>
                             <div v-if="!editModeComputed" v-show="showContent" v-html="post.htmlContent"></div>
                         </v-card-text>

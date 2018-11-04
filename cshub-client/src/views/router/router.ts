@@ -4,7 +4,7 @@ import Router, {Route} from "vue-router";
 import {VerifyUserToken, VerifyUserTokenCallback, VerifyUserTokenResponseTypes} from "../../../../cshub-shared/api-calls/account";
 
 import LoginScreen from "../user/LoginScreen.vue";
-import CreateAccount from "../user/CreateAccount.vue";
+import CreateAccount from "../user/CreateUserAccount.vue";
 import AdminDashboard from "../user/AdminDashboard.vue";
 import UserDashboard from "../user/UserDashboard.vue";
 

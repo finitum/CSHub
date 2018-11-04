@@ -25,35 +25,46 @@
 
 <script lang="ts">
     import Vue from "vue";
+    import {Component} from "vue-property-decorator";
 
     import UserTable from "../../components/admin/UserTable.vue";
     import Post from "../../components/posts/Post.vue";
+
     import {ApiWrapper, logObjectConsole} from "../../utilities";
+
     import {
         GetUnverifiedPostsCallBack,
         GetUnverifiedPosts
     } from "../../../../cshub-shared/api-calls/admin/GetUnverifiedPosts";
 
-    export default Vue.extend({
+    @Component({
         name: "AdminDashboard",
         components: {UserTable, Post},
-        data() {
-            return {
-                postHashes: [] as number[]
-            };
-        },
-        mounted() {
+    })
+    export default class AdminDashboard extends Vue {
+
+        /**
+         * Data
+         */
+        private postHashes: number[] = [];
+
+        /**
+         * Lifecycle hooks
+         */
+        private mounted() {
             this.getHashes(0);
-        },
-        methods: {
-            getHashes(startIndex: number) {
-                ApiWrapper.sendPostRequest(new GetUnverifiedPosts(startIndex), (callbackData: GetUnverifiedPostsCallBack) => {
-                    this.postHashes = callbackData.postHashes;
-                    logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
-                });
-            }
         }
-    });
+
+        /**
+         * Methods
+         */
+        private getHashes(startIndex: number) {
+            ApiWrapper.sendPostRequest(new GetUnverifiedPosts(startIndex), (callbackData: GetUnverifiedPostsCallBack) => {
+                this.postHashes = callbackData.postHashes;
+                logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
+            });
+        }
+    }
 </script>
 
 <style scoped>

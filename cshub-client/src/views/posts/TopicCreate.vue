@@ -52,49 +52,61 @@
 
 <script lang="ts">
     import Vue from "vue";
+    import {Component} from "vue-property-decorator";
+
     import dataState from "../../store/data";
+
+    import {Routes} from "../router/router";
+
     import {ApiWrapper} from "../../utilities";
+
     import {
         CreateTopicCallback,
         CreateTopic,
         CreateTopicResponseTypes
-    } from "../../../../cshub-shared/api-calls/pages";
-    import {Routes} from "../router/router";
+    } from "../../../../cshub-shared/api-calls";
+    import {ITopic} from "../../../../cshub-shared/models";
 
-    export default Vue.extend({
+    @Component({
         name: "TopicCreate",
-        inject: ["$validator"],
-        data() {
-            return {
-                activeTopicHash: [],
-                topicTitle: "",
-                topicTitleError: ""
-            };
-        },
-        computed: {
-            topics() {
-                return dataState.topics;
-            }
-        },
-        methods: {
-            submitTopic() {
-                if (this.activeTopicHash[0] !== undefined) {
-                    this.$validator.validateAll()
-                        .then((allValid: boolean) => {
-                            if (allValid) {
-                                ApiWrapper.sendPostRequest(new CreateTopic(this.topicTitle, this.activeTopicHash[0]), (response: CreateTopicCallback) => {
-                                    if (response.response === CreateTopicResponseTypes.SUCCESS) {
-                                        this.$router.push(Routes.ADMINDASHBOARD);
-                                    } else if (response.response === CreateTopicResponseTypes.TITLEALREADYINUSE) {
-                                        this.topicTitleError = "Title is already in use!";
-                                    }
-                                });
-                            }
-                        });
-                }
+        inject: ["$validator"]
+    })
+    export default class TopicCreate extends Vue {
+
+        /**
+         * Data
+         */
+        private activeTopicHash: number[] = [];
+        private topicTitle = "";
+        private topicTitleError = "";
+
+        /**
+         * Computed properties
+         */
+        get topics(): ITopic[] {
+            return dataState.topics;
+        }
+
+        /**
+         * Methods
+         */
+        private submitTopic() {
+            if (typeof this.activeTopicHash[0] !== "undefined") {
+                this.$validator.validateAll()
+                    .then((allValid: boolean) => {
+                        if (allValid) {
+                            ApiWrapper.sendPostRequest(new CreateTopic(this.topicTitle, this.activeTopicHash[0]), (response: CreateTopicCallback) => {
+                                if (response.response === CreateTopicResponseTypes.SUCCESS) {
+                                    this.$router.push(Routes.ADMINDASHBOARD);
+                                } else if (response.response === CreateTopicResponseTypes.TITLEALREADYINUSE) {
+                                    this.topicTitleError = "Title is already in use!";
+                                }
+                            });
+                        }
+                    });
             }
         }
-    });
+    }
 </script>
 
 <style scoped>

@@ -54,87 +54,99 @@
 
 <script lang="ts">
     import Vue from "vue";
+    import {Component} from "vue-property-decorator";
 
     import {ApiWrapper} from "../../utilities/api-wrapper";
     import {logStringConsole} from "../../utilities/debugConsole";
 
     import {LocalStorageData} from "../../store/localStorageData";
+    import userState from "../../store/user/index";
 
     import {Login, LoginCallBack, LoginResponseTypes} from "../../../../cshub-shared/api-calls/index";
 
-    import userState from "../../store/user/index";
     import router, {Routes} from "../router/router";
 
-    export default Vue.extend({
+    @Component({
         name: "LoginScreen",
-        data() {
-            return {
-                userData: {
-                    email: "" as string,
-                    emailerror: "" as string,
-                    password: "" as string,
-                    passwordvisible: false as boolean,
-                    passworderror: "" as string,
-                    globalerror: "" as string,
-                    rememberuser: false as boolean
-                }
-            };
-        },
-        mounted() {
-            this.userData.email = localStorage.getItem(LocalStorageData.EMAIL);
-        },
-        inject: ["$validator"],
-        computed: {
-            passwordErrors(): string {
-                let validationErrors = "";
-                if (this.errors) { validationErrors = this.errors.collect("password"); }
+        inject: ["$validator"]
+    })
+    export default class LoginScreen extends Vue {
 
-                const customErrors = this.userData.passworderror;
-                return `${validationErrors.toString()}${customErrors}`;
-            },
-            emailErrors(): string {
-                let validationErrors = "";
-                if (this.errors) { validationErrors = this.errors.collect("email"); }
+        /**
+         * Data
+         */
+        private userData = {
+            email: "",
+            emailerror: "",
+            password: "",
+            passwordvisible: false,
+            passworderror: "",
+            globalerror: "",
+            rememberuser: false
+        };
 
-                const customErrors = this.userData.emailerror;
-                return `${validationErrors.toString()}${customErrors}`;
-            }
-        },
-        methods: {
-            doLogin()  {
-                this.$validator.validateAll()
-                    .then((allValid: boolean) => {
-                        if (allValid) {
-                            ApiWrapper.sendPostRequest(new Login(this.userData.email, this.userData.password), (callbackData: LoginCallBack) => {
-                                if (callbackData.response === LoginResponseTypes.SUCCESS && callbackData.userModel) {
-                                    if (this.userData.rememberuser) {
-                                        localStorage.setItem(LocalStorageData.EMAIL, this.userData.email);
-                                    }
-                                    userState.changeUserModel(callbackData.userModel);
-                                    router.push(Routes.INDEX);
-                                } else if (callbackData.response === LoginResponseTypes.NOEXISTINGACCOUNT) {
-                                    logStringConsole("Account does not exist");
-                                    this.userData.emailerror = "Account does not exist.";
-                                } else if (callbackData.response === LoginResponseTypes.ACCOUNTNOTVERIFIED) {
-                                    logStringConsole("Account is not verified");
-                                    this.userData.emailerror = "Account has not been verified.";
-                                } else if (callbackData.response === LoginResponseTypes.ACCOUNTBLOCKED) {
-                                    logStringConsole("Account is blocked");
-                                    this.userData.emailerror = "Account has been blocked.";
-                                } else if (callbackData.response === LoginResponseTypes.INCORRECTPASS) {
-                                    logStringConsole("Incorrect password was entered");
-                                    this.userData.passworderror = "Incorrect password.";
-                                } else if (callbackData.response === LoginResponseTypes.INVALIDINPUT) {
-                                    logStringConsole("Invalid input");
-                                    this.userData.passworderror = "Invalid input.";
-                                    this.userData.emailerror = "Invalid input.";
-                                }
-                            });
-                        }
-                    });
-            }
+        /**
+         * Computed properties
+         */
+        get passwordErrors(): string {
+            let validationErrors = "";
+            if (this.errors) { validationErrors = this.errors.collect("password"); }
+
+            const customErrors = this.userData.passworderror;
+            return `${validationErrors.toString()}${customErrors}`;
         }
-    });
+
+        get emailErrors(): string {
+            let validationErrors = "";
+            if (this.errors) { validationErrors = this.errors.collect("email"); }
+
+            const customErrors = this.userData.emailerror;
+            return `${validationErrors.toString()}${customErrors}`;
+        }
+
+        /**
+         * Lifecycle hooks
+         */
+        private mounted() {
+            this.userData.email = localStorage.getItem(LocalStorageData.EMAIL);
+        }
+
+        /**
+         * Methods
+         */
+        private doLogin()  {
+            this.$validator.validateAll()
+                .then((allValid: boolean) => {
+                    if (allValid) {
+                        ApiWrapper.sendPostRequest(new Login(this.userData.email, this.userData.password), (callbackData: LoginCallBack) => {
+                            if (callbackData.response === LoginResponseTypes.SUCCESS && callbackData.userModel) {
+                                if (this.userData.rememberuser) {
+                                    localStorage.setItem(LocalStorageData.EMAIL, this.userData.email);
+                                }
+                                userState.changeUserModel(callbackData.userModel);
+                                router.push(Routes.INDEX);
+                            } else if (callbackData.response === LoginResponseTypes.NOEXISTINGACCOUNT) {
+                                logStringConsole("Account does not exist");
+                                this.userData.emailerror = "Account does not exist.";
+                            } else if (callbackData.response === LoginResponseTypes.ACCOUNTNOTVERIFIED) {
+                                logStringConsole("Account is not verified");
+                                this.userData.emailerror = "Account has not been verified.";
+                            } else if (callbackData.response === LoginResponseTypes.ACCOUNTBLOCKED) {
+                                logStringConsole("Account is blocked");
+                                this.userData.emailerror = "Account has been blocked.";
+                            } else if (callbackData.response === LoginResponseTypes.INCORRECTPASS) {
+                                logStringConsole("Incorrect password was entered");
+                                this.userData.passworderror = "Incorrect password.";
+                            } else if (callbackData.response === LoginResponseTypes.INVALIDINPUT) {
+                                logStringConsole("Invalid input");
+                                this.userData.passworderror = "Invalid input.";
+                                this.userData.emailerror = "Invalid input.";
+                            }
+                        });
+                    }
+                });
+        }
+    }
 </script>
 
 <style scoped>
