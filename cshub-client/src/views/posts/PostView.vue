@@ -15,6 +15,7 @@
     import {AxiosError} from "axios";
     import {Route} from "vue-router";
     import {Component, Watch} from "vue-property-decorator";
+    import _ from "lodash";
 
     import PostList from "../../components/posts/PostList.vue";
 
@@ -27,7 +28,6 @@
 
     import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities/index";
     import {CacheTypes} from "../../utilities/cache-types";
-
 
     @Component({
         name: "PostView",
@@ -105,7 +105,7 @@
 
                     ApiWrapper.sendPostRequest(new GetTopicPosts(topicHash), (callbackData: GetTopicPostsCallBack) => {
 
-                        if (callbackData.postHashes !== this.postHashes) {
+                        if (!_.isEqual(callbackData.postHashes, this.postHashes)) {
                             this.postHashes = callbackData.postHashes;
 
                             logObjectConsole(callbackData.postHashes, "Topic posthashes");

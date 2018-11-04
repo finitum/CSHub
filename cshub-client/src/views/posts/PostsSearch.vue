@@ -81,7 +81,7 @@
         private getSearchResults() {
             ApiWrapper.sendPostRequest(new GetSearchPosts(this.searchQuery), (result: GetSearchPostsCallback) => {
                 this.postHashes = result.hashes;
-            })
+            });
         }
 
     }

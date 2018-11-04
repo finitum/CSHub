@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.0.0-rc.1",
+    "@types/lodash": "^4.14.117",
     "animate.css": "^3.7.0",
     "axios": "^0.18.0",
     "jquery": "^3.3.1",
     "katex": "^0.7.1",
     "localforage": "^1.7.3",
+    "lodash": "^4.17.11",
     "moment": "^2.22.2",
     "quill-delta": "^4.1.0",
     "register-service-worker": "^1.0.0",

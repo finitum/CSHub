@@ -26,7 +26,6 @@ app.post(GetSearchPosts.getURL, (req: Request, res: Response) => {
         `, `%${searchPostRequest.query}%`, userId, userId)
             .then((hashes: DatabaseResultSet) => {
 
-                console.log(userId)
                 const hashesArray: number[] = [];
 
                 for (const hash of hashes.convertRowsToResultObjects()) {
