@@ -6,7 +6,7 @@ import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import {EditPostCallback, EditPost} from "../../../../cshub-shared/api-calls/pages/EditPost";
-import {hasAccessToPost} from "../../auth/validateRights/PostAccess";
+import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 
 app.post(EditPost.getURL, (req: Request, res: Response) => {
 
@@ -18,8 +18,11 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
 
     if (inputsValidation.valid && userObj.valid) {
         hasAccessToPost(editPostRequest.postHash, req.cookies["token"])
-            .then((approved: boolean) => {
-                if (approved) {
+            .then((approved: postAccessType) => {
+                if (approved.access) {
+
+                    const userIsAdmin = userObj.tokenObj.user.admin;
+
                     query(`
                       INSERT INTO edits
                       SET post     = (SELECT id
@@ -27,8 +30,10 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                                       WHERE hash = ?),
                           htmlContent = ?,
                           content  = ?,
-                          editedBy = ?
-                    `, editPostRequest.postHash, JSON.stringify(editPostRequest.postBody), JSON.stringify(editPostRequest.postBody), userObj.tokenObj.user.id)
+                          editedBy = ?,
+                          approved = ?,
+                          approvedBy = ?
+                    `, editPostRequest.postHash, JSON.stringify(editPostRequest.postBody), JSON.stringify(editPostRequest.postBody), userObj.tokenObj.user.id, userIsAdmin ? 1 : 0, userIsAdmin ? userObj.tokenObj.user.id : -1)
                         .then(() => {
                             return query(`
                                 UPDATE posts

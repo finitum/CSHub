@@ -18,6 +18,7 @@
             <div v-for="postHash in postHashes" :key="postHash.index">
                 <Post :postHash="postHash" :key="postHash"></Post>
             </div>
+            <h2 v-if="postHashes.length === 0" style="text-align: center; width: 100%">No posts found!</h2>
         </div>
     </div>
 </template>

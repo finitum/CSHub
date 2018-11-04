@@ -2,15 +2,13 @@
     <div>
         <div v-if="post !== null">
             <!-- The following transition is just a trick so I get an event on the change from preview to full post (performance of the animation when the viewer is on is terrible) -->
-            <transition :duration="1000" @before-leave="showContent = false" @before-enter="showContent = false" @after-enter="afterAnimation">
+            <transition :duration="300" @before-leave="showContent = false" @before-enter="showContent = false" @after-enter="afterAnimation">
                 <div v-if="fullPostComputed"></div>
             </transition>
 
             <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}" id="postCard">
-                <v-card-title primary-title id="postCardTitle">
-                    <transition name="breadCrumb"
-                                enter-active-class="animated fadeInLeft"
-                                leave-active-class="animated fadeOutRight">
+                <v-card-title primary-title id="postCardTitle" style="padding-bottom: 0;">
+                    <transition name="breadcrumb">
                         <v-breadcrumbs divider="/" style="width: 100%" v-if="fullPostComputed">
                             <v-btn color="primary" depressed small dark @click="returnToPostMenu">
                                 <v-icon>mdi-chevron-left</v-icon>
@@ -61,7 +59,7 @@
                     position="relative"
                     class="scroll-y"
                     id="post-scroll-target"
-                    style="margin: 0; max-width: none; overflow-wrap: break-word"
+                    style="margin: 0; padding-top: 0; max-width: none; overflow-wrap: break-word"
                 >
                     <v-layout
                       column
@@ -131,6 +129,7 @@
     import {CacheTypes} from "../../utilities/cache-types";
     import {AxiosError} from "axios";
     import {ImgurUpload} from "../../utilities/imgur";
+    import {Route} from "vue-router";
 
     interface IBreadCrumbType {
         name: string;
@@ -192,6 +191,16 @@
                 }
             }
         },
+        watch: {
+            $route(to: Route, from: Route) {
+                if (this.fullPostComputed && (from.name === "topic" || from.fullPath === Routes.INDEX)) {
+                    this.getContentRequest(this.post);
+                }
+            }
+        },
+        updated() {
+            this.windowHeightChanged();
+        },
         methods: {
             windowHeightChanged() {
                 if (this.canResize) {
@@ -200,12 +209,17 @@
 
                     const postCard = document.getElementById("postCard");
                     const postCardTitle = document.getElementById("postCardTitle");
-                    const newHeight = postCard.clientHeight - postCardTitle.clientHeight - 50;
-                    document.getElementById("post-scroll-target").style.maxHeight = `${newHeight}px`;
+                    if (postCard !== null && postCardTitle !== null) {
+                        const newHeight = postCard.clientHeight - postCardTitle.clientHeight - 50;
+                        document.getElementById("post-scroll-target").style.maxHeight = `${newHeight}px`;
 
-                    setTimeout(() => {
+                        setTimeout(() => {
+                            this.canResize = true;
+                        }, 500);
+                    } else {
                         this.canResize = true;
-                    }, 500);
+                    }
+
                 }
 
             },
@@ -281,7 +295,6 @@
                             ApiWrapper.sendPostRequest(new GetPost(this.postHash), (callbackData: GetPostCallBack) => {
                                 if (callbackData.post !== null) {
                                     this.post = callbackData.post;
-                                    this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
 
                                     logObjectConsole(callbackData.post, "getPostRequest");
 
@@ -320,15 +333,19 @@
                         this.$router.push(Routes.INDEX);
                     } else if (callbackContent.postVersionType === PostVersionTypes.UPDATEDPOST) {
                         this.post = callbackContent.postUpdated;
-                        this.post.htmlContent = callbackContent.htmlContent;
+                        this.post.htmlContent = callbackContent.content.html;
+                        this.post.approved = callbackContent.content.approved;
                         hasBeenUpdated = true;
                     } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
                         this.post = cachedValue;
-                        this.post.htmlContent = callbackContent.htmlContent;
+                        this.post.htmlContent = callbackContent.content.html;
+                        this.post.approved = callbackContent.content.approved;
                         hasBeenUpdated = true;
                     } else if (callbackContent.postVersionType === PostVersionTypes.NOCHANGE) {
                         this.post = cachedValue;
                     }
+
+                    this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
 
                     if (hasBeenUpdated) {
                         this.$forceUpdate();
@@ -340,6 +357,7 @@
 
                     Vue.nextTick()
                         .then(() => {
+                            logStringConsole("Resizing viewport after post content set");
                             this.windowHeightChanged();
                         });
                 }, (err: AxiosError) => {
@@ -353,7 +371,6 @@
             },
             afterAnimation() {
                 this.showContent = true;
-                this.windowHeightChanged();
             },
             navigateToPost(): void {
                 logStringConsole(`Going to post ${this.post.title}`, "PostPreview navigateToPost");
@@ -376,7 +393,7 @@
         width: 90%;
         overflow: hidden;
         margin: 20px 5% 20px 5%;
-        transition: 1s;
+        transition: 0.3s;
     }
 
     .fullCard {
@@ -386,7 +403,7 @@
         margin: 0;
         height: 100%;
         max-height: 100%;
-        transition: 1s;
+        transition: 0.3s;
     }
 
     .viewButton {
@@ -397,5 +414,15 @@
         text-align: right;
         margin: 0;
         padding: 0;
+    }
+
+    .breadcrumb-enter-active {
+        transition: opacity .2s;
+    }
+    .breadcrumb-leave-active {
+        transition: opacity .1s;
+    }
+    .breadcrumb-enter, .breadcrumb-leave-to {
+        opacity: 0;
     }
 </style>

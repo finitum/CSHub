@@ -5,7 +5,7 @@ import {app, logger} from "../../";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
-import {hasAccessToPost} from "../../auth/validateRights/PostAccess";
+import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 
 import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/api-calls";
 
@@ -23,8 +23,8 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
 
     if (inputsValidation.valid && userObj.valid) {
         hasAccessToPost(getEditContent.postHash, req.cookies["token"])
-            .then((approved: boolean) => {
-                if (approved) {
+            .then((approved: postAccessType) => {
+                if (approved.access) {
                     query(`
                       SELECT T1.content, T1.datetime
                       FROM edits T1

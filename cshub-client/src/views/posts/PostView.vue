@@ -1,15 +1,12 @@
 <template>
     <div>
-        <transition
-                name="breadCrumb"
-                enter-active-class="animated fadeIn"
-                leave-active-class="animated fadeOut">
-            <v-subheader v-if="!fullPostComputed">
+        <transition name="topicHeader">
+            <v-subheader v-if="currentPostHash === -1">
                 Posts in {{currentTopicNameComputed}}
             </v-subheader>
         </transition>
         <div v-for="postHash in postHashes" :key="postHash.index">
-            <Post :postHash="postHash" :key="postHash"></Post>
+            <Post :postHash="postHash" v-if="currentPostHash === -1 || currentPostHash === postHash" :key="postHash"></Post>
         </div>
         <h2 v-if="postHashes.length === 0" style="text-align: center; width: 100%">No posts found!</h2>
     </div>
@@ -41,15 +38,6 @@
             };
         },
         computed: {
-            fullPostComputed: {
-                get(): boolean {
-                    if (this.postHashes.length === 1) {
-                        return this.$route.fullPath.includes(this.postHashes[0].toString());
-                    } else {
-                        return false;
-                    }
-                }
-            },
             currentTopicNameComputed: {
                 get(): string {
                     if (dataState.topics !== null) {
@@ -66,40 +54,35 @@
         components: {Post},
         watch: {
             $route(to: Route, from: Route) {
-                this.setCurrentTopic();
-                if (to.fullPath.includes(Routes.POST)) {
-                    this.currentPostHash = +to.params.hash;
-                } else if (to.fullPath === Routes.INDEX) {
-                    this.getTopicRequest(0);
-                } else if (to.fullPath.includes(Routes.TOPIC)) {
-                    this.getTopicRequest(+this.$router.currentRoute.params.hash);
-                }
+                this.doOnRouteChange();
             }
         },
         mounted() {
-            this.setCurrentTopic();
-            if (this.$router.currentRoute.fullPath.includes(Routes.POST)) {
-                this.currentTopicHash = -1;
-                this.currentPostHash = +this.$router.currentRoute.params.hash;
-                this.postHashes = [this.currentPostHash];
-            } else if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
-                this.currentTopicHash = +this.$router.currentRoute.params.hash;
-                this.getTopicRequest(+this.$router.currentRoute.params.hash);
-            } else if (this.$router.currentRoute.fullPath === Routes.INDEX) {
-                this.currentTopicHash = 0;
-                this.getTopicRequest(0);
-            }
+            this.doOnRouteChange();
         },
         methods: {
-            setCurrentTopic(): void {
-
-
+            doOnRouteChange() {
+                const currentHash = +this.$route.params.hash
+                if (this.$router.currentRoute.fullPath.includes(Routes.POST)) {
+                    this.currentTopicHash = -1;
+                    if (this.postHashes.length === 0) {
+                        this.postHashes = [currentHash]
+                    }
+                    this.currentPostHash = currentHash;
+                } else if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
+                    this.currentTopicHash = currentHash;
+                    this.currentPostHash = -1;
+                    this.getTopicRequest(currentHash);
+                } else if (this.$router.currentRoute.fullPath === Routes.INDEX) {
+                    this.currentTopicHash = 0;
+                    this.currentPostHash = -1;
+                    this.getTopicRequest(0);
+                }
             },
             getTopicRequest(topicHash: number) {
 
                 // Ts gives an error here, have no clue as to why as it normally also works
                 // @ts-ignore
-                this.currentPostHash = -1;
 
                 localForage.getItem(CacheTypes.TOPICPOST + topicHash)
                 // @ts-ignore
@@ -147,5 +130,10 @@
 </script>
 
 <style scoped>
-
+    .topicHeader-enter-active, .topicHeader-leave-active {
+        transition: opacity .2s;
+    }
+    .topicHeader-enter, .topicHeader-leave-to {
+        opacity: 0;
+    }
 </style>

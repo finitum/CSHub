@@ -8,48 +8,61 @@ import {
 } from "../../../../cshub-shared/api-calls";
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
-import {hasAccessToPost} from "../../auth/validateRights/PostAccess";
+import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 import {getPostData} from "./GetPost";
+import {checkTokenValidity} from "../../auth/AuthMiddleware";
 
 app.post(GetPostContent.getURL, (req: Request, res: Response) => {
 
     const postContentRequest = req.body as GetPostContent;
 
+    type contentReturn = {
+        content: string,
+        approved: number
+    }
+
     // Check if the user actually has access to the post
     hasAccessToPost(postContentRequest.postHash, req.cookies["token"])
-        .then((approved: boolean) => {
+        .then((approved: postAccessType) => {
             if (!approved) {
                 res.status(401).send();
             }
 
             query(`
               SELECT T2.postVersion
-              FROM edits T1
-                     INNER JOIN posts T2 ON T1.post = T2.id
+              FROM posts T2
               WHERE T2.hash = ?
-              ORDER BY T1.datetime DESC
-              LIMIT 1
             `,  postContentRequest.postHash)
                 .then((post: DatabaseResultSet) => {
 
                     if (post.convertRowsToResultObjects().length === 0) {
                         res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
                     } else if (post.getNumberFromDB("postVersion") !== postContentRequest.postVersion) {
-                        getContent()
-                            .then((htmlContent: string) => {
+                        getContent(approved)
+                            .then((returnContent: contentReturn) => {
                                 getPostData(postContentRequest.postHash)
                                     .then((data: GetPostCallBack) => {
-                                        if (data !== null) {
-                                            res.json(new GetPostContentCallBack(PostVersionTypes.UPDATEDPOST, htmlContent, data.post));
+                                        if (data !== null && returnContent.approved !== -1) {
+                                            res.json(new GetPostContentCallBack(PostVersionTypes.UPDATEDPOST, {
+                                                html: returnContent.content,
+                                                approved: returnContent.approved === 1
+                                            }, data.post));
                                         } else {
                                             res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
                                         }
                                     })
                             })
                     } else if (postContentRequest.getHTMLOnNoUpdate) {
-                        getContent()
-                            .then((htmlContent: string) => {
-                                res.json(new GetPostContentCallBack(PostVersionTypes.RETRIEVEDCONTENT, htmlContent));
+                        getContent(approved)
+                            .then((returnContent: contentReturn) => {
+                                if (returnContent.approved === -1) {
+                                    res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
+                                } else {
+                                    res.json(new GetPostContentCallBack(PostVersionTypes.RETRIEVEDCONTENT, {
+                                        html: returnContent.content,
+                                        approved: returnContent.approved === 1
+                                    }));
+                                }
                             })
                     } else {
                         res.json(new GetPostContentCallBack(PostVersionTypes.NOCHANGE));
@@ -63,17 +76,31 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
                 });
         });
 
-    const getContent = () => {
+    const getContent = (approved: postAccessType) => {
+        const user = checkTokenValidity(req);
+
+        const mustBeApproved: number[] = approved.isOwner ? [0, 1] : [1];
+
         return query(`
-              SELECT T1.htmlContent
+              SELECT T1.htmlContent, T1.approved
               FROM edits T1
                      INNER JOIN posts T2 ON T1.post = T2.id
-              WHERE T2.hash = ?
+              WHERE T2.hash = ? AND T1.approved IN (?)
               ORDER BY T1.datetime DESC
               LIMIT 1
-            `,  postContentRequest.postHash)
+            `,  postContentRequest.postHash, mustBeApproved)
             .then((content: DatabaseResultSet) => {
-                return content.getStringFromDB("htmlContent");
+                if (content.convertRowsToResultObjects().length > 0) {
+                    return {
+                        content: content.getStringFromDB("htmlContent"),
+                        approved: content.getNumberFromDB("approved")
+                    };
+                } else {
+                    return {
+                        content: "No accessible content found!",
+                        approved: -1
+                    };
+                }
             })
     }
 });

@@ -18,6 +18,17 @@ app.post(VerifyPost.getURL, (req: Request, res: Response) => {
         `, token.tokenObj.user.id, verifyPostRequest.postHash)
             .then((result: DatabaseResultSet) => {
 
+                return query(`
+                    UPDATE edits
+                    SET approved = 1, approvedBy = ?
+                    WHERE post = (
+                        SELECT id
+                        FROM posts
+                        WHERE hash = ?
+                    )
+                `, token.tokenObj.user.id, verifyPostRequest.postHash);
+            })
+            .then(() => {
                 res.json(new VerifyPostCallBack());
             });
     } else {

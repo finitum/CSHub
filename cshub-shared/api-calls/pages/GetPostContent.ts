@@ -13,7 +13,10 @@ export class GetPostContentCallBack {
 
     constructor(
         public postVersionType: PostVersionTypes,
-        public htmlContent?: string,
+        public content?: {
+            html: string,
+            approved: boolean
+        },
         public postUpdated?: IPost
     ) {}
 }

@@ -7,7 +7,7 @@ import {
 import {IPost} from "../../../../cshub-shared/models";
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
-import {hasAccessToPost} from "../../auth/validateRights/PostAccess";
+import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 
 app.post(GetPost.getURL, (req: Request, res: Response) => {
 
@@ -15,8 +15,8 @@ app.post(GetPost.getURL, (req: Request, res: Response) => {
 
     // Check if the user actually has access to the post
     hasAccessToPost(postRequest.postHash, req.cookies["token"])
-        .then((approved: boolean) => {
-            if (!approved) {
+        .then((approved: postAccessType) => {
+            if (!approved.access) {
                 res.status(401).send();
             }
             // Get all the post data from database
@@ -86,4 +86,4 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
             logger.error(err);
             return null;
         });
-}
+};

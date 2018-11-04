@@ -1,12 +1,17 @@
 import {validateAccessToken} from "../JWTHandler";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 
+export type postAccessType = {
+    access: boolean,
+    isOwner: boolean
+};
+
 // Test whether the user has enough rights to access this post; only admins have access to non-verified posts
-export const hasAccessToPost = (postHash: number, jwt: string): Promise<boolean> => {
+export const hasAccessToPost = (postHash: number, jwt: string): Promise<postAccessType> => {
     const tokenResult = validateAccessToken(jwt);
 
     if (tokenResult !== undefined && tokenResult.user.admin) {
-        return new Promise((resolve, reject) => { resolve(true); });
+        return new Promise((resolve, reject) => { resolve({access: true, isOwner: true}); });
     } else {
         return query(`
             SELECT approved, author
@@ -15,9 +20,9 @@ export const hasAccessToPost = (postHash: number, jwt: string): Promise<boolean>
         `, postHash)
             .then((databaseResult: DatabaseResultSet) => {
                 if (tokenResult !== undefined && tokenResult.user.id === databaseResult.getNumberFromDB("author")) {
-                    return true;
+                    return {access: true, isOwner: true};
                 }
-                return databaseResult.getNumberFromDB("approved") !== 0;
+                return {access: databaseResult.getNumberFromDB("approved") !== 0, isOwner: false};
             });
     }
 };
