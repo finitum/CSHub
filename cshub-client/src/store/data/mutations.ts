@@ -10,3 +10,7 @@ export const setTopics = (state: IDataState, payload: ITopic[]) => {
 export const setConnection = (state: IDataState, payload: boolean) => {
     state.hasConnection = payload;
 };
+
+export const setSearchQuery = (state: IDataState, payload: string) => {
+    state.searchQuery = payload;
+};

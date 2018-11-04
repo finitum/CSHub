@@ -42,7 +42,6 @@
          * Data
          */
         private postHashes: number[] = [];
-        private currPostHashes: number[] = [];
 
         /**
          * Lifecycle hooks

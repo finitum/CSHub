@@ -7,7 +7,7 @@
                         <v-card-text>
                             <v-pagination
                                     v-model="paginationPageState"
-                                    :length="Math.ceil(elements / 5)"
+                                    :length="Math.ceil(elements / range)"
                             ></v-pagination>
                         </v-card-text>
                     </v-card>
@@ -31,7 +31,9 @@
         /**
          * Data
          */
+        @Prop(Number) private range: number;
         @Prop(Number) private elements: number;
+
 
         /**
          * Computed properties

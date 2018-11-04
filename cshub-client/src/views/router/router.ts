@@ -10,6 +10,7 @@ import UserDashboard from "../user/UserDashboard.vue";
 
 import PostView from "../posts/PostView.vue";
 import PostCreate from "../posts/PostCreate.vue";
+import PostsSearch from "../posts/PostsSearch.vue";
 
 import {userBeforeEnter} from "./guards/userDashboardGuard";
 import {adminBeforeEnter} from "./guards/adminDashboardGuard";
@@ -35,6 +36,7 @@ export class Routes {
     public static readonly TOPIC = "/topic";
     public static readonly USERDASHBOARD = "/user";
     public static readonly ADMINDASHBOARD = "/admin";
+    public static readonly SEARCH = "/search";
 }
 
 const router = new Router({
@@ -88,6 +90,11 @@ const router = new Router({
             path: `${Routes.TOPIC}/:hash`,
             name: "topic",
             component: PostView
+        },
+        {
+            path: Routes.SEARCH,
+            name: "search",
+            component: PostsSearch
         },
         {
             path: Routes.USERDASHBOARD,

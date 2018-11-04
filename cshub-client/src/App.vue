@@ -90,7 +90,9 @@
             const excludeTransition = (from.fullPath === Routes.INDEX && to.name === "post") ||
                 (to.fullPath === Routes.INDEX && from.name === "post") ||
                 (from.name === "user" && to.name === "post") ||
-                (from.name === "admin" && to.name === "post");
+                (from.name === "admin" && to.name === "post") ||
+                (to.fullPath === Routes.SEARCH) ||
+                (from.fullPath === Routes.SEARCH);
 
             if (excludeTransition) {
                 this.activeclass = "";

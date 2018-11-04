@@ -3,6 +3,7 @@
         <v-toolbar-side-icon @click.native="drawerComputed = !drawerComputed"></v-toolbar-side-icon>
         <div class="title ml-3 mr-5" @click="routeHome()">CS&nbsp;<span class="font-weight-light">Hub</span></div>
         <v-text-field
+                v-model="searchQuery"
                 solo-inverted
                 flat
                 hide-details
@@ -15,11 +16,12 @@
 
 <script lang="ts">
     import Vue from "vue";
+    import {Component, Watch} from "vue-property-decorator";
 
     import uiState from "../../store/ui/index";
+    import dataState from "../../store/data";
 
     import router, {Routes} from "../../views/router/router";
-    import {Component} from "vue-property-decorator";
 
     @Component({
         name: "Toolbar"
@@ -37,11 +39,31 @@
             uiState.setDrawerState(newValue);
         }
 
+        get searchQuery(): string {
+            return dataState.searchQuery;
+        }
+
+        set searchQuery(newValue: string) {
+            dataState.setSearchQuery(newValue);
+        }
+
         /**
          * Methods
          */
         private routeHome() {
             router.push(Routes.INDEX);
+        }
+
+        /**
+         * Watchers
+         */
+        @Watch("searchQuery")
+        private searchQueryChanged() {
+            if (this.searchQuery.length >= 3) {
+                if (this.$route.fullPath !== Routes.SEARCH) {
+                    this.$router.push(Routes.SEARCH);
+                }
+            }
         }
 
     }

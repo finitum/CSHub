@@ -6,6 +6,6 @@ export * from "./CreateTopic";
 export * from "./EditPost";
 export * from "./GetPostContent";
 export * from "./GetEditContent";
-
+export * from "./GetSearchPosts";
 export * from "./user";
 

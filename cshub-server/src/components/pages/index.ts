@@ -6,6 +6,7 @@ import "./CreateTopic";
 import "./EditPost";
 import "./GetPostContent";
 import "./GetEditContent";
+import "./GetSearchPosts";
 
 import "./admin";
 import "./user";
