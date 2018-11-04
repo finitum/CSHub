@@ -12,7 +12,7 @@
   },
   "rules": {
     "quotemark": [true, "double"],
-    "indent": [true, "spaces", 2],
+    "indent": [true, "spaces", 4],
     "interface-name": false,
     "max-line-length": false,
     "ordered-imports": false,
