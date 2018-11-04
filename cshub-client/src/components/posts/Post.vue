@@ -76,7 +76,9 @@
                             <Quill key="editQuill" ref="editQuill" v-if="editModeComputed"
                                    :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
                                    :initialValue="editContent"></Quill>
-                            <div v-if="!editModeComputed" v-show="showContent" v-html="post.htmlContent"></div>
+                            <div class="ql-editor">
+                                <div v-if="!editModeComputed" v-show="showContent" v-html="post.htmlContent"></div>
+                            </div>
                         </v-card-text>
                     </v-layout>
                 </v-container>
@@ -486,5 +488,15 @@
     }
     .breadcrumb-enter, .breadcrumb-leave-to {
         opacity: 0;
+    }
+
+    @font-face {
+        font-family: 'SailecLight';
+        src: url("../../plugins/quill/Sailec-Light.otf");
+    }
+
+    .ql-editor {
+        border: none;
+        font-family: 'SailecLight', sans-serif;
     }
 </style>
