@@ -6,8 +6,8 @@
                 <div v-if="fullPostComputed"></div>
             </transition>
 
-            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}" id="postCard">
-                <v-card-title primary-title id="postCardTitle" style="padding-bottom: 0;">
+            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}" :id="'post_' + domId">
+                <v-card-title primary-title :id="'postTitle_' + domId" style="padding-bottom: 0;">
                     <transition name="breadcrumb">
                         <v-breadcrumbs divider="/" style="width: 100%" v-if="fullPostComputed">
                             <v-btn color="primary" depressed small dark @click="returnToPostMenu">
@@ -64,7 +64,7 @@
                     v-show="fullPostComputed"
                     position="relative"
                     class="scroll-y"
-                    id="post-scroll-target"
+                    :class="'postScrollWindow_' + domId"
                     style="margin: 0; padding-top: 0; max-width: none; overflow-wrap: break-word"
                 >
                     <v-layout
@@ -108,7 +108,7 @@
             ></v-progress-circular>
         </div>
         <PostEditsDialog :postHash="postHash"></PostEditsDialog>
-        <v-dialog v-model="fullScreenDialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+        <v-dialog v-model="fullScreenDialog" fullscreen hide-overlay transition="dialog-bottom-transition" v-if="post !== null">
             <v-card>
                 <v-toolbar dark color="primary">
                     <v-btn icon dark @click.native="fullScreenDialog = false">
@@ -155,6 +155,7 @@
     import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
     import {CacheTypes} from "../../utilities/cache-types";
     import {ImgurUpload} from "../../utilities/imgur";
+    import {idGenerator} from "../../utilities/id-generator";
 
     import {Routes} from "../../views/router/router";
 
@@ -178,6 +179,7 @@
          */
         @Prop(Number) private postHash: number;
 
+        private domId: string = idGenerator();
         private post: IPost = null;
         private topicNames: IBreadCrumbType[] = [];
         private canResize = true;
@@ -186,7 +188,6 @@
         private loadingIcon = false;
         private previousTopicURL = "";
         private fullScreenDialog = false;
-        private heightChangedInterval: number;
 
         /**
          * Computed properties
@@ -239,10 +240,6 @@
          * Lifecycle hooks
          */
         private mounted() {
-            this.heightChangedInterval = setInterval(() => {
-                this.windowHeightChanged();
-            }, 1000);
-
             window.addEventListener("resize", this.windowHeightChanged);
             this.getPostRequest();
 
@@ -253,6 +250,12 @@
             } else if (this.editsListComputed) {
                 uiState.setEditDialogState(true);
             }
+        }
+
+        private updated() {
+            setTimeout(() => {
+                this.windowHeightChanged();
+            }, 500)
         }
 
         private beforeDestroy() {
@@ -267,15 +270,16 @@
                 // Calculate the right height for the postcardtext, 100px padding
                 this.canResize = false;
 
-                const postCard = document.getElementById("postCard");
-                const postCardTitle = document.getElementById("postCardTitle");
+                const postCard = document.getElementById(`post_${this.domId}`);
+                const postCardTitle = document.getElementById(`postTitle_${this.domId}`);
                 if (postCard !== null && postCardTitle !== null) {
                     const newHeight = postCard.clientHeight - postCardTitle.clientHeight - 50;
-                    document.getElementById("post-scroll-target").style.maxHeight = `${newHeight}px`;
+
+                    (document.getElementsByClassName(`postScrollWindow_${this.domId}`).item(0) as HTMLElement).style.maxHeight = `${newHeight}px`;
 
                     setTimeout(() => {
                         this.canResize = true;
-                    }, 500);
+                    }, 1000);
                 } else {
                     this.canResize = true;
                 }
@@ -419,12 +423,6 @@
                             logStringConsole("Changed post in cache", "getContentRequest");
                         });
                 }
-
-                Vue.nextTick()
-                    .then(() => {
-                        logStringConsole("Resizing viewport after post content set");
-                        this.windowHeightChanged();
-                    });
             }, (err: AxiosError) => {
 
                 clearTimeout(timeOut);

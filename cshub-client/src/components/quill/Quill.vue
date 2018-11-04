@@ -159,6 +159,7 @@
     import {IQuillEditSetup} from "./IQuillEditSetup";
 
     import {logStringConsole} from "../../utilities";
+    import {idGenerator} from "../../utilities/id-generator";
 
     const QuillWindow = (window as any).Quill;
     QuillWindow.register("modules/resize", ImageResize);
@@ -214,14 +215,7 @@
 
             logStringConsole("Mounted quill with edit: " + this.editorSetup.allowEdit);
 
-            let id = "";
-            const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
-            for (let i = 0; i < 5; i++) {
-                id += possible.charAt(Math.floor(Math.random() * possible.length));
-            }
-
-            this.quillId = id;
+            this.quillId = idGenerator();
 
             // Assign jquery and katex for use by mathquillMin
             (window as any).jQuery = JQuery;
