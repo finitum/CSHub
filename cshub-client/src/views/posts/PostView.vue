@@ -1,14 +1,11 @@
 <template>
     <div>
         <transition name="topicHeader">
-            <v-subheader v-if="currentPostHash === -1">
+            <v-subheader v-if="!isFullPost">
                 Posts in {{currentTopicNameComputed}}
             </v-subheader>
         </transition>
-        <div v-for="postHash in postHashes" :key="postHash.index">
-            <Post :postHash="postHash" v-if="currentPostHash === -1 || currentPostHash === postHash" :key="postHash"></Post>
-        </div>
-        <h2 v-if="postHashes.length === 0" style="text-align: center; width: 100%">No posts found!</h2>
+        <PostList :postHashes="postHashes"></PostList>
     </div>
 </template>
 
@@ -19,7 +16,7 @@
     import {Route} from "vue-router";
     import {Component, Watch} from "vue-property-decorator";
 
-    import Post from "../../components/posts/Post.vue";
+    import PostList from "../../components/posts/PostList.vue";
 
     import {GetTopicPostsCallBack, GetTopicPosts} from "../../../../cshub-shared/api-calls/index";
     import {getTopicFromHash} from "../../../../cshub-shared/utilities/Topics";
@@ -34,7 +31,7 @@
 
     @Component({
         name: "PostView",
-        components: {Post},
+        components: {PostList}
     })
     export default class PostView extends Vue {
 
@@ -42,8 +39,8 @@
          * Data
          */
         private postHashes: number[] = [];
-        private currentPostHash = -1;
         private currentTopicHash = -1;
+        private isFullPost = false;
 
         /**
          * Computed properties
@@ -80,17 +77,17 @@
             const currentHash = +this.$route.params.hash;
             if (this.$router.currentRoute.fullPath.includes(Routes.POST)) {
                 this.currentTopicHash = -1;
+                this.isFullPost = true;
                 if (this.postHashes.length === 0) {
                     this.postHashes = [currentHash];
                 }
-                this.currentPostHash = currentHash;
             } else if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
                 this.currentTopicHash = currentHash;
-                this.currentPostHash = -1;
+                this.isFullPost = false;
                 this.getTopicRequest(currentHash);
             } else if (this.$router.currentRoute.fullPath === Routes.INDEX) {
                 this.currentTopicHash = 0;
-                this.currentPostHash = -1;
+                this.isFullPost = false;
                 this.getTopicRequest(0);
             }
         }
@@ -106,7 +103,7 @@
                         logStringConsole("Set topicPosts from cache", "getTopicRequest");
                     }
 
-                    ApiWrapper.sendPostRequest(new GetTopicPosts(topicHash, 0), (callbackData: GetTopicPostsCallBack) => {
+                    ApiWrapper.sendPostRequest(new GetTopicPosts(topicHash), (callbackData: GetTopicPostsCallBack) => {
 
                         if (callbackData.postHashes !== this.postHashes) {
                             this.postHashes = callbackData.postHashes;

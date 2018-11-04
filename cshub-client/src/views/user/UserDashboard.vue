@@ -81,10 +81,7 @@
             Your posts
         </v-subheader>
 
-        <div v-for="postHash in postHashes" :key="postHash.index">
-            <Post :postHash="postHash" :key="postHash"></Post>
-        </div>
-        <h2 v-if="postHashes.length === 0" style="text-align: center; width: 100%">No posts found!</h2>
+        <PostList :postHashes="postHashes"></PostList>
     </div>
 </template>
 
@@ -92,7 +89,7 @@
     import Vue from "vue";
     import {Component} from "vue-property-decorator";
 
-    import Post from "../../components/posts/Post.vue";
+    import PostList from "../../components/posts/PostList.vue";
 
     import userState from "../../store/user";
 
@@ -109,7 +106,7 @@
     @Component({
         name: "UserDashboard",
         inject: ["$validator"],
-        components: {Post},
+        components: {PostList},
     })
     export default class UserDashboard extends Vue {
 
@@ -136,14 +133,14 @@
          * Lifecycle hooks
          */
         private mounted() {
-            this.getHashes(0);
+            this.getHashes();
         }
 
         /**
          * Methods
          */
-        private getHashes(startIndex: number) {
-            ApiWrapper.sendPostRequest(new GetUserPosts(startIndex), (callbackData: GetUserPostsCallback) => {
+        private getHashes() {
+            ApiWrapper.sendPostRequest(new GetUserPosts(), (callbackData: GetUserPostsCallback) => {
                 this.postHashes = callbackData.postHashes;
                 logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
             });

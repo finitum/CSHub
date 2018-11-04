@@ -14,5 +14,5 @@ export class GetUserPosts implements IApiRequest {
     public static getURL: string = AuthRequests.DASHBOARD;
     public URL: string = GetUserPosts.getURL;
 
-    constructor(public startFromResult: number) {}
+    constructor() {}
 }

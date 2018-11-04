@@ -194,11 +194,5 @@
     }
 </script>
 
-<style>
-    .v-treeview-node__label {
-        caret-color: #9e9e9e!important;
-        font-size: 13px;
-        color: #9e9e9e!important;
-        font-weight: 500;
-    }
+<style scoped>
 </style>

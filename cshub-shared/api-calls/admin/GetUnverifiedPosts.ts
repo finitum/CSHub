@@ -12,5 +12,5 @@ export class GetUnverifiedPosts implements IApiRequest {
     public static getURL: string = AdminRequests.GETUNVERIFIEDPOSTS;
     public URL: string = GetUnverifiedPosts.getURL;
 
-    constructor(public startFromResult: number) {}
+    constructor() {}
 }

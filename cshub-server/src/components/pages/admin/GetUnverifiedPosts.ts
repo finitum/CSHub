@@ -19,7 +19,7 @@ app.post(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
         FROM posts
         WHERE approved = 0
         ORDER BY datetime DESC
-        `, getUnverifiedPostsRequest.startFromResult)
+        `)
             .then((result: DatabaseResultSet) => {
 
                 const hashes: number[] = [];

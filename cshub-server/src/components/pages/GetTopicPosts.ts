@@ -54,7 +54,7 @@ app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
                       WHERE approved = 1
                         AND T2.hash IN (?)
                       ORDER BY datetime DESC
-                    `, topicHashes, topicPostsRequest.startFromResult)
+                    `, topicHashes)
                         .then((posts: DatabaseResultSet) => {
 
                             const postHashes: number[] = [];

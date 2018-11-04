@@ -14,12 +14,7 @@
         <v-subheader>
             Unverified posts
         </v-subheader>
-        <div>
-            <div v-for="postHash in postHashes" :key="postHash.index">
-                <Post :postHash="postHash" :key="postHash"></Post>
-            </div>
-            <h2 v-if="postHashes.length === 0" style="text-align: center; width: 100%">No posts found!</h2>
-        </div>
+        <PostList :postHashes="postHashes"></PostList>
     </div>
 </template>
 
@@ -28,7 +23,7 @@
     import {Component} from "vue-property-decorator";
 
     import UserTable from "../../components/admin/UserTable.vue";
-    import Post from "../../components/posts/Post.vue";
+    import PostList from "../../components/posts/PostList.vue";
 
     import {ApiWrapper, logObjectConsole} from "../../utilities";
 
@@ -39,7 +34,7 @@
 
     @Component({
         name: "AdminDashboard",
-        components: {UserTable, Post},
+        components: {UserTable, PostList},
     })
     export default class AdminDashboard extends Vue {
 
@@ -47,19 +42,20 @@
          * Data
          */
         private postHashes: number[] = [];
+        private currPostHashes: number[] = [];
 
         /**
          * Lifecycle hooks
          */
         private mounted() {
-            this.getHashes(0);
+            this.getHashes();
         }
 
         /**
          * Methods
          */
-        private getHashes(startIndex: number) {
-            ApiWrapper.sendPostRequest(new GetUnverifiedPosts(startIndex), (callbackData: GetUnverifiedPostsCallBack) => {
+        private getHashes() {
+            ApiWrapper.sendPostRequest(new GetUnverifiedPosts(), (callbackData: GetUnverifiedPostsCallBack) => {
                 this.postHashes = callbackData.postHashes;
                 logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
             });

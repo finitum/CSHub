@@ -16,7 +16,7 @@ app.post(GetUserPosts.getURL, (req: Request, res: Response) => {
         FROM posts
         WHERE author = ?
         ORDER BY datetime DESC
-        `, token.tokenObj.user.id, userDashboardRequest.startFromResult)
+        `, token.tokenObj.user.id)
             .then((result: DatabaseResultSet) => {
 
                 const hashes: number[] = [];

@@ -184,6 +184,7 @@
         private loadingIcon = false;
         private previousTopicURL = "";
         private fullScreenDialog = false;
+        private heightChangedInterval: number;
 
         /**
          * Computed properties
@@ -236,6 +237,10 @@
          * Lifecycle hooks
          */
         private mounted() {
+            this.heightChangedInterval = setInterval(() => {
+                this.windowHeightChanged();
+            }, 1000);
+
             window.addEventListener("resize", this.windowHeightChanged);
             this.getPostRequest();
 
@@ -248,8 +253,8 @@
             }
         }
 
-        private updated() {
-            this.windowHeightChanged();
+        private beforeDestroy() {
+            clearInterval(this.heightChangedInterval);
         }
 
         /**

@@ -6,13 +6,15 @@ export interface IUIState {
         open: boolean
     };
     editDialogState: boolean;
+    paginationPageState: number;
 }
 
 export const UIState: IUIState = {
     navbar: {
         open: null
     },
-    editDialogState: false
+    editDialogState: false,
+    paginationPageState: 1
 };
 
 export const uiStoreBuilder = getStoreBuilder<IRootState>().module("ui", UIState);
