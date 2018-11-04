@@ -14,7 +14,7 @@
     import {Route} from "vue-router";
 
     import Post from "./Post.vue";
-    import PostPagination from "./PostPagination";
+    import PostPagination from "./PostPagination.vue";
 
     import uiState from "../../store/ui";
     import {Routes} from "../../views/router/router";
