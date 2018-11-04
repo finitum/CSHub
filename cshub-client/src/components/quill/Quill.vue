@@ -116,7 +116,6 @@
             </div>
             <div class="editor">
             </div>
-          <div id="stuff" v-html="stuff"></div>
         </div>
     </div>
 </template>
@@ -214,41 +213,19 @@
             delete this.editor;
         },
         methods: {
-            deltaToHtml() {
-                /*
+            getHTML() {
+                console.log(JSON.stringify(this.getDelta()))
 
-                const delta = this.getDelta().ops;
-
-                // Convert all formula elements to katex elements so that it can be handled by a custom converter
-                for (const elem of delta) {
-                    if (elem.hasOwnProperty("insert") && typeof elem.insert.formula !== "undefined") {
-                      elem.insert.katex = elem.insert.formula;
-                      delete elem.insert.formula;
-                    }
+                const node = this.editor.container.firstChild;
+                const codes = node.getElementsByClassName("ql-code-block");
+                for(const code of codes){
+                    let lang = code.attributes.getNamedItem("data-language") ? code.attributes.getNamedItem("data-language").value : "";
+                    console.log(lang);
+                    code.className += " hljs " + lang;
+                    console.log(code.className);
                 }
 
-                const converter = new QuillDeltaToHtmlConverter(delta, {inlineStyles: true});
-
-                converter.renderCustomWith((customOp) => {
-                    if (customOp.insert.type === "katex") {
-                        return katex.renderToString(customOp.insert.value);
-                    } else {
-                        return "Unmanaged custom blot!";
-                    }
-                });
-
-                converter.afterRender((_, data) => {
-                    return data.replace(/<pre>/g, "<pre><code class='hljs'>").replace(/<\/pre>/g, "</code></pre>");
-                });
-                */
-
-                this.stuff = this.editor.container.firstChild.innerHTML;
-
-                let divs = document.getElementsByClassName("ql-code-block");
-                for(let i = 0; i < divs.length; i++){
-                    divs[i].className += " hljs";
-                    hljs.highlightBlock(divs[i]);
-                }
+                return node.innerHTML; // Doesn't have images replaced
             },
             getDelta() {
                 return this.editor.getContents();
@@ -328,7 +305,7 @@
                 // Delta is the single changed made that triggered this function
                 // OldDelta is everything that was typed previous to the edit
                 this.$emit("textChanged");
-                this.deltaToHtml();
+                this.getHTML();
             }
         }
     };
