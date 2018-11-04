@@ -214,15 +214,11 @@
         },
         methods: {
             getHTML() {
-                console.log(JSON.stringify(this.getDelta()))
-
                 const node = this.editor.container.firstChild;
                 const codes = node.getElementsByClassName("ql-code-block");
                 for(const code of codes){
                     let lang = code.attributes.getNamedItem("data-language") ? code.attributes.getNamedItem("data-language").value : "";
-                    console.log(lang);
                     code.className += " hljs " + lang;
-                    console.log(code.className);
                 }
 
                 return node.innerHTML; // Doesn't have images replaced
