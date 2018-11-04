@@ -62,7 +62,7 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
                                               content  = ?,
                                               editedBy = ?,
                                               htmlContent = ?
-                                        `, insertResult.getInsertId(), JSON.stringify(submitPostRequest.postBody), userObj.tokenObj.user.id, JSON.stringify(submitPostRequest.postBody));
+                                        `, insertResult.getInsertId(), JSON.stringify(submitPostRequest.postBody), userObj.tokenObj.user.id, submitPostRequest.postHTML);
                                     })
                                     .then((insertEdit: DatabaseResultSet) => {
                                         res.json(new CreatePostCallback(SubmitPostResponse.SUCCESS, topicHash));

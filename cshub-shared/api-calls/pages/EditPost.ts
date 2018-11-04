@@ -1,6 +1,8 @@
 import {IApiRequest} from "../../models/IApiRequest";
 
 import {AuthRequests} from "../AuthRequests";
+// @ts-ignore
+import Delta from "quill-delta/dist/Delta";
 
 export class EditPostCallback {
 }
@@ -12,6 +14,7 @@ export class EditPost implements IApiRequest {
 
     constructor(
         public postHash: number,
-        public postBody: object
+        public postBody: Delta,
+        public postHTML: string
     ) {}
 }

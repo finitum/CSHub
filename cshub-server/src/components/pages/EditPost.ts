@@ -24,24 +24,31 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                     const userIsAdmin = userObj.tokenObj.user.admin;
 
                     query(`
-                      INSERT INTO edits
-                      SET post     = (SELECT id
-                                      FROM posts
-                                      WHERE hash = ?),
-                          htmlContent = ?,
-                          content  = ?,
-                          editedBy = ?,
-                          approved = ?,
-                          approvedBy = ?
-                    `, editPostRequest.postHash, JSON.stringify(editPostRequest.postBody), JSON.stringify(editPostRequest.postBody), userObj.tokenObj.user.id, userIsAdmin ? 1 : 0, userIsAdmin ? userObj.tokenObj.user.id : -1)
+                      UPDATE edits
+                      SET htmlContent = ""
+                      WHERE post = (SELECT id FROM posts WHERE hash = ?)
+                    `, editPostRequest.postHash)
                         .then(() => {
                             return query(`
-                                UPDATE posts
-                                SET postVersion = postVersion + 1
-                                WHERE hash = ?
+                              INSERT INTO edits
+                              SET post        = (SELECT id
+                                                 FROM posts
+                                                 WHERE hash = ?),
+                                  htmlContent = ?,
+                                  content     = ?,
+                                  editedBy    = ?,
+                                  approved    = ?,
+                                  approvedBy  = ?
+                            `, editPostRequest.postHash, editPostRequest.postHTML, JSON.stringify(editPostRequest.postBody), userObj.tokenObj.user.id, userIsAdmin ? 1 : 0, userIsAdmin ? userObj.tokenObj.user.id : -1)
+                        })
+                        .then(() => {
+                            return query(`
+                              UPDATE posts
+                              SET postVersion = postVersion + 1
+                              WHERE hash = ?
                             `, editPostRequest.postHash)
                         })
-                        .then((count: DatabaseResultSet) => {
+                        .then(() => {
                             res.json(new EditPostCallback());
                         })
                         .catch(err => {

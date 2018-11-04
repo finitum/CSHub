@@ -153,7 +153,8 @@
                                 this.showLoadingIcon = true;
                                 ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
                                     .then((newValue: Delta) => {
-                                        ApiWrapper.sendPostRequest(new CreatePost(this.postTitle, newValue, this.activeTopicHash[0]), (response: CreatePostCallback) => {
+                                        const html: string = (this.$refs as any).quillEdit.getHTML();
+                                        ApiWrapper.sendPostRequest(new CreatePost(this.postTitle, newValue, html, this.activeTopicHash[0]), (response: CreatePostCallback) => {
                                             this.showLoadingIcon = false;
                                             if (response.response === SubmitPostResponse.SUCCESS) {
                                                 this.$router.push(Routes.USERDASHBOARD);

@@ -1,6 +1,7 @@
 import {IApiRequest} from "../../models/IApiRequest";
 
 import {AuthRequests} from "../AuthRequests";
+import Delta from "quill-delta/dist/Delta";
 
 export enum SubmitPostResponse {
     SUCCESS,
@@ -23,7 +24,8 @@ export class CreatePost implements IApiRequest {
 
     constructor(
         public postTitle: string,
-        public postBody: object,
+        public postBody: Delta,
+        public postHTML: string,
         public postTopicHash: number
     ) {}
 }

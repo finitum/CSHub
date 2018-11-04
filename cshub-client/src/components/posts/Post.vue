@@ -74,8 +74,8 @@
                       v-scroll:#post-scroll-target>
                         <v-card-text v-if="!loadingIcon" id="postCardText">
                             <Quill key="editQuill" ref="editQuill" v-if="editModeComputed"
-                                   :initialValue="{allowEdit: true, showToolbar: true, postHash}"
-                                   :value="editContent"></Quill>
+                                   :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
+                                   :initialValue="editContent"></Quill>
                             <div v-if="!editModeComputed" v-show="showContent" v-html="post.htmlContent"></div>
                         </v-card-text>
                     </v-layout>
@@ -335,7 +335,9 @@
                 .then((newValue: Delta) => {
                     const diff = this.editContent.diff(newValue);
 
-                    ApiWrapper.sendPostRequest(new EditPost(this.postHash, diff), (callbackData: EditPostCallback) => {
+                    const html: string = (this.$refs as any).editQuill.getHTML();
+
+                    ApiWrapper.sendPostRequest(new EditPost(this.postHash, diff, html), (callbackData: EditPostCallback) => {
                         this.$router.push(this.currentPostURLComputed);
                         this.getPostRequest();
                     });

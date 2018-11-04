@@ -245,6 +245,16 @@
         /**
          * Methods
          */
+        private getHTML() {
+            const node = this.editor.container.firstChild;
+            const codes = node.getElementsByClassName("ql-code-block");
+            for (const code of codes) {
+                const lang = code.attributes.getNamedItem("data-language") ? code.attributes.getNamedItem("data-language").value : "";
+                code.className += " hljs " + lang;
+            }
+            return node.innerHTML; // Doesn't have images replaced
+        }
+
         private loadDraft(load: boolean) {
             if (load) {
                 this.editor.setContents(this.draftValue);
@@ -253,10 +263,6 @@
             }
 
             this.loadDraftDialog = false;
-        }
-
-        private getInnerHTML() {
-            return this.editor.container.firstChild.innerHTML; // .split(' ').join(' &nbsp;');
         }
 
         private getDelta() {
