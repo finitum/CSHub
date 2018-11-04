@@ -38,6 +38,7 @@
     "@vue/cli-service": "^3.0.4",
     "typescript": "^3.0.0",
     "vue-cli-plugin-vuetify": "^0.2.0",
-    "vue-template-compiler": "^2.5.17"
+    "vue-template-compiler": "^2.5.17",
+    "parchment": "latest"
   }
 }

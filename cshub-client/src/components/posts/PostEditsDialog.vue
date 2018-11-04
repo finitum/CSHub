@@ -43,86 +43,93 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import uiState from "../../store/ui";
-    import {ApiWrapper} from "../../utilities";
-    import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/api-calls/pages";
-    import {IEdit} from "../../../../cshub-shared/models";
-    // @ts-ignore
     import Delta from "quill-delta/dist/Delta";
-    import {Routes} from "../../views/router/router";
+    import {Component, Prop, Watch} from "vue-property-decorator";
+
     import Quill from "../quill/Quill.vue";
 
-    export default Vue.extend({
+    import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/api-calls/pages";
+    import {IEdit} from "../../../../cshub-shared/models";
+
+    import uiState from "../../store/ui";
+
+    import {Routes} from "../../views/router/router";
+
+    import {ApiWrapper} from "../../utilities";
+
+    @Component({
         name: "PostEditsDialog",
         components: {Quill},
-        props: {
-            postHash: {
-                type: Number,
-                required: true
-            },
-        },
-        data() {
-            return {
-                edits: [] as IEdit[],
-                showIndex: -1,
-                initQuill: false
-            };
-        },
-        computed: {
-            dialogActive: {
-                get(): boolean {
-                    return uiState.editDialogState;
-                },
-                set() {
-                    this.$router.push(`${Routes.POST}/${this.postHash}`);
-                    uiState.setEditDialogState(false);
-                }
-            }
-        },
-        watch: {
-            dialogActive(newVal: boolean) {
-                if (newVal) {
-                    ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
+    })
+    export default class PostEditsDialog extends Vue {
 
-                        let previousDelta = new Delta(JSON.parse(JSON.stringify(callbackData.edits[0].content)));
+        /**
+         * Data
+         */
+        @Prop(Number) private postHash: number;
 
-                        for (let i = 1; i < callbackData.edits.length; i++) {
+        private edits: IEdit[] = [];
+        private showIndex = -1;
+        private initQuill = false;
 
-                            const currContent = callbackData.edits[i].content;
-                            const originalContent = JSON.parse(JSON.stringify(callbackData.edits[i].content));
+        /**
+         * Computed properties
+         */
+        get dialogActive(): boolean {
+            return uiState.editDialogState;
+        }
 
-                            for (const op of currContent.ops) {
-                                if (op.hasOwnProperty("insert")) {
-                                    op.attributes = {
-                                        ...op.attributes,
-                                        background: "#65e832",
-                                        color: "#003700"
-                                    };
-                                }
-                                if (op.hasOwnProperty("delete")) {
-                                    op.retain = op.delete;
-                                    delete op.delete;
-                                    op.attributes = {
-                                        ...op.attributes,
-                                        background: "#e8553e",
-                                        color: "#370000",
-                                        strike: true
-                                    };
-                                }
+        set dialogActive(value: boolean) {
+            this.$router.push(`${Routes.POST}/${this.postHash}`);
+            uiState.setEditDialogState(value);
+        }
+
+        /**
+         * Watchers
+         */
+        @Watch("dialogActive")
+        private dialogActiveChanged(newVal: boolean) {
+            if (newVal) {
+                ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
+
+                    let previousDelta = new Delta(JSON.parse(JSON.stringify(callbackData.edits[0].content)));
+
+                    for (let i = 1; i < callbackData.edits.length; i++) {
+
+                        const currContent = callbackData.edits[i].content;
+                        const originalContent = JSON.parse(JSON.stringify(callbackData.edits[i].content));
+
+                        for (const op of currContent.ops) {
+                            if (op.hasOwnProperty("insert")) {
+                                op.attributes = {
+                                    ...op.attributes,
+                                    background: "#65e832",
+                                    color: "#003700"
+                                };
                             }
-
-                            callbackData.edits[i].content = previousDelta.compose(currContent);
-                            previousDelta = previousDelta.compose(originalContent);
+                            if (op.hasOwnProperty("delete")) {
+                                op.retain = op.delete;
+                                delete op.delete;
+                                op.attributes = {
+                                    ...op.attributes,
+                                    background: "#e8553e",
+                                    color: "#370000",
+                                    strike: true
+                                };
+                            }
                         }
 
-                        this.edits = callbackData.edits;
-                    });
-                } else {
-                    this.showIndex = -1;
-                }
+                        callbackData.edits[i].content = previousDelta.compose(currContent);
+                        previousDelta = previousDelta.compose(originalContent);
+                    }
+
+                    this.edits = callbackData.edits;
+                });
+            } else {
+                this.showIndex = -1;
             }
         }
-    });
+    }
 </script>
 
 <style scoped>

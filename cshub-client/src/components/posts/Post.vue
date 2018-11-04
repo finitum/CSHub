@@ -209,6 +209,7 @@
         get editModeComputed(): boolean {
             return this.$route.fullPath === `${this.currentPostURLComputed}/edit`;
         }
+
         get editsListComputed(): boolean {
             return this.$route.fullPath === `${this.currentPostURLComputed}/edits`;
         }
@@ -245,7 +246,6 @@
             }
         }
 
-
         private updated() {
             this.windowHeightChanged();
         }
@@ -270,9 +270,7 @@
                 } else {
                     this.canResize = true;
                 }
-
             }
-
         }
 
         private verifyPost() {
@@ -360,7 +358,6 @@
                             } else {
                                 this.$router.push(Routes.INDEX);
                             }
-
                         });
                     } else {
                         logStringConsole("Gotten post from cache", "getPostRequest");
