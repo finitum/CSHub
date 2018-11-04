@@ -84,7 +84,11 @@
          */
         private windowHeightChanged() {
             // Getting the window height, subtracting 300 pixels. Then dividing by 100 for a very wild guess of amount of possible cards on this screen
-            this.range = Math.floor((window.innerHeight - 350) / 100);
+            let range = Math.floor((window.innerHeight - 350) / 100);
+            if (range === 0) {
+                range++;
+            }
+            this.range = range;
         }
 
         private showCurrentPost(index: number, postHash: number): boolean {

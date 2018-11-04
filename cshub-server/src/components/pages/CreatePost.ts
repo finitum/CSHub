@@ -20,7 +20,7 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
         input: submitPostRequest.postTitle,
         validationObject: {
             minlength: 4,
-            maxlength: 127
+            maxlength: 50
         }
     }, {input: JSON.stringify(submitPostRequest.postBody)}, {input: submitPostRequest.postTopicHash});
 

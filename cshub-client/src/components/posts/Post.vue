@@ -114,11 +114,13 @@
                     <v-btn icon dark @click.native="fullScreenDialog = false">
                         <v-icon>mdi-close</v-icon>
                     </v-btn>
-                    <v-toolbar-title>Post</v-toolbar-title>
+                    <v-toolbar-title>{{post.title}}</v-toolbar-title>
                     <v-spacer></v-spacer>
                 </v-toolbar>
                 <v-card-text>
-                    <div v-if="!editModeComputed && fullScreenDialog" v-html="post.htmlContent"></div>
+                    <div class="ql-editor">
+                        <div v-if="!editModeComputed && fullScreenDialog" v-html="post.htmlContent"></div>
+                    </div>
                 </v-card-text>
             </v-card>
         </v-dialog>

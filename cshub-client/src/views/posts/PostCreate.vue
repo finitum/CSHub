@@ -30,7 +30,7 @@
                                         label="Title"
                                         box
                                         v-model="postTitle"
-                                        v-validate="'required|min:4|max:127'"
+                                        v-validate="'required|min:4|max:50'"
                                         :error-messages="errors.collect('postTitle') + postTitleError"
                                         @change="postTitleError = ''"
                                         name="postTitle"
