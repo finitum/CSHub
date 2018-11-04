@@ -8,6 +8,9 @@ matrix:
         - "10"
         - "11"
     before_script:
+        - cd cshub-shared
+        - npm install
+        - cd ..
         - cd cshub-client
     script:
         - npm install
@@ -21,8 +24,11 @@ matrix:
         - "10"
         - "11"
     before_script:
+        - cd cshub-shared
+        - npm install
+        - cd ..
         - cd cshub-server/src/
-        - cp settings_baseline.ts settings.ts
+        - cp SettingsBaseline.ts settings.ts
         - cd ..
     script:
         - npm install

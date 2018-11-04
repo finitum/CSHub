@@ -30,7 +30,7 @@
                                         label="Title"
                                         box
                                         v-model="postTitle"
-                                        v-validate="'required|min:4|max:127'"
+                                        v-validate="'required|min:4|max:50'"
                                         :error-messages="errors.collect('postTitle') + postTitleError"
                                         @change="postTitleError = ''"
                                         name="postTitle"
@@ -77,7 +77,7 @@
                                 </v-menu>
                             </v-flex>
                         </v-layout>
-                        <Quill ref="quillEdit" :editorSetup="{allowEdit: true, showToolbar: true}"></Quill>
+                        <Quill ref="quillEdit" :editorSetup="{allowEdit: true, showToolbar: true, postHash: -1}"></Quill>
                     </v-card-text>
                 </v-card>
             </v-flex>
@@ -87,82 +87,99 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import Quill from "../../components/quill/Quill.vue";
-    import dataState from "../../store/data";
     import Delta from "quill-delta/dist/Delta";
-    import {ImgurUpload} from "../../utilities/imgur";
-    import {ApiWrapper} from "../../utilities";
-    import {
-        SubmitPostCallback,
-        SubmitPostRequest,
-        SubmitPostResponse
-    } from "../../../../cshub-shared/api-calls/pages";
+    import {Component, Watch} from "vue-property-decorator";
+
+    import Quill from "../../components/quill/Quill.vue";
+
+    import dataState from "../../store/data";
+
     import {Routes} from "../router/router";
 
-    export default Vue.extend({
+    import {ImgurUpload} from "../../utilities/imgur";
+    import {ApiWrapper} from "../../utilities";
+
+    import {
+        CreatePostCallback,
+        CreatePost,
+        SubmitPostResponse
+    } from "../../../../cshub-shared/api-calls/pages";
+    import {ITopic} from "../../../../cshub-shared/models";
+
+    @Component({
         name: "PostCreate",
         components: {Quill},
-        inject: ["$validator"],
-        data() {
-            return {
-                activeTopicHash: [],
-                topicViewOpen: false,
-                postTitle: "",
-                postTitleError: "",
-                showCloseIcon: false,
-                showTopicWrongIcon: false,
-                showTopicFilledIcon: false,
-                showLoadingIcon: false
-            };
-        },
-        computed: {
-            topics() {
-                return dataState.topics;
-            }
-        },
-        watch: {
-            activeTopicHash() {
-                this.showTopicFilledIcon = this.activeTopicHash[0] !== undefined;
-            }
-        },
-        methods: {
-            submitPost() {
-                if (this.activeTopicHash[0] !== undefined) {
-                    this.$validator.validateAll()
-                        .then((allValid: boolean) => {
-                            if (allValid) {
-                                const delta: Delta = (this.$refs as any).quillEdit.getDelta();
-                                if (delta.ops[0].insert !== "\n") {
-                                    this.showLoadingIcon = true;
-                                    ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
-                                        .then((newValue: Delta) => {
-                                            ApiWrapper.sendPostRequest(new SubmitPostRequest(this.postTitle, newValue, this.activeTopicHash[0]), (response: SubmitPostCallback) => {
-                                                this.showLoadingIcon = false;
-                                                if (response.response === SubmitPostResponse.SUCCESS) {
-                                                    this.$router.push(Routes.USERDASHBOARD);
-                                                } else if (response.response === SubmitPostResponse.TITLEALREADYINUSE) {
-                                                    this.postTitleError = "Title is already in use!";
-                                                }
-                                            });
-                                        });
-                                } else {
-                                    this.showCloseIcon = true;
-                                    setTimeout(() => {
-                                        this.showCloseIcon = false;
-                                    }, 1000);
-                                }
+        inject: ["$validator"]
+    })
+    export default class PostCreate extends Vue {
 
+        /**
+         * Data
+         */
+        private activeTopicHash: number[] = [];
+        private topicViewOpen = false;
+        private postTitle = "";
+        private postTitleError = "";
+        private showCloseIcon = false;
+        private showTopicWrongIcon = false;
+        private showTopicFilledIcon = false;
+        private showLoadingIcon = false;
+
+        /**
+         * Computed properties
+         */
+        get topics(): ITopic[] {
+            return dataState.topics;
+        }
+
+        /**
+         * Watchers
+         */
+        @Watch("activeTopicHash")
+        private activeTopicHashChanged() {
+            this.showTopicFilledIcon = this.activeTopicHash[0] !== undefined;
+        }
+
+        /**
+         * Methods
+         */
+        private submitPost() {
+            if (typeof this.activeTopicHash[0] !== "undefined") {
+                this.$validator.validateAll()
+                    .then((allValid: boolean) => {
+                        if (allValid) {
+                            const delta: Delta = (this.$refs as any).quillEdit.getDelta();
+                            if (delta.ops[0].insert !== "\n") {
+                                this.showLoadingIcon = true;
+                                ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
+                                    .then((newValue: Delta) => {
+                                        const html: string = (this.$refs as any).quillEdit.getHTML();
+                                        ApiWrapper.sendPostRequest(new CreatePost(this.postTitle, newValue, html, this.activeTopicHash[0]), (response: CreatePostCallback) => {
+                                            this.showLoadingIcon = false;
+                                            if (response.response === SubmitPostResponse.SUCCESS) {
+                                                this.$router.push(Routes.USERDASHBOARD);
+                                            } else if (response.response === SubmitPostResponse.TITLEALREADYINUSE) {
+                                                this.postTitleError = "Title is already in use!";
+                                            }
+                                        });
+                                    });
+                            } else {
+                                this.showCloseIcon = true;
+                                setTimeout(() => {
+                                    this.showCloseIcon = false;
+                                }, 1000);
                             }
-                        });
-                } else {
-                    this.showTopicWrongIcon = true;
-                    setTimeout(() => {
-                        this.showTopicWrongIcon = false;
-                    }, 1000);
-                }
+
+                        }
+                    });
+            } else {
+                this.showTopicWrongIcon = true;
+                setTimeout(() => {
+                    this.showTopicWrongIcon = false;
+                }, 1000);
             }
         }
-    });
+    }
 </script>
 
 <style scoped>

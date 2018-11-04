@@ -1,4 +1,4 @@
-import "./createaccount";
-import "./login";
-import "./verifytoken";
-import "./verifyemail";
+import "./CreateAccount";
+import "./Login";
+import "./VerifyUserToken";
+import "./VerifyEmail";

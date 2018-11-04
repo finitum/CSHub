@@ -1,3 +1,3 @@
-import "./adminDashboard";
-import "./getUnverifiedPosts";
-import "./verifyPost";
+import "./GetAllUsers";
+import "./GetUnverifiedPosts";
+import "./VerifyPost";

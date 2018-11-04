@@ -9,4 +9,6 @@ export interface IPost {
     approved: boolean;
     upvotes: number;
     id: number;
+    postVersion: number;
+    htmlContent?: string;
 }

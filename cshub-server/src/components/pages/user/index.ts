@@ -1,2 +1,2 @@
-import "./userDashboard";
-import "./userDashboardChangePassword";
+import "./GetUserPosts";
+import "./ChangeUserPassword";

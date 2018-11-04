@@ -48,58 +48,76 @@
 
 <script lang="ts">
     import {Route} from "vue-router";
+    import {Component, Watch} from "vue-property-decorator";
+    import Vue from "vue";
 
     import NavDrawer from "./components/global/NavDrawer.vue";
     import Toolbar from "./components/global/Toolbar.vue";
 
-    import Vue from "vue";
     import uiState from "./store/ui";
-    import {Routes} from "./views/router/router";
     import {LocalStorageData} from "./store/localStorageData";
 
-    export default Vue.extend({
+    import {Routes} from "./views/router/router";
+
+    @Component({
         name: "App",
         components: {NavDrawer, Toolbar},
-        computed: {
-            drawerComputed: {
-                get(): boolean {
-                    return uiState.drawerState;
-                },
-                set(newValue: boolean) {
-                    uiState.setDrawerState(newValue);
-                }
+    })
+    export default class App extends Vue {
+
+        /**
+         * Data
+         */
+        private drawerActive = true;
+        private activeclass = "animated fadeInLeft";
+        private dialogOpen = false;
+
+        /**
+         * Computed properties
+         */
+        get drawerComputed(): boolean {
+            return uiState.drawerState;
+        }
+        set drawerComputed(newValue: boolean) {
+            uiState.setDrawerState(newValue);
+        }
+
+        /**
+         * Watchers
+         */
+        @Watch("$route")
+        private routeChanged(to: Route, from: Route) {
+            const excludeTransition = (from.fullPath === Routes.INDEX && to.name === "post") ||
+                (to.fullPath === Routes.INDEX && from.name === "post") ||
+                (from.name === "user" && to.name === "post") ||
+                (from.name === "admin" && to.name === "post") ||
+                (to.fullPath === Routes.SEARCH) ||
+                (from.fullPath === Routes.SEARCH);
+
+            if (excludeTransition) {
+                this.activeclass = "";
+            } else {
+                this.activeclass = "animated fadeInLeft";
             }
-        },
-        data() {
-            return {
-                drawerActive: true as boolean,
-                activeclass: "animated fadeInLeft" as string,
-                dialogOpen: false
-            };
-        },
-        mounted() {
+        }
+
+        /**
+         * Lifecycle hooks
+         */
+        private mounted() {
             if (localStorage.getItem(LocalStorageData.DIALOGOPENED) !== "true") {
                 this.dialogOpen = true;
             }
-        },
-        methods: {
-            closeDialog() {
-                this.dialogOpen = false;
-                localStorage.setItem(LocalStorageData.DIALOGOPENED, "true");
-            }
-        },
-        watch: {
-            $route(to: Route, from: Route) {
-                if (from.fullPath === Routes.INDEX && to.name === "post") {
-                    this.activeclass = "";
-                } else if (to.fullPath === Routes.INDEX && from.name === "post") {
-                    this.activeclass = "";
-                } else {
-                    this.activeclass = "animated fadeInLeft";
-                }
-            }
         }
-    });
+
+        /**
+         * Methods
+         */
+        private closeDialog() {
+            this.dialogOpen = false;
+            localStorage.setItem(LocalStorageData.DIALOGOPENED, "true");
+        }
+    }
 </script>
 <style>
     #app {
@@ -127,4 +145,15 @@
         border-radius: 10px;
         background: #6d6d6d;
     }
+
+    @font-face {
+        font-family: 'SailecLight';
+        src: url("plugins/quill/Sailec-Light.otf");
+    }
+
+    .ql-editor {
+        border: none;
+        font-family: 'SailecLight', sans-serif;
+    }
+
 </style>

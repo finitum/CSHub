@@ -1,243 +1,449 @@
 <template>
-    <div v-if="post !== null">
-        <v-card :class="{previewCard: !isFullPost, fullCard: isFullPost}" :style="{backgroundColor: backgroundColorComputed}" id="postCard">
-            <v-card-title primary-title id="postCardTitle">
-                <v-breadcrumbs divider="/" style="width: 100%" v-if="isFullPost">
-                    <v-btn color="primary" depressed small dark @click="returnToPostMenu">
-                        <v-icon>mdi-chevron-left</v-icon>
-                    </v-btn>
-                    <v-breadcrumbs-item
-                            v-for="item in topicNames"
-                            :key="item.index"
-                            :disabled="false"
-                    >
-                        <router-link :to="item.url">{{item.name}}</router-link>
-                    </v-breadcrumbs-item>
-                    <v-breadcrumbs-item
-                            :disabled="true"
-                    >
-                        {{post.title}}
-                    </v-breadcrumbs-item>
-                    <v-btn color="green" depressed small @click="verifyPost" v-if="!post.approved && userAdminComputed">
-                        <v-icon>mdi-check</v-icon>
-                    </v-btn>
-                    <v-btn color="orange" depressed small @click="editMode = true" v-if="userOwnsThisPostComputed || userAdminComputed">
-                        <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
-                    <v-btn v-if="editMode" depressed small color="primary" @click="editPost">
-                        <span>Submit</span>
-                    </v-btn>
-                </v-breadcrumbs>
-                <v-badge right color="green" overlap class="mr-3 pl-3">
-                    <span slot="badge">{{post.upvotes}}</span>
-                    <v-avatar
-                            :tile="false"
-                            :size="50"
-                            :class="{adminBorder: post.author.admin}"
-                    >
-                        <img :src="post.author.avatar" alt="avatar">
-                    </v-avatar>
-                </v-badge>
-                <div>
-                    <h3 class="headline mb-0">{{post.title}}</h3>
-                    <div>{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</div>
+    <div>
+        <div v-if="post !== null">
+            <!-- The following transition is just a trick so I get an event on the change from preview to full post (performance of the animation when the viewer is on is terrible) -->
+            <transition :duration="300" @before-leave="showContent = false" @before-enter="showContent = false" @after-enter="afterAnimation">
+                <div v-if="fullPostComputed"></div>
+            </transition>
+
+            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}" :id="'post_' + domId">
+                <v-card-title primary-title :id="'postTitle_' + domId" style="padding-bottom: 0;">
+                    <transition name="breadcrumb">
+                        <v-breadcrumbs divider="/" style="width: 100%" v-if="fullPostComputed">
+                            <v-btn color="primary" depressed small dark @click="returnToPostMenu">
+                                <v-icon>mdi-chevron-left</v-icon>
+                            </v-btn>
+                            <v-breadcrumbs-item
+                                    v-for="item in topicNames"
+                                    :key="item.index"
+                                    :disabled="false"
+                            >
+                                <router-link :to="item.url">{{item.name}}</router-link>
+                            </v-breadcrumbs-item>
+                            <v-breadcrumbs-item
+                                    :disabled="true"
+                            >
+                                {{post.title}}
+                            </v-breadcrumbs-item>
+                            <v-btn color="green" depressed small @click="verifyPost"
+                                   v-if="!post.approved && userAdminComputed">
+                                <v-icon>mdi-check</v-icon>
+                            </v-btn>
+                            <v-btn color="orange" depressed small @click="enableEdit"
+                                   v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
+                                <v-icon>mdi-pencil</v-icon>
+                            </v-btn>
+                            <v-btn v-if="editModeComputed" depressed small color="orange" @click="editPost">
+                                <v-icon>mdi-circle-edit-outline</v-icon>
+                            </v-btn>
+                            <v-btn depressed small color="primary" @click="viewEditDialog">
+                                <v-icon>mdi-playlist-edit</v-icon>
+                            </v-btn>
+                            <v-btn depressed small color="secondary" @click="fullScreenDialog = true">
+                                <v-icon>mdi-fullscreen</v-icon>
+                            </v-btn>
+                        </v-breadcrumbs>
+                    </transition>
+                    <v-badge right color="green" overlap class="mr-3 pl-3">
+                        <span slot="badge">{{post.upvotes}}</span>
+                        <v-avatar
+                                :tile="false"
+                                :size="50"
+                                :class="{adminBorder: post.author.admin}"
+                        >
+                            <img :src="post.author.avatar" alt="avatar">
+                        </v-avatar>
+                    </v-badge>
+                    <div>
+                        <h3 class="headline mb-0">{{post.title}}</h3><p v-if="!post.approved && fullPostComputed" style="color: grey">(unverified)</p>
+                        <div>{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</div>
+                    </div>
+                </v-card-title>
+
+                <v-container
+                    v-show="fullPostComputed"
+                    position="relative"
+                    class="scroll-y"
+                    :class="'postScrollWindow_' + domId"
+                    style="margin: 0; padding-top: 0; max-width: none; overflow-wrap: break-word"
+                >
+                    <v-layout
+                      column
+                      align-center
+                      justify-center
+                      v-scroll:#post-scroll-target>
+                        <v-card-text v-if="!loadingIcon" id="postCardText">
+                            <Quill key="editQuill" ref="editQuill" v-if="editModeComputed"
+                                   :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
+                                   :initialValue="editContent"></Quill>
+                            <div class="ql-editor">
+                                <div v-if="!editModeComputed" v-show="showContent" v-html="post.htmlContent"></div>
+                            </div>
+                        </v-card-text>
+                    </v-layout>
+                </v-container>
+                <div v-if="loadingIcon">
+                    <v-progress-circular
+                            :size="150"
+                            :width="5"
+                            color="primary"
+                            indeterminate
+                            style="width: 100%; margin: 10% auto;"
+                    ></v-progress-circular>
                 </div>
-            </v-card-title>
 
-            <v-card-text v-show="isFullPost" v-if="content !== null" id="postCardText">
-                <Quill key="editQuill" ref="editQuill" v-if="editMode" :editorSetup="{allowEdit: true, showToolbar: true}" :value="content"></Quill>
-                <Quill key="viewQuill" ref="viewQuill" v-if="!editMode" :editorSetup="{allowEdit: false, showToolbar: false}" :value="content"></Quill>
-            </v-card-text>
-
-            <v-card-actions>
-                <v-btn class="viewButton" flat color="primary" @click="navigateToPost" v-if="!isFullPost"><b>View</b></v-btn>
-            </v-card-actions>
-        </v-card>
+                <v-card-actions>
+                    <v-btn class="viewButton" flat color="primary" @click="navigateToPost" v-if="!fullPostComputed"><b>View</b>
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </div>
+        <div v-else-if="loadingIcon">
+            <v-progress-circular
+                    :size="150"
+                    :width="5"
+                    color="primary"
+                    indeterminate
+                    style="width: 100%; margin: 10% auto;"
+            ></v-progress-circular>
+        </div>
+        <PostEditsDialog :postHash="postHash"></PostEditsDialog>
+        <v-dialog v-model="fullScreenDialog" fullscreen hide-overlay transition="dialog-bottom-transition" v-if="post !== null">
+            <v-card>
+                <v-toolbar dark color="primary">
+                    <v-btn icon dark @click.native="fullScreenDialog = false">
+                        <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                    <v-toolbar-title>{{post.title}}</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                </v-toolbar>
+                <v-card-text>
+                    <div class="ql-editor">
+                        <div v-if="!editModeComputed && fullScreenDialog" v-html="post.htmlContent"></div>
+                    </div>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
 <script lang="ts">
     import Vue from "vue";
+    import localForage from "localforage";
+    import Delta from "quill-delta/dist/Delta";
+    import {Watch, Component, Prop} from "vue-property-decorator";
+    import {Route} from "vue-router";
+    import {AxiosError} from "axios";
 
     import Quill from "../quill/Quill.vue";
+    import PostEditsDialog from "./PostEditsDialog.vue";
 
-    import {ApiWrapper, LogObjectConsole, LogStringConsole} from "../../utilities";
     import {
-        PostCallBack,
-        PostRequest, VerifyPostCallBack,
-        VerifyPostRequest,
-        EditPostRequest, EditPostCallback, PostContentRequest, PostContentCallBack
+        EditPostCallback,
+        EditPost,
+        GetPostCallBack,
+        GetPost,
+        GetPostContentCallBack,
+        GetPostContent,
+        PostVersionTypes,
+        VerifyPostCallBack,
+        VerifyPost, GetEditContent, GetEditContentCallback
     } from "../../../../cshub-shared/api-calls";
     import {IPost, ITopic} from "../../../../cshub-shared/models";
+    import {getTopicFromHash} from "../../../../cshub-shared/utilities/Topics";
+
+    import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
+    import {CacheTypes} from "../../utilities/cache-types";
+    import {ImgurUpload} from "../../utilities/imgur";
+    import {idGenerator} from "../../utilities/id-generator";
+
     import {Routes} from "../../views/router/router";
+
     import dataState from "../../store/data";
     import userState from "../../store/user";
-    import Delta from "quill-delta/dist/Delta";
-    import {getTopicFromHash} from "../../../../cshub-shared/utilities/topics";
+    import uiState from "../../store/ui";
 
     interface IBreadCrumbType {
         name: string;
         url: string;
     }
 
-    export default Vue.extend({
+    @Component({
         name: "Post",
-        components: {Quill},
-        data() {
-            return {
-                post: null as IPost,
-                editMode: false as boolean,
-                topicNames: [] as IBreadCrumbType[],
-                content: null as Delta
-            };
-        },
-        props: {
-            postHash: Number,
-            isFullPost: Boolean
-        },
-        mounted() {
-            window.addEventListener("resize", this.windowHeightChanged);
+        components: {Quill, PostEditsDialog},
+    })
+    export default class Post extends Vue {
 
-            if (this.isFullPost) {
-                this.getFullPostRequest();
+        /**
+         * Data
+         */
+        @Prop(Number) private postHash: number;
+
+        private domId: string = idGenerator();
+        private post: IPost = null;
+        private topicNames: IBreadCrumbType[] = [];
+        private canResize = true;
+        private editContent: Delta = new Delta();
+        private showContent = true;
+        private loadingIcon = false;
+        private previousTopicURL = "";
+        private fullScreenDialog = false;
+
+        /**
+         * Computed properties
+         */
+        get userOwnsThisPostComputed(): boolean {
+            if (userState.userModel !== null) {
+                return userState.userModel.id === this.post.author.id;
             } else {
-                this.getPreviewPostRequest();
-            }
-        },
-        computed: {
-            backgroundColorComputed(): string {
-                return !this.post.approved ? "#FFD740" : "";
-            },
-            userOwnsThisPostComputed: {
-                get(): boolean {
-                    if (userState.userModel !== null) {
-                        return userState.userModel.id === this.post.author.id;
-                    } else {
-                        return false;
-                    }
-                }
-            },
-            userAdminComputed: {
-                get(): boolean {
-                    return userState.isAdmin;
-                }
-            }
-        },
-        methods: {
-            windowHeightChanged() {
-                // Calculate the right height for the postcardtext, 100px padding
-                LogStringConsole("Resizing viewport");
-                const newHeight = $("#postCard").height() - $("#postCardTitle").height() - 100;
-                $("#postCardText").height(newHeight);
-            },
-            verifyPost() {
-                ApiWrapper.sendPostRequest(new VerifyPostRequest(this.postHash), (callback: VerifyPostCallBack) => {
-                    LogStringConsole("Verified post");
-                    this.$router.push(Routes.INDEX);
-                });
-            },
-            returnToPostMenu() {
-                if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD)) {
-                    this.$router.go(-1);
-                } else {
-                    this.$emit("toggleFullPost", null);
-                }
-            },
-            getParentTopic(child: ITopic, topics: ITopic[]): ITopic {
-                for (const topic of topics) {
-                    if (topic.children !== undefined && topic.children.findIndex((x) => x.id === child.id) !== -1) {
-                        return topic;
-                    } else if (topic.children !== undefined && topic.children.length > 0) {
-                        const currTopic = this.getParentTopic(child, topic.children);
-                        if (currTopic !== null) {
-                            return currTopic;
-                        }
-                    }
-                }
-                return null;
-            },
-            getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
-                const parentTopic = this.getParentTopic(child, dataState.topics);
-
-                const currTopic: IBreadCrumbType = {
-                    name: child.name,
-                    url: `${Routes.TOPIC}/${child.hash}`
-                };
-
-                if (parentTopic !== null) {
-                    const parentArray: IBreadCrumbType[] = this.getTopicListWhereFinalChildIs(parentTopic);
-                    return [...parentArray, currTopic];
-                } else {
-                    return [currTopic];
-                }
-            },
-            editPost() {
-                LogStringConsole("Edited post");
-                const delta: Delta = (this.$refs as any).editQuill.getDelta();
-
-                ApiWrapper.sendPostRequest(new EditPostRequest(this.postHash, delta), (callbackData: EditPostCallback) => {
-                    this.$router.push(Routes.INDEX);
-                });
-
-            },
-            getPreviewPostRequest() {
-                ApiWrapper.sendPostRequest(new PostRequest(this.postHash, false), (callbackData: PostCallBack) => {
-                    this.post = callbackData.post;
-                    LogObjectConsole(callbackData.post, "PostPreview");
-
-                    this.getContentRequest();
-                });
-            },
-            getContentRequest() {
-                ApiWrapper.sendPostRequest(new PostContentRequest(this.postHash), (callbackContent: PostContentCallBack) => {
-                    LogStringConsole("Preview post gotten content");
-                    this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
-                    this.content = callbackContent.content;
-                });
-            },
-            getFullPostRequest() {
-                if (this.post === null) {
-                    ApiWrapper.sendPostRequest(new PostRequest(this.postHash, this.content === null), (callbackData: PostCallBack) => {
-
-                        LogObjectConsole(callbackData.post, `Getting data for ${callbackData.post.title} fullpostrequest`);
-
-                        const currTopic: ITopic = getTopicFromHash(callbackData.post.topicHash, dataState.topics);
-                        this.topicNames = this.getTopicListWhereFinalChildIs(currTopic);
-                        this.post = callbackData.post;
-
-                        if (this.content === null && callbackData.content !== null) {
-                            this.content = callbackData.content;
-                        }
-
-                        // Wait for one tick, then init height
-                        Vue.nextTick()
-                            .then(() => {
-                                this.windowHeightChanged();
-                            });
-                    });
-                } else if (this.content === null) {
-                    this.getContentRequest();
-                }
-
-                // Wait for one tick, then init height
-                Vue.nextTick()
-                    .then(() => {
-                        this.windowHeightChanged();
-                    });
-            },
-            navigateToPost(): void {
-                LogStringConsole(`Going to post ${this.post.title}`, "PostPreview navigateToPost");
-                this.getFullPostRequest();
-
-                if (!this.$router.currentRoute.path.includes(Routes.USERDASHBOARD) && !this.$router.currentRoute.path.includes(Routes.ADMINDASHBOARD)) {
-                    this.$router.push(`${Routes.POST}/${this.post.hash}`);
-                } else {
-                    this.$emit("toggleFullPost", this.post.hash);
-                }
-
+                return false;
             }
         }
-    });
+
+        get userAdminComputed(): boolean {
+            return userState.isAdmin;
+        }
+
+        get currentPostURLComputed(): string {
+            return `${Routes.POST}/${this.postHash}`;
+        }
+
+        get fullPostComputed(): boolean {
+            return this.$route.fullPath.includes(this.postHash.toString());
+        }
+
+        get editModeComputed(): boolean {
+            return this.$route.fullPath === `${this.currentPostURLComputed}/edit`;
+        }
+
+        get editsListComputed(): boolean {
+            return this.$route.fullPath === `${this.currentPostURLComputed}/edits`;
+        }
+
+        /**
+         * Watchers
+         */
+        @Watch("$route")
+        private routeChanged(to: Route, from: Route) {
+            if (this.fullPostComputed && (from.name === "topic" || from.fullPath === Routes.INDEX)) {
+                this.getContentRequest(this.post);
+                this.previousTopicURL = from.fullPath;
+            } else if (this.editsListComputed) {
+                this.previousTopicURL = Routes.INDEX;
+                this.viewEditDialog();
+            } else {
+                this.previousTopicURL = Routes.INDEX;
+            }
+        }
+
+        /**
+         * Lifecycle hooks
+         */
+        private mounted() {
+            window.addEventListener("resize", this.windowHeightChanged);
+            this.getPostRequest();
+
+            this.previousTopicURL = Routes.INDEX;
+
+            if (this.editModeComputed) {
+                this.enableEdit();
+            } else if (this.editsListComputed) {
+                uiState.setEditDialogState(true);
+            }
+        }
+
+        private updated() {
+            setTimeout(() => {
+                this.windowHeightChanged();
+            }, 500);
+        }
+
+        /**
+         * Methods
+         */
+        private windowHeightChanged() {
+            if (this.canResize) {
+                // Calculate the right height for the postcardtext, 100px padding
+                this.canResize = false;
+
+                const postCard = document.getElementById(`post_${this.domId}`);
+                const postCardTitle = document.getElementById(`postTitle_${this.domId}`);
+                if (postCard !== null && postCardTitle !== null) {
+                    const newHeight = postCard.clientHeight - postCardTitle.clientHeight - 50;
+
+                    (document.getElementsByClassName(`postScrollWindow_${this.domId}`).item(0) as HTMLElement).style.maxHeight = `${newHeight}px`;
+
+                    setTimeout(() => {
+                        this.canResize = true;
+                    }, 1000);
+                } else {
+                    this.canResize = true;
+                }
+            }
+        }
+
+        private verifyPost() {
+            ApiWrapper.sendPostRequest(new VerifyPost(this.postHash), (callback: VerifyPostCallBack) => {
+                logStringConsole("Verified post");
+                this.$router.push(Routes.INDEX);
+            });
+        }
+
+        private returnToPostMenu() {
+            this.$router.push(this.previousTopicURL);
+        }
+
+        private getParentTopic(child: ITopic, topics: ITopic[]): ITopic {
+            for (const topic of topics) {
+                if (topic.children !== undefined && topic.children.findIndex((x) => x.id === child.id) !== -1) {
+                    return topic;
+                } else if (topic.children !== undefined && topic.children.length > 0) {
+                    const currTopic = this.getParentTopic(child, topic.children);
+                    if (currTopic !== null) {
+                        return currTopic;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private enableEdit() {
+            ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
+                let baseDelta = new Delta(callbackData.edits[0].content);
+                for (let i = 1; i < callbackData.edits.length; i++) {
+                    baseDelta = baseDelta.compose(callbackData.edits[i].content);
+                }
+
+                this.editContent = baseDelta;
+
+                this.$router.push(`${this.currentPostURLComputed}/edit`);
+            });
+        }
+
+        private getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
+            const parentTopic = this.getParentTopic(child, dataState.topics);
+
+            const currTopic: IBreadCrumbType = {
+                name: child.name,
+                url: `${Routes.TOPIC}/${child.hash}`
+            };
+
+            if (parentTopic !== null) {
+                const parentArray: IBreadCrumbType[] = this.getTopicListWhereFinalChildIs(parentTopic);
+                return [...parentArray, currTopic];
+            } else {
+                return [currTopic];
+            }
+        }
+
+        private editPost() {
+            logStringConsole("Edited post");
+            const delta: Delta = (this.$refs as any).editQuill.getDelta();
+
+            ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
+                .then((newValue: Delta) => {
+                    const diff = this.editContent.diff(newValue);
+
+                    const html: string = (this.$refs as any).editQuill.getHTML();
+
+                    ApiWrapper.sendPostRequest(new EditPost(this.postHash, diff, html), (callbackData: EditPostCallback) => {
+                        this.$router.push(this.currentPostURLComputed);
+                        this.getPostRequest();
+                    });
+                });
+        }
+
+        private getPostRequest() {
+            localForage.getItem<IPost>(CacheTypes.POSTS + this.postHash)
+                .then((cachedValue: IPost) => {
+                    if (cachedValue === null || cachedValue.id === undefined) {
+                        ApiWrapper.sendPostRequest(new GetPost(this.postHash), (callbackData: GetPostCallBack) => {
+                            if (callbackData.post !== null) {
+                                this.post = callbackData.post;
+
+                                logObjectConsole(callbackData.post, "getPostRequest");
+
+                                if (this.fullPostComputed) {
+                                    this.getContentRequest(callbackData.post);
+                                }
+                            } else {
+                                this.$router.push(Routes.INDEX);
+                            }
+                        });
+                    } else {
+                        logStringConsole("Gotten post from cache", "getPostRequest");
+
+                        if (this.fullPostComputed) {
+                            this.getContentRequest(cachedValue);
+                        } else {
+                            this.post = cachedValue;
+                        }
+                    }
+                });
+        }
+
+        private getContentRequest(cachedValue: IPost) {
+            const timeOut = setTimeout(() => {
+                this.loadingIcon = true;
+            }, 250);
+
+            ApiWrapper.sendPostRequest(new GetPostContent(this.postHash, typeof cachedValue.htmlContent !== "string", cachedValue.postVersion), (callbackContent: GetPostContentCallBack) => {
+
+                clearTimeout(timeOut);
+                this.loadingIcon = false;
+
+                let hasBeenUpdated = false;
+
+                if (callbackContent.postVersionType === PostVersionTypes.POSTDELETED) {
+                    this.$router.push(Routes.INDEX);
+                } else if (callbackContent.postVersionType === PostVersionTypes.UPDATEDPOST) {
+                    this.post = callbackContent.postUpdated;
+                    this.post.htmlContent = callbackContent.content.html;
+                    this.post.approved = callbackContent.content.approved;
+                    hasBeenUpdated = true;
+                } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
+                    this.post = cachedValue;
+                    this.post.htmlContent = callbackContent.content.html;
+                    this.post.approved = callbackContent.content.approved;
+                    hasBeenUpdated = true;
+                } else if (callbackContent.postVersionType === PostVersionTypes.NOCHANGE) {
+                    this.post = cachedValue;
+                }
+
+                this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
+
+                if (hasBeenUpdated) {
+                    this.$forceUpdate();
+                    localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, this.post)
+                        .then(() => {
+                            logStringConsole("Changed post in cache", "getContentRequest");
+                        });
+                }
+            }, (err: AxiosError) => {
+
+                clearTimeout(timeOut);
+                this.loadingIcon = false;
+
+                this.post.htmlContent = cachedValue.htmlContent;
+                this.$forceUpdate();
+            });
+        }
+
+        private afterAnimation() {
+            this.showContent = true;
+        }
+
+        private viewEditDialog() {
+            this.$router.push(`${this.currentPostURLComputed}/edits`);
+            uiState.setEditDialogState(true);
+        }
+
+        private navigateToPost(): void {
+            logStringConsole(`Going to post ${this.post.title}`, "PostPreview navigateToPost");
+
+            this.$router.push(this.currentPostURLComputed);
+        }
+    }
 </script>
 
 <style scoped>
@@ -248,9 +454,11 @@
 
     .previewCard {
         position: relative;
+        max-height: 110px;
         width: 90%;
         overflow: hidden;
         margin: 20px 5% 20px 5%;
+        transition: 0.3s;
     }
 
     .fullCard {
@@ -260,6 +468,7 @@
         margin: 0;
         height: 100%;
         max-height: 100%;
+        transition: 0.3s;
     }
 
     .viewButton {
@@ -270,6 +479,25 @@
         text-align: right;
         margin: 0;
         padding: 0;
-        background-image: linear-gradient(to bottom, transparent, white);
+    }
+
+    .breadcrumb-enter-active {
+        transition: opacity .2s;
+    }
+    .breadcrumb-leave-active {
+        transition: opacity .1s;
+    }
+    .breadcrumb-enter, .breadcrumb-leave-to {
+        opacity: 0;
+    }
+
+    @font-face {
+        font-family: 'SailecLight';
+        src: url("../../plugins/quill/Sailec-Light.otf");
+    }
+
+    .ql-editor {
+        border: none;
+        font-family: 'SailecLight', sans-serif;
     }
 </style>

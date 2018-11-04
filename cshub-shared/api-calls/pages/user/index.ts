@@ -1,2 +1,2 @@
-export * from "./UserDashboardRequest";
-export * from "./UserDashboardChangePasswordRequest";
+export * from "./GetUserPosts";
+export * from "./ChangeUserPassword";

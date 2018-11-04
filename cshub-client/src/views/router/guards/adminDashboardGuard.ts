@@ -1,7 +1,7 @@
 import {Route} from "vue-router";
 import userState from "../../../store/user/index";
 import router, {Routes} from "../router";
-import {LogStringConsole} from "../../../utilities";
+import {logStringConsole} from "../../../utilities";
 
 export const adminBeforeEnter = (to: Route, from: Route, next: () => any) => {
     if (userState.isLoggedIn && userState.isAdmin) {
