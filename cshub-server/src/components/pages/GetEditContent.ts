@@ -12,6 +12,7 @@ import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/a
 // @ts-ignore
 import Delta from "quill-delta/dist/Delta";
 import moment, {Moment} from "moment";
+import {IEdit} from "../../../../cshub-shared/models";
 
 app.post(GetEditContent.getURL, (req: Request, res: Response) => {
 
@@ -26,33 +27,48 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
             .then((approved: postAccessType) => {
                 if (approved.access) {
                     query(`
-                      SELECT T1.content, T1.datetime
+                      SELECT T1.content,
+                             T1.datetime,
+                             T1.post,
+                             T1.approved,
+                             T1.id,
+                             T1.datetime,
+                             T3.id        AS authorId,
+                             T3.firstname AS authorFirstName,
+                             T3.lastname  AS authorLastName,
+                             T3.avatar    AS authorAvatar,
+                             T3.admin     AS authorAdmin
                       FROM edits T1
                              INNER JOIN posts T2 ON T1.post = T2.id
+                             INNER JOIN users T3 ON T1.editedBy = T3.id
                       WHERE T2.hash = ?
                     `, getEditContent.postHash)
-                        .then((deltas: DatabaseResultSet) => {
+                        .then((edits: DatabaseResultSet) => {
 
-                            const deltaArray: {delta: Delta, datetime: Moment}[] = [];
+                            const editArray: IEdit[] = [];
 
-                            for (const delta of deltas.convertRowsToResultObjects()) {
-                                deltaArray.push({
-                                    delta: JSON.parse(delta.getStringFromDB("content")),
-                                    datetime: moment(delta.getStringFromDB("datetime"))
+                            for (const edit of edits.convertRowsToResultObjects()) {
+                                editArray.push({
+                                    parentPostId: edit.getNumberFromDB("post"),
+                                    content: JSON.parse(edit.getStringFromDB("content")),
+                                    datetime: moment(edit.getStringFromDB("datetime")),
+                                    editedBy: {
+                                        id: edit.getNumberFromDB("authorId"),
+                                        firstname: edit.getStringFromDB("authorFirstName"),
+                                        lastname: edit.getStringFromDB("authorLastName"),
+                                        avatar: edit.getStringFromDB("authorAvatar"),
+                                        admin: edit.getNumberFromDB("authorAdmin") === 1
+                                    },
+                                    id: edit.getNumberFromDB("id"),
+                                    approved: edit.getNumberFromDB("approved") === 1
                                 });
                             }
 
-                            deltaArray.sort((left, right) => {
+                            editArray.sort((left, right) => {
                                 return moment.utc(left.datetime).diff(moment.utc(right.datetime))
                             });
 
-                            const deltaSorted: Delta[] = [];
-
-                            for (const delta of deltaArray) {
-                                deltaSorted.push(delta.delta);
-                            }
-
-                            res.json(new GetEditContentCallback(deltaSorted));
+                            res.json(new GetEditContentCallback(editArray));
                         })
                         .catch(err => {
                             logger.error(`Editing failed`);

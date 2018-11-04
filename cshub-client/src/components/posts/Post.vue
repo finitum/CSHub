@@ -36,6 +36,9 @@
                             <v-btn v-if="editModeComputed" depressed small color="orange" @click="editPost">
                                 <v-icon>mdi-circle-edit-outline</v-icon>
                             </v-btn>
+                            <v-btn depressed small color="primary" @click="viewEditDialog">
+                                <v-icon>mdi-playlist-edit</v-icon>
+                            </v-btn>
                         </v-breadcrumbs>
                     </transition>
                     <v-badge right color="green" overlap class="mr-3 pl-3">
@@ -99,6 +102,7 @@
                     style="width: 100%; margin: 10% auto;"
             ></v-progress-circular>
         </div>
+        <PostEditsDialog :postHash="postHash"></PostEditsDialog>
     </div>
 </template>
 
@@ -130,6 +134,8 @@
     import {AxiosError} from "axios";
     import {ImgurUpload} from "../../utilities/imgur";
     import {Route} from "vue-router";
+    import PostEditsDialog from "./PostEditsDialog.vue";
+    import uiState from "../../store/ui";
 
     interface IBreadCrumbType {
         name: string;
@@ -138,7 +144,7 @@
 
     export default Vue.extend({
         name: "Post",
-        components: {Quill},
+        components: {Quill, PostEditsDialog},
         data() {
             return {
                 post: null as IPost,
@@ -146,7 +152,8 @@
                 editContent: {} as Delta,
                 showContent: true,
                 topicNames: [] as IBreadCrumbType[],
-                loadingIcon: false
+                loadingIcon: false,
+                previousTopicURL: "" as string
             };
         },
         props: {
@@ -156,8 +163,12 @@
             window.addEventListener("resize", this.windowHeightChanged);
             this.getPostRequest();
 
+            this.previousTopicURL = Routes.INDEX;
+
             if (this.editModeComputed) {
                 this.enableEdit();
+            } else if (this.editsListComputed) {
+                uiState.setEditDialogState(true);
             }
         },
         computed: {
@@ -187,7 +198,12 @@
             },
             editModeComputed: {
                 get(): boolean {
-                    return this.$route.fullPath.includes(`${this.postHash}/edit`);
+                    return this.$route.fullPath === `${this.currentPostURLComputed}/edit`;
+                }
+            },
+            editsListComputed: {
+                get(): boolean {
+                    return this.$route.fullPath === `${this.currentPostURLComputed}/edits`;
                 }
             }
         },
@@ -195,6 +211,12 @@
             $route(to: Route, from: Route) {
                 if (this.fullPostComputed && (from.name === "topic" || from.fullPath === Routes.INDEX)) {
                     this.getContentRequest(this.post);
+                    this.previousTopicURL = from.fullPath;
+                } else if (this.editsListComputed) {
+                    this.previousTopicURL = Routes.INDEX;
+                    this.viewEditDialog();
+                } else {
+                    this.previousTopicURL = Routes.INDEX;
                 }
             }
         },
@@ -230,7 +252,8 @@
                 });
             },
             returnToPostMenu() {
-                this.$router.go(-1);
+                console.log(this.previousTopicURL);
+                this.$router.push(this.previousTopicURL);
             },
             getParentTopic(child: ITopic, topics: ITopic[]): ITopic {
                 for (const topic of topics) {
@@ -247,9 +270,9 @@
             },
             enableEdit() {
                 ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
-                    let baseDelta = new Delta(callbackData.deltas[0]);
-                    for (let i = 1; i < callbackData.deltas.length; i++) {
-                        baseDelta = baseDelta.compose(callbackData.deltas[i]);
+                    let baseDelta = new Delta(callbackData.edits[0].content);
+                    for (let i = 1; i < callbackData.edits.length; i++) {
+                        baseDelta = baseDelta.compose(callbackData.edits[i].content);
                     }
 
                     this.editContent = baseDelta;
@@ -371,6 +394,10 @@
             },
             afterAnimation() {
                 this.showContent = true;
+            },
+            viewEditDialog() {
+                this.$router.push(`${this.currentPostURLComputed}/edits`);
+                uiState.setEditDialogState(true);
             },
             navigateToPost(): void {
                 logStringConsole(`Going to post ${this.post.title}`, "PostPreview navigateToPost");

@@ -5,12 +5,14 @@ export interface IUIState {
     navbar: {
         open: boolean
     };
+    editDialogState: boolean;
 }
 
 export const UIState: IUIState = {
     navbar: {
         open: null
-    }
+    },
+    editDialogState: false
 };
 
 export const uiStoreBuilder = getStoreBuilder<IRootState>().module("ui", UIState);

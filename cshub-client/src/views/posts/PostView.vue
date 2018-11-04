@@ -62,7 +62,7 @@
         },
         methods: {
             doOnRouteChange() {
-                const currentHash = +this.$route.params.hash
+                const currentHash = +this.$route.params.hash;
                 if (this.$router.currentRoute.fullPath.includes(Routes.POST)) {
                     this.currentTopicHash = -1;
                     if (this.postHashes.length === 0) {

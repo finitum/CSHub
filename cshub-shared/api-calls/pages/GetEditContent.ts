@@ -1,12 +1,11 @@
 import {IApiRequest} from "../../models/IApiRequest";
 import {AuthRequests} from "../AuthRequests";
 
-// @ts-ignore
-import Delta from "quill-delta/dist/Delta";
+import {IEdit} from "../../models";
 
 export class GetEditContentCallback {
 
-    constructor(public deltas: Delta[]) {}
+    constructor(public edits: IEdit[]) {}
 }
 
 export class GetEditContent implements IApiRequest {
