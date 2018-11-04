@@ -15,27 +15,36 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import uiState from "../../store/ui/index";
-    import router, {Routes} from "../../views/router/router";
 
-    export default Vue.extend({
-        name: "Toolbar",
-        methods: {
-            routeHome() {
-                router.push(Routes.INDEX);
-            }
-        },
-        computed: {
-            drawerComputed: {
-                get(): boolean {
-                    return uiState.drawerState;
-                },
-                set(newValue: boolean) {
-                    uiState.setDrawerState(newValue);
-                }
-            }
-        },
-    });
+    import uiState from "../../store/ui/index";
+
+    import router, {Routes} from "../../views/router/router";
+    import {Component} from "vue-property-decorator";
+
+    @Component({
+        name: "Toolbar"
+    })
+    export default class Toolbar extends Vue {
+
+        /**
+         * Computed properties
+         */
+        get drawerComputed(): boolean {
+            return uiState.drawerState;
+        }
+
+        set drawerComputed(newValue: boolean) {
+            uiState.setDrawerState(newValue);
+        }
+
+        /**
+         * Methods
+         */
+        private routeHome() {
+            router.push(Routes.INDEX);
+        }
+
+    }
 </script>
 
 <style scoped>

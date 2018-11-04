@@ -60,12 +60,17 @@
 <script lang="ts">
     import Vue from "vue";
     import localForage from "localforage";
+    import {AxiosError} from "axios";
+    import {Route} from "vue-router";
 
-    import {ITopic, IUser} from "../../../../cshub-shared/models";
     import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
+    import {CacheTypes} from "../../utilities/cache-types";
+
+    import {ITopic} from "../../../../cshub-shared/models";
     import {
         GetTopicsCallBack,
-        GetTopics} from "../../../../cshub-shared/api-calls";
+        GetTopics
+    } from "../../../../cshub-shared/api-calls";
 
     import NavDrawerItem from "./NavDrawerItem.vue";
 
@@ -74,70 +79,75 @@
     import userState from "../../store/user";
 
     import {Routes} from "../../views/router/router";
-    import {Route} from "vue-router";
     import {AdminRoutes} from "../../views/router/adminRoutes";
-    import {CacheTypes} from "../../utilities/cache-types";
-    import {AxiosError} from "axios";
+    import {Component, Watch} from "vue-property-decorator";
 
-    export default Vue.extend({
+    @Component({
         name: "NavDrawer",
-        components: {NavDrawerItem},
-        data() {
-            return {
-                activeTopicHash: [],
-                topics: [] as ITopic[],
-                items: [],
-                navigationLocations: Routes,
-                adminRoutes: AdminRoutes
-            };
-        },
-        computed: {
-            drawerComputed: {
-                get(): boolean {
-                    return uiState.drawerState;
-                },
-                set(newValue: boolean) {
-                    uiState.setDrawerState(newValue);
-                }
-            },
-            userLoggedInComputed: {
-                get(): boolean {
-                    return userState.isLoggedIn;
-                }
-            },
-            userAdminComputed: {
-                get(): boolean {
-                    return userState.isAdmin;
+        components: {NavDrawerItem}
+    })
+    export default class NavDrawer extends Vue {
+
+        /**
+         * Data
+         */
+        private activeTopicHash: number[] = [];
+        private topics: ITopic[] = [];
+        private navigationLocations = Routes;
+        private adminRoutes = AdminRoutes;
+
+        /**
+         * Computed properties
+         */
+        get drawerComputed(): boolean {
+            return uiState.drawerState;
+        }
+
+        set drawerComputed(newValue: boolean) {
+            uiState.setDrawerState(newValue);
+        }
+
+        get userLoggedInComputed(): boolean {
+            return userState.isLoggedIn;
+        }
+
+        get userAdminComputed(): boolean {
+            return userState.isAdmin;
+        }
+
+        /**
+         * Watchers
+         */
+        @Watch("$route")
+        private routeChanged(to: Route, from: Route) {
+            if (to.fullPath.includes(Routes.TOPIC)) {
+                this.activeTopicHash = [+to.params.hash]; // Perhaps do not use this later on, but doing this through the store
+            } else if (to.fullPath === Routes.INDEX) {
+                this.activeTopicHash = [0];
+            } else {
+                this.activeTopicHash = [-1];
+            }
+        }
+
+        @Watch("activeTopicHash")
+        private activeTopicHashChanged(hash: number[]) {
+            if (hash.length !== 0 && hash[0] > 0) {
+                if (!this.$router.currentRoute.fullPath.includes(Routes.TOPIC) || hash[0] !== +this.$router.currentRoute.params.hash) {
+                    this.$router.push(`${Routes.TOPIC}/${hash[0]}`);
                 }
             }
-        },
-        watch: {
-            $route(to: Route, from: Route) {
-                if (to.fullPath.includes(Routes.TOPIC)) {
-                    this.activeTopicHash = [+to.params.hash]; // Perhaps do not use this later on, but doing this through the store
-                } else if (to.fullPath === Routes.INDEX) {
-                    this.activeTopicHash = [0];
-                } else {
-                    this.activeTopicHash = [-1];
-                }
-            },
-            activeTopicHash(hash: number[]) {
-                if (hash.length !== 0 && hash[0] > 0) {
-                    if (!this.$router.currentRoute.fullPath.includes(Routes.TOPIC) || hash[0] !== +this.$router.currentRoute.params.hash) {
-                        this.$router.push(`${Routes.TOPIC}/${hash[0]}`);
-                    }
-                }
-            }
-        },
-        mounted() {
+        }
+
+        /**
+         * Lifecycle hooks
+         */
+        private mounted() {
             type topicCache = {
                 version: number,
                 topics: ITopic[]
             };
 
-            localForage.getItem(CacheTypes.TOPICS)
-                // The compiler is unaware of localForage it seems, so:
-                // @ts-ignore
+            localForage.getItem<topicCache>(CacheTypes.TOPICS)
                 .then((value: topicCache) => {
 
                     let currentVersion = -1;
@@ -168,7 +178,7 @@
                         }
 
                         if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
-                            this.activeTopicHash = [this.$router.currentRoute.params.hash];
+                            this.activeTopicHash = [+this.$router.currentRoute.params.hash];
                         }
 
                         logObjectConsole(this.topics, "NavDrawer mounted");
@@ -181,8 +191,14 @@
                     });
                 });
         }
-    });
+    }
 </script>
 
-<style scoped>
+<style>
+    .v-treeview-node__label {
+        caret-color: #9e9e9e!important;
+        font-size: 13px;
+        color: #9e9e9e!important;
+        font-weight: 500;
+    }
 </style>

@@ -24,54 +24,65 @@
 
 <script lang="ts">
     import Vue from "vue";
+    import {Component, Watch} from "vue-property-decorator";
+
     import {ApiWrapper} from "../../utilities";
+
     import {GetAllUsersCallBack, GetAllUsers} from "../../../../cshub-shared/api-calls/admin";
     import {IUser} from "../../../../cshub-shared/models";
 
-    export default Vue.extend({
-        name: "userTable",
-        data() {
-            return {
-                items: [] as IUser[],
-                pagination: {} as any,
-                headers: [
-                    {text: "Id", value: "id"},
-                    {text: "First name", value: "firstname"},
-                    {text: "Last name", value: "lastname"},
-                    {text: "Email", value: "email"},
-                    {text: "Admin", value: "admin"},
-                    {text: "Avatar", value: "avatar"},
-                    {text: "Blocked", value: "blocked"},
-                    {text: "Verified", value: "verified"}
-                ],
-                loading: true,
-                amountItems: 0 as number
-            };
-        },
-        watch: {
-            pagination: {
-                handler() {
-                    this.getData(this.pagination.rowsPerPage, this.pagination.page);
-                },
-                deep: true
-            }
-        },
-        methods: {
-            getData(rowsPerPage: number, page: number) {
-                this.loading = true;
-                ApiWrapper.sendPostRequest(new GetAllUsers(rowsPerPage, page), (callback: GetAllUsersCallBack) => {
-                    this.items = callback.users;
-                    this.amountItems = callback.totalItems;
-                    this.loading = false;
-                });
-            }
-        },
-        mounted() {
+    @Component({
+        name: "userTable"
+    })
+    export default class UserTable extends Vue {
+
+        /**
+         * Data
+         */
+        private items: IUser[] = [];
+        private pagination: any = {};
+        private readonly headers = [
+            {text: "Id", value: "id"},
+            {text: "First name", value: "firstname"},
+            {text: "Last name", value: "lastname"},
+            {text: "Email", value: "email"},
+            {text: "Admin", value: "admin"},
+            {text: "Avatar", value: "avatar"},
+            {text: "Blocked", value: "blocked"},
+            {text: "Verified", value: "verified"}
+        ];
+        private loading = true;
+        private amountItems: number = 0;
+
+        /**
+         * Watchers
+         */
+        @Watch("pagination", {deep: true})
+        private paginationChanged(newValue: any) {
+            this.getData(newValue.rowsPerPage, newValue.page);
+        }
+
+        /**
+         * Lifecycle hooks
+         */
+        private mounted() {
             this.getData(this.pagination.rowsPerPage, this.pagination.page);
         }
-    });
+
+
+        /**
+         * Methods
+         */
+        private getData(rowsPerPage: number, page: number) {
+            this.loading = true;
+            ApiWrapper.sendPostRequest(new GetAllUsers(rowsPerPage, page), (callback: GetAllUsersCallBack) => {
+                this.items = callback.users;
+                this.amountItems = callback.totalItems;
+                this.loading = false;
+            });
+        }
+    }
 </script>
 
 <style scoped>
-
 </style>

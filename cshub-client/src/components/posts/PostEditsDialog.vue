@@ -33,7 +33,7 @@
                         </transition>
                     </div>
                 </v-timeline>
-                <Quill key="currEditQuill" ref="currEditQuill" v-if="showIndex !== -1 && initQuill"
+                <Quill key="currEditQuill" ref="currEditQuill" v-if="showIndex !== -1 && (initQuill || edits.length === 1)"
                        :editorSetup="{allowEdit: false, showToolbar: false, postHash}"
                        :value="edits[showIndex].content"></Quill>
             </v-card-text>
