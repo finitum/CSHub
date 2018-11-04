@@ -258,12 +258,12 @@
                 }
             },
             initRequirements() {
-                // Assign jquery and katex for use by mathquillMin
+                // Assign jquery and katex for use by mathquill
                 window.jQuery = JQuery;
                 window.katex = katex;
 
                 mathquill(); // Load mathquillMin after jquery and katex were defined
-                mathquill4quill(Quill, window.MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
+                mathquill4quill(Quill, window.MathQuill); // Load mathquill4quill after all its dependencies are accounted for
             },
             initQuill() {
                 // Set options and override the default with the user specified ones (Order of importance if right to left)
@@ -279,7 +279,7 @@
                 this.editor = new Quill(`#${this.quillId} .editor`, this._options);
 
                 // @ts-ignore
-                this.editor.enableMathQuillFormulaAuthoring(); // Enable mathquill4quillMin
+                this.editor.enableMathQuillFormulaAuthoring(); // Enable mathquill4quill
                 this.editor.enable(false); // Hide it before we set the content
 
                 // Set the content (with input a quill delta object)
