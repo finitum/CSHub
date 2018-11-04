@@ -255,11 +255,7 @@
         private updated() {
             setTimeout(() => {
                 this.windowHeightChanged();
-            }, 500)
-        }
-
-        private beforeDestroy() {
-            clearInterval(this.heightChangedInterval);
+            }, 500);
         }
 
         /**

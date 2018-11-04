@@ -83,7 +83,7 @@
          * Methods
          */
         private windowHeightChanged() {
-            // Getting the window height, subtracting 300 pixels. Then dividing by 100 for a very wild guess of amount of possible cards on this screen
+            // Getting the window height, subtracting 350 pixels. Then dividing by 100 for a very wild guess of amount of possible cards on this screen
             let range = Math.floor((window.innerHeight - 350) / 100);
             if (range === 0) {
                 range++;
