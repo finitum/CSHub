@@ -5,14 +5,14 @@
                 <v-btn icon dark @click.native="dialogActive = false">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
-                <v-toolbar-title>Settings</v-toolbar-title>
+                <v-toolbar-title>Edits</v-toolbar-title>
                 <v-spacer></v-spacer>
             </v-toolbar>
             <v-card-text>
                 <v-timeline dense clipped>
 
                     <div v-for="(edit, index) in edits">
-                        <transition name="editList">
+                        <transition name="editList" @before-leave="initQuill = false" @before-enter="initQuill = false" @after-leave="initQuill = true">
                             <v-timeline-item
                                     v-show="showIndex === -1 || showIndex === index"
                                     class="mb-3"
@@ -33,7 +33,7 @@
                         </transition>
                     </div>
                 </v-timeline>
-                <Quill key="currEditQuill" ref="currEditQuill" v-if="showIndex !== -1"
+                <Quill key="currEditQuill" ref="currEditQuill" v-if="showIndex !== -1 && initQuill"
                        :editorSetup="{allowEdit: false, showToolbar: false, postHash}"
                        :value="edits[showIndex].content"></Quill>
             </v-card-text>
@@ -64,8 +64,9 @@
         data() {
             return {
                 edits: [] as IEdit[],
-                showIndex: -1
-            }
+                showIndex: -1,
+                initQuill: false
+            };
         },
         computed: {
             dialogActive: {
@@ -80,47 +81,45 @@
         },
         watch: {
             dialogActive(newVal: boolean) {
-                ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
+                if (newVal) {
+                    ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
 
-                    let previousDelta = new Delta(JSON.parse(JSON.stringify(callbackData.edits[0].content)));
+                        let previousDelta = new Delta(JSON.parse(JSON.stringify(callbackData.edits[0].content)));
 
-                    for (let i = 1; i < callbackData.edits.length; i++) {
+                        for (let i = 1; i < callbackData.edits.length; i++) {
 
-                        let currContent = callbackData.edits[i].content;
-                        let originalContent = JSON.parse(JSON.stringify(callbackData.edits[i].content));
+                            let currContent = callbackData.edits[i].content;
+                            const originalContent = JSON.parse(JSON.stringify(callbackData.edits[i].content));
 
-                        for (const op of currContent.ops) {
-                            // if the change was an insertion
-                            if (op.hasOwnProperty('insert')) {
-                                // color it green
-                                op.attributes = {
-                                    background: "#cce8cc",
-                                    color: "#003700"
-                                };
+                            for (const op of currContent.ops) {
+                                if (op.hasOwnProperty("insert")) {
+                                    op.attributes = {
+                                        ...op.attributes,
+                                        background: "#65e832",
+                                        color: "#003700"
+                                    };
+                                }
+                                if (op.hasOwnProperty("delete")) {
+                                    op.retain = op.delete;
+                                    delete op.delete;
+                                    op.attributes = {
+                                        ...op.attributes,
+                                        background: "#e8553e",
+                                        color: "#370000",
+                                        strike: true
+                                    };
+                                }
                             }
-                            // if the change was a deletion
-                            if (op.hasOwnProperty('delete')) {
-                                // keep the text
-                                op.retain = op.delete;
-                                delete op.delete;
-                                // but color it red and struckthrough
-                                op.attributes = {
-                                    background: "#e8cccc",
-                                    color: "#370000",
-                                    strike: true
-                                };
-                            }
+
+                            callbackData.edits[i].content = previousDelta.compose(currContent);
+                            previousDelta = previousDelta.compose(originalContent);
                         }
 
-                        currContent = previousDelta.compose(currContent);
-                        previousDelta = previousDelta.compose(originalContent);
-                    }
-
-
-                    console.log(callbackData.edits)
-
-                    this.edits = callbackData.edits;
-                });
+                        this.edits = callbackData.edits;
+                    });
+                } else {
+                    this.showIndex = -1;
+                }
             }
         }
     });

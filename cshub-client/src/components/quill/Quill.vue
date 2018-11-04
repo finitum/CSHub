@@ -203,14 +203,16 @@
 
         mounted() {
 
-            this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
-            localForage.getItem(this.postHashCacheItemID)
-                .then((cachedDraft) => {
-                    if (cachedDraft !== null) {
-                        this.loadDraftDialog = true;
-                        this.draftValue = cachedDraft;
-                    }
-                });
+            if (this.editorSetup.allowEdit) {
+                this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
+                localForage.getItem(this.postHashCacheItemID)
+                    .then((cachedDraft) => {
+                        if (cachedDraft !== null) {
+                            this.loadDraftDialog = true;
+                            this.draftValue = cachedDraft;
+                        }
+                    });
+            }
 
             logStringConsole("Mounted quill with edit: " + this.editorSetup.allowEdit);
 
