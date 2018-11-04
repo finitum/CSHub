@@ -247,11 +247,20 @@
          */
         private getHTML() {
             const node = this.editor.container.firstChild;
+
+            // Converts the classes of all the code blocks so that hljs can highlight them properly
             const codes = node.getElementsByClassName("ql-code-block");
             for (const code of codes) {
                 const lang = code.attributes.getNamedItem("data-language") ? code.attributes.getNamedItem("data-language").value : "";
                 code.className += " hljs " + lang;
             }
+
+            // Removes all select tags as they are not needed in viewing the post
+            const selects = document.getElementsByTagName("select");
+            for (let i = 0, len = selects.length; i !== len; ++i) {
+                selects[0].parentNode.removeChild(selects[0]);
+            }
+
             return node.innerHTML; // Doesn't have images replaced
         }
 
@@ -343,25 +352,11 @@
 </script>
 
 <style scoped>
-    @font-face {
-        font-family: 'SailecLight';
-        src: url("../../plugins/quill/Sailec-Light.otf");
-    }
-
-    #snow-wrapper, .editor {
-        border: none;
-        font-family: 'SailecLight', sans-serif;
-    }
-
     .editor {
         /* Specify a sane default height and width */
         min-height: 100px;
         height: 100%;
         /*width: 70vw;*/
-    }
-
-    td {
-        border: 1px solid rgba(0, 0, 0, 0.12) !important;
     }
 
     #tableButton {

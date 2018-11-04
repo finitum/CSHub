@@ -143,4 +143,15 @@
         border-radius: 10px;
         background: #6d6d6d;
     }
+
+    @font-face {
+        font-family: 'SailecLight';
+        src: url("plugins/quill/Sailec-Light.otf");
+    }
+
+    .ql-editor {
+        border: none;
+        font-family: 'SailecLight', sans-serif;
+    }
+
 </style>
