@@ -88,7 +88,7 @@
 
                         for (let i = 1; i < callbackData.edits.length; i++) {
 
-                            let currContent = callbackData.edits[i].content;
+                            const currContent = callbackData.edits[i].content;
                             const originalContent = JSON.parse(JSON.stringify(callbackData.edits[i].content));
 
                             for (const op of currContent.ops) {

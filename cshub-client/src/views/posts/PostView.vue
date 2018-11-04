@@ -66,7 +66,7 @@
                 if (this.$router.currentRoute.fullPath.includes(Routes.POST)) {
                     this.currentTopicHash = -1;
                     if (this.postHashes.length === 0) {
-                        this.postHashes = [currentHash]
+                        this.postHashes = [currentHash];
                     }
                     this.currentPostHash = currentHash;
                 } else if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {

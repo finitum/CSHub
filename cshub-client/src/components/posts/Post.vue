@@ -252,7 +252,6 @@
                 });
             },
             returnToPostMenu() {
-                console.log(this.previousTopicURL);
                 this.$router.push(this.previousTopicURL);
             },
             getParentTopic(child: ITopic, topics: ITopic[]): ITopic {
