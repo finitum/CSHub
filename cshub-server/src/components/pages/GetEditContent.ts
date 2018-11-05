@@ -22,7 +22,7 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
 
     const inputsValidation = validateMultipleInputs({input: getEditContent.postHash});
 
-    if (inputsValidation.valid && userObj.valid) {
+    if (inputsValidation.valid) {
         hasAccessToPost(getEditContent.postHash, req.cookies["token"])
             .then((approved: postAccessType) => {
                 if (approved.access) {
