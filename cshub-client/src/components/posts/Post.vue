@@ -228,7 +228,10 @@
             if (this.editModeComputed) {
                 this.enableEdit();
             } else if (this.editsListComputed) {
-                uiState.setEditDialogState(true);
+                uiState.setEditDialogState({
+                    on: true,
+                    hash: this.postHash
+                });
             }
         }
 
@@ -415,7 +418,10 @@
 
         private viewEditDialog() {
             this.$router.push(`${this.currentPostURLComputed}/edits`);
-            uiState.setEditDialogState(true);
+            uiState.setEditDialogState({
+                on: true,
+                hash: this.postHash
+            });
         }
 
         private navigateToPost(): void {

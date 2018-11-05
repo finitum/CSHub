@@ -1,9 +1,9 @@
 <template>
-    <v-dialog v-model="dialogActive" fullscreen hide-overlay transition="dialog-bottom-transition">
+    <v-dialog v-model="dialogActive.on" fullscreen hide-overlay transition="dialog-bottom-transition">
         <v-card>
             <v-toolbar dark color="primary">
-                <v-btn icon dark @click.native="dialogActive = false">
-                    <v-icon>fas fa-close</v-icon>
+                <v-btn icon dark @click.native="dialogActive = {on: false, hash: -1}">
+                    <v-icon>fas fa-times</v-icon>
                 </v-btn>
                 <v-toolbar-title>Edits</v-toolbar-title>
                 <v-spacer></v-spacer>
@@ -52,6 +52,7 @@
     import {IEdit} from "../../../../cshub-shared/models";
 
     import uiState from "../../store/ui";
+    import {editDialogType} from "../../store/ui/state";
 
     import {Routes} from "../../views/router/router";
 
@@ -78,13 +79,16 @@
         /**
          * Computed properties
          */
-        get dialogActive(): boolean {
+        get dialogActive(): editDialogType {
             return uiState.editDialogState;
         }
 
-        set dialogActive(value: boolean) {
-            this.$router.push(`${Routes.POST}/${this.postHash}`);
-            uiState.setEditDialogState(value);
+        set dialogActive(value: editDialogType) {
+            if (!value.on) {
+                this.$router.push(`${Routes.POST}/${this.postHash}`);
+                uiState.setEditDialogState(value);
+            }
+
         }
 
         /**
@@ -92,7 +96,7 @@
          */
         @Watch("dialogActive")
         private dialogActiveChanged(newVal: boolean) {
-            if (newVal) {
+            if (newVal && this.dialogActive.hash === this.postHash) {
                 ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
 
                     let previousDelta = new Delta(JSON.parse(JSON.stringify(callbackData.edits[0].content)));

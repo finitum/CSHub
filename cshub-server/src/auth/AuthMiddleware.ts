@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import moment from "moment";
+import dayjs from "dayjs";
 
 import {IJWTToken} from "../../../cshub-shared/models/IJWTToken";
 
@@ -45,7 +45,7 @@ export const checkTokenValidity = (req: Request): {valid: boolean, tokenObj?: IJ
 
         const tokenObj: IJWTToken = validateAccessToken(req.cookies.token);
 
-        if (tokenObj !== undefined && moment.unix(tokenObj.expirydate).isAfter(moment())) {
+        if (tokenObj !== undefined && dayjs(tokenObj.expirydate).isAfter(dayjs())) {
             return {valid: true, tokenObj};
         } else {
             return {valid: false};
