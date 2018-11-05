@@ -138,6 +138,12 @@
     import Delta from "quill-delta/dist/Delta";
     import {Component, Prop} from "vue-property-decorator";
 
+    import katex from "katex";
+    import "katex/dist/katex.min.css";
+
+    import Quill from "quill";
+    import "quill/dist/quill.snow.css";
+
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
     import {ImageResize} from "../../plugins/quill/ImageResize.min";
     import {QuillOptionsStatic, Sources} from "../../plugins/quill/quill";
@@ -148,8 +154,8 @@
     import {logStringConsole} from "../../utilities";
     import {idGenerator} from "../../utilities/id-generator";
 
-    const Quill = (window as any).Quill;
-    Quill.register("modules/resize", ImageResize);
+    (window as any).Quill = Quill;
+    (window as any).Quill.register("modules/resize", ImageResize);
 
     enum TableActions {
         CREATETABLE,
@@ -188,6 +194,8 @@
          * Lifecycle hooks
          */
         private mounted() {
+
+            (window as any).katex = katex;
 
             if (this.editorSetup.allowEdit) {
                 this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;

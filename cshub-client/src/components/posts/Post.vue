@@ -348,6 +348,8 @@
 
                                 if (this.fullPostComputed) {
                                     this.getContentRequest(callbackData.post);
+                                } else {
+                                    localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, callbackData.post);
                                 }
                             } else {
                                 this.$router.push(Routes.INDEX);
