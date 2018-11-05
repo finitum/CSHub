@@ -124,6 +124,10 @@
         background: white;
     }
 
+    .v-icon {
+        font-size: 17px !important;
+    }
+
     a {
         text-decoration: none !important;
     }

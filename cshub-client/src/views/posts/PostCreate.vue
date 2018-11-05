@@ -17,7 +17,7 @@
                             <v-flex class="text-xs-right">
                                 <v-btn depressed large color="primary" @click="submitPost">
                                     <span v-if="!showCloseIcon">Submit</span>
-                                    <v-icon v-if="showCloseIcon">mdi-close</v-icon>
+                                    <v-icon v-if="showCloseIcon">fas fa-close</v-icon>
                                 </v-btn>
                             </v-flex>
                         </v-layout>
@@ -51,9 +51,9 @@
                                             flat
                                             id="tableButton"
                                     >
-                                        <v-icon v-if="!showTopicWrongIcon && !showTopicFilledIcon" color="black">mdi-folder-multiple</v-icon>
-                                        <v-icon v-if="showTopicFilledIcon" color="primary">mdi-folder-plus</v-icon>
-                                        <v-icon v-if="showTopicWrongIcon && !showTopicFilledIcon" color="red">mdi-folder-remove</v-icon>
+                                        <v-icon v-if="!showTopicWrongIcon && !showTopicFilledIcon" color="black" style="font-size: 25px !important">fas fa-folder</v-icon>
+                                        <v-icon v-if="showTopicFilledIcon" color="primary" style="font-size: 25px !important">fas fa-folder-plus</v-icon>
+                                        <v-icon v-if="showTopicWrongIcon && !showTopicFilledIcon" color="red" style="font-size: 25px !important">fas fa-folder-minus</v-icon>
                                     </v-btn>
 
                                     <v-card>

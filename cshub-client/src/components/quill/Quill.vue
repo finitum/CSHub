@@ -81,7 +81,7 @@
                                   small
                                   id="tableButton"
                           >
-                              <v-icon color="black" id="tableIcon">mdi-table</v-icon>
+                              <v-icon color="black" id="tableIcon">fas fa-table</v-icon>
                           </v-btn>
 
                           <v-card>
@@ -93,20 +93,20 @@
                                 <v-card-text style="padding-top: 0">
                                     <v-list>
                                         <v-list-tile>
-                                            <button @click="performTableAction(tableActions.CREATETABLE)"><v-icon>mdi-table</v-icon></button>
-                                            <button @click="performTableAction(tableActions.REMOVETABLE)"><v-icon>mdi-table-remove</v-icon></button>
+                                            <button @click="performTableAction(tableActions.CREATETABLE)" class="mr-3"><v-icon>fas fa-plus</v-icon></button>
+                                            <button @click="performTableAction(tableActions.REMOVETABLE)"><v-icon>fas fa-minus</v-icon></button>
                                         </v-list-tile>
                                         <v-list-tile>
-                                            <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)"><v-icon>mdi-table-column-plus-before</v-icon></button>
-                                            <button @click="performTableAction(tableActions.CREATENEWCOLUMNRIGHT)"><v-icon>mdi-table-column-plus-after</v-icon></button>
+                                            <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)" class="mr-3"><v-icon>fas fa-arrow-left</v-icon></button>
+                                            <button @click="performTableAction(tableActions.CREATENEWCOLUMNRIGHT)"><v-icon>fas fa-arrow-right</v-icon></button>
                                         </v-list-tile>
                                         <v-list-tile>
-                                            <button @click="performTableAction(tableActions.CREATENEWROWUP)"><v-icon>mdi-table-row-plus-before</v-icon></button>
-                                            <button @click="performTableAction(tableActions.CREATENEWROWDOWN)"><v-icon>mdi-table-row-plus-after</v-icon></button>
+                                            <button @click="performTableAction(tableActions.CREATENEWROWUP)" class="mr-3"><v-icon>fas fa-arrow-up</v-icon></button>
+                                            <button @click="performTableAction(tableActions.CREATENEWROWDOWN)"><v-icon>fas fa-arrow-down</v-icon></button>
                                         </v-list-tile>
                                         <v-list-tile>
-                                            <button @click="performTableAction(tableActions.REMOVEROW)"><v-icon>mdi-table-row-remove</v-icon></button>
-                                            <button @click="performTableAction(tableActions.REMOVECOLUMN)"><v-icon>mdi-table-column-remove</v-icon></button>
+                                            <button @click="performTableAction(tableActions.REMOVEROW)" class="mr-3"><v-icon>fas fa-arrows-alt-v</v-icon></button>
+                                            <button @click="performTableAction(tableActions.REMOVECOLUMN)"><v-icon>fas fa-arrows-alt-h</v-icon></button>
                                         </v-list-tile>
                                     </v-list>
                                 </v-card-text>

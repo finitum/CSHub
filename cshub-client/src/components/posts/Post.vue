@@ -11,7 +11,7 @@
                     <transition name="breadcrumb">
                         <v-breadcrumbs divider="/" style="width: 100%" v-if="fullPostComputed">
                             <v-btn color="primary" depressed small dark @click="returnToPostMenu">
-                                <v-icon>mdi-chevron-left</v-icon>
+                                <v-icon>fas fa-chevron-left</v-icon>
                             </v-btn>
                             <v-breadcrumbs-item
                                     v-for="item in topicNames"
@@ -27,20 +27,17 @@
                             </v-breadcrumbs-item>
                             <v-btn color="green" depressed small @click="verifyPost"
                                    v-if="!post.approved && userAdminComputed">
-                                <v-icon>mdi-check</v-icon>
+                                <v-icon>fas fa-check</v-icon>
                             </v-btn>
                             <v-btn color="orange" depressed small @click="enableEdit"
                                    v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
-                                <v-icon>mdi-pencil</v-icon>
+                                <v-icon>fas fa-edit</v-icon>
                             </v-btn>
                             <v-btn v-if="editModeComputed" depressed small color="orange" @click="editPost">
-                                <v-icon>mdi-circle-edit-outline</v-icon>
+                                <v-icon>fas fa-save</v-icon>
                             </v-btn>
                             <v-btn depressed small color="primary" @click="viewEditDialog">
-                                <v-icon>mdi-playlist-edit</v-icon>
-                            </v-btn>
-                            <v-btn depressed small color="secondary" @click="fullScreenDialog = true">
-                                <v-icon>mdi-fullscreen</v-icon>
+                                <v-icon>fas fa-list-ol</v-icon>
                             </v-btn>
                         </v-breadcrumbs>
                     </transition>
@@ -108,22 +105,6 @@
             ></v-progress-circular>
         </div>
         <PostEditsDialog :postHash="postHash"></PostEditsDialog>
-        <v-dialog v-model="fullScreenDialog" fullscreen hide-overlay transition="dialog-bottom-transition" v-if="post !== null">
-            <v-card>
-                <v-toolbar dark color="primary">
-                    <v-btn icon dark @click.native="fullScreenDialog = false">
-                        <v-icon>mdi-close</v-icon>
-                    </v-btn>
-                    <v-toolbar-title>{{post.title}}</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                </v-toolbar>
-                <v-card-text>
-                    <div class="ql-editor">
-                        <div v-if="!editModeComputed && fullScreenDialog" v-html="post.htmlContent"></div>
-                    </div>
-                </v-card-text>
-            </v-card>
-        </v-dialog>
     </div>
 </template>
 
@@ -187,7 +168,6 @@
         private showContent = true;
         private loadingIcon = false;
         private previousTopicURL = "";
-        private fullScreenDialog = false;
 
         /**
          * Computed properties

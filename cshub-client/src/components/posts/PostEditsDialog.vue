@@ -3,7 +3,7 @@
         <v-card>
             <v-toolbar dark color="primary">
                 <v-btn icon dark @click.native="dialogActive = false">
-                    <v-icon>mdi-close</v-icon>
+                    <v-icon>fas fa-close</v-icon>
                 </v-btn>
                 <v-toolbar-title>Edits</v-toolbar-title>
                 <v-spacer></v-spacer>

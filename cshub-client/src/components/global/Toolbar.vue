@@ -8,7 +8,7 @@
                 flat
                 hide-details
                 label="Search"
-                prepend-inner-icon="mdi-magnify"
+                prepend-inner-icon="fas fa-search"
         ></v-text-field>
         <v-spacer></v-spacer>
     </v-toolbar>
