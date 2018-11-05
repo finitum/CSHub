@@ -4,7 +4,7 @@ import {IRootState} from "../";
 export type editDialogType = {
     on: boolean,
     hash: number
-}
+};
 
 export interface IUIState {
     navbar: {
