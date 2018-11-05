@@ -18,9 +18,9 @@
                     </v-subheader>
                 </v-flex>
             </v-layout>
-            <router-link :to="navigationLocations.USERDASHBOARD" v-if="userLoggedInComputed"><NavDrawerItem icon="mdi-account" text="User dashboard"></NavDrawerItem></router-link>
-            <router-link :to="navigationLocations.ADMINDASHBOARD" v-if="userLoggedInComputed && userAdminComputed"><NavDrawerItem icon="mdi-account-supervisor" text="Admin dashboard"></NavDrawerItem></router-link>
-            <router-link :to="navigationLocations.LOGIN" v-if="!userLoggedInComputed"><NavDrawerItem icon="mdi-login" text="Login"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.USERDASHBOARD" v-if="userLoggedInComputed"><NavDrawerItem icon="fas fa-user" text="User dashboard"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.ADMINDASHBOARD" v-if="userLoggedInComputed && userAdminComputed"><NavDrawerItem icon="fas fa-users" text="Admin dashboard"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.LOGIN" v-if="!userLoggedInComputed"><NavDrawerItem icon="fas fa-sign-in-alt" text="Login"></NavDrawerItem></router-link>
             <v-divider dark class="my-3"></v-divider>
             <v-layout
                     row
@@ -50,8 +50,8 @@
                         </v-subheader>
                     </v-flex>
                 </v-layout>
-                <router-link :to="navigationLocations.POSTCREATE"><NavDrawerItem icon="mdi-pencil" text="Create new post"></NavDrawerItem></router-link>
-                <router-link v-if="userAdminComputed" :to="`${navigationLocations.ADMINDASHBOARD}/${adminRoutes.TOPICCREATE}`"><NavDrawerItem icon="mdi-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
+                <router-link :to="navigationLocations.POSTCREATE"><NavDrawerItem icon="fas fa-pen" text="Create new post"></NavDrawerItem></router-link>
+                <router-link v-if="userAdminComputed" :to="`${navigationLocations.ADMINDASHBOARD}/${adminRoutes.TOPICCREATE}`"><NavDrawerItem icon="fas fa-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
             </div>
         </v-list>
     </v-navigation-drawer>

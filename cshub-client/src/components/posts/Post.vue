@@ -8,56 +8,65 @@
 
             <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}" :id="'post_' + domId">
                 <v-card-title primary-title :id="'postTitle_' + domId" style="padding-bottom: 0;">
-                    <transition name="breadcrumb">
-                        <v-breadcrumbs divider="/" style="width: 100%" v-if="fullPostComputed">
-                            <v-btn color="primary" depressed small dark @click="returnToPostMenu">
-                                <v-icon>mdi-chevron-left</v-icon>
+                    <transition name="topMenuShow">
+                        <div v-if="!showTopMenu && fullPostComputed">
+                            <v-btn color="secondary" depressed small @click="showTopMenu = true">
+                                <v-icon>fas fa-angle-down</v-icon>
                             </v-btn>
-                            <v-breadcrumbs-item
-                                    v-for="item in topicNames"
-                                    :key="item.index"
-                                    :disabled="false"
-                            >
-                                <router-link :to="item.url">{{item.name}}</router-link>
-                            </v-breadcrumbs-item>
-                            <v-breadcrumbs-item
-                                    :disabled="true"
-                            >
-                                {{post.title}}
-                            </v-breadcrumbs-item>
-                            <v-btn color="green" depressed small @click="verifyPost"
-                                   v-if="!post.approved && userAdminComputed">
-                                <v-icon>mdi-check</v-icon>
-                            </v-btn>
-                            <v-btn color="orange" depressed small @click="enableEdit"
-                                   v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
-                                <v-icon>mdi-pencil</v-icon>
-                            </v-btn>
-                            <v-btn v-if="editModeComputed" depressed small color="orange" @click="editPost">
-                                <v-icon>mdi-circle-edit-outline</v-icon>
-                            </v-btn>
-                            <v-btn depressed small color="primary" @click="viewEditDialog">
-                                <v-icon>mdi-playlist-edit</v-icon>
-                            </v-btn>
-                            <v-btn depressed small color="secondary" @click="fullScreenDialog = true">
-                                <v-icon>mdi-fullscreen</v-icon>
-                            </v-btn>
-                        </v-breadcrumbs>
+                        </div>
                     </transition>
-                    <v-badge right color="green" overlap class="mr-3 pl-3">
-                        <span slot="badge">{{post.upvotes}}</span>
-                        <v-avatar
-                                :tile="false"
-                                :size="50"
-                                :class="{adminBorder: post.author.admin}"
-                        >
-                            <img :src="post.author.avatar" alt="avatar">
-                        </v-avatar>
-                    </v-badge>
-                    <div>
-                        <h3 class="headline mb-0">{{post.title}}</h3><p v-if="!post.approved && fullPostComputed" style="color: grey">(unverified)</p>
-                        <div>{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</div>
-                    </div>
+                    <span v-if="showTopMenu || !fullPostComputed" style="display: contents;">
+                        <transition name="breadcrumb">
+                            <v-breadcrumbs divider="/" style="width: 100%" v-if="fullPostComputed">
+                                <v-btn color="primary" depressed small dark @click="returnToPostMenu">
+                                    <v-icon>fas fa-chevron-left</v-icon>
+                                </v-btn>
+                                <v-breadcrumbs-item
+                                        v-for="item in topicNames"
+                                        :key="item.index"
+                                        :disabled="false"
+                                >
+                                    <router-link :to="item.url">{{item.name}}</router-link>
+                                </v-breadcrumbs-item>
+                                <v-breadcrumbs-item
+                                        :disabled="true"
+                                >
+                                    {{post.title}}
+                                </v-breadcrumbs-item>
+                                <v-btn color="green" depressed small @click="verifyPost"
+                                       v-if="!post.approved && userAdminComputed">
+                                    <v-icon>fas fa-check</v-icon>
+                                </v-btn>
+                                <v-btn color="orange" depressed small @click="enableEdit"
+                                       v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
+                                    <v-icon>fas fa-edit</v-icon>
+                                </v-btn>
+                                <v-btn v-if="editModeComputed" depressed small color="orange" @click="editPost">
+                                    <v-icon>fas fa-save</v-icon>
+                                </v-btn>
+                                <v-btn depressed small color="primary" @click="viewEditDialog">
+                                    <v-icon>fas fa-list-ol</v-icon>
+                                </v-btn>
+                                <v-btn depressed small color="secondary" @click="showTopMenu = false">
+                                    <v-icon>fas fa-angle-up</v-icon>
+                                </v-btn>
+                            </v-breadcrumbs>
+                        </transition>
+                        <v-badge right color="green" overlap class="mr-3 pl-3">
+                            <span slot="badge">{{post.upvotes}}</span>
+                            <v-avatar
+                                    :tile="false"
+                                    :size="50"
+                                    :class="{adminBorder: post.author.admin}"
+                            >
+                                <img :src="post.author.avatar" alt="avatar">
+                            </v-avatar>
+                        </v-badge>
+                        <div>
+                            <h3 class="headline mb-0">{{post.title}}</h3><p v-if="!post.approved && fullPostComputed" style="color: grey">(unverified)</p>
+                            <div>{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</div>
+                        </div>
+                    </span>
                 </v-card-title>
 
                 <v-container
@@ -108,22 +117,6 @@
             ></v-progress-circular>
         </div>
         <PostEditsDialog :postHash="postHash"></PostEditsDialog>
-        <v-dialog v-model="fullScreenDialog" fullscreen hide-overlay transition="dialog-bottom-transition" v-if="post !== null">
-            <v-card>
-                <v-toolbar dark color="primary">
-                    <v-btn icon dark @click.native="fullScreenDialog = false">
-                        <v-icon>mdi-close</v-icon>
-                    </v-btn>
-                    <v-toolbar-title>{{post.title}}</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                </v-toolbar>
-                <v-card-text>
-                    <div class="ql-editor">
-                        <div v-if="!editModeComputed && fullScreenDialog" v-html="post.htmlContent"></div>
-                    </div>
-                </v-card-text>
-            </v-card>
-        </v-dialog>
     </div>
 </template>
 
@@ -187,7 +180,7 @@
         private showContent = true;
         private loadingIcon = false;
         private previousTopicURL = "";
-        private fullScreenDialog = false;
+        private showTopMenu = true;
 
         /**
          * Computed properties
@@ -240,6 +233,11 @@
          * Lifecycle hooks
          */
         private mounted() {
+
+            if (this.$vuetify.breakpoint.xsOnly) {
+                this.showTopMenu = false;
+            }
+
             window.addEventListener("resize", this.windowHeightChanged);
             this.getPostRequest();
 
@@ -248,7 +246,10 @@
             if (this.editModeComputed) {
                 this.enableEdit();
             } else if (this.editsListComputed) {
-                uiState.setEditDialogState(true);
+                uiState.setEditDialogState({
+                    on: true,
+                    hash: this.postHash
+                });
             }
         }
 
@@ -268,8 +269,14 @@
 
                 const postCard = document.getElementById(`post_${this.domId}`);
                 const postCardTitle = document.getElementById(`postTitle_${this.domId}`);
-                if (postCard !== null && postCardTitle !== null) {
-                    const newHeight = postCard.clientHeight - postCardTitle.clientHeight - 50;
+                if (postCard !== null) {
+
+                    let postCardTitleHeight = 0;
+                    if (postCardTitle !== null) {
+                        postCardTitleHeight = postCardTitle.clientHeight;
+                    }
+
+                    const newHeight = postCard.clientHeight - postCardTitleHeight - 50;
 
                     (document.getElementsByClassName(`postScrollWindow_${this.domId}`).item(0) as HTMLElement).style.maxHeight = `${newHeight}px`;
 
@@ -365,6 +372,8 @@
 
                                 if (this.fullPostComputed) {
                                     this.getContentRequest(callbackData.post);
+                                } else {
+                                    localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, callbackData.post);
                                 }
                             } else {
                                 this.$router.push(Routes.INDEX);
@@ -435,7 +444,10 @@
 
         private viewEditDialog() {
             this.$router.push(`${this.currentPostURLComputed}/edits`);
-            uiState.setEditDialogState(true);
+            uiState.setEditDialogState({
+                on: true,
+                hash: this.postHash
+            });
         }
 
         private navigateToPost(): void {
@@ -484,16 +496,26 @@
     .breadcrumb-enter-active {
         transition: opacity .2s;
     }
+
     .breadcrumb-leave-active {
         transition: opacity .1s;
     }
+
     .breadcrumb-enter, .breadcrumb-leave-to {
+        opacity: 0;
+    }
+
+    .topMenuShow-enter-active, .topMenuShow-leave-active {
+        transition: opacity .2s;
+    }
+
+    .topMenuShow-enter, .topMenuShow-leave-to {
         opacity: 0;
     }
 
     @font-face {
         font-family: 'SailecLight';
-        src: url("../../plugins/quill/Sailec-Light.otf");
+        src: url("../../../public/assets/Sailec-Light.otf");
     }
 
     .ql-editor {

@@ -15,7 +15,7 @@
     import {AxiosError} from "axios";
     import {Route} from "vue-router";
     import {Component, Watch} from "vue-property-decorator";
-    import _ from "lodash";
+    import isEqual from "lodash/isEqual";
 
     import PostList from "../../components/posts/PostList.vue";
 
@@ -105,7 +105,7 @@
 
                     ApiWrapper.sendPostRequest(new GetTopicPosts(topicHash), (callbackData: GetTopicPostsCallBack) => {
 
-                        if (!_.isEqual(callbackData.postHashes, this.postHashes)) {
+                        if (!isEqual(callbackData.postHashes, this.postHashes)) {
                             this.postHashes = callbackData.postHashes;
 
                             logObjectConsole(callbackData.postHashes, "Topic posthashes");

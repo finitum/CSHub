@@ -3,7 +3,7 @@
         <v-container class="ml-0">
             <v-layout>
                 <v-btn color="primary" depressed small dark @click="$router.go(-1)">
-                    <v-icon>mdi-chevron-left</v-icon>
+                    <v-icon>fas fa-chevron-left</v-icon>
                 </v-btn>
 
                 <v-subheader>

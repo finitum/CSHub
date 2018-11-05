@@ -1,7 +1,7 @@
 import {IUserCensored} from "./IUser";
 // @ts-ignore
 import Delta from "quill-delta/dist/Delta";
-import {Moment} from "moment";
+import {Dayjs} from "dayjs";
 
 export interface IEdit {
     parentPostId: number;
@@ -9,5 +9,5 @@ export interface IEdit {
     editedBy: IUserCensored;
     approved: boolean;
     id: number;
-    datetime: Moment;
+    datetime: Dayjs;
 }

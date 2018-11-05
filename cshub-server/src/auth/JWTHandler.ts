@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import moment from "moment";
+import dayjs from "dayjs";
 
 import {IUser} from "../../../cshub-shared/models/IUser";
 import {IJWTToken} from "../../../cshub-shared/models/IJWTToken";
@@ -11,7 +11,7 @@ export const sign = (obj: IUser): string => {
 
     const jwtobj: IJWTToken = {
         user: obj,
-        expirydate: moment().add(Settings.TOKENAGEMILLISECONDS, "ms").unix()
+        expirydate: dayjs().add(Settings.TOKENAGEMILLISECONDS, "millisecond").unix()
     };
 
     return jwt.sign(jwtobj, Settings.JWTHASH);

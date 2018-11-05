@@ -81,7 +81,7 @@
                                   small
                                   id="tableButton"
                           >
-                              <v-icon color="black" id="tableIcon">mdi-table</v-icon>
+                              <v-icon color="black" id="tableIcon">fas fa-table</v-icon>
                           </v-btn>
 
                           <v-card>
@@ -93,20 +93,20 @@
                                 <v-card-text style="padding-top: 0">
                                     <v-list>
                                         <v-list-tile>
-                                            <button @click="performTableAction(tableActions.CREATETABLE)"><v-icon>mdi-table</v-icon></button>
-                                            <button @click="performTableAction(tableActions.REMOVETABLE)"><v-icon>mdi-table-remove</v-icon></button>
+                                            <button @click="performTableAction(tableActions.CREATETABLE)" class="mr-3"><v-icon>fas fa-plus</v-icon></button>
+                                            <button @click="performTableAction(tableActions.REMOVETABLE)"><v-icon>fas fa-minus</v-icon></button>
                                         </v-list-tile>
                                         <v-list-tile>
-                                            <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)"><v-icon>mdi-table-column-plus-before</v-icon></button>
-                                            <button @click="performTableAction(tableActions.CREATENEWCOLUMNRIGHT)"><v-icon>mdi-table-column-plus-after</v-icon></button>
+                                            <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)" class="mr-3"><v-icon>fas fa-arrow-left</v-icon></button>
+                                            <button @click="performTableAction(tableActions.CREATENEWCOLUMNRIGHT)"><v-icon>fas fa-arrow-right</v-icon></button>
                                         </v-list-tile>
                                         <v-list-tile>
-                                            <button @click="performTableAction(tableActions.CREATENEWROWUP)"><v-icon>mdi-table-row-plus-before</v-icon></button>
-                                            <button @click="performTableAction(tableActions.CREATENEWROWDOWN)"><v-icon>mdi-table-row-plus-after</v-icon></button>
+                                            <button @click="performTableAction(tableActions.CREATENEWROWUP)" class="mr-3"><v-icon>fas fa-arrow-up</v-icon></button>
+                                            <button @click="performTableAction(tableActions.CREATENEWROWDOWN)"><v-icon>fas fa-arrow-down</v-icon></button>
                                         </v-list-tile>
                                         <v-list-tile>
-                                            <button @click="performTableAction(tableActions.REMOVEROW)"><v-icon>mdi-table-row-remove</v-icon></button>
-                                            <button @click="performTableAction(tableActions.REMOVECOLUMN)"><v-icon>mdi-table-column-remove</v-icon></button>
+                                            <button @click="performTableAction(tableActions.REMOVEROW)" class="mr-3"><v-icon>fas fa-arrows-alt-v</v-icon></button>
+                                            <button @click="performTableAction(tableActions.REMOVECOLUMN)"><v-icon>fas fa-arrows-alt-h</v-icon></button>
                                         </v-list-tile>
                                     </v-list>
                                 </v-card-text>
@@ -134,25 +134,19 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import JQuery from "jquery";
     import localForage from "localforage";
     import Delta from "quill-delta/dist/Delta";
     import {Component, Prop} from "vue-property-decorator";
 
-    // @ts-ignore
-    import katex from "katex/dist/katex.min";
+    import katex from "katex";
     import "katex/dist/katex.min.css";
 
-    import "../../plugins/quill/highlight.pack.min"; // Needs to be loaded before quill
-    import "../../plugins/quill/gruvbox-dark.min.css"; // Highlight.js style sheet
-    import "../../plugins/quill/Sailec-Light.otf"; // Font file
-    import "../../plugins/quill/Symbola.ttf";
-    import "../../plugins/quill/quill2.min";
-    import "../../plugins/quill/quill2.min.css";
-    import {mathquill} from "../../plugins/quill/mathquill.min";
+    import Quill from "quill";
+    import "quill/dist/quill.core.css";
+    import "quill/dist/quill.snow.css";
+
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
     import {ImageResize} from "../../plugins/quill/ImageResize.min";
-    import "../../plugins/quill/mathquill.min.css";
     import {QuillOptionsStatic, Sources} from "../../plugins/quill/quill";
 
     import defaultOptions from "./QuillDefaultOptions";
@@ -161,8 +155,8 @@
     import {logStringConsole} from "../../utilities";
     import {idGenerator} from "../../utilities/id-generator";
 
-    const QuillWindow = (window as any).Quill;
-    QuillWindow.register("modules/resize", ImageResize);
+    (window as any).Quill = Quill;
+    (window as any).Quill.register("modules/resize", ImageResize);
 
     enum TableActions {
         CREATETABLE,
@@ -202,6 +196,8 @@
          */
         private mounted() {
 
+            (window as any).katex = katex;
+
             if (this.editorSetup.allowEdit) {
                 this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
                 localForage.getItem<Delta>(this.postHashCacheItemID)
@@ -217,12 +213,7 @@
 
             this.quillId = idGenerator();
 
-            // Assign jquery and katex for use by mathquillMin
-            (window as any).jQuery = JQuery;
-            (window as any).katex = katex;
-
-            mathquill(); // Load mathquillMin after jquery and katex were defined
-            mathquill4quill(QuillWindow, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
+            mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
 
             // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
             setTimeout(() => {
@@ -312,7 +303,7 @@
             if (!this.editorSetup.allowEdit) {
                 this.editorOptions.placeholder = "";
             }
-            this.editor = new QuillWindow(`#${this.quillId} .editor`, this.editorOptions);
+            this.editor = new Quill(`#${this.quillId} .editor`, this.editorOptions);
 
             (this.editor as any).enableMathQuillFormulaAuthoring(); // Enable mathquill4quillMin
             this.editor.enable(false); // Hide it before we set the content

@@ -3,6 +3,6 @@
   "version": "0.1.0",
   "devDependencies": {
     "quill-delta": "^4.1.0",
-    "moment": "^2.22.2"
+    "dayjs": "^1.7.7"
   }
 }

@@ -9,9 +9,7 @@ import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAcc
 
 import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/api-calls";
 
-// @ts-ignore
-import Delta from "quill-delta/dist/Delta";
-import moment, {Moment} from "moment";
+import dayjs from "dayjs";
 import {IEdit} from "../../../../cshub-shared/models";
 
 app.post(GetEditContent.getURL, (req: Request, res: Response) => {
@@ -51,7 +49,7 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                                 editArray.push({
                                     parentPostId: edit.getNumberFromDB("post"),
                                     content: JSON.parse(edit.getStringFromDB("content")),
-                                    datetime: moment(edit.getStringFromDB("datetime")),
+                                    datetime: dayjs(edit.getStringFromDB("datetime")),
                                     editedBy: {
                                         id: edit.getNumberFromDB("authorId"),
                                         firstname: edit.getStringFromDB("authorFirstName"),
@@ -65,7 +63,13 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                             }
 
                             editArray.sort((left, right) => {
-                                return moment.utc(left.datetime).diff(moment.utc(right.datetime))
+                                if (left.datetime.isAfter(right.datetime)) {
+                                    return 1;
+                                } else if (left.datetime.isBefore(right.datetime)) {
+                                    return -1;
+                                } else {
+                                    return 0;
+                                }
                             });
 
                             res.json(new GetEditContentCallback(editArray));
