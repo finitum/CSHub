@@ -134,12 +134,27 @@
 
 <script lang="ts">
     import Vue from "vue";
+    import JQuery from "jquery";
     import localForage from "localforage";
     import Delta from "quill-delta/dist/Delta";
     import {Component, Prop} from "vue-property-decorator";
 
+    // @ts-ignore
+    import katex from "katex/dist/katex.min";
+    import "katex/dist/katex.min.css";
+
+    // @ts-ignore
+    import hljs from "highlightjs";
+    // import hljs from "../../plugins/quill/highlight.pack.min"; // Needs to be loaded before quill
+    import "../../plugins/quill/gruvbox-dark.min.css"; // Highlight.js style sheet
+    import "../../plugins/quill/Sailec-Light.otf"; // Font file
+    import "../../plugins/quill/Symbola.ttf";
+    import Quill from "../../plugins/quill/quill2.min";
+    import "../../plugins/quill/quill2.min.css";
+    import {mathquill} from "../../plugins/quill/mathquill.min";
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
     import {ImageResize} from "../../plugins/quill/ImageResize.min";
+    import "../../plugins/quill/mathquill.min.css";
     import {QuillOptionsStatic, Sources} from "../../plugins/quill/quill";
 
     import defaultOptions from "./QuillDefaultOptions";
@@ -148,7 +163,6 @@
     import {logStringConsole} from "../../utilities";
     import {idGenerator} from "../../utilities/id-generator";
 
-    const Quill = (window as any).Quill;
     Quill.register("modules/resize", ImageResize);
 
     enum TableActions {
@@ -204,6 +218,11 @@
 
             this.quillId = idGenerator();
 
+            // Assign jquery and katex for use by mathquillMin
+            (window as any).jQuery = JQuery;
+            (window as any).katex = katex;
+
+            mathquill(); // Load mathquillMin after jquery and katex were defined
             mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
 
             // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
