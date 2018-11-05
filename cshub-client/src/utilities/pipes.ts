@@ -1,8 +1,8 @@
 import Vue from "vue";
-import moment from "moment";
+import dayjs from "dayjs";
 
 Vue.filter("formatDate", (value: string): string => {
-    return moment(value).format("DD-MM-YYYY, H:mm");
+    return dayjs(value).format("DD-MM-YYYY, H:mm");
 });
 
 

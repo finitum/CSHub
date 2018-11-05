@@ -42,7 +42,7 @@ app.use(bodyParser.json({
 }));
 app.use(cookieParser());
 
-import "./auth/middleware";
+import "./auth/AuthMiddleware";
 
 let server: http.Server | https.Server;
 

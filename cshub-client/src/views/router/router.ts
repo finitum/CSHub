@@ -1,15 +1,16 @@
 import Vue from "vue";
 import Router, {Route} from "vue-router";
 
-import {VerifyTokenRequest, VerifyTokenRequestCallBack, VerifyTokenResponses} from "../../../../cshub-shared/api-calls/account";
+import {VerifyUserToken, VerifyUserTokenCallback, VerifyUserTokenResponseTypes} from "../../../../cshub-shared/api-calls/account";
 
 import LoginScreen from "../user/LoginScreen.vue";
-import CreateAccount from "../user/CreateAccount.vue";
+import CreateAccount from "../user/CreateUserAccount.vue";
 import AdminDashboard from "../user/AdminDashboard.vue";
 import UserDashboard from "../user/UserDashboard.vue";
 
 import PostView from "../posts/PostView.vue";
 import PostCreate from "../posts/PostCreate.vue";
+import PostsSearch from "../posts/PostsSearch.vue";
 
 import {userBeforeEnter} from "./guards/userDashboardGuard";
 import {adminBeforeEnter} from "./guards/adminDashboardGuard";
@@ -17,22 +18,25 @@ import {onlyIfNotLoggedIn} from "./guards/onlyIfNotLoggedInGuard";
 
 import {adminChildrenRoutes} from "./adminRoutes";
 import userState from "../../store/user";
-import {ApiWrapper, LogStringConsole} from "../../utilities";
+import {ApiWrapper, logStringConsole} from "../../utilities";
 
 import Quill from "../../components/quill/Quill.vue";
+import {AxiosError} from "axios";
+import dataState from "../../store/data";
 
 Vue.use(Router);
 
-export enum Routes {
-    INDEX = "/",
-    LOGIN = "/login",
-    EDITOR = "/editor",
-    CREATEACCOUNT = "/createaccount",
-    POST = "/post",
-    POSTCREATE = "/post/create",
-    TOPIC = "/topic",
-    USERDASHBOARD = "/user",
-    ADMINDASHBOARD = "/admin"
+export class Routes {
+    public static readonly INDEX: string = "/";
+    public static readonly LOGIN = "/login";
+    public static readonly EDITOR = "/editor";
+    public static readonly CREATEACCOUNT = "/createaccount";
+    public static readonly POST = "/post";
+    public static readonly POSTCREATE = "/post/create";
+    public static readonly TOPIC = "/topic";
+    public static readonly USERDASHBOARD = "/user";
+    public static readonly ADMINDASHBOARD = "/admin";
+    public static readonly SEARCH = "/search";
 }
 
 const router = new Router({
@@ -68,6 +72,16 @@ const router = new Router({
             component: PostView
         },
         {
+            path: `${Routes.POST}/:hash/edit`,
+            name: "postEdit",
+            component: PostView
+        },
+        {
+            path: `${Routes.POST}/:hash/edits`,
+            name: "postEdits",
+            component: PostView
+        },
+        {
             path: Routes.EDITOR, // TODO: Same as import
             name: "editor",
             component: Quill
@@ -76,6 +90,11 @@ const router = new Router({
             path: `${Routes.TOPIC}/:hash`,
             name: "topic",
             component: PostView
+        },
+        {
+            path: Routes.SEARCH,
+            name: "search",
+            component: PostsSearch
         },
         {
             path: Routes.USERDASHBOARD,
@@ -94,21 +113,26 @@ const router = new Router({
 });
 
 router.beforeEach((to: Route, from: Route, next) => {
-    if (!userState.hasCheckedToken) {
-        ApiWrapper.sendGetRequest(new VerifyTokenRequest(), (verified: VerifyTokenRequestCallBack) => {
+    next();
 
-            if (verified.response === VerifyTokenResponses.VALID) {
-                LogStringConsole("User is logged in", "isLoggedIn after API");
+    if (!userState.hasCheckedToken) {
+        ApiWrapper.sendGetRequest(new VerifyUserToken(), (verified: VerifyUserTokenCallback) => {
+
+            if (!dataState.hasConnection) {
+                dataState.setConnection(true);
+            }
+
+            if (verified.response === VerifyUserTokenResponseTypes.VALID) {
+                logStringConsole("User is logged in", "isLoggedIn after API");
                 userState.changeUserModel(verified.userModel);
             } else {
-                LogStringConsole("User is not logged in", "isLoggedIn after API");
+                logStringConsole("User is not logged in", "isLoggedIn after API");
             }
             userState.setCheckedToken();
 
-            next();
+        }, (err: AxiosError) => {
+            dataState.setConnection(false);
         });
-    } else {
-        next();
     }
 
 });

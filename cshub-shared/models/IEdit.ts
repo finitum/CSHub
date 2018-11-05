@@ -1,12 +1,13 @@
 import {IUserCensored} from "./IUser";
+// @ts-ignore
+import Delta from "quill-delta/dist/Delta";
+import {Dayjs} from "dayjs";
 
 export interface IEdit {
     parentPostId: number;
-    content: object;
+    content: Delta;
     editedBy: IUserCensored;
     approved: boolean;
-    approvedBy: IUserCensored;
-    rejectedReason: string;
     id: number;
-    datetime: string;
+    datetime: Dayjs;
 }

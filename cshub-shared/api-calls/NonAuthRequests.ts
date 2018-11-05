@@ -9,4 +9,5 @@ export class NonAuthRequests {
     public static readonly TOPICS: string = "/0/topics";
     public static readonly VERIFYTOKEN: string = "/0/verifytoken";
     public static readonly VERIFYMAIL: string = "/0/verifymail";
+    public static readonly SEARCH: string = "/0/search";
 }

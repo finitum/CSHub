@@ -1,3 +1,3 @@
-export * from "./GetAllUsersRequest";
-export * from "./VerifyPostRequest";
-export * from "./GetUnverifiedPostsRequest";
+export * from "./GetAllUsers";
+export * from "./VerifyPost";
+export * from "./GetUnverifiedPosts";

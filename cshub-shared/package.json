@@ -2,6 +2,7 @@
   "name": "cshub-shared",
   "version": "0.1.0",
   "devDependencies": {
-    "quill-delta": "^4.1.0"
+    "quill-delta": "^4.1.0",
+    "dayjs": "^1.7.7"
   }
 }

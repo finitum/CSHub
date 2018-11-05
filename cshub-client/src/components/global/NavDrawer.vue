@@ -18,9 +18,9 @@
                     </v-subheader>
                 </v-flex>
             </v-layout>
-            <router-link :to="navigationLocations.USERDASHBOARD" v-if="userLoggedInComputed"><NavDrawerItem icon="mdi-account" text="User dashboard"></NavDrawerItem></router-link>
-            <router-link :to="navigationLocations.ADMINDASHBOARD" v-if="userLoggedInComputed && userAdminComputed"><NavDrawerItem icon="mdi-account-supervisor" text="Admin dashboard"></NavDrawerItem></router-link>
-            <router-link :to="navigationLocations.LOGIN" v-if="!userLoggedInComputed"><NavDrawerItem icon="mdi-login" text="Login"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.USERDASHBOARD" v-if="userLoggedInComputed"><NavDrawerItem icon="fas fa-user" text="User dashboard"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.ADMINDASHBOARD" v-if="userLoggedInComputed && userAdminComputed"><NavDrawerItem icon="fas fa-users" text="Admin dashboard"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.LOGIN" v-if="!userLoggedInComputed"><NavDrawerItem icon="fas fa-sign-in-alt" text="Login"></NavDrawerItem></router-link>
             <v-divider dark class="my-3"></v-divider>
             <v-layout
                     row
@@ -50,8 +50,8 @@
                         </v-subheader>
                     </v-flex>
                 </v-layout>
-                <router-link :to="navigationLocations.POSTCREATE"><NavDrawerItem icon="mdi-pencil" text="Create new post"></NavDrawerItem></router-link>
-                <router-link v-if="userAdminComputed" :to="`${navigationLocations.ADMINDASHBOARD}/${adminRoutes.TOPICCREATE}`"><NavDrawerItem icon="mdi-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
+                <router-link :to="navigationLocations.POSTCREATE"><NavDrawerItem icon="fas fa-pen" text="Create new post"></NavDrawerItem></router-link>
+                <router-link v-if="userAdminComputed" :to="`${navigationLocations.ADMINDASHBOARD}/${adminRoutes.TOPICCREATE}`"><NavDrawerItem icon="fas fa-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
             </div>
         </v-list>
     </v-navigation-drawer>
@@ -59,11 +59,18 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import {ITopic, IUser} from "../../../../cshub-shared/models";
-    import {ApiWrapper, LogObjectConsole} from "../../utilities";
+    import localForage from "localforage";
+    import {AxiosError} from "axios";
+    import {Route} from "vue-router";
+
+    import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
+    import {CacheTypes} from "../../utilities/cache-types";
+
+    import {ITopic} from "../../../../cshub-shared/models";
     import {
-        TopicsCallBack,
-        TopicsRequest} from "../../../../cshub-shared/api-calls";
+        GetTopicsCallBack,
+        GetTopics
+    } from "../../../../cshub-shared/api-calls";
 
     import NavDrawerItem from "./NavDrawerItem.vue";
 
@@ -72,73 +79,119 @@
     import userState from "../../store/user";
 
     import {Routes} from "../../views/router/router";
-    import {Route} from "vue-router";
     import {AdminRoutes} from "../../views/router/adminRoutes";
+    import {Component, Watch} from "vue-property-decorator";
 
-    export default Vue.extend({
+    @Component({
         name: "NavDrawer",
-        components: {NavDrawerItem},
-        data() {
-            return {
-                activeTopicHash: [],
-                topics: [] as ITopic[],
-                items: [],
-                navigationLocations: Routes,
-                adminRoutes: AdminRoutes
-            };
-        },
-        computed: {
-            drawerComputed: {
-                get(): boolean {
-                    return uiState.drawerState;
-                },
-                set(newValue: boolean) {
-                    uiState.setDrawerState(newValue);
-                }
-            },
-            userLoggedInComputed: {
-                get(): boolean {
-                    return userState.isLoggedIn;
-                }
-            },
-            userAdminComputed: {
-                get(): boolean {
-                    return userState.isAdmin;
-                }
-            }
-        },
-        watch: {
-            $route(to: Route, from: Route) {
-                if (to.fullPath.includes(Routes.TOPIC)) {
-                    this.activeTopicHash = [+to.params.hash]; // Perhaps do not use this later on, but doing this through the store
-                } else if (to.fullPath === Routes.INDEX) {
-                    this.activeTopicHash = [0];
-                } else {
-                    this.activeTopicHash = [-1];
-                }
-            },
-            activeTopicHash(hash: number[]) {
-                if (hash.length !== 0 && hash[0] > 0) {
-                    if (!this.$router.currentRoute.fullPath.includes(Routes.TOPIC) || hash[0] !== +this.$router.currentRoute.params.hash) {
-                        this.$router.push(`${Routes.TOPIC}/${hash[0]}`);
-                    }
-                }
-            }
-        },
-        mounted() {
-            // Sends a get request to the server, and sets the correct store value after receiving the topics in the TopicsCallBack
-            ApiWrapper.sendGetRequest(new TopicsRequest(), (callbackData: TopicsCallBack) => {
-                LogObjectConsole(callbackData.topics, "NavDrawer mounted");
+        components: {NavDrawerItem}
+    })
+    export default class NavDrawer extends Vue {
 
-                if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
-                    this.activeTopicHash = [this.$router.currentRoute.params.hash];
+        /**
+         * Data
+         */
+        private activeTopicHash: number[] = [];
+        private topics: ITopic[] = [];
+        private navigationLocations = Routes;
+        private adminRoutes = AdminRoutes;
 
-                }
-                this.topics = callbackData.topics;
-                dataState.setTopics(callbackData.topics);
-            });
+        /**
+         * Computed properties
+         */
+        get drawerComputed(): boolean {
+            return uiState.drawerState;
         }
-    });
+
+        set drawerComputed(newValue: boolean) {
+            uiState.setDrawerState(newValue);
+        }
+
+        get userLoggedInComputed(): boolean {
+            return userState.isLoggedIn;
+        }
+
+        get userAdminComputed(): boolean {
+            return userState.isAdmin;
+        }
+
+        /**
+         * Watchers
+         */
+        @Watch("$route")
+        private routeChanged(to: Route, from: Route) {
+            if (to.fullPath.includes(Routes.TOPIC)) {
+                this.activeTopicHash = [+to.params.hash]; // Perhaps do not use this later on, but doing this through the store
+            } else if (to.fullPath === Routes.INDEX) {
+                this.activeTopicHash = [0];
+            } else {
+                this.activeTopicHash = [-1];
+            }
+        }
+
+        @Watch("activeTopicHash")
+        private activeTopicHashChanged(hash: number[]) {
+            if (hash.length !== 0 && hash[0] > 0) {
+                if (!this.$router.currentRoute.fullPath.includes(Routes.TOPIC) || hash[0] !== +this.$router.currentRoute.params.hash) {
+                    this.$router.push(`${Routes.TOPIC}/${hash[0]}`);
+                }
+            }
+        }
+
+        /**
+         * Lifecycle hooks
+         */
+        private mounted() {
+            type topicCache = {
+                version: number,
+                topics: ITopic[]
+            };
+
+            localForage.getItem<topicCache>(CacheTypes.TOPICS)
+                .then((value: topicCache) => {
+
+                    let currentVersion = -1;
+
+                    if (value !== null) {
+                        currentVersion = value.version;
+                    }
+
+                    // Sends a get request to the server, and sets the correct store value after receiving the topics in the GetTopicsCallBack
+                    ApiWrapper.sendPostRequest(new GetTopics(currentVersion), (callbackData: GetTopicsCallBack) => {
+
+                        if (typeof callbackData.topics !== "undefined") {
+                            this.topics = callbackData.topics;
+                            dataState.setTopics(callbackData.topics);
+
+                            const topicData: topicCache = {
+                                version: callbackData.version,
+                                topics: callbackData.topics
+                            };
+
+                            localForage.setItem(CacheTypes.TOPICS, topicData)
+                                .then(() => {
+                                    logStringConsole("Added topics to cache", "NavDrawer");
+                                });
+                        } else {
+                            this.topics = value.topics;
+                            dataState.setTopics(value.topics);
+                        }
+
+                        if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
+                            this.activeTopicHash = [+this.$router.currentRoute.params.hash];
+                        }
+
+                        logObjectConsole(this.topics, "NavDrawer mounted");
+
+                    }, (err: AxiosError) => {
+
+                        logStringConsole("Set topics from cache", "NavDrawer mounted error axios");
+                        this.topics = value.topics;
+                        dataState.setTopics(value.topics);
+                    });
+                });
+        }
+    }
 </script>
 
 <style scoped>

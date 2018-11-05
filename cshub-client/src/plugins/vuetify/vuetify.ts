@@ -1,7 +1,8 @@
 import Vue from "vue";
 import Vuetify from "vuetify";
 import "vuetify/dist/vuetify.min.css";
-import "@mdi/font/css/materialdesignicons.css";
+import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
+import "@fortawesome/fontawesome-free/css/solid.min.css";
 
 Vue.use(Vuetify, {
     theme: {
@@ -14,5 +15,5 @@ Vue.use(Vuetify, {
         warning: "#FFC107"
     },
     customProperties: true,
-    iconfont: "mdi",
+    iconfont: "fa",
 });
