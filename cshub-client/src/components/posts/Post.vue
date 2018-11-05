@@ -493,7 +493,7 @@
 
     @font-face {
         font-family: 'SailecLight';
-        src: url("../../plugins/quill/Sailec-Light.otf");
+        src: url("../../../public/assets/Sailec-Light.otf");
     }
 
     .ql-editor {
