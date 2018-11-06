@@ -50,11 +50,11 @@ export interface RangeStatic {
 }
 
 export class RangeStatic implements RangeStatic {
-    constructor() {};
 
-    index: number;
-    length: number;
-}
+
+    public index: number;
+    public length: number;
+    constructor() {}}
 
 export interface EventEmitter {
     on(eventName: "text-change", handler: TextChangeHandler): EventEmitter;
