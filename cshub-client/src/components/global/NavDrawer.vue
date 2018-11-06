@@ -199,7 +199,7 @@
          */
         private logout() {
             logStringConsole("Logging user out");
-            document.cookie = "token=";
+            document.cookie = "token=xxx";
             userState.clearUserModel();
             uiState.setDrawerState(false);
             this.$router.push(Routes.INDEX);
