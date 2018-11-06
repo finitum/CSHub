@@ -83,16 +83,16 @@
             return uiState.editDialogState;
         }
 
-        get thisDialogActive(): boolean {
-            return this.dialogActive.on && this.dialogActive.hash === this.postHash;
-        }
-
         set dialogActive(value: editDialogType) {
             if (!value.on) {
                 this.$router.push(`${Routes.POST}/${this.postHash}`);
                 uiState.setEditDialogState(value);
             }
 
+        }
+
+        get thisDialogActive(): boolean {
+            return this.dialogActive.on && this.dialogActive.hash === this.postHash;
         }
 
         /**
