@@ -4,8 +4,5 @@
   "devDependencies": {
     "quill-delta": "^4.1.0",
     "dayjs": "^1.7.7"
-  },
-  "dependencies": {
-    "@types/node": "^10.12.2"
   }
 }
