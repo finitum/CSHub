@@ -16,18 +16,13 @@ app.post(Login.getURL, (req: Request, res: Response) => {
     const loginRequest = req.body as Login;
 
     // Checking the input, see createaccount for a (bit) more in depth explanation
-    if (customValidator({
-        input: loginRequest.password,
-        validationObject: {
-            minlength: 8
-        }
-    }).valid && customValidator({input: loginRequest.email}).valid) {
+    if (customValidator({input: loginRequest.password}).valid && customValidator({input: loginRequest.email}).valid) {
 
         // If the input is actually valid, check if the password entered is equal. Depending on the output of the server, provide the correct error or login.
         hashPassword(loginRequest.password)
             .then((hashedValue: string) => {
                 query(`
-                SELECT email, id, firstname, lastname, admin, blocked, verified, password, avatar
+                SELECT email, id, firstname, lastname, admin, blocked, verified, password
                 FROM users
                 WHERE email = ?
                 `, loginRequest.email)
@@ -51,7 +46,7 @@ app.post(Login.getURL, (req: Request, res: Response) => {
                                     verified: result.getNumberFromDB("verified") === 1,
                                     firstname: result.getStringFromDB("firstname"),
                                     lastname: result.getStringFromDB("lastname"),
-                                    avatar: result.getStringFromDB("avatar")
+                                    avatar: ""
                                 };
 
                                 const jwt = sign(userModel);

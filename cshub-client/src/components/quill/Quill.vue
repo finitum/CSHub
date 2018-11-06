@@ -147,7 +147,6 @@
 
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
     import {ImageResize} from "../../plugins/quill/ImageResize.min";
-    import {QuillOptionsStatic, Sources} from "../../plugins/quill/quill";
 
     import defaultOptions from "./QuillDefaultOptions";
     import {IQuillEditSetup} from "./IQuillEditSetup";
@@ -181,7 +180,7 @@
         @Prop({type: null, required: true, default: {allowEdit: true, showToolbar: true, postHash: -1}}) private editorSetup: IQuillEditSetup;
 
         private editor: any = null;
-        private editorOptions: QuillOptionsStatic = defaultOptions;
+        private editorOptions: any = defaultOptions;
 
         private typingTimeout: number = null;
         private draftValue: Delta = null;
@@ -324,7 +323,7 @@
             this.editor.on("text-change", this.textChanged);
         }
 
-        private textChanged(delta: Delta, oldContents: Delta, source: Sources) {
+        private textChanged(delta: Delta, oldContents: Delta, source: any) {
             clearTimeout(this.typingTimeout);
             this.typingTimeout = setTimeout(() => {
                 localForage.setItem<Delta>(this.postHashCacheItemID, this.getDelta())

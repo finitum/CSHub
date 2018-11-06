@@ -79,6 +79,10 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
                 postVersion: post.getNumberFromDB("postVersion")
             };
 
+            if (postBase.author.avatar !== null) {
+                postBase.author.avatar = Buffer.from(postBase.author.avatar).toString("base64");
+            }
+
             return new GetPostCallBack(postBase);
         })
         .catch(err => {

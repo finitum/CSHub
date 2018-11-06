@@ -124,6 +124,10 @@
         background: white;
     }
 
+    .postTile .v-list__tile {
+        height: auto !important;
+    }
+
     .v-icon {
         font-size: 17px !important;
     }

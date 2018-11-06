@@ -54,7 +54,7 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                                         id: edit.getNumberFromDB("authorId"),
                                         firstname: edit.getStringFromDB("authorFirstName"),
                                         lastname: edit.getStringFromDB("authorLastName"),
-                                        avatar: edit.getStringFromDB("authorAvatar"),
+                                        avatar: "",
                                         admin: edit.getNumberFromDB("authorAdmin") === 1
                                     },
                                     id: edit.getNumberFromDB("id"),

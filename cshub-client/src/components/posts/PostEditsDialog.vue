@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="dialogActive.on" fullscreen hide-overlay transition="dialog-bottom-transition">
+    <v-dialog v-model="thisDialogActive" fullscreen hide-overlay transition="dialog-bottom-transition">
         <v-card>
             <v-toolbar dark color="primary">
                 <v-btn icon dark @click.native="dialogActive = {on: false, hash: -1}">
@@ -91,12 +91,16 @@
 
         }
 
+        get thisDialogActive(): boolean {
+            return this.dialogActive.on && this.dialogActive.hash === this.postHash;
+        }
+
         /**
          * Watchers
          */
         @Watch("dialogActive")
-        private dialogActiveChanged(newVal: boolean) {
-            if (newVal && this.dialogActive.hash === this.postHash) {
+        private dialogActiveChanged(newVal: editDialogType) {
+            if (this.thisDialogActive) {
                 ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
 
                     let previousDelta = new Delta(JSON.parse(JSON.stringify(callbackData.edits[0].content)));

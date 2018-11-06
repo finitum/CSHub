@@ -19,8 +19,8 @@ app.post(CreateTopic.getURL, (req: Request, res: Response) => {
     const inputsValidation = validateMultipleInputs({
         input: submitTopicRequest.topicTitle,
         validationObject: {
-            minlength: 4,
-            maxlength: 127
+            minlength: 2,
+            maxlength: 35
         }
     }, {input: submitTopicRequest.topicParentHash});
 

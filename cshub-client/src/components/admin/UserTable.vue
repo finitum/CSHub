@@ -14,7 +14,6 @@
                 <td class="text-xs-right">{{ props.item.lastname }}</td>
                 <td class="text-xs-right">{{ props.item.email }}</td>
                 <td class="text-xs-right">{{ props.item.admin }}</td>
-                <td class="text-xs-right">{{ props.item.avatar }}</td>
                 <td class="text-xs-right">{{ props.item.blocked }}</td>
                 <td class="text-xs-right">{{ props.item.verified }}</td>
             </template>
@@ -47,7 +46,6 @@
             {text: "Last name", value: "lastname"},
             {text: "Email", value: "email"},
             {text: "Admin", value: "admin"},
-            {text: "Avatar", value: "avatar"},
             {text: "Blocked", value: "blocked"},
             {text: "Verified", value: "verified"}
         ];

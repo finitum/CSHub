@@ -23,7 +23,7 @@
                                         label="Topic title"
                                         box
                                         v-model="topicTitle"
-                                        v-validate="'required|min:4|max:127'"
+                                        v-validate="'required|min:2|max:35'"
                                         :error-messages="errors.collect('topicTitle') + topicTitleError"
                                         @change="topicTitleError = ''"
                                         name="topicTitle"

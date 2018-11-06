@@ -9,8 +9,11 @@ import {Settings} from "../settings";
 // Sign the object, add the expirydate of 2 hours and then convert to unix timeformat
 export const sign = (obj: IUser): string => {
 
+    let newObj: IUser = JSON.parse(JSON.stringify(obj));
+    newObj.avatar = "";
+
     const jwtobj: IJWTToken = {
-        user: obj,
+        user: newObj,
         expirydate: dayjs().add(Settings.TOKENAGEMILLISECONDS, "millisecond").unix()
     };
 

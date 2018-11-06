@@ -14,7 +14,7 @@ app.post(GetAllUsers.getURL, (req: Request, res: Response) => {
     if (token.valid && token.tokenObj.user.admin) {
 
         query(`
-        SELECT id, email, firstname, lastname, blocked, verified, admin, avatar
+        SELECT id, email, firstname, lastname, blocked, verified, admin
         FROM users
         LIMIT ?, ?
         `, (getAllUsersRequest.page - 1) * getAllUsersRequest.rowsPerPage, getAllUsersRequest.rowsPerPage)
@@ -28,7 +28,7 @@ app.post(GetAllUsers.getURL, (req: Request, res: Response) => {
                         admin: userRow.getNumberFromDB("admin") === 1,
                         firstname: userRow.getStringFromDB("firstname"),
                         lastname: userRow.getStringFromDB("lastname"),
-                        avatar: userRow.getStringFromDB("avatar"),
+                        avatar: "",
                         email: userRow.getStringFromDB("email"),
                         blocked: userRow.getNumberFromDB("blocked") === 1,
                         verified: userRow.getNumberFromDB("verified") === 1

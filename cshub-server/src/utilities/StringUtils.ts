@@ -33,6 +33,8 @@ export enum CustomValidatorReponseTypes {
 // It will return a response which tells it if it's valid, gives the enum of the error and the value of the string is something is wrong
 export const customValidator = (input: ICustomValidatorInput): ICustomValidatorResponse => {
 
+    const inputString = input.input.toString();
+
     if (input.validationObject === undefined) {
         input.validationObject = {nullemptyundefined: true};
     }
@@ -48,13 +50,15 @@ export const customValidator = (input: ICustomValidatorInput): ICustomValidatorR
         return {valid: false, error: CustomValidatorReponseTypes.UNDEFINED, value: input.input};
     } else if (input.validationObject.empty && input.input === "") {
         return {valid: false, error: CustomValidatorReponseTypes.EMPTY, value: input.input};
-    } else if (input.validationObject.minlength && input.validationObject.minlength > 0 && input.input.toString().length < input.validationObject.minlength) {
+    } else if (input.validationObject.minlength && input.validationObject.minlength > 0 && inputString.length < input.validationObject.minlength) {
         return {valid: false, error: CustomValidatorReponseTypes.MINLENGTH, value: input.input};
-    } else if (input.validationObject.maxlength && input.validationObject.maxlength > 0 && input.input.toString().length > input.validationObject.maxlength) {
+    } else if (input.validationObject.maxlength && input.validationObject.maxlength > 0 && inputString.length > input.validationObject.maxlength) {
         return {valid: false, error: CustomValidatorReponseTypes.MAXLENGTH, value: input.input};
     } else if (input.validationObject.tuemail) {
         const regex = new RegExp("^[a-zA-Z.]*$");
-        if (!regex.test(input.input.toString())) { return {valid: false, error: CustomValidatorReponseTypes.TUEMAIL, value: input.input}; }
+        if (!regex.test(inputString) || !inputString.includes(".") || inputString[inputString.length - 1] === ".") {
+            return {valid: false, error: CustomValidatorReponseTypes.TUEMAIL, value: input.input};
+        }
     } else {
         return {valid: true};
     }
