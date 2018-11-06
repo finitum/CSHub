@@ -7,7 +7,7 @@ export const emailValidator = {
     },
     validate(value: string) {
         const regex = new RegExp("^[a-zA-Z.]*$");
-        if (regex.test(value) && value.includes(".")) {
+        if (regex.test(value) && value.includes(".") && value[value.length - 1] !== ".") {
             return true;
         } else {
             return false;
