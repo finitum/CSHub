@@ -37,6 +37,7 @@
                 :items="topics"
                 item-key="hash"
                 activatable
+                class="ml-3"
                 active-class="primary--text"
                 transition>
             </v-treeview>

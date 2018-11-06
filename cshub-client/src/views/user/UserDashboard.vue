@@ -116,6 +116,8 @@
 
     import userState from "../../store/user";
 
+    import {Routes} from "../router/router";
+
     import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
     import {
         ChangeUserPassword,
@@ -213,6 +215,9 @@
                                         });
                                 }
                             }
+                        })
+                        .then(() => {
+                            this.$router.push(Routes.INDEX);
                         });
                 } else if (callback.response === ChangeUserAvatarReponseTypes.INVALIDIMAGE) {
                     // Perhaps do something
