@@ -54,7 +54,7 @@ export const customValidator = (input: ICustomValidatorInput): ICustomValidatorR
         return {valid: false, error: CustomValidatorReponseTypes.MAXLENGTH, value: input.input};
     } else if (input.validationObject.tuemail) {
         const regex = new RegExp("^[a-zA-Z.]*$");
-        if (!regex.test(input.input.toString())) { return {valid: false, error: CustomValidatorReponseTypes.TUEMAIL, value: input.input}; }
+        if (!regex.test(input.input.toString()) || !input.input.toString().includes(".")) { return {valid: false, error: CustomValidatorReponseTypes.TUEMAIL, value: input.input}; }
     } else {
         return {valid: true};
     }
