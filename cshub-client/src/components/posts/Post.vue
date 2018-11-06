@@ -10,6 +10,9 @@
                 <v-card-title primary-title :id="'postTitle_' + domId" style="padding-bottom: 0;">
                     <transition name="topMenuShow">
                         <div v-if="!showTopMenu && fullPostComputed">
+                            <v-btn color="primary" depressed small dark @click="returnToPostMenu">
+                                <v-icon>fas fa-chevron-left</v-icon>
+                            </v-btn>
                             <v-btn color="secondary" depressed small @click="showTopMenu = true">
                                 <v-icon>fas fa-angle-down</v-icon>
                             </v-btn>

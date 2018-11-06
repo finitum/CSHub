@@ -29,7 +29,7 @@
                                     :append-icon="userData.passwordvisible ? 'fa-eye-slash' : 'fas fa-eye'"
                                     @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
                                     :type="userData.passwordvisible ? 'text' : 'password'"
-                                    v-validate="'required|min:8'"
+                                    v-validate="'required'"
                                     box
                                     required
                                     autocomplete="current-password"

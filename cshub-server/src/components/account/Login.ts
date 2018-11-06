@@ -16,12 +16,7 @@ app.post(Login.getURL, (req: Request, res: Response) => {
     const loginRequest = req.body as Login;
 
     // Checking the input, see createaccount for a (bit) more in depth explanation
-    if (customValidator({
-        input: loginRequest.password,
-        validationObject: {
-            minlength: 8
-        }
-    }).valid && customValidator({input: loginRequest.email}).valid) {
+    if (customValidator({input: loginRequest.password}).valid && customValidator({input: loginRequest.email}).valid) {
 
         // If the input is actually valid, check if the password entered is equal. Depending on the output of the server, provide the correct error or login.
         hashPassword(loginRequest.password)
