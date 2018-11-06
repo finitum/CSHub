@@ -119,7 +119,7 @@
                     style="width: 100%; margin: 10% auto;"
             ></v-progress-circular>
         </div>
-        <PostEditsDialog :postHash="postHash"></PostEditsDialog>
+        <PostEditsDialog :key="postHash":postHash="postHash"></PostEditsDialog>
     </div>
 </template>
 
@@ -453,7 +453,9 @@
         }
 
         private viewEditDialog() {
-            this.$router.push(`${this.currentPostURLComputed}/edits`);
+            if (this.$route.fullPath !== `${this.currentPostURLComputed}/edits`) {
+                this.$router.push(`${this.currentPostURLComputed}/edits`);
+            }
             uiState.setEditDialogState({
                 on: true,
                 hash: this.postHash
