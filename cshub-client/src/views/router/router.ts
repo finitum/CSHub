@@ -113,7 +113,6 @@ const router = new Router({
 });
 
 router.beforeEach((to: Route, from: Route, next) => {
-    next();
 
     if (!userState.hasCheckedToken) {
         ApiWrapper.sendGetRequest(new VerifyUserToken(), (verified: VerifyUserTokenCallback) => {
@@ -128,11 +127,15 @@ router.beforeEach((to: Route, from: Route, next) => {
             } else {
                 logStringConsole("User is not logged in", "isLoggedIn after API");
             }
+            next();
             userState.setCheckedToken();
 
         }, (err: AxiosError) => {
             dataState.setConnection(false);
+            next();
         });
+    } else {
+        next();
     }
 
 });

@@ -22,7 +22,7 @@ app.post(Login.getURL, (req: Request, res: Response) => {
         hashPassword(loginRequest.password)
             .then((hashedValue: string) => {
                 query(`
-                SELECT email, id, firstname, lastname, admin, blocked, verified, password, avatar
+                SELECT email, id, firstname, lastname, admin, blocked, verified, password
                 FROM users
                 WHERE email = ?
                 `, loginRequest.email)
@@ -46,7 +46,7 @@ app.post(Login.getURL, (req: Request, res: Response) => {
                                     verified: result.getNumberFromDB("verified") === 1,
                                     firstname: result.getStringFromDB("firstname"),
                                     lastname: result.getStringFromDB("lastname"),
-                                    avatar: result.getStringFromDB("avatar")
+                                    avatar: ""
                                 };
 
                                 const jwt = sign(userModel);

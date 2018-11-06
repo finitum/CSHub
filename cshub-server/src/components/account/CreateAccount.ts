@@ -33,6 +33,7 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
                 if (result.getRows().length === 0) {
                     hashPassword(createAccountRequest.password)
                         .then((hashedValue: string) => {
+
                             query(`
                             INSERT INTO users
                             SET email = ?, password = ?, firstname = ?, lastname = ?

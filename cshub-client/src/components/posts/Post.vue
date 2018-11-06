@@ -62,7 +62,7 @@
                                     :size="50"
                                     :class="{adminBorder: post.author.admin}"
                             >
-                                <img :src="post.author.avatar" alt="avatar">
+                                <img :src="getAvatarURL(post.author.avatar)" alt="avatar">
                             </v-avatar>
                         </v-badge>
                         <div>
@@ -265,6 +265,13 @@
         /**
          * Methods
          */
+        private getAvatarURL(dbImage: string) {
+            if (dbImage !== null) {
+                return `data:image/jpg;base64,${dbImage}`;
+            } else {
+                return "/assets/defaultAvatar.png";
+            }
+        }
         private windowHeightChanged() {
             if (this.canResize) {
                 // Calculate the right height for the postcardtext, 100px padding

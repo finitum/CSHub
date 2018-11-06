@@ -21,6 +21,7 @@
             <router-link :to="navigationLocations.USERDASHBOARD" v-if="userLoggedInComputed"><NavDrawerItem icon="fas fa-user" text="User dashboard"></NavDrawerItem></router-link>
             <router-link :to="navigationLocations.ADMINDASHBOARD" v-if="userLoggedInComputed && userAdminComputed"><NavDrawerItem icon="fas fa-users" text="Admin dashboard"></NavDrawerItem></router-link>
             <router-link :to="navigationLocations.LOGIN" v-if="!userLoggedInComputed"><NavDrawerItem icon="fas fa-sign-in-alt" text="Login"></NavDrawerItem></router-link>
+            <NavDrawerItem v-if="userLoggedInComputed" icon="fas fa-sign-out-alt" text="Logout"></NavDrawerItem>
             <v-divider dark class="my-3"></v-divider>
             <v-layout
                     row
@@ -190,6 +191,15 @@
                         dataState.setTopics(value.topics);
                     });
                 });
+        }
+
+        /**
+         * Methods
+         */
+        private logout() {
+            logStringConsole("Logging user out");
+            document.cookie = "";
+            this.$router.push(Routes.INDEX);
         }
     }
 </script>

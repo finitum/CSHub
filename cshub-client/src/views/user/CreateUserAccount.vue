@@ -7,70 +7,72 @@
                         <span>Create account</span>
                     </v-card-title>
                     <v-card-text>
-                        <v-text-field
-                                label="Email"
-                                v-model="userData.email"
-                                :error-messages="errors.collect('email') + userData.emailerror"
-                                name="email"
-                                v-validate="'required|checkTUEmail'"
-                                suffix="@student.tudelft.nl"
-                                required
-                                box
-                                @change="userData.emailerror = ''"
-                                @keyup.enter="doCreateAccount"
-                        ></v-text-field>
-                        <v-text-field
-                                label="Password"
-                                v-model="userData.password"
-                                :error-messages="errors.collect('password')"
-                                name="password"
-                                :append-icon="userData.passwordvisible ? 'fa-eye-slash' : 'fas fa-eye'"
-                                @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
-                                :type="userData.passwordvisible ? 'text' : 'password'"
-                                v-validate="'required|min:8|confirmed:password confirmation'"
-                                box
-                                required
-                                @change="userData.passworderror = ''"
-                                @keyup.enter="doCreateAccount"
-                        ></v-text-field>
-                        <v-text-field
-                                label="Confirm password"
-                                v-model="userData.confirmPassword"
-                                :error-messages="errors.collect('password confirmation')"
-                                name="password confirmation"
-                                :append-icon="userData.passwordvisible ? 'fa-eye-slash' : 'fas fa-eye'"
-                                @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
-                                :type="userData.passwordvisible ? 'text' : 'password'"
-                                v-validate="'required|min:8'"
-                                box
-                                ref="password confirmation"
-                                required
-                                @change="userData.passworderror = ''"
-                                @keyup.enter="doCreateAccount"
-                        ></v-text-field>
-                        <v-text-field
-                                label="First name"
-                                v-model="userData.firstname"
-                                :error-messages="errors.collect('firstname')"
-                                name="firstname"
-                                v-validate="'required'"
-                                required
-                                box
-                                @keyup.enter="doCreateAccount"
-                        ></v-text-field>
-                        <v-text-field
-                                label="Last name"
-                                v-model="userData.lastname"
-                                :error-messages="errors.collect('lastname')"
-                                name="lastname"
-                                v-validate="'required'"
-                                required
-                                box
-                                @keyup.enter="doCreateAccount"
-                        ></v-text-field>
-                        <div>
-                            <v-btn depressed color="primary" @click="doCreateAccount">Create account</v-btn>
-                        </div>
+                        <v-form>
+                            <v-text-field
+                                    label="Email"
+                                    v-model="userData.email"
+                                    :error-messages="errors.collect('email') + userData.emailerror"
+                                    name="email"
+                                    v-validate="'required|checkTUEmail'"
+                                    suffix="@student.tudelft.nl"
+                                    required
+                                    box
+                                    @change="userData.emailerror = ''"
+                                    @keyup.enter="doCreateAccount"
+                            ></v-text-field>
+                            <v-text-field
+                                    label="Password"
+                                    v-model="userData.password"
+                                    :error-messages="errors.collect('password')"
+                                    name="password"
+                                    :append-icon="userData.passwordvisible ? 'fa-eye-slash' : 'fas fa-eye'"
+                                    @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
+                                    :type="userData.passwordvisible ? 'text' : 'password'"
+                                    v-validate="'required|min:8|confirmed:password confirmation'"
+                                    box
+                                    required
+                                    @change="userData.passworderror = ''"
+                                    @keyup.enter="doCreateAccount"
+                            ></v-text-field>
+                            <v-text-field
+                                    label="Confirm password"
+                                    v-model="userData.confirmPassword"
+                                    :error-messages="errors.collect('password confirmation')"
+                                    name="password confirmation"
+                                    :append-icon="userData.passwordvisible ? 'fa-eye-slash' : 'fas fa-eye'"
+                                    @click:append="() => (userData.passwordvisible = !userData.passwordvisible)"
+                                    :type="userData.passwordvisible ? 'text' : 'password'"
+                                    v-validate="'required|min:8'"
+                                    box
+                                    ref="password confirmation"
+                                    required
+                                    @change="userData.passworderror = ''"
+                                    @keyup.enter="doCreateAccount"
+                            ></v-text-field>
+                            <v-text-field
+                                    label="First name"
+                                    v-model="userData.firstname"
+                                    :error-messages="errors.collect('firstname')"
+                                    name="firstname"
+                                    v-validate="'required'"
+                                    required
+                                    box
+                                    @keyup.enter="doCreateAccount"
+                            ></v-text-field>
+                            <v-text-field
+                                    label="Last name"
+                                    v-model="userData.lastname"
+                                    :error-messages="errors.collect('lastname')"
+                                    name="lastname"
+                                    v-validate="'required'"
+                                    required
+                                    box
+                                    @keyup.enter="doCreateAccount"
+                            ></v-text-field>
+                            <div>
+                                <v-btn depressed color="primary" @click="doCreateAccount">Create account</v-btn>
+                            </div>
+                        </v-form>
                     </v-card-text>
                 </v-card>
             </v-flex>
