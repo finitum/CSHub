@@ -63,7 +63,7 @@
                             </v-avatar>
                         </v-badge>
                         <div>
-                            <h3 class="headline mb-0">{{post.title}}</h3><p v-if="!post.approved && fullPostComputed" style="color: grey">(unverified)</p>
+                            <h3 class="headline">{{post.title}}</h3><p v-if="!post.approved && fullPostComputed" style="color: grey">(unverified)</p>
                             <div>{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</div>
                         </div>
                     </span>
@@ -466,7 +466,7 @@
 
     .previewCard {
         position: relative;
-        max-height: 110px;
+        max-height: 30vh;
         width: 90%;
         overflow: hidden;
         margin: 20px 5% 20px 5%;
@@ -484,9 +484,6 @@
     }
 
     .viewButton {
-        position: absolute;
-        bottom: 0;
-        left: 0;
         width: 100%;
         text-align: right;
         margin: 0;
