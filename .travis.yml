@@ -9,12 +9,12 @@ matrix:
         - "11"
     before_script:
         - cd cshub-shared
-        - npm install
+        - yarn
         - cd ..
         - cd cshub-client
     script:
-        - npm install
-        - npm run build
+        - yarn
+        - yarn build
 
   - language: node_js
     env:
@@ -25,13 +25,13 @@ matrix:
         - "11"
     before_script:
         - cd cshub-shared
-        - npm install
+        - yarn
         - cd ..
         - cd cshub-server/src/
         - cp SettingsBaseline.ts settings.ts
         - cd ..
     script:
-        - npm install
+        - yarn
         - tsc
 
 cache:
