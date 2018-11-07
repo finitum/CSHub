@@ -7,5 +7,5 @@ export * from "./EditPost";
 export * from "./GetPostContent";
 export * from "./GetEditContent";
 export * from "./GetSearchPosts";
-export * from "./user";
+export * from "./user/index";
 

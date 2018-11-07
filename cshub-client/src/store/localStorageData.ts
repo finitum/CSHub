@@ -1,4 +1,3 @@
 export enum LocalStorageData {
-    EMAIL = "EMAIL",
-    DIALOGOPENED = "DIALOGOPENED"
+    EMAIL = "EMAIL"
 }

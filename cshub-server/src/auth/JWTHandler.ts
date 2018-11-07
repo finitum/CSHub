@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 import dayjs from "dayjs";
 
-import {IUser} from "../../../cshub-shared/models/IUser";
-import {IJWTToken} from "../../../cshub-shared/models/IJWTToken";
+import {IUser} from "../../../cshub-shared/src/models/IUser";
+import {IJWTToken} from "../../../cshub-shared/src/models/IJWTToken";
 
 import {Settings} from "../settings";
 

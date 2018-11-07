@@ -5,7 +5,7 @@ import {checkTokenValidity} from "../../../auth/AuthMiddleware";
 import {
     GetUnverifiedPostsCallBack,
     GetUnverifiedPosts
-} from "../../../../../cshub-shared/api-calls";
+} from "../../../../../cshub-shared/src/api-calls";
 
 app.post(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
 

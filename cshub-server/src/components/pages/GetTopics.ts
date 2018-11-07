@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 
 import {app, logger} from "../../";
 
-import {GetPostContent, GetTopicsCallBack, GetTopics} from "../../../../cshub-shared/api-calls";
+import {GetPostContent, GetTopicsCallBack, GetTopics} from "../../../../cshub-shared/src/api-calls";
 import {getTopicTree} from "../../utilities/TopicsUtils";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 

@@ -126,16 +126,15 @@ import {
     PostVersionTypes,
     VerifyPostCallBack,
     VerifyPost, GetEditContent, GetEditContentCallback
-} from "../../../../cshub-shared/api-calls";
-import {IPost, ITopic} from "../../../../cshub-shared/models";
-import {getTopicFromHash} from "../../../../cshub-shared/utilities/Topics";
+} from "../../../../cshub-shared/src/api-calls";
+import {IPost, ITopic} from "../../../../cshub-shared/src/models";
+import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
+import {Routes} from "../../../../cshub-shared/src/Routes";
 
 import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
 import {CacheTypes} from "../../utilities/cache-types";
 import {ImgurUpload} from "../../utilities/imgur";
 import {idGenerator} from "../../utilities/id-generator";
-
-import {Routes} from "../../views/router/router";
 
 import dataState from "../../store/data";
 import userState from "../../store/user";

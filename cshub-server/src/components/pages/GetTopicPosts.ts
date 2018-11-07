@@ -4,10 +4,10 @@ import {Request, Response} from "express";
 import {app, logger} from "../../";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 
-import {GetTopicPostsCallBack, GetTopicPosts} from "../../../../cshub-shared/api-calls";
+import {GetTopicPostsCallBack, GetTopicPosts} from "../../../../cshub-shared/src/api-calls";
 import {getTopicTree} from "../../utilities/TopicsUtils";
-import {ITopic} from "../../../../cshub-shared/models";
-import {getTopicFromHash} from "../../../../cshub-shared/utilities/Topics";
+import {ITopic} from "../../../../cshub-shared/src/models";
+import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
 
 app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
 

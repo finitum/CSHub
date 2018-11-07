@@ -18,10 +18,12 @@
     import Vue from "vue";
     import {Component, Watch} from "vue-property-decorator";
 
+    import {Routes} from "../../../../cshub-shared/src/Routes";
+
     import uiState from "../../store/ui/index";
     import dataState from "../../store/data";
 
-    import router, {Routes} from "../../views/router/router";
+    import router from "../../views/router/router";
 
     @Component({
         name: "Toolbar"

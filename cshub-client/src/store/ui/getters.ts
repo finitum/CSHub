@@ -5,3 +5,5 @@ export const drawerState = uiStoreBuilder.read((state) => state.navbar.open, "dr
 export const editDialogState = uiStoreBuilder.read((state) => state.editDialogState, "editDialogState");
 
 export const paginationPageState = uiStoreBuilder.read((state) => state.paginationPageState, "paginationPageState");
+
+export const notificationDialog = uiStoreBuilder.read((state) => state.notificationDialog, "notificationDialog");

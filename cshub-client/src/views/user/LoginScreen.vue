@@ -1,3 +1,4 @@
+import {ForgotPasswordMailResponseTypes} from "../../../../cshub-shared/src/api-calls/account";
 <template>
     <v-container fluid fill-height class="grey lighten-4">
         <v-layout justify-center align-center>
@@ -22,6 +23,7 @@
                                     @keyup.enter="doLogin"
                             ></v-text-field>
                             <v-text-field
+                                    v-if="!forgotPassword"
                                     label="Password"
                                     v-model="userData.password"
                                     :error-messages="passwordErrors"
@@ -36,13 +38,18 @@
                                     @change="userData.passworderror = ''"
                                     @keyup.enter="doLogin"
                             ></v-text-field>
-                            <v-switch
-                                    label="Remember login?"
-                                    v-model="userData.rememberuser"
-                            ></v-switch>
-                            <div>
+                            <div v-if="!forgotPassword">
+                                <v-switch
+                                        label="Remember login?"
+                                        v-model="userData.rememberuser"
+                                ></v-switch>
                                 <v-btn depressed color="primary" @click="doLogin">Login</v-btn>
                                 <v-btn depressed color="secondary" to="createaccount">Create account</v-btn>
+                                <v-btn depressed color="accent" @click="forgotPassword = true">Forgot password</v-btn>
+                            </div>
+                            <div v-else>
+                                <v-btn depressed color="primary" @click="forgotPasswordSend">Send</v-btn>
+                                <v-btn depressed color="secondary" @click="forgotPassword = false">Back</v-btn>
                             </div>
                         </v-form>
                     </v-card-text>
@@ -61,10 +68,18 @@
 
     import {LocalStorageData} from "../../store/localStorageData";
     import userState from "../../store/user/index";
+    import uiState from "../../store/ui";
 
-    import {Login, LoginCallBack, LoginResponseTypes} from "../../../../cshub-shared/api-calls/index";
+    import {
+        ForgotPasswordMail,
+        ForgotPasswordMailCallback, ForgotPasswordMailResponseTypes,
+        Login,
+        LoginCallBack,
+        LoginResponseTypes
+    } from "../../../../cshub-shared/src/api-calls/index";
+    import {Routes} from "../../../../cshub-shared/src/Routes";
 
-    import router, {Routes} from "../router/router";
+    import router from "../router/router";
 
     @Component({
         name: "LoginScreen",
@@ -84,6 +99,7 @@
             globalerror: "",
             rememberuser: false
         };
+        private forgotPassword = false;
 
         /**
          * Computed properties
@@ -114,6 +130,26 @@
         /**
          * Methods
          */
+        private forgotPasswordSend() {
+            this.$validator.validateAll()
+                .then((allValid: boolean) => {
+                    if (allValid) {
+                        ApiWrapper.sendPostRequest(new ForgotPasswordMail(this.userData.email), (result: ForgotPasswordMailCallback) => {
+                            if (result.response === ForgotPasswordMailResponseTypes.SENT) {
+                                uiState.setNotificationDialogState({
+                                    on: true,
+                                    header: "Mail sent",
+                                    text: "The password reset mail has been sent."
+                                });
+                                this.$router.push(Routes.INDEX);
+                            } else {
+                                this.userData.emailerror = "Unknown email address";
+                            }
+                        });
+                    }
+                });
+        }
+
         private doLogin()  {
             this.$validator.validateAll()
                 .then((allValid: boolean) => {

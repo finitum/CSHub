@@ -36,7 +36,7 @@
                 :active.sync="activeTopicHash"
                 :items="topics"
                 item-key="hash"
-                class="pl-3 tree"
+                class="tree"
                 activatable
                 transition>
             </v-treeview>
@@ -67,11 +67,12 @@
     import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
     import {CacheTypes} from "../../utilities/cache-types";
 
-    import {ITopic} from "../../../../cshub-shared/models";
+    import {ITopic} from "../../../../cshub-shared/src/models";
     import {
         GetTopicsCallBack,
         GetTopics
-    } from "../../../../cshub-shared/api-calls";
+    } from "../../../../cshub-shared/src/api-calls";
+    import {Routes} from "../../../../cshub-shared/src/Routes";
 
     import NavDrawerItem from "./NavDrawerItem.vue";
 
@@ -79,7 +80,6 @@
     import dataState from "../../store/data";
     import userState from "../../store/user";
 
-    import {Routes} from "../../views/router/router";
     import {AdminRoutes} from "../../views/router/adminRoutes";
     import {Component, Watch} from "vue-property-decorator";
 
@@ -209,6 +209,21 @@
 <style scoped>
 /* Fixes the treeview leaf alignment (it was too much at 50px) */
 .tree >>> .v-treeview-node--leaf {
-    margin-left: 38px
+    margin-left: 38px;
 }
+
+.tree >>> .v-treeview-node__toggle {
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    padding: 0.5em 0.5em 0.5em 0.5em;
+    margin: -0.5em -0.5em -0.5em -0.5em;
+}
+
+
+.tree >>> .v-treeview-node__root, .v-treeview-node__children {
+    padding-left: 16px;
+}
+
+
 </style>

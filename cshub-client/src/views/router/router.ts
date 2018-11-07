@@ -1,12 +1,14 @@
 import Vue from "vue";
 import Router, {Route} from "vue-router";
 
-import {VerifyUserToken, VerifyUserTokenCallback, VerifyUserTokenResponseTypes} from "../../../../cshub-shared/api-calls/account";
+import {VerifyUserToken, VerifyUserTokenCallback, VerifyUserTokenResponseTypes} from "../../../../cshub-shared/src/api-calls/account";
+import {Routes} from "../../../../cshub-shared/src/Routes";
 
 const LoginScreen = () => import("../user/LoginScreen.vue");
 const CreateAccount = () => import("../user/CreateUserAccount.vue");
 const AdminDashboard = () => import("../user/AdminDashboard.vue");
 const UserDashboard = () => import("../user/UserDashboard.vue");
+import ForgotPassword from "../user/ForgotPassword.vue";
 
 const PostView = () => import("../posts/PostView.vue");
 const PostCreate = () => import("../posts/PostCreate.vue");
@@ -23,23 +25,11 @@ import {adminChildrenRoutes} from "./adminRoutes";
 import userState from "../../store/user";
 import dataState from "../../store/data";
 
-import {ApiWrapper, logStringConsole} from "../../utilities";
-import {AxiosError} from "axios" ;
+import Quill from "../../components/quill/Quill.vue";
+import {AxiosError} from "axios";
+import dataState from "../../store/data";
 
 Vue.use(Router);
-
-export class Routes {
-    public static readonly INDEX: string = "/";
-    public static readonly LOGIN = "/login";
-    public static readonly EDITOR = "/editor";
-    public static readonly CREATEACCOUNT = "/createaccount";
-    public static readonly POST = "/post";
-    public static readonly POSTCREATE = "/post/create";
-    public static readonly TOPIC = "/topic";
-    public static readonly USERDASHBOARD = "/user";
-    public static readonly ADMINDASHBOARD = "/admin";
-    public static readonly SEARCH = "/search";
-}
 
 const router = new Router({
     mode: "history",
@@ -103,6 +93,11 @@ const router = new Router({
             name: "user",
             component: UserDashboard,
             beforeEnter: userBeforeEnter
+        },
+        {
+            path: Routes.FORGOTPASSWORD,
+            name: "forgotpassword",
+            component: ForgotPassword
         },
         {
             path: Routes.ADMINDASHBOARD,

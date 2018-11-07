@@ -30,7 +30,7 @@
     import {
         GetUnverifiedPostsCallBack,
         GetUnverifiedPosts
-    } from "../../../../cshub-shared/api-calls/admin/GetUnverifiedPosts";
+    } from "../../../../cshub-shared/src/api-calls/admin/GetUnverifiedPosts";
 
     @Component({
         name: "AdminDashboard",

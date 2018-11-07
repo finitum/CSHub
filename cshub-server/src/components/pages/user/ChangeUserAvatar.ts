@@ -3,7 +3,7 @@ import {
     ChangeUserAvatar,
     ChangeUserAvatarCallback,
     ChangeUserAvatarReponseTypes
-} from "../../../../../cshub-shared/api-calls";
+} from "../../../../../cshub-shared/src/api-calls";
 import {Request, Response} from "express";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
 import sharp from "sharp";

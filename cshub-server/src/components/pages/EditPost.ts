@@ -5,7 +5,7 @@ import {app, logger} from "../../";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
-import {EditPostCallback, EditPost} from "../../../../cshub-shared/api-calls/pages/EditPost";
+import {EditPostCallback, EditPost} from "../../../../cshub-shared/src/api-calls/pages/EditPost";
 import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 
 app.post(EditPost.getURL, (req: Request, res: Response) => {

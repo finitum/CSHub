@@ -4,7 +4,7 @@ import {app, logger} from "../../";
 
 import {
     NonAuthRequests
-} from "../../../../cshub-shared/api-calls";
+} from "../../../../cshub-shared/src/api-calls";
 
 import {Settings} from "../../settings";
 import {query} from "../../utilities/DatabaseConnection";

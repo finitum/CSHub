@@ -1,4 +1,4 @@
-import {IUser} from "../../../../cshub-shared/models/IUser";
+import {IUser} from "../../../../cshub-shared/src/models/IUser";
 import {getStoreBuilder} from "vuex-typex";
 import {IRootState} from "../";
 

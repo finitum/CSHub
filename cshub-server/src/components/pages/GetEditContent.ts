@@ -7,10 +7,10 @@ import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 
-import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/api-calls";
+import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/src/api-calls";
 
 import dayjs from "dayjs";
-import {IEdit} from "../../../../cshub-shared/models";
+import {IEdit} from "../../../../cshub-shared/src/models";
 
 app.post(GetEditContent.getURL, (req: Request, res: Response) => {
 

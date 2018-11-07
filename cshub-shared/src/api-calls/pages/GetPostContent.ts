@@ -1,6 +1,6 @@
-import {IApiRequest} from "../../models";
+import {IApiRequest} from "../../models/index";
 import {NonAuthRequests} from "../NonAuthRequests";
-import {IPost} from "../../models";
+import {IPost} from "../../models/index";
 
 export enum PostVersionTypes {
     UPDATEDPOST,

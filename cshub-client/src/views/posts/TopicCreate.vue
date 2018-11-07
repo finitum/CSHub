@@ -56,16 +56,15 @@
 
     import dataState from "../../store/data";
 
-    import {Routes} from "../router/router";
-
     import {ApiWrapper} from "../../utilities";
 
     import {
         CreateTopicCallback,
         CreateTopic,
         CreateTopicResponseTypes
-    } from "../../../../cshub-shared/api-calls";
-    import {ITopic} from "../../../../cshub-shared/models";
+    } from "../../../../cshub-shared/src/api-calls";
+    import {ITopic} from "../../../../cshub-shared/src/models";
+    import {Routes} from "../../../../cshub-shared/src/Routes";
 
     @Component({
         name: "TopicCreate",

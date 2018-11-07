@@ -1,5 +1,5 @@
 import {userStoreBuilder} from "./state";
-import {IUser} from "../../../../cshub-shared/models";
+import {IUser} from "../../../../cshub-shared/src/models";
 
 export const isAdmin = userStoreBuilder.read<boolean>((state) => state.userModel !== null && state.userModel.admin, "isAdmin");
 export const isLoggedIn = userStoreBuilder.read<boolean>((state) => state.userModel !== null && state.userModel.id !== 0, "isLoggedIn");

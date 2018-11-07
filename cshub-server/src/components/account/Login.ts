@@ -4,8 +4,8 @@ import {app, logger} from "../../index";
 import {Settings} from "../../settings";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 
-import {Login, LoginCallBack, LoginResponseTypes} from "../../../../cshub-shared/api-calls/index";
-import {IUser} from "../../../../cshub-shared/models/IUser";
+import {Login, LoginCallBack, LoginResponseTypes} from "../../../../cshub-shared/src/api-calls/index";
+import {IUser} from "../../../../cshub-shared/src/models/IUser";
 
 import {sign} from "../../auth/JWTHandler";
 import {customValidator} from "../../utilities/StringUtils";

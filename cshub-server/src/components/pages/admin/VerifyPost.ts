@@ -2,7 +2,7 @@ import {app} from "../../../";
 import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
-import {VerifyPostCallBack, VerifyPost} from "../../../../../cshub-shared/api-calls";
+import {VerifyPostCallBack, VerifyPost} from "../../../../../cshub-shared/src/api-calls";
 
 app.post(VerifyPost.getURL, (req: Request, res: Response) => {
 

@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import dayjs from "dayjs";
 
-import {IJWTToken} from "../../../cshub-shared/models/IJWTToken";
+import {IJWTToken} from "../../../cshub-shared/src/models/IJWTToken";
 
 import {app} from "../index";
 import {sign, validateAccessToken} from "./JWTHandler";

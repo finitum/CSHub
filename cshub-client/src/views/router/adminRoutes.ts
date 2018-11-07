@@ -1,5 +1,4 @@
 import {RouteConfig} from "vue-router";
-import {adminBeforeEnter} from "./guards/adminDashboardGuard";
 
 import TopicCreate from "../../views/posts/TopicCreate.vue";
 

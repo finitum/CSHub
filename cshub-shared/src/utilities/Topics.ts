@@ -1,5 +1,5 @@
 // This is a recursive function which will get the topic from its hashs, if not, check the children (by calling iself on the children)
-import {ITopic} from "../models";
+import {ITopic} from "../models/index";
 
 export const getTopicFromHash = (topicHash: number, topics: ITopic[]): ITopic => {
     for (const topic of topics) {
