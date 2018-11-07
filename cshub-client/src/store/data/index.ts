@@ -9,9 +9,9 @@ const dataState = {
     get hasConnection() { return hasConnection(); },
     get searchQuery() { return searchQuery(); },
 
-    setConnection: dataStoreBuilder.commit(setConnection),
-    setTopics: dataStoreBuilder.commit(setTopics),
-    setSearchQuery: dataStoreBuilder.commit(setSearchQuery)
+    setConnection: dataStoreBuilder.commit(setConnection, "setConnection"),
+    setTopics: dataStoreBuilder.commit(setTopics, "setTopics"),
+    setSearchQuery: dataStoreBuilder.commit(setSearchQuery, "setSearchQuery")
 
 };
 

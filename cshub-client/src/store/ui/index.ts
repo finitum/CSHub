@@ -10,10 +10,10 @@ const uiState = {
     get paginationPageState() { return paginationPageState(); },
     get notificationDialogState() { return notificationDialog(); },
 
-    setDrawerState: uiStoreBuilder.commit(setDrawerState),
-    setEditDialogState: uiStoreBuilder.commit(setEditDialogState),
-    setPaginationPageState: uiStoreBuilder.commit(setPaginationPageState),
-    setNotificationDialogState: uiStoreBuilder.commit(setNotificationDialogState)
+    setDrawerState: uiStoreBuilder.commit(setDrawerState, "setDrawerState"),
+    setEditDialogState: uiStoreBuilder.commit(setEditDialogState, "setEditDialogState"),
+    setPaginationPageState: uiStoreBuilder.commit(setPaginationPageState, "setPaginationPageState"),
+    setNotificationDialogState: uiStoreBuilder.commit(setNotificationDialogState, "setNotificationDialogState")
 };
 
 export default uiState;

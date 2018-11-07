@@ -11,9 +11,9 @@ const userState = {
     get hasCheckedToken(): boolean { return hasCheckedToken(); },
     get userModel(): IUser { return userModel(); },
 
-    changeUserModel: userStoreBuilder.commit(changeUserModel),
-    clearUserModel: userStoreBuilder.commit(clearUserModel),
-    setCheckedToken: userStoreBuilder.commit(setCheckedToken)
+    changeUserModel: userStoreBuilder.commit(changeUserModel, "changeUserModel"),
+    clearUserModel: userStoreBuilder.commit(clearUserModel, "clearUserModel"),
+    setCheckedToken: userStoreBuilder.commit(setCheckedToken, "setCheckedToken")
 };
 
 export default userState;
