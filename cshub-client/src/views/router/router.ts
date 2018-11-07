@@ -3,26 +3,28 @@ import Router, {Route} from "vue-router";
 
 import {VerifyUserToken, VerifyUserTokenCallback, VerifyUserTokenResponseTypes} from "../../../../cshub-shared/api-calls/account";
 
-import LoginScreen from "../user/LoginScreen.vue";
-import CreateAccount from "../user/CreateUserAccount.vue";
-import AdminDashboard from "../user/AdminDashboard.vue";
-import UserDashboard from "../user/UserDashboard.vue";
+const LoginScreen = () => import("../user/LoginScreen.vue");
+const CreateAccount = () => import("../user/CreateUserAccount.vue");
+const AdminDashboard = () => import("../user/AdminDashboard.vue");
+const UserDashboard = () => import("../user/UserDashboard.vue");
 
-import PostView from "../posts/PostView.vue";
-import PostCreate from "../posts/PostCreate.vue";
-import PostsSearch from "../posts/PostsSearch.vue";
+const PostView = () => import("../posts/PostView.vue");
+const PostCreate = () => import("../posts/PostCreate.vue");
+const PostsSearch = () => import("../posts/PostsSearch.vue");
+
+const Quill = () => import("../../components/quill/Quill.vue");
 
 import {userBeforeEnter} from "./guards/userDashboardGuard";
 import {adminBeforeEnter} from "./guards/adminDashboardGuard";
 import {onlyIfNotLoggedIn} from "./guards/onlyIfNotLoggedInGuard";
 
 import {adminChildrenRoutes} from "./adminRoutes";
-import userState from "../../store/user";
-import {ApiWrapper, logStringConsole} from "../../utilities";
 
-import Quill from "../../components/quill/Quill.vue";
-import {AxiosError} from "axios";
+import userState from "../../store/user";
 import dataState from "../../store/data";
+
+import {ApiWrapper, logStringConsole} from "../../utilities";
+import {AxiosError} from "axios" ;
 
 Vue.use(Router);
 
