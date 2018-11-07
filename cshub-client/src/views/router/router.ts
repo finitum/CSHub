@@ -8,13 +8,11 @@ const LoginScreen = () => import("../user/LoginScreen.vue");
 const CreateAccount = () => import("../user/CreateUserAccount.vue");
 const AdminDashboard = () => import("../user/AdminDashboard.vue");
 const UserDashboard = () => import("../user/UserDashboard.vue");
-import ForgotPasswordComp from "../user/ForgotPasswordComp.vue";
+const ForgotPasswordComp = () => import("../user/ForgotPasswordComp.vue");
 
 const PostView = () => import("../posts/PostView.vue");
 const PostCreate = () => import("../posts/PostCreate.vue");
 const PostsSearch = () => import("../posts/PostsSearch.vue");
-
-const Quill = () => import("../../components/quill/Quill.vue");
 
 import {userBeforeEnter} from "./guards/userDashboardGuard";
 import {adminBeforeEnter} from "./guards/adminDashboardGuard";
@@ -25,9 +23,8 @@ import {adminChildrenRoutes} from "./adminRoutes";
 import userState from "../../store/user";
 import dataState from "../../store/data";
 
-import Quill from "../../components/quill/Quill.vue";
 import {AxiosError} from "axios";
-import dataState from "../../store/data";
+import {ApiWrapper, logStringConsole} from "../../utilities";
 
 Vue.use(Router);
 
@@ -72,11 +69,6 @@ const router = new Router({
             path: `${Routes.POST}/:hash/edits`,
             name: "postEdits",
             component: PostView
-        },
-        {
-            path: Routes.EDITOR, // TODO: Same as import
-            name: "editor",
-            component: Quill
         },
         {
             path: `${Routes.TOPIC}/:hash`,
