@@ -7,7 +7,3 @@ cshub-server/src/**/*.map
 
 cshub-shared/**/*.js
 cshub-shared/**/*.map
-
-# Yarn lock files (un-ignore if everyone uses yarn)
-cshub-client/yarn.lock
-cshub-server/yarn.lock

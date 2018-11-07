@@ -2,8 +2,8 @@ import {Request, Response} from "express";
 
 import {app, logger} from "../../";
 
-import {CreateTopicCallback, CreateTopic, CreateTopicResponseTypes} from "../../../../cshub-shared/api-calls";
-import {getTopicFromHash} from "../../../../cshub-shared/utilities/Topics";
+import {CreateTopicCallback, CreateTopic, CreateTopicResponseTypes} from "../../../../cshub-shared/src/api-calls";
+import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
 
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {generateRandomTopicHash, getTopicTree} from "../../utilities/TopicsUtils";

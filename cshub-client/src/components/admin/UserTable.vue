@@ -27,8 +27,8 @@
 
     import {ApiWrapper} from "../../utilities";
 
-    import {GetAllUsersCallBack, GetAllUsers} from "../../../../cshub-shared/api-calls/admin";
-    import {IUser} from "../../../../cshub-shared/models";
+    import {GetAllUsersCallBack, GetAllUsers} from "../../../../cshub-shared/src/api-calls/admin";
+    import {IUser} from "../../../../cshub-shared/src/models";
 
     @Component({
         name: "userTable"

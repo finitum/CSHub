@@ -6,7 +6,7 @@ import {
     VerifyUserToken,
     VerifyUserTokenCallback,
     VerifyUserTokenResponseTypes
-} from "../../../../cshub-shared/api-calls";
+} from "../../../../cshub-shared/src/api-calls";
 
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 

@@ -19,12 +19,11 @@
 
     import PostList from "../../components/posts/PostList.vue";
 
-    import {GetTopicPostsCallBack, GetTopicPosts} from "../../../../cshub-shared/api-calls/index";
-    import {getTopicFromHash} from "../../../../cshub-shared/utilities/Topics";
+    import {GetTopicPostsCallBack, GetTopicPosts} from "../../../../cshub-shared/src/api-calls/index";
+    import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
+    import {Routes} from "../../../../cshub-shared/src/Routes";
 
     import dataState from "../../store/data";
-
-    import {Routes} from "../router/router";
 
     import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities/index";
     import {CacheTypes} from "../../utilities/cache-types";

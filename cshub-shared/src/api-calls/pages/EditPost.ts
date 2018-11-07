@@ -14,7 +14,11 @@ export class EditPost implements IApiRequest {
 
     constructor(
         public postHash: number,
-        public postBody: Delta,
-        public postHTML: string
+        public content: {
+            delta: Delta,
+            html: string
+        },
+        public postTitle: string,
+        public postTopicHash: number
     ) {}
 }

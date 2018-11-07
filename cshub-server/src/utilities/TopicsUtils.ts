@@ -1,6 +1,6 @@
-import {ITopic} from "../../../cshub-shared/models";
+import {ITopic} from "../../../cshub-shared/src/models";
 import {DatabaseResultSet, query} from "./DatabaseConnection";
-import {getTopicFromHash} from "../../../cshub-shared/utilities/Topics";
+import {getTopicFromHash} from "../../../cshub-shared/src/utilities/Topics";
 
 export const generateRandomTopicHash = (): Promise<number> => {
     const hash = parseInt((Math.random() * 1000000000).toString(), 10);

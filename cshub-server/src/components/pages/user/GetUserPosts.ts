@@ -1,5 +1,5 @@
 import {app} from "../../../";
-import {GetUserPostsCallback, GetUserPosts} from "../../../../../cshub-shared/api-calls";
+import {GetUserPostsCallback, GetUserPosts} from "../../../../../cshub-shared/src/api-calls";
 import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";

@@ -1,43 +1,32 @@
 import Vue from "vue";
 import Router, {Route} from "vue-router";
 
-import {VerifyUserToken, VerifyUserTokenCallback, VerifyUserTokenResponseTypes} from "../../../../cshub-shared/api-calls/account";
+import {VerifyUserToken, VerifyUserTokenCallback, VerifyUserTokenResponseTypes} from "../../../../cshub-shared/src/api-calls/account";
+import {Routes} from "../../../../cshub-shared/src/Routes";
 
-import LoginScreen from "../user/LoginScreen.vue";
-import CreateAccount from "../user/CreateUserAccount.vue";
-import AdminDashboard from "../user/AdminDashboard.vue";
-import UserDashboard from "../user/UserDashboard.vue";
+const LoginScreen = () => import("../user/LoginScreen.vue");
+const CreateAccount = () => import("../user/CreateUserAccount.vue");
+const AdminDashboard = () => import("../user/AdminDashboard.vue");
+const UserDashboard = () => import("../user/UserDashboard.vue");
+const ForgotPasswordComp = () => import("../user/ForgotPasswordComp.vue");
 
-import PostView from "../posts/PostView.vue";
-import PostCreate from "../posts/PostCreate.vue";
-import PostsSearch from "../posts/PostsSearch.vue";
+const PostView = () => import("../posts/PostView.vue");
+const PostCreate = () => import("../posts/PostCreate.vue");
+const PostsSearch = () => import("../posts/PostsSearch.vue");
 
 import {userBeforeEnter} from "./guards/userDashboardGuard";
 import {adminBeforeEnter} from "./guards/adminDashboardGuard";
 import {onlyIfNotLoggedIn} from "./guards/onlyIfNotLoggedInGuard";
 
 import {adminChildrenRoutes} from "./adminRoutes";
-import userState from "../../store/user";
-import {ApiWrapper, logStringConsole} from "../../utilities";
 
-import Quill from "../../components/quill/Quill.vue";
-import {AxiosError} from "axios";
+import userState from "../../store/user";
 import dataState from "../../store/data";
 
-Vue.use(Router);
+import {AxiosError} from "axios";
+import {ApiWrapper, logStringConsole} from "../../utilities";
 
-export class Routes {
-    public static readonly INDEX: string = "/";
-    public static readonly LOGIN = "/login";
-    public static readonly EDITOR = "/editor";
-    public static readonly CREATEACCOUNT = "/createaccount";
-    public static readonly POST = "/post";
-    public static readonly POSTCREATE = "/post/create";
-    public static readonly TOPIC = "/topic";
-    public static readonly USERDASHBOARD = "/user";
-    public static readonly ADMINDASHBOARD = "/admin";
-    public static readonly SEARCH = "/search";
-}
+Vue.use(Router);
 
 const router = new Router({
     mode: "history",
@@ -82,11 +71,6 @@ const router = new Router({
             component: PostView
         },
         {
-            path: Routes.EDITOR, // TODO: Same as import
-            name: "editor",
-            component: Quill
-        },
-        {
             path: `${Routes.TOPIC}/:hash`,
             name: "topic",
             component: PostView
@@ -101,6 +85,11 @@ const router = new Router({
             name: "user",
             component: UserDashboard,
             beforeEnter: userBeforeEnter
+        },
+        {
+            path: Routes.FORGOTPASSWORD,
+            name: "forgotpassword",
+            component: ForgotPasswordComp
         },
         {
             path: Routes.ADMINDASHBOARD,

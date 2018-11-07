@@ -10,4 +10,6 @@ export class NonAuthRequests {
     public static readonly VERIFYTOKEN: string = "/0/verifytoken";
     public static readonly VERIFYMAIL: string = "/0/verifymail";
     public static readonly SEARCH: string = "/0/search";
+    public static readonly FORGOTPASSWORDMAIL: string = "/0/forgotpasswordmail";
+    public static readonly FORGOTPASSWORD: string = "/0/forgotpassword";
 }

@@ -3,8 +3,8 @@ import {Request, Response} from "express";
 import {
     GetPostCallBack,
     GetPost
-} from "../../../../cshub-shared/api-calls";
-import {IPost} from "../../../../cshub-shared/models";
+} from "../../../../cshub-shared/src/api-calls";
+import {IPost} from "../../../../cshub-shared/src/models";
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";

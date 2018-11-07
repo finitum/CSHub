@@ -20,15 +20,14 @@
     import {Component, Watch} from "vue-property-decorator";
     import Vue from "vue";
 
-    import {GetSearchPosts, GetSearchPostsCallback} from "../../../../cshub-shared/api-calls/pages";
+    import {GetSearchPosts, GetSearchPostsCallback} from "../../../../cshub-shared/src/api-calls/pages";
+    import {Routes} from "../../../../cshub-shared/src/Routes";
 
     import PostList from "../../components/posts/PostList.vue";
 
     import dataState from "../../store/data";
 
     import {ApiWrapper} from "../../utilities";
-
-    import {Routes} from "../router/router";
 
     @Component({
         name: "PostsSearch",

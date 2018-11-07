@@ -1,6 +1,6 @@
-export * from "./account";
-export * from "./pages";
-export * from "./admin";
+export * from "./account/index";
+export * from "./pages/index";
+export * from "./admin/index";
 
 export * from "./NonAuthRequests";
 export * from "./AuthRequests";

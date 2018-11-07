@@ -1,5 +1,5 @@
 import {IDataState} from "./state";
-import {IPost, ITopic} from "../../../../cshub-shared/models";
+import {IPost, ITopic} from "../../../../cshub-shared/src/models";
 // @ts-ignore
 import { Delta } from "quill-delta";
 

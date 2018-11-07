@@ -48,13 +48,12 @@
 
     import Quill from "../quill/Quill.vue";
 
-    import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/api-calls/pages";
-    import {IEdit} from "../../../../cshub-shared/models";
+    import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/src/api-calls/pages";
+    import {IEdit} from "../../../../cshub-shared/src/models";
+    import {Routes} from "../../../../cshub-shared/src/Routes";
 
     import uiState from "../../store/ui";
     import {editDialogType} from "../../store/ui/state";
-
-    import {Routes} from "../../views/router/router";
 
     import {ApiWrapper} from "../../utilities";
 

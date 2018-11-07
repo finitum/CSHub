@@ -2,7 +2,7 @@ import {app, logger} from "../../.";
 import {Request, Response} from "express";
 import {
     GetSearchPosts, GetSearchPostsCallback
-} from "../../../../cshub-shared/api-calls";
+} from "../../../../cshub-shared/src/api-calls";
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";

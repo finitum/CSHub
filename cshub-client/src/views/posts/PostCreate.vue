@@ -94,8 +94,6 @@
 
     import dataState from "../../store/data";
 
-    import {Routes} from "../router/router";
-
     import {ImgurUpload} from "../../utilities/imgur";
     import {ApiWrapper} from "../../utilities";
 
@@ -103,8 +101,9 @@
         CreatePostCallback,
         CreatePost,
         SubmitPostResponse
-    } from "../../../../cshub-shared/api-calls/pages";
-    import {ITopic} from "../../../../cshub-shared/models";
+    } from "../../../../cshub-shared/src/api-calls/pages";
+    import {ITopic} from "../../../../cshub-shared/src/models";
+    import {Routes} from "../../../../cshub-shared/src/Routes";
 
     @Component({
         name: "PostCreate",

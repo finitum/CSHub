@@ -116,8 +116,6 @@
 
     import userState from "../../store/user";
 
-    import {Routes} from "../router/router";
-
     import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
     import {
         ChangeUserPassword,
@@ -125,13 +123,15 @@
         ChangeUserPasswordReponseTypes,
         GetUserPosts,
         GetUserPostsCallback
-    } from "../../../../cshub-shared/api-calls/pages/user";
-    import {IPost, IUser} from "../../../../cshub-shared/models";
+    } from "../../../../cshub-shared/src/api-calls/pages/user";
+    import {IPost, IUser} from "../../../../cshub-shared/src/models";
     import {
         ChangeUserAvatar,
         ChangeUserAvatarCallback,
         ChangeUserAvatarReponseTypes
-    } from "../../../../cshub-shared/api-calls/pages/user/ChangeUserAvatar";
+    } from "../../../../cshub-shared/src/api-calls/pages/user/ChangeUserAvatar";
+    import {Routes} from "../../../../cshub-shared/src/Routes";
+    import uiState from "../../store/ui";
 
     @Component({
         name: "UserDashboard",
@@ -217,7 +217,11 @@
                             }
                         })
                         .then(() => {
-                            this.$router.push(Routes.INDEX);
+                            uiState.setNotificationDialogState({
+                                on: true,
+                                header: "Avatar changed",
+                                text: "Your avatar has been changed, refresh the page to see your avatar update"
+                            });
                         });
                 } else if (callback.response === ChangeUserAvatarReponseTypes.INVALIDIMAGE) {
                     // Perhaps do something
@@ -228,7 +232,11 @@
         private changePassword() {
             ApiWrapper.sendPostRequest(new ChangeUserPassword(this.userData.currentPassword, this.userData.newPassword), (callBack: ChangeUserPasswordCallback) => {
                 if (callBack.response === ChangeUserPasswordReponseTypes.SUCCESS) {
-                    // TODO: If the dialog wrapper works, show a success dialog
+                    uiState.setNotificationDialogState({
+                        on: true,
+                        header: "Changed password",
+                        text: "Your password has been changed successfully"
+                    });
                     logStringConsole("User changed password");
                 } else if (callBack.response === ChangeUserPasswordReponseTypes.WRONGPASSWORD) {
                     logStringConsole("Wrong password was entered so password not changed");

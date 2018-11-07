@@ -1,9 +1,9 @@
 import {app, logger} from "../../../";
-import {GetAllUsersCallBack, GetAllUsers} from "../../../../../cshub-shared/api-calls/admin";
+import {GetAllUsersCallBack, GetAllUsers} from "../../../../../cshub-shared/src/api-calls/admin";
 import {Request, Response} from "express";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
-import {IUser} from "../../../../../cshub-shared/models";
+import {IUser} from "../../../../../cshub-shared/src/models";
 
 app.post(GetAllUsers.getURL, (req: Request, res: Response) => {
     const getAllUsersRequest = req.body as GetAllUsers;

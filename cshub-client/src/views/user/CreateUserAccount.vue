@@ -90,9 +90,10 @@
         CreateAccount,
         CreateAccountCallBack,
         CreateAccountResponseTypes
-    } from "../../../../cshub-shared/api-calls";
+    } from "../../../../cshub-shared/src/api-calls";
+    import {Routes} from "../../../../cshub-shared/src/Routes";
 
-    import router, {Routes} from "../router/router";
+    import router from "../router/router";
 
     @Component({
         name: "CreateUserAccount",

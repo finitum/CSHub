@@ -13,11 +13,12 @@
     import Vue from "vue";
     import {Route} from "vue-router";
 
+    import {Routes} from "../../../../cshub-shared/src/Routes";
+
     import Post from "./Post.vue";
     import PostPagination from "./PostPagination.vue";
 
     import uiState from "../../store/ui";
-    import {Routes} from "../../views/router/router";
 
     @Component({
         name: "PostList",

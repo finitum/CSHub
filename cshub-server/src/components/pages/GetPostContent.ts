@@ -5,7 +5,7 @@ import {
     GetPostContent,
     GetPostContentCallBack,
     PostVersionTypes
-} from "../../../../cshub-shared/api-calls";
+} from "../../../../cshub-shared/src/api-calls";
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";

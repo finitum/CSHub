@@ -1,39 +1,7 @@
 <template>
     <v-app id="app">
-        <v-dialog
-                v-model="dialogOpen"
-                max-width="400"
-                persistent
-        >
-            <v-card>
-                <v-card-title class="headline">Welcome!</v-card-title>
-
-                <v-card-text>
-                    This is a site which is work in progress. Right now it is an alpha version, so expect bugs, missing features and a lot more shortcomings.
-                    <br><br>
-                    The goal of this site is to create a platform where everyone can post summaries, code examples and much, much more.
-                    <br><br>
-                    For now, you can create posts which must be verified by admins. So create an account (your password will be secure, if you don't trust us, the code is open source, generate a new one), and help everybody by posting your own posts.
-                    <br><br>
-                    Contributing is possible on <a href="https://github.com/RobbinBaauw/CSHub">GitHub</a>, you can either open requests or actually help building this project.
-                    <br><br>
-                    <h3>More to come!</h3>
-                </v-card-text>
-
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-
-                    <v-btn
-                        color="green darken-1"
-                        flat="flat"
-                        @click="closeDialog"
-                    >
-                        Close
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
         <NavDrawer></NavDrawer>
+        <NotificationDialog></NotificationDialog>
         <Toolbar></Toolbar>
         <v-content class="grey lighten-4">
             <transition
@@ -51,17 +19,17 @@
     import {Component, Watch} from "vue-property-decorator";
     import Vue from "vue";
 
+    import {Routes} from "../../cshub-shared/src/Routes";
+
     import NavDrawer from "./components/global/NavDrawer.vue";
     import Toolbar from "./components/global/Toolbar.vue";
+    import NotificationDialog from "./components/global/NotificationDialog.vue";
 
     import uiState from "./store/ui";
-    import {LocalStorageData} from "./store/localStorageData";
-
-    import {Routes} from "./views/router/router";
 
     @Component({
         name: "App",
-        components: {NavDrawer, Toolbar},
+        components: {NavDrawer, Toolbar, NotificationDialog},
     })
     export default class App extends Vue {
 
@@ -70,7 +38,6 @@
          */
         private drawerActive = true;
         private activeclass = "animated fadeInLeft";
-        private dialogOpen = false;
 
         /**
          * Computed properties
@@ -100,26 +67,13 @@
                 this.activeclass = "animated fadeInLeft";
             }
         }
-
-        /**
-         * Lifecycle hooks
-         */
-        private mounted() {
-            if (localStorage.getItem(LocalStorageData.DIALOGOPENED) !== "true") {
-                this.dialogOpen = true;
-            }
-        }
-
-        /**
-         * Methods
-         */
-        private closeDialog() {
-            this.dialogOpen = false;
-            localStorage.setItem(LocalStorageData.DIALOGOPENED, "true");
-        }
     }
 </script>
 <style>
+    *:focus {
+        outline: none;
+    }
+
     #app {
         background: white;
     }

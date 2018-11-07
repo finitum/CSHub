@@ -1,8 +1,8 @@
 import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from "axios";
 
-import {IApiRequest} from "../../../cshub-shared/models/IApiRequest";
+import {IApiRequest} from "../../../cshub-shared/src/models/IApiRequest";
 import dataState from "../store/data";
-import {NonAuthRequests} from "../../../cshub-shared/api-calls";
+import {NonAuthRequests} from "../../../cshub-shared/src/api-calls";
 
 const axiosApi = axios.create({
     baseURL: process.env.VUE_APP_API_URL,
