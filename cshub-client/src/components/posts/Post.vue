@@ -56,12 +56,12 @@
                                 </v-list-tile-avatar>
                                 <v-list-tile-content class="pt-2 d-inline">
                                     <v-list-tile-sub-title class="whitespaceInit black--text post-title">
-                                        <span v-if="!editModeComputed">{{post.title}}</span>
+                                        <span v-if="!editModeComputed || !userAdminComputed">{{post.title}}</span>
                                         <input v-else style="width: 100%" v-model="post.title"/>
                                     </v-list-tile-sub-title>
                                     <v-list-tile-sub-title class="whitespaceInit">{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</v-list-tile-sub-title>
                                     <v-treeview
-                                            v-if="topics !== null && editModeComputed"
+                                            v-if="topics !== null && editModeComputed && userAdminComputed"
                                             :active.sync="activeTopicHash"
                                             :items="topics"
                                             item-key="hash"

@@ -38,14 +38,18 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                             `, editPostRequest.postHash, editPostRequest.content.html, JSON.stringify(editPostRequest.content.delta), userObj.tokenObj.user.id, userIsAdmin ? 1 : 0, userIsAdmin ? userObj.tokenObj.user.id : null)
                         })
                         .then(() => {
-                            query(`
-                              UPDATE posts
-                              SET title = ?,
-                                  topic = (SELECT id
-                                           FROM topics
-                                           WHERE hash = ?)
-                              WHERE id = (SELECT id FROM posts WHERE hash = ?)
-                            `, editPostRequest.postTitle, editPostRequest.postTopicHash, editPostRequest.postHash)
+                            if (userObj.tokenObj.user.admin) {
+                                return query(`
+                                  UPDATE posts
+                                  SET title = ?,
+                                      topic = (SELECT id
+                                               FROM topics
+                                               WHERE hash = ?)
+                                  WHERE id = (SELECT id FROM posts WHERE hash = ?)
+                                `, editPostRequest.postTitle, editPostRequest.postTopicHash, editPostRequest.postHash)
+                            }
+                            return null;
+
                         })
                         .then(() => {
                             return query(`
