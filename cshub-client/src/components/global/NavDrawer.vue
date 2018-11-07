@@ -36,9 +36,8 @@
                 :active.sync="activeTopicHash"
                 :items="topics"
                 item-key="hash"
+                class="pl-3 tree"
                 activatable
-                class="ml-3"
-                active-class="primary--text"
                 transition>
             </v-treeview>
             <div v-if="userLoggedInComputed">
@@ -208,4 +207,8 @@
 </script>
 
 <style scoped>
+/* Fixes the treeview leaf alignment (it was too much at 50px) */
+.tree >>> .v-treeview-node--leaf {
+    margin-left: 38px
+}
 </style>
