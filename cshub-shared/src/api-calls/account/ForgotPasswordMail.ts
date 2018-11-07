@@ -18,7 +18,7 @@ export class ForgotPasswordMailCallback {
 
 export class ForgotPasswordMail implements IApiRequest {
 
-    public static getURL: string = NonAuthRequests.FORGOTPASSWORD;
+    public static getURL: string = NonAuthRequests.FORGOTPASSWORDMAIL;
     public URL: string = ForgotPasswordMail.getURL;
 
     constructor(
