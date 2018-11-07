@@ -465,6 +465,7 @@ export default class Post extends Vue {
     margin: 20px 5% 20px 5%;
     padding: 0;
     transition: 0.3s;
+    cursor: pointer;
 }
 
 .previewCard:hover {
