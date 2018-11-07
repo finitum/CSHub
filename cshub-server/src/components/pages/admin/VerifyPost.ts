@@ -12,23 +12,34 @@ app.post(VerifyPost.getURL, (req: Request, res: Response) => {
 
     if (token.valid && token.tokenObj.user.admin) {
         query(`
-        UPDATE posts
-        SET approved = 1, approvedBy = ?, postVersion = postVersion + 1
-        WHERE hash = ?
+          UPDATE posts
+          SET approved    = 1,
+              approvedBy  = ?,
+              postVersion = postVersion + 1
+          WHERE hash = ?
         `, token.tokenObj.user.id, verifyPostRequest.postHash)
             .then((result: DatabaseResultSet) => {
 
                 return query(`
-                    UPDATE edits
-                    SET approved = 1, approvedBy = ?
-                    WHERE post = (
-                        SELECT id
-                        FROM posts
-                        WHERE hash = ?
-                    )
+                  UPDATE edits
+                  SET approved   = 1,
+                      approvedBy = ?
+                  WHERE post = (SELECT id FROM posts WHERE hash = ?)
                 `, token.tokenObj.user.id, verifyPostRequest.postHash);
             })
             .then(() => {
+                query(`
+                  UPDATE edits
+                  SET htmlContent = ""
+                  WHERE id IN (SELECT id
+                               FROM edits
+                               WHERE post = (SELECT id FROM posts WHERE hash = ?)
+                                 AND datetime < (SELECT datetime
+                                                 FROM edits
+                                                 WHERE post = (SELECT id FROM posts WHERE hash = ?)
+                                                 ORDER BY datetime DESC
+                                                 LIMIT 1))
+                `, verifyPostRequest.postHash, verifyPostRequest.postHash);
                 res.json(new VerifyPostCallBack());
             });
     } else {

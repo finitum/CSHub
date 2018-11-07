@@ -2,11 +2,11 @@ import {Request, Response} from "express";
 
 import {app, logger} from "../../";
 
-import {validateMultipleInputs} from "../../utilities/StringUtils";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import {EditPostCallback, EditPost} from "../../../../cshub-shared/src/api-calls/pages/EditPost";
 import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
+import {validateMultipleInputs} from "../../utilities/StringUtils";
 
 app.post(EditPost.getURL, (req: Request, res: Response) => {
 
@@ -14,7 +14,7 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
 
     const userObj = checkTokenValidity(req);
 
-    const inputsValidation = validateMultipleInputs({input: JSON.stringify(editPostRequest.postBody)}, {input: editPostRequest.postHash});
+    const inputsValidation = validateMultipleInputs({input: JSON.stringify(editPostRequest.content.delta)}, {input: editPostRequest.postHash}, {input: editPostRequest.content.html}, {input: editPostRequest.postTitle}, {input: editPostRequest.postTopicHash});
 
     if (inputsValidation.valid && userObj.valid) {
         hasAccessToPost(editPostRequest.postHash, req.cookies["token"])
@@ -23,11 +23,7 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
 
                     const userIsAdmin = userObj.tokenObj.user.admin;
 
-                    query(`
-                      UPDATE edits
-                      SET htmlContent = ""
-                      WHERE post = (SELECT id FROM posts WHERE hash = ?)
-                    `, editPostRequest.postHash)
+                    new Promise((resolve) => resolve())
                         .then(() => {
                             return query(`
                               INSERT INTO edits
@@ -39,7 +35,17 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                                   editedBy    = ?,
                                   approved    = ?,
                                   approvedBy  = ?
-                            `, editPostRequest.postHash, editPostRequest.postHTML, JSON.stringify(editPostRequest.postBody), userObj.tokenObj.user.id, userIsAdmin ? 1 : 0, userIsAdmin ? userObj.tokenObj.user.id : -1)
+                            `, editPostRequest.postHash, editPostRequest.content.html, JSON.stringify(editPostRequest.content.delta), userObj.tokenObj.user.id, userIsAdmin ? 1 : 0, userIsAdmin ? userObj.tokenObj.user.id : null)
+                        })
+                        .then(() => {
+                            query(`
+                              UPDATE posts
+                              SET title = ?,
+                                  topic = (SELECT id
+                                           FROM topics
+                                           WHERE hash = ?)
+                              WHERE id = (SELECT id FROM posts WHERE hash = ?)
+                            `, editPostRequest.postTitle, editPostRequest.postTopicHash, editPostRequest.postHash)
                         })
                         .then(() => {
                             return query(`

@@ -70,6 +70,10 @@
     }
 </script>
 <style>
+    *:focus {
+        outline: none;
+    }
+
     #app {
         background: white;
     }
