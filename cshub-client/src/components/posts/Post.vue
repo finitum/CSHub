@@ -231,6 +231,13 @@ export default class Post extends Vue {
         }
     }
 
+    @Watch("showContent")
+    private showContentChanged(to: boolean) {
+        if (to) {
+            this.highlightCode();
+        }
+    }
+
     /**
      * Lifecycle hooks
      */
@@ -253,18 +260,31 @@ export default class Post extends Vue {
                 hash: this.postHash
             });
         }
+
+        if (this.showContent) {
+            this.highlightCode();
+        }
     }
 
     private updated() {
-        setTimeout(() => {
-            this.windowHeightChanged();
-        }, 500);
+        this.windowHeightChanged();
+        this.highlightCode();
     }
 
     /**
      * Methods
      */
-        private getAvatarURL(dbImage: string) {
+    private highlightCode() {
+        const domElements = document.getElementsByClassName("hljsBlock");
+        if (domElements.length > 0) {
+            for (const domElement of domElements) {
+                (window as any).hljs.highlightBlock(domElement);
+            }
+        }
+
+    }
+
+    private getAvatarURL(dbImage: string) {
             if (dbImage !== null) {
                 return `data:image/jpg;base64,${dbImage}`;
             } else {
@@ -358,9 +378,10 @@ export default class Post extends Vue {
         ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
             .then((newValue: Delta) => {
                 const diff = this.editContent.diff(newValue);
-                const html: string = (this.$refs as any).editQuill.getHTML();
 
                 if (!isEqual(diff, new Delta())) {
+                    const html: string = (this.$refs as any).editQuill.getHTML();
+
                     logStringConsole("Editing post");
 
                     ApiWrapper.sendPostRequest(new EditPost(this.postHash, {
