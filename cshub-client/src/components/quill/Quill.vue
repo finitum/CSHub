@@ -245,14 +245,16 @@
             };
 
             const finalizeCodeBlock = () => {
-                const newNode = document.createElement("pre");
-                newNode.innerHTML = `<code class="${prevElement.lang} hljsBlock">${prevElement.currString}</code>`;
+                if (prevElement.isCodeBlock) {
+                    const newNode = document.createElement("pre");
+                    newNode.innerHTML = `<code class="${prevElement.lang} hljsBlock">${prevElement.currString}</code>`;
 
-                prevElement.containerNode.after(newNode);
+                    prevElement.containerNode.after(newNode);
 
-                prevElement = {
-                    isCodeBlock: false
-                };
+                    prevElement = {
+                        isCodeBlock: false
+                    };
+                }
             };
 
             const toBeDeletedNodes: HTMLElement[] = [];
@@ -262,37 +264,35 @@
                     if (domNode.classList.contains("ql-code-block-container")) {
                         toBeDeletedNodes.push(domNode);
                         prevElement.containerNode = domNode;
-                    }
 
-                    if (domNode.classList.contains("ql-code-block")) {
-                        if (!prevElement.isCodeBlock) {
-                            console.log(domNode.innerText)
-                            const lang = domNode.attributes.getNamedItem("data-language") ? domNode.attributes.getNamedItem("data-language").value : "";
-                            prevElement = {
-                                ...prevElement,
-                                isCodeBlock: true,
-                                lang,
-                                currString: domNode.innerText
-                            };
-                        } else {
-                            prevElement = {
-                                ...prevElement,
-                                currString: prevElement.currString + "\n" + domNode.innerText
-                            };
-                        }
-                        toBeDeletedNodes.push(domNode);
-                    } else {
-                        if (prevElement.isCodeBlock) {
-                            finalizeCodeBlock();
-                        }
+                        domNode.childNodes.forEach((childNode: any) => {
+                            if (childNode.classList.contains("ql-code-block")) {
+
+                                if (!prevElement.isCodeBlock) {
+                                    const lang = childNode.attributes.getNamedItem("data-language") ? childNode.attributes.getNamedItem("data-language").value : "";
+                                    prevElement = {
+                                        ...prevElement,
+                                        isCodeBlock: true,
+                                        lang,
+                                        currString: childNode.innerText
+                                    };
+                                } else {
+                                    prevElement = {
+                                        ...prevElement,
+                                        currString: prevElement.currString + "\n" + childNode.innerText
+                                    };
+                                }
+                                toBeDeletedNodes.push(childNode);
+                            }
+                        });
+
+                        finalizeCodeBlock();
+                    } else if (!domNode.classList.contains("ql-code-block")) {
+                        finalizeCodeBlock();
                     }
-                } else if (domNode.tagName === "SELECT") {
+                } else if (domNode.tagName === "SELECT" || domNode.tagName === "OPTION") {
                     toBeDeletedNodes.push(domNode);
                 }
-            }
-
-            if (prevElement.isCodeBlock) {
-                finalizeCodeBlock();
             }
 
             toBeDeletedNodes.forEach((domNode: HTMLElement) => {
@@ -410,5 +410,9 @@
     #tableIcon:hover {
         caret-color: #00A6D8 !important;
         color: #00A6D8 !important;
+    }
+
+    .editor >>> .ql-code-block-container {
+        background-color: #b3b3b3;
     }
 </style>
