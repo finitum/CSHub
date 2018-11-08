@@ -233,17 +233,71 @@
             const node = this.editor.container.firstChild;
 
             // Converts the classes of all the code blocks so that hljs can highlight them properly
-            const codes = node.getElementsByClassName("ql-code-block");
-            for (const code of codes) {
-                const lang = code.attributes.getNamedItem("data-language") ? code.attributes.getNamedItem("data-language").value : "";
-                code.className += " hljs " + lang;
+            const allNodes: HTMLElement[] = node.getElementsByTagName("*");
+
+            let prevElement: {
+                isCodeBlock: boolean,
+                lang?: string,
+                containerNode?: HTMLElement,
+                currString?: string
+            } = {
+                isCodeBlock: false
+            };
+
+            const finalizeCodeBlock = () => {
+                const newNode = document.createElement("pre");
+                newNode.innerHTML = `<code class="${prevElement.lang} hljsBlock">${prevElement.currString}</code>`;
+
+                prevElement.containerNode.after(newNode);
+
+                prevElement = {
+                    isCodeBlock: false
+                };
+            };
+
+            const toBeDeletedNodes: HTMLElement[] = [];
+
+            for (const domNode of allNodes) {
+                if (domNode.tagName === "DIV") {
+                    if (domNode.classList.contains("ql-code-block-container")) {
+                        toBeDeletedNodes.push(domNode);
+                        prevElement.containerNode = domNode;
+                    }
+
+                    if (domNode.classList.contains("ql-code-block")) {
+                        if (!prevElement.isCodeBlock) {
+                            console.log(domNode.innerText)
+                            const lang = domNode.attributes.getNamedItem("data-language") ? domNode.attributes.getNamedItem("data-language").value : "";
+                            prevElement = {
+                                ...prevElement,
+                                isCodeBlock: true,
+                                lang,
+                                currString: domNode.innerText
+                            };
+                        } else {
+                            prevElement = {
+                                ...prevElement,
+                                currString: prevElement.currString + "\n" + domNode.innerText
+                            };
+                        }
+                        toBeDeletedNodes.push(domNode);
+                    } else {
+                        if (prevElement.isCodeBlock) {
+                            finalizeCodeBlock();
+                        }
+                    }
+                } else if (domNode.tagName === "SELECT") {
+                    toBeDeletedNodes.push(domNode);
+                }
             }
 
-            // Removes all select tags as they are not needed in viewing the post
-            const selects = document.getElementsByTagName("select");
-            for (let i = 0, len = selects.length; i !== len; ++i) {
-                selects[0].parentNode.removeChild(selects[0]);
+            if (prevElement.isCodeBlock) {
+                finalizeCodeBlock();
             }
+
+            toBeDeletedNodes.forEach((domNode: HTMLElement) => {
+                domNode.remove();
+            });
 
             return node.innerHTML; // Doesn't have images replaced
         }
@@ -326,10 +380,12 @@
         private textChanged(delta: Delta, oldContents: Delta, source: any) {
             clearTimeout(this.typingTimeout);
             this.typingTimeout = setTimeout(() => {
-                localForage.setItem<Delta>(this.postHashCacheItemID, this.getDelta())
-                    .then(() => {
-                        logStringConsole("Drafted current post", "textchanged quill");
-                    });
+                if (this.editor !== null) {
+                    localForage.setItem<Delta>(this.postHashCacheItemID, this.getDelta())
+                        .then(() => {
+                            logStringConsole("Drafted current post", "textchanged quill");
+                        });
+                }
             }, 1000);
         }
     }
