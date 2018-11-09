@@ -13,19 +13,14 @@ if (process.env.NODE_ENV === "production") {
         cached() {
             console.log("Content has been cached for offline use.");
         },
-        updated() {
+        updated(event) {
             const promiseChain = caches.keys()
                 .then((cacheNames) => {
                     // Step through each cache name and delete it
                     return Promise.all(
                         cacheNames.map((cacheName) => caches.delete(cacheName))
                     );
-                });
-
-            // Keep the service worker alive until all caches are deleted.
-            (event as any).waitUntil(promiseChain);
-
-            window.location.reload(true);
+                })
         },
         offline() {
             console.log("No internet connection found. App is running in offline mode.");
