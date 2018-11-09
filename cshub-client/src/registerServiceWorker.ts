@@ -14,7 +14,17 @@ if (process.env.NODE_ENV === "production") {
             console.log("Content has been cached for offline use.");
         },
         updated() {
-            console.log("New content is available; please refresh.");
+            const promiseChain = caches.keys()
+                .then((cacheNames) => {
+                    // Step through each cache name and delete it
+                    return Promise.all(
+                        cacheNames.map((cacheName) => caches.delete(cacheName))
+                    );
+                });
+
+            // Keep the service worker alive until all caches are deleted.
+            (event as any).waitUntil(promiseChain);
+
             window.location.reload(true);
         },
         offline() {
