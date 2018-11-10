@@ -294,7 +294,7 @@
                     toBeDeletedNodes.push(domNode);
                 } else if (domNode.tagName === "SPAN") {
                     if (domNode.classList.contains("mord") && domNode.classList.contains("accent")) {
-                        domNode.style.backgroundColor = "transparent";
+                        domNode.setAttribute("style", "background-color: transparent !important");
                     }
                 }
             }
