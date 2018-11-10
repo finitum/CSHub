@@ -260,15 +260,13 @@ export default class Post extends Vue {
                 hash: this.postHash
             });
         }
-
-        if (this.showContent) {
-            this.highlightCode();
-        }
     }
 
     private updated() {
-        this.windowHeightChanged();
-        this.highlightCode();
+        if (this.fullPostComputed && this.post !== null && !this.editModeComputed && !this.loadingIcon) {
+            this.windowHeightChanged();
+            this.highlightCode();
+        }
     }
 
     /**

@@ -292,6 +292,10 @@
                     }
                 } else if (domNode.tagName === "SELECT" || domNode.tagName === "OPTION") {
                     toBeDeletedNodes.push(domNode);
+                } else if (domNode.tagName === "SPAN") {
+                    if (domNode.classList.contains("mord") && domNode.classList.contains("accent")) {
+                        domNode.setAttribute("style", "background-color: transparent !important");
+                    }
                 }
             }
 
