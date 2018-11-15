@@ -8,5 +8,5 @@ export class VerifyPost implements IApiRequest {
     public static getURL: string = AdminRequests.VERIFYPOST;
     public URL: string = VerifyPost.getURL;
 
-    constructor(public postHash: number) {}
+    constructor(public postHash: number, public verify: boolean) {}
 }

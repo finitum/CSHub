@@ -30,9 +30,11 @@
                                     <router-link :to="item.url">{{item.name}}</router-link>
                                 </v-breadcrumbs-item>
                                 <v-breadcrumbs-item :disabled="true"> {{post.title}} </v-breadcrumbs-item>
-                                <v-btn color="green" depressed small @click="verifyPost"
-                                       v-if="!post.approved && userAdminComputed">
+                                <v-btn color="green" depressed small @click="verifyPost(true)" v-if="!post.approved && userAdminComputed">
                                     <v-icon>fas fa-check</v-icon>
+                                </v-btn>
+                                <v-btn color="red" depressed small @click="verifyPost(false)" v-if="post.approved && userAdminComputed">
+                                    <v-icon>fas fa-times</v-icon>
                                 </v-btn>
                                 <v-btn color="orange" depressed small @click="enableEdit"
                                        v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
@@ -113,7 +115,7 @@
                     indeterminate
                     style="width: 100%; margin: 10% auto;" />
         </div>
-        <PostEditsDialog :key="postHash":postHash="postHash"></PostEditsDialog>
+        <PostEditsDialog :key="postHash" :postHash="postHash"></PostEditsDialog>
     </div>
 </template>
 <script lang="ts">
@@ -316,8 +318,8 @@ export default class Post extends Vue {
         }
     }
 
-    private verifyPost() {
-        ApiWrapper.sendPostRequest(new VerifyPost(this.postHash), (callback: VerifyPostCallBack) => {
+    private verifyPost(type: boolean) {
+        ApiWrapper.sendPostRequest(new VerifyPost(this.postHash, type), (callback: VerifyPostCallBack) => {
             logStringConsole("Verified post");
             this.$router.push(Routes.INDEX);
         });
