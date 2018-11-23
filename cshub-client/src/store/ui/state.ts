@@ -6,6 +6,11 @@ export type editDialogType = {
     hash: number
 };
 
+export type markdownDialogType = {
+    open: boolean,
+    text: string
+};
+
 export type notificationDialogType = {
     on: boolean,
     header: string,
@@ -19,7 +24,7 @@ export interface IUIState {
     editDialogState: editDialogType;
     paginationPageState: number;
     notificationDialog: notificationDialogType;
-    markdownDialog: boolean;
+    markdownDialog: markdownDialogType;
 }
 
 export const UIState: IUIState = {
@@ -36,7 +41,10 @@ export const UIState: IUIState = {
         header: "",
         text: ""
     },
-    markdownDialog: false
+    markdownDialog: {
+        open: false,
+        text: ""
+    }
 };
 
 export const uiStoreBuilder = getStoreBuilder<IRootState>().module("ui", UIState);

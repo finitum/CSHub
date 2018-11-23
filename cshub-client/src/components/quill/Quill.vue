@@ -156,15 +156,16 @@
             </v-card>
         </v-dialog>
 
-        <v-dialog v-model="loadDraftDialog" persistent max-width="290">
+        <v-dialog v-model="markdownDialogState.open" fullscreen hide-overlay transition="dialog-bottom-transition">
             <v-card>
-                <v-card-title class="headline">Open draft?</v-card-title>
-                <v-card-text>A draft of this post was saved. Load this draft? If you don't load the draft, it will be discarded once you type.</v-card-text>
-                <v-card-actions>
+                <v-toolbar dark color="primary">
+                    <v-btn icon dark @click="markdownDialogState = {open: false, text: ''}">
+                        <v-icon>fas fa-times</v-icon>
+                    </v-btn>
+                    <v-toolbar-title>Markdown editor</v-toolbar-title>
                     <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" flat @click="loadDraft(true)">Load</v-btn>
-                    <v-btn color="green darken-1" flat @click="loadDraft(false)">Discard</v-btn>
-                </v-card-actions>
+                </v-toolbar>
+                <MarkdownEditor v-if="markdownDialogState"></MarkdownEditor>
             </v-card>
         </v-dialog>
     </div>
@@ -196,7 +197,10 @@
     import {logStringConsole} from "../../utilities";
     import {idGenerator} from "../../utilities/id-generator";
 
-    import {blotName, MarkdownLatexQuill} from "./MarkdownLatexQuill";
+    import {blotName} from "./MarkdownLatexQuill";
+    import uiState from "../../store/ui";
+    import MarkdownEditor from "./MarkdownEditor.vue";
+    import {markdownDialogType} from "../../store/ui/state";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -213,7 +217,8 @@
     }
 
     @Component({
-        name: "QuillEditor"
+        name: "QuillEditor",
+        components: {MarkdownEditor}
     })
     export default class QuillEditor extends Vue {
 
@@ -241,7 +246,8 @@
             left: string,
             right: string
         } = null;
-        private selectedElements: Object[] = [];
+        private markdownTextString = "";
+        private currentlySelectedDomNodes: object[] = [];
 
         /**
          * Lifecycle hooks
@@ -279,6 +285,17 @@
         private beforeDestroy() {
             // Remove the editor on destroy
             this.editor = null;
+        }
+
+        /**
+         * Computed properties
+         */
+        get markdownDialogState(): markdownDialogType {
+            return uiState.mardownDialogState;
+        }
+
+        set markdownDialogState(state: markdownDialogType) {
+            uiState.setMarkdownDialogState(state);
         }
 
         /**
@@ -464,6 +481,13 @@
             }, 1000);
         }
 
+        private openMarkdownDialog() {
+            this.markdownDialogState = {
+                open: true,
+                text: this.markdownTextString
+            };
+        }
+
         private selectionChanged(range: RangeStatic, oldRange: RangeStatic, source: any) {
             if (range !== null) {
                 const selection = this.editor.getFormat(range);
@@ -493,30 +517,40 @@
 
                     if (currentLineArray.length > 0) {
 
-                        const newLineArray = [currentLineArray[0]];
+                        const newLineArray = [];
 
-                        let prev = newLineArray[0].prev;
-                        let next = newLineArray[0].next;
+                        let prev = currentLineArray[0].prev;
 
                         while (true) {
                             if (prev.domNode.className === blotName) {
-                                newLineArray.push(prev);
                                 prev = prev.prev;
                             } else {
                                 break;
                             }
                         }
 
+                        prev = prev.next;
+
                         while (true) {
-                            if (next.domNode.className === blotName) {
-                                newLineArray.push(next);
-                                next = next.next;
+                            if (prev.domNode.className === blotName) {
+                                newLineArray.push(prev);
+                                prev = prev.next;
                             } else {
                                 break;
                             }
                         }
 
-                        this.selectedElements = newLineArray;
+                        let textString = "";
+
+                        for (const item of newLineArray) {
+                            textString += item.domNode.innerText;
+                            textString += "\n";
+                        }
+
+                        this.currentlySelectedDomNodes = newLineArray;
+
+                        console.log(this.editor.getContents())
+                        this.markdownTextString = textString;
                     }
 
                 } else {

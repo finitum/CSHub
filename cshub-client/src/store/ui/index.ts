@@ -15,7 +15,7 @@ const uiState = {
     get editDialogState() { return editDialogState(); },
     get paginationPageState() { return paginationPageState(); },
     get notificationDialogState() { return notificationDialog(); },
-    get mardownDialogState() { return markdownDialog() },
+    get mardownDialogState() { return markdownDialog(); },
 
     setDrawerState: uiStoreBuilder.commit(setDrawerState, "setDrawerState"),
     setEditDialogState: uiStoreBuilder.commit(setEditDialogState, "setEditDialogState"),
