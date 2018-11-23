@@ -16,3 +16,6 @@ export const setNotificationDialogState = (state: IUIState, payload: notificatio
     state.notificationDialog = payload;
 };
 
+export const setMarkdownDialogState = (state: IUIState, payload: boolean) => {
+    state.markdownDialog = payload;
+};

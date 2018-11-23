@@ -4,68 +4,79 @@
         <div class="snow-container" :id="quillId" style="height: 100%">
             <div class="toolbar" v-show="editorSetup.showToolbar" style="border: none; padding: 1%;">
                 <span class="ql-formats">
-                      <select class="ql-header" title="Header">
-                            <option value="1">Heading</option>
-                            <option value="2">Subheading</option>
-                            <option selected>Normal</option>
-                      </select>
+                    <select class="ql-header" title="Header">
+                        <option value="1">Heading</option>
+                        <option value="2">Subheading</option>
+                        <option selected>Normal</option>
+                    </select>
                 </span>
                 <span class="ql-formats">
-                      <button class="ql-bold"></button>
-                      <button class="ql-italic"></button>
-                      <button class="ql-underline"></button>
-                      <button class="ql-clean"></button>
-                      <select class="ql-color">
-                            <option value="rgb(0, 0, 0)"/>
-                            <option value="rgb(230, 0, 0)"/>
-                            <option value="rgb(255, 153, 0)"/>
-                            <option value="rgb(255, 255, 0)"/>
-                            <option value="rgb(0, 138, 0)"/>
-                            <option value="rgb(0, 102, 204)"/>
-                            <option value="rgb(153, 51, 255)"/>
-                            <option value="rgb(255, 255, 255)"/>
-                            <option value="rgb(250, 204, 204)"/>
-                            <option value="rgb(255, 235, 204)"/>
-                            <option value="rgb(204, 224, 245)"/>
-                            <option value="rgb(235, 214, 255)"/>
-                            <option value="rgb(187, 187, 187)"/>
-                            <option value="rgb(102, 185, 102)"/>
-                      </select>
-                      <select class="ql-background">
-                            <option value="rgba(0, 0, 0, 0)"/>
-                            <option value="rgb(230, 0, 0)"/>
-                            <option value="rgb(255, 153, 0)"/>
-                            <option value="rgb(255, 255, 0)"/>
-                            <option value="rgb(0, 138, 0)"/>
-                            <option value="rgb(0, 102, 204)"/>
-                            <option value="rgb(153, 51, 255)"/>
-                            <option value="rgb(0, 0, 0)"/>
-                            <option value="rgb(250, 204, 204)"/>
-                            <option value="rgb(255, 235, 204)"/>
-                            <option value="rgb(204, 224, 245)"/>
-                            <option value="rgb(235, 214, 255)"/>
-                            <option value="rgb(187, 187, 187)"/>
-                            <option value="rgb(102, 185, 102)"/>
-                      </select>
+                    <button class="ql-bold"></button>
+                    <button class="ql-italic"></button>
+                    <button class="ql-underline"></button>
+                    <button class="ql-clean"></button>
+                    <select class="ql-color">
+                        <option value="rgb(0, 0, 0)"/>
+                        <option value="rgb(230, 0, 0)"/>
+                        <option value="rgb(255, 153, 0)"/>
+                        <option value="rgb(255, 255, 0)"/>
+                        <option value="rgb(0, 138, 0)"/>
+                        <option value="rgb(0, 102, 204)"/>
+                        <option value="rgb(153, 51, 255)"/>
+                        <option value="rgb(255, 255, 255)"/>
+                        <option value="rgb(250, 204, 204)"/>
+                        <option value="rgb(255, 235, 204)"/>
+                        <option value="rgb(204, 224, 245)"/>
+                        <option value="rgb(235, 214, 255)"/>
+                        <option value="rgb(187, 187, 187)"/>
+                        <option value="rgb(102, 185, 102)"/>
+                    </select>
+                    <select class="ql-background">
+                        <option value="rgba(0, 0, 0, 0)"/>
+                        <option value="rgb(230, 0, 0)"/>
+                        <option value="rgb(255, 153, 0)"/>
+                        <option value="rgb(255, 255, 0)"/>
+                        <option value="rgb(0, 138, 0)"/>
+                        <option value="rgb(0, 102, 204)"/>
+                        <option value="rgb(153, 51, 255)"/>
+                        <option value="rgb(0, 0, 0)"/>
+                        <option value="rgb(250, 204, 204)"/>
+                        <option value="rgb(255, 235, 204)"/>
+                        <option value="rgb(204, 224, 245)"/>
+                        <option value="rgb(235, 214, 255)"/>
+                        <option value="rgb(187, 187, 187)"/>
+                        <option value="rgb(102, 185, 102)"/>
+                    </select>
                 </span>
                 <span class="ql-formats">
-                      <button class="ql-list" value="ordered"></button>
-                      <button class="ql-list" value="bullet"></button>
-                      <select class="ql-align" title="Alignment">
+                    <button class="ql-list" value="ordered"></button>
+                    <button class="ql-list" value="bullet"></button>
+                    <select class="ql-align" title="Alignment">
                         <option label="left" selected></option>
                         <option label="center" value="center"></option>
                         <option label="right" value="right"></option>
                         <option label="justify" value="justify"></option>
-                      </select>
+                    </select>
                 </span>
                 <span class="ql-formats">
-                      <button class="ql-link"></button>
-                      <button class="ql-image"></button>
-                      <button class="ql-video"></button>
+                <button class="ql-link"></button>
+                <button class="ql-image"></button>
+                <button class="ql-video"></button>
                 </span>
                 <span class="ql-formats">
-                      <button class="ql-formula"></button>
-                      <button class="ql-code-block"></button>
+                    <button class="ql-formula"></button>
+                    <button class="ql-code-block"></button>
+                    <v-btn
+                            slot="activator"
+                            dark
+                            flat
+                            small
+                            class="tableButton"
+                            @click="setMarkDown"
+                            style="margin: 0"
+                    >
+                        <v-icon color="black tableIcon">fas fa-marker</v-icon>
+                    </v-btn>
                 </span>
                 <span class="ql-formats">
                     <v-menu
@@ -74,49 +85,77 @@
                             :nudge-width="100"
                             offset-x
                     >
-                          <v-btn
-                                  slot="activator"
-                                  dark
-                                  flat
-                                  small
-                                  id="tableButton"
-                          >
-                              <v-icon color="black" id="tableIcon">fas fa-table</v-icon>
-                          </v-btn>
-
-                          <v-card>
-                                <v-card-title primary-title style="padding-bottom: 0">
-                                    <h3>
-                                        Table options
-                                    </h3>
-                                </v-card-title>
-                                <v-card-text style="padding-top: 0">
-                                    <v-list>
-                                        <v-list-tile>
-                                            <button @click="performTableAction(tableActions.CREATETABLE)" class="mr-3"><v-icon>fas fa-plus</v-icon></button>
-                                            <button @click="performTableAction(tableActions.REMOVETABLE)"><v-icon>fas fa-minus</v-icon></button>
-                                        </v-list-tile>
-                                        <v-list-tile>
-                                            <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)" class="mr-3"><v-icon>fas fa-arrow-left</v-icon></button>
-                                            <button @click="performTableAction(tableActions.CREATENEWCOLUMNRIGHT)"><v-icon>fas fa-arrow-right</v-icon></button>
-                                        </v-list-tile>
-                                        <v-list-tile>
-                                            <button @click="performTableAction(tableActions.CREATENEWROWUP)" class="mr-3"><v-icon>fas fa-arrow-up</v-icon></button>
-                                            <button @click="performTableAction(tableActions.CREATENEWROWDOWN)"><v-icon>fas fa-arrow-down</v-icon></button>
-                                        </v-list-tile>
-                                        <v-list-tile>
-                                            <button @click="performTableAction(tableActions.REMOVEROW)" class="mr-3"><v-icon>fas fa-arrows-alt-v</v-icon></button>
-                                            <button @click="performTableAction(tableActions.REMOVECOLUMN)"><v-icon>fas fa-arrows-alt-h</v-icon></button>
-                                        </v-list-tile>
-                                    </v-list>
-                                </v-card-text>
-                          </v-card>
-                        </v-menu>
+                        <v-btn
+                                slot="activator"
+                                dark
+                                flat
+                                small
+                                class="tableButton"
+                        >
+                            <v-icon color="black tableIcon">fas fa-table</v-icon>
+                        </v-btn>
+                        <v-card>
+                            <v-card-title primary-title style="padding-bottom: 0">
+                                <h3>
+                                    Table options
+                                </h3>
+                            </v-card-title>
+                            <v-card-text style="padding-top: 0">
+                                <v-list>
+                                    <v-list-tile>
+                                        <button @click="performTableAction(tableActions.CREATETABLE)" class="mr-3">
+                                            <v-icon>fas fa-plus</v-icon>
+                                        </button>
+                                        <button @click="performTableAction(tableActions.REMOVETABLE)">
+                                            <v-icon>fas fa-minus</v-icon>
+                                        </button>
+                                    </v-list-tile>
+                                    <v-list-tile>
+                                        <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)" class="mr-3">
+                                            <v-icon>fas fa-arrow-left</v-icon>
+                                        </button>
+                                        <button @click="performTableAction(tableActions.CREATENEWCOLUMNRIGHT)">
+                                            <v-icon>fas fa-arrow-right</v-icon>
+                                        </button>
+                                    </v-list-tile>
+                                    <v-list-tile>
+                                        <button @click="performTableAction(tableActions.CREATENEWROWUP)" class="mr-3">
+                                            <v-icon>fas fa-arrow-up</v-icon>
+                                        </button>
+                                        <button @click="performTableAction(tableActions.CREATENEWROWDOWN)">
+                                            <v-icon>fas fa-arrow-down</v-icon>
+                                        </button>
+                                    </v-list-tile>
+                                    <v-list-tile>
+                                        <button @click="performTableAction(tableActions.REMOVEROW)" class="mr-3">
+                                            <v-icon>fas fa-arrows-alt-v</v-icon>
+                                        </button>
+                                        <button @click="performTableAction(tableActions.REMOVECOLUMN)">
+                                            <v-icon>fas fa-arrows-alt-h</v-icon>
+                                        </button>
+                                    </v-list-tile>
+                                </v-list>
+                            </v-card-text>
+                        </v-card>
+                    </v-menu>
                 </span>
             </div>
             <div class="editor">
             </div>
         </div>
+        <v-btn fab small depressed color="primary" :style="tooltipButtonStyling" style="position: fixed;" v-if="showTooltip" @click="openMarkdownDialog"><v-icon>fas fa-edit</v-icon></v-btn>
+        <v-dialog v-model="loadDraftDialog" persistent max-width="290">
+            <v-card>
+                <v-card-title class="headline">Open draft?</v-card-title>
+                <v-card-text>A draft of this post was saved. Load this draft? If you don't load the draft, it will be discarded once you type.</v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="green darken-1" flat @click="loadDraft(true)">Load</v-btn>
+                    <v-btn color="green darken-1" flat @click="loadDraft(false)">Discard</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
         <v-dialog v-model="loadDraftDialog" persistent max-width="290">
             <v-card>
                 <v-card-title class="headline">Open draft?</v-card-title>
@@ -129,7 +168,6 @@
             </v-card>
         </v-dialog>
     </div>
-
 </template>
 
 <script lang="ts">
@@ -141,7 +179,11 @@
     import katex from "katex";
     import "katex/dist/katex.min.css";
 
-    import Quill from "quill";
+    // @ts-ignore
+    import mk from "markdown-it-katex";
+    import MarkdownIt from "markdown-it";
+
+    import Quill, {RangeStatic} from "quill";
     import "quill/dist/quill.core.css";
     import "quill/dist/quill.snow.css";
 
@@ -153,6 +195,8 @@
 
     import {logStringConsole} from "../../utilities";
     import {idGenerator} from "../../utilities/id-generator";
+
+    import {blotName, MarkdownLatexQuill} from "./MarkdownLatexQuill";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -179,7 +223,7 @@
         @Prop(Object) private initialValue: Delta;
         @Prop({type: null, required: true, default: {allowEdit: true, showToolbar: true, postHash: -1}}) private editorSetup: IQuillEditSetup;
 
-        private editor: any = null;
+        private editor: Quill = null;
         private editorOptions: any = defaultOptions;
 
         private typingTimeout: number = null;
@@ -190,10 +234,21 @@
         private postHashCacheItemID = "";
         private quillId = "";
 
+        private showTooltip = false;
+        private tooltipButtonStyling: {
+            top: string,
+            bottom: string,
+            left: string,
+            right: string
+        } = null;
+        private selectedElements: Object[] = [];
+
         /**
          * Lifecycle hooks
          */
         private mounted() {
+
+            const md = new MarkdownIt().use(mk);
 
             (window as any).katex = katex;
 
@@ -229,8 +284,23 @@
         /**
          * Methods
          */
+        private setMarkDown(): void {
+            const sel = this.editor.getSelection();
+            if (sel !== null) {
+                const obKeys = Object.keys(this.editor.getFormat(sel));
+                if (obKeys.length === 0) {
+                    this.editor.format(blotName, true);
+                } else if (obKeys[0] === blotName) {
+                    this.editor.removeFormat(sel.index, sel.length);
+                } else {
+                    this.editor.format(blotName, true);
+                }
+            }
+
+        }
+
         private getHTML() {
-            const node = this.editor.container.firstChild;
+            const node = (this.editor as any).container.firstChild;
 
             // Converts the classes of all the code blocks so that hljs can highlight them properly
             const allNodes: HTMLElement[] = node.getElementsByTagName("*");
@@ -379,6 +449,7 @@
 
             // Specify function to be called on change
             this.editor.on("text-change", this.textChanged);
+            this.editor.on("selection-change", this.selectionChanged);
         }
 
         private textChanged(delta: Delta, oldContents: Delta, source: any) {
@@ -392,6 +463,69 @@
                 }
             }, 1000);
         }
+
+        private selectionChanged(range: RangeStatic, oldRange: RangeStatic, source: any) {
+            if (range !== null) {
+                const selection = this.editor.getFormat(range);
+                const obKeys = Object.keys(selection);
+                if (obKeys[0] === blotName) {
+                    const bounds = this.editor.getBounds(range.index, range.length);
+
+                    let elem = document.getElementsByClassName("container")[0] as any;
+
+                    let distanceFromTop = 0;
+                    if (elem.offsetParent) {
+                        do {
+                            distanceFromTop += elem.offsetTop;
+                            elem = elem.offsetParent;
+                        } while (elem);
+                    }
+
+                    this.tooltipButtonStyling = {
+                        top: bounds.top + distanceFromTop + bounds.height - 10 + "px",
+                        bottom: bounds.bottom + "px",
+                        left: bounds.left + 30 + "px",
+                        right: bounds.right + "px"
+                    };
+                    this.showTooltip = true;
+
+                    const currentLineArray = this.editor.getLines(range);
+
+                    if (currentLineArray.length > 0) {
+
+                        const newLineArray = [currentLineArray[0]];
+
+                        let prev = newLineArray[0].prev;
+                        let next = newLineArray[0].next;
+
+                        while (true) {
+                            if (prev.domNode.className === blotName) {
+                                newLineArray.push(prev);
+                                prev = prev.prev;
+                            } else {
+                                break;
+                            }
+                        }
+
+                        while (true) {
+                            if (next.domNode.className === blotName) {
+                                newLineArray.push(next);
+                                next = next.next;
+                            } else {
+                                break;
+                            }
+                        }
+
+                        this.selectedElements = newLineArray;
+                    }
+
+                } else {
+                    this.showTooltip = false;
+                }
+            } else {
+                this.showTooltip = false;
+            }
+        }
     }
 </script>
 
@@ -402,16 +536,16 @@
         border: none;
     }
 
-    #tableButton {
+    .tableButton {
         min-width: 10px;
     }
 
-    #tableButton:focus,
-    #tableButton:hover {
+    .tableButton:focus,
+    .tableButton:hover {
         color: white;
     }
 
-    #tableIcon:hover {
+    .tableIcon:hover {
         caret-color: #00A6D8 !important;
         color: #00A6D8 !important;
     }

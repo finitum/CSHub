@@ -19,6 +19,7 @@ export interface IUIState {
     editDialogState: editDialogType;
     paginationPageState: number;
     notificationDialog: notificationDialogType;
+    markdownDialog: boolean;
 }
 
 export const UIState: IUIState = {
@@ -34,7 +35,8 @@ export const UIState: IUIState = {
         on: false,
         header: "",
         text: ""
-    }
+    },
+    markdownDialog: false
 };
 
 export const uiStoreBuilder = getStoreBuilder<IRootState>().module("ui", UIState);

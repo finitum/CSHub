@@ -7,3 +7,5 @@ export const editDialogState = uiStoreBuilder.read((state) => state.editDialogSt
 export const paginationPageState = uiStoreBuilder.read((state) => state.paginationPageState, "paginationPageState");
 
 export const notificationDialog = uiStoreBuilder.read((state) => state.notificationDialog, "notificationDialog");
+
+export const markdownDialog = uiStoreBuilder.read((state) => state.markdownDialog, "markdownDialog");
