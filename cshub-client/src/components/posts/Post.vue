@@ -77,7 +77,7 @@
                     </span>
                 </v-card-title>
                 <v-container
-                        v-if="!editModeComputed"
+                        v-if="fullPostComputed && !editModeComputed"
                         position="relative"
                         class="scroll-y"
                         :class="'postScrollWindow_' + domId"
@@ -97,7 +97,7 @@
                 <Quill key="editQuill"
                        ref="editQuill"
                        :class="'postScrollWindow_' + domId"
-                       v-if="!loadingIcon && editModeComputed"
+                       v-if="fullPostComputed && !loadingIcon && editModeComputed"
                        style="margin-bottom: 20px"
                        :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
                        :initialValue="editContent"></Quill>
@@ -297,7 +297,7 @@ export default class Post extends Vue {
             }
         }
     private windowHeightChanged() {
-        if (this.canResize) {
+        if (this.canResize && this.fullPostComputed) {
             // Calculate the right height for the postcardtext, 100px padding
             this.canResize = false;
 
