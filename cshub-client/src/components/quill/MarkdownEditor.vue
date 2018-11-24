@@ -10,7 +10,7 @@
                             autofocus
                             label="Your input"
                             spellcheck="false"
-                            v-model="markdownDialogState.text"
+                            v-model="input"
                             @keyup="renderMarkdown"
                             @keydown.tab.prevent="tabHandler"
                             placeholder="Type here">
@@ -47,6 +47,7 @@
          */
         @Prop(Array) private initialValue: object[];
 
+        private input = "";
         private output = "";
         private markdown = {md: new MarkdownIt({}).use(mk)};
 
@@ -74,7 +75,30 @@
         @Watch("markdownDialogState")
         private markdownDialogStateChanged() {
             if (this.markdownDialogState.open) {
+                this.input = "";
+                for (let i = 0; i < this.markdownDialogState.blots.length; i++) {
+                    const currBlot = this.markdownDialogState.blots[i];
+
+                    const currText = (currBlot.domNode as any).innerText;
+                    if (currText !== "") {
+                        this.input += currText;
+                        if (currText !== "\n" && i !== this.markdownDialogState.blots.length - 1) {
+                            this.input += "\n";
+                        }
+                    }
+                }
                 this.renderMarkdown();
+            } else {
+                for (let i = 0; i < this.markdownDialogState.blots.length; i++) {
+                    const currBlot = this.markdownDialogState.blots[i];
+
+                    currBlot.deleteAt(0, currBlot.length());
+
+                    if (i === 0) {
+                        // It seems like parchment has a bug, it only starts properly inserting from the second line, so adding a fake word here
+                        currBlot.insertAt(0, `xxx\n${this.input}`);
+                    }
+                }
             }
         }
 
@@ -82,16 +106,16 @@
          * Methods
          */
         private renderMarkdown() {
-            this.output = this.markdown.md.render(this.markdownDialogState.text);
+            this.output = this.markdown.md.render(this.input);
         }
 
         private tabHandler(event: Event) {
-            const text = this.markdownDialogState.text;
+            const text = this.input;
             const originalSelectionStart = (event.target as any).selectionStart;
             const textStart = text.slice(0, originalSelectionStart);
             const textEnd =  text.slice(originalSelectionStart);
 
-            this.markdownDialogState.text = `${textStart}\t${textEnd}`;
+            this.input = `${textStart}\t${textEnd}`;
             (event.target as any).selectionEnd = (event.target as any).selectionStart = originalSelectionStart + 1;
         }
     }

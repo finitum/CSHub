@@ -118,4 +118,7 @@
         font-family: 'SailecLight', sans-serif;
     }
 
+    .mord.accent {
+        background-color: inherit !important;
+    }
 </style>

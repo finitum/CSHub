@@ -159,7 +159,7 @@
         <v-dialog v-model="markdownDialogState.open" fullscreen hide-overlay transition="dialog-bottom-transition">
             <v-card>
                 <v-toolbar dark color="primary">
-                    <v-btn icon dark @click="markdownDialogState = {open: false, text: ''}">
+                    <v-btn icon dark @click="closeMarkdownDialog">
                         <v-icon>fas fa-times</v-icon>
                     </v-btn>
                     <v-toolbar-title>Markdown editor</v-toolbar-title>
@@ -176,6 +176,7 @@
     import localForage from "localforage";
     import Delta from "quill-delta/dist/Delta";
     import {Component, Prop} from "vue-property-decorator";
+    import {Blot} from "parchment/dist/src/blot/abstract/blot";
 
     import katex from "katex";
     import "katex/dist/katex.min.css";
@@ -198,9 +199,10 @@
     import {idGenerator} from "../../utilities/id-generator";
 
     import {blotName} from "./MarkdownLatexQuill";
-    import uiState from "../../store/ui";
     import MarkdownEditor from "./MarkdownEditor.vue";
+
     import {markdownDialogType} from "../../store/ui/state";
+    import uiState from "../../store/ui";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -320,15 +322,17 @@
             const node = (this.editor as any).container.firstChild;
 
             // Converts the classes of all the code blocks so that hljs can highlight them properly
-            const allNodes: HTMLElement[] = node.getElementsByTagName("*");
+            const allNodes: any[] = [...node.getElementsByTagName("*")];
 
             let prevElement: {
                 isCodeBlock: boolean,
+                isMarkdownBlock: boolean,
                 lang?: string,
                 containerNode?: HTMLElement,
                 currString?: string
             } = {
-                isCodeBlock: false
+                isCodeBlock: false,
+                isMarkdownBlock: false
             };
 
             const finalizeCodeBlock = () => {
@@ -339,7 +343,26 @@
                     prevElement.containerNode.after(newNode);
 
                     prevElement = {
-                        isCodeBlock: false
+                        isCodeBlock: false,
+                        isMarkdownBlock: false
+                    };
+                }
+            };
+
+            const finalizeMarkdownBlock = () => {
+                if (prevElement.isMarkdownBlock) {
+
+                    const markdownParser = new MarkdownIt({}).use(mk);
+
+                    prevElement.currString = prevElement.currString.substr(0, prevElement.currString.length - 1);
+                    const newNode = document.createElement("span");
+                    newNode.innerHTML = markdownParser.render(prevElement.currString);
+
+                    prevElement.containerNode.before(newNode);
+
+                    prevElement = {
+                        isCodeBlock: false,
+                        isMarkdownBlock: false
                     };
                 }
             };
@@ -348,6 +371,7 @@
 
             for (const domNode of allNodes) {
                 if (domNode.tagName === "DIV") {
+                    finalizeMarkdownBlock();
                     if (domNode.classList.contains("ql-code-block-container")) {
                         toBeDeletedNodes.push(domNode);
                         prevElement.containerNode = domNode;
@@ -378,11 +402,23 @@
                         finalizeCodeBlock();
                     }
                 } else if (domNode.tagName === "SELECT" || domNode.tagName === "OPTION") {
+                    finalizeMarkdownBlock();
                     toBeDeletedNodes.push(domNode);
-                } else if (domNode.tagName === "SPAN") {
-                    if (domNode.classList.contains("mord") && domNode.classList.contains("accent")) {
-                        domNode.setAttribute("style", "background-color: transparent !important");
+                } else if (domNode.tagName === "PRE" && domNode.classList.contains(blotName)) {
+                    toBeDeletedNodes.push(domNode);
+                    if (prevElement.isMarkdownBlock) {
+                        prevElement.currString += domNode.innerText;
+                        prevElement.currString += "\n";
+                    } else {
+                        prevElement = {
+                            isMarkdownBlock: true,
+                            isCodeBlock: false,
+                            containerNode: domNode,
+                            currString: `${domNode.innerText}\n`
+                        };
                     }
+                } else {
+                    finalizeMarkdownBlock();
                 }
             }
 
@@ -484,12 +520,19 @@
         private openMarkdownDialog() {
             this.markdownDialogState = {
                 open: true,
-                text: this.markdownTextString
+                blots: this.currentlySelectedDomNodes as Blot[]
             };
         }
 
+        private closeMarkdownDialog() {
+            this.markdownDialogState = {
+                ...this.markdownDialogState,
+                open: false
+            }
+        }
+
         private selectionChanged(range: RangeStatic, oldRange: RangeStatic, source: any) {
-            if (range !== null) {
+            if (range !== null && range.length !== 0) {
                 const selection = this.editor.getFormat(range);
                 const obKeys = Object.keys(selection);
                 if (obKeys[0] === blotName) {
@@ -511,7 +554,6 @@
                         left: bounds.left + 30 + "px",
                         right: bounds.right + "px"
                     };
-                    this.showTooltip = true;
 
                     const currentLineArray = this.editor.getLines(range);
 
@@ -540,17 +582,8 @@
                             }
                         }
 
-                        let textString = "";
-
-                        for (const item of newLineArray) {
-                            textString += item.domNode.innerText;
-                            textString += "\n";
-                        }
-
+                        this.showTooltip = true;
                         this.currentlySelectedDomNodes = newLineArray;
-
-                        console.log(this.editor.getContents())
-                        this.markdownTextString = textString;
                     }
 
                 } else {
@@ -586,5 +619,10 @@
 
     .editor >>> .ql-code-block-container {
         background-color: #b3b3b3;
+    }
+
+    .editor >>> .mklqx {
+        color: black;
+        background-color: rgba(182, 182, 182, 0.13);
     }
 </style>

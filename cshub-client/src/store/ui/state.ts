@@ -1,5 +1,6 @@
 import {getStoreBuilder} from "vuex-typex";
 import {IRootState} from "../";
+import {Blot} from "parchment/dist/src/blot/abstract/blot";
 
 export type editDialogType = {
     on: boolean,
@@ -8,7 +9,7 @@ export type editDialogType = {
 
 export type markdownDialogType = {
     open: boolean,
-    text: string
+    blots: Blot[]
 };
 
 export type notificationDialogType = {
@@ -43,7 +44,7 @@ export const UIState: IUIState = {
     },
     markdownDialog: {
         open: false,
-        text: ""
+        blots: []
     }
 };
 
