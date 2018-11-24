@@ -1,9 +1,15 @@
 import {getStoreBuilder} from "vuex-typex";
 import {IRootState} from "../";
+import {Blot} from "parchment/dist/src/blot/abstract/blot";
 
 export type editDialogType = {
     on: boolean,
     hash: number
+};
+
+export type markdownDialogType = {
+    open: boolean,
+    blots: Blot[]
 };
 
 export type notificationDialogType = {
@@ -19,6 +25,7 @@ export interface IUIState {
     editDialogState: editDialogType;
     paginationPageState: number;
     notificationDialog: notificationDialogType;
+    markdownDialog: markdownDialogType;
 }
 
 export const UIState: IUIState = {
@@ -34,6 +41,10 @@ export const UIState: IUIState = {
         on: false,
         header: "",
         text: ""
+    },
+    markdownDialog: {
+        open: false,
+        blots: []
     }
 };
 

@@ -1,4 +1,4 @@
-import {editDialogType, IUIState, notificationDialogType} from "./state";
+import {editDialogType, IUIState, markdownDialogType, notificationDialogType} from "./state";
 
 export const setDrawerState = (state: IUIState, payload: boolean) => {
     state.navbar.open = payload;
@@ -16,3 +16,6 @@ export const setNotificationDialogState = (state: IUIState, payload: notificatio
     state.notificationDialog = payload;
 };
 
+export const setMarkdownDialogState = (state: IUIState, payload: markdownDialogType) => {
+    state.markdownDialog = payload;
+};

@@ -4,68 +4,79 @@
         <div class="snow-container" :id="quillId" style="height: 100%">
             <div class="toolbar" v-show="editorSetup.showToolbar" style="border: none; padding: 1%;">
                 <span class="ql-formats">
-                      <select class="ql-header" title="Header">
-                            <option value="1">Heading</option>
-                            <option value="2">Subheading</option>
-                            <option selected>Normal</option>
-                      </select>
+                    <select class="ql-header" title="Header">
+                        <option value="1">Heading</option>
+                        <option value="2">Subheading</option>
+                        <option selected>Normal</option>
+                    </select>
                 </span>
                 <span class="ql-formats">
-                      <button class="ql-bold"></button>
-                      <button class="ql-italic"></button>
-                      <button class="ql-underline"></button>
-                      <button class="ql-clean"></button>
-                      <select class="ql-color">
-                            <option value="rgb(0, 0, 0)"/>
-                            <option value="rgb(230, 0, 0)"/>
-                            <option value="rgb(255, 153, 0)"/>
-                            <option value="rgb(255, 255, 0)"/>
-                            <option value="rgb(0, 138, 0)"/>
-                            <option value="rgb(0, 102, 204)"/>
-                            <option value="rgb(153, 51, 255)"/>
-                            <option value="rgb(255, 255, 255)"/>
-                            <option value="rgb(250, 204, 204)"/>
-                            <option value="rgb(255, 235, 204)"/>
-                            <option value="rgb(204, 224, 245)"/>
-                            <option value="rgb(235, 214, 255)"/>
-                            <option value="rgb(187, 187, 187)"/>
-                            <option value="rgb(102, 185, 102)"/>
-                      </select>
-                      <select class="ql-background">
-                            <option value="rgba(0, 0, 0, 0)"/>
-                            <option value="rgb(230, 0, 0)"/>
-                            <option value="rgb(255, 153, 0)"/>
-                            <option value="rgb(255, 255, 0)"/>
-                            <option value="rgb(0, 138, 0)"/>
-                            <option value="rgb(0, 102, 204)"/>
-                            <option value="rgb(153, 51, 255)"/>
-                            <option value="rgb(0, 0, 0)"/>
-                            <option value="rgb(250, 204, 204)"/>
-                            <option value="rgb(255, 235, 204)"/>
-                            <option value="rgb(204, 224, 245)"/>
-                            <option value="rgb(235, 214, 255)"/>
-                            <option value="rgb(187, 187, 187)"/>
-                            <option value="rgb(102, 185, 102)"/>
-                      </select>
+                    <button class="ql-bold"></button>
+                    <button class="ql-italic"></button>
+                    <button class="ql-underline"></button>
+                    <button class="ql-clean"></button>
+                    <select class="ql-color">
+                        <option value="rgb(0, 0, 0)"/>
+                        <option value="rgb(230, 0, 0)"/>
+                        <option value="rgb(255, 153, 0)"/>
+                        <option value="rgb(255, 255, 0)"/>
+                        <option value="rgb(0, 138, 0)"/>
+                        <option value="rgb(0, 102, 204)"/>
+                        <option value="rgb(153, 51, 255)"/>
+                        <option value="rgb(255, 255, 255)"/>
+                        <option value="rgb(250, 204, 204)"/>
+                        <option value="rgb(255, 235, 204)"/>
+                        <option value="rgb(204, 224, 245)"/>
+                        <option value="rgb(235, 214, 255)"/>
+                        <option value="rgb(187, 187, 187)"/>
+                        <option value="rgb(102, 185, 102)"/>
+                    </select>
+                    <select class="ql-background">
+                        <option value="rgba(0, 0, 0, 0)"/>
+                        <option value="rgb(230, 0, 0)"/>
+                        <option value="rgb(255, 153, 0)"/>
+                        <option value="rgb(255, 255, 0)"/>
+                        <option value="rgb(0, 138, 0)"/>
+                        <option value="rgb(0, 102, 204)"/>
+                        <option value="rgb(153, 51, 255)"/>
+                        <option value="rgb(0, 0, 0)"/>
+                        <option value="rgb(250, 204, 204)"/>
+                        <option value="rgb(255, 235, 204)"/>
+                        <option value="rgb(204, 224, 245)"/>
+                        <option value="rgb(235, 214, 255)"/>
+                        <option value="rgb(187, 187, 187)"/>
+                        <option value="rgb(102, 185, 102)"/>
+                    </select>
                 </span>
                 <span class="ql-formats">
-                      <button class="ql-list" value="ordered"></button>
-                      <button class="ql-list" value="bullet"></button>
-                      <select class="ql-align" title="Alignment">
+                    <button class="ql-list" value="ordered"></button>
+                    <button class="ql-list" value="bullet"></button>
+                    <select class="ql-align" title="Alignment">
                         <option label="left" selected></option>
                         <option label="center" value="center"></option>
                         <option label="right" value="right"></option>
                         <option label="justify" value="justify"></option>
-                      </select>
+                    </select>
                 </span>
                 <span class="ql-formats">
-                      <button class="ql-link"></button>
-                      <button class="ql-image"></button>
-                      <button class="ql-video"></button>
+                <button class="ql-link"></button>
+                <button class="ql-image"></button>
+                <button class="ql-video"></button>
                 </span>
                 <span class="ql-formats">
-                      <button class="ql-formula"></button>
-                      <button class="ql-code-block"></button>
+                    <button class="ql-formula"></button>
+                    <button class="ql-code-block"></button>
+                    <v-btn
+                            slot="activator"
+                            dark
+                            flat
+                            small
+                            class="tableButton"
+                            @click="setMarkDown"
+                            style="margin: 0"
+                    >
+                        <v-icon color="black tableIcon">fas fa-marker</v-icon>
+                    </v-btn>
                 </span>
                 <span class="ql-formats">
                     <v-menu
@@ -74,49 +85,65 @@
                             :nudge-width="100"
                             offset-x
                     >
-                          <v-btn
-                                  slot="activator"
-                                  dark
-                                  flat
-                                  small
-                                  id="tableButton"
-                          >
-                              <v-icon color="black" id="tableIcon">fas fa-table</v-icon>
-                          </v-btn>
-
-                          <v-card>
-                                <v-card-title primary-title style="padding-bottom: 0">
-                                    <h3>
-                                        Table options
-                                    </h3>
-                                </v-card-title>
-                                <v-card-text style="padding-top: 0">
-                                    <v-list>
-                                        <v-list-tile>
-                                            <button @click="performTableAction(tableActions.CREATETABLE)" class="mr-3"><v-icon>fas fa-plus</v-icon></button>
-                                            <button @click="performTableAction(tableActions.REMOVETABLE)"><v-icon>fas fa-minus</v-icon></button>
-                                        </v-list-tile>
-                                        <v-list-tile>
-                                            <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)" class="mr-3"><v-icon>fas fa-arrow-left</v-icon></button>
-                                            <button @click="performTableAction(tableActions.CREATENEWCOLUMNRIGHT)"><v-icon>fas fa-arrow-right</v-icon></button>
-                                        </v-list-tile>
-                                        <v-list-tile>
-                                            <button @click="performTableAction(tableActions.CREATENEWROWUP)" class="mr-3"><v-icon>fas fa-arrow-up</v-icon></button>
-                                            <button @click="performTableAction(tableActions.CREATENEWROWDOWN)"><v-icon>fas fa-arrow-down</v-icon></button>
-                                        </v-list-tile>
-                                        <v-list-tile>
-                                            <button @click="performTableAction(tableActions.REMOVEROW)" class="mr-3"><v-icon>fas fa-arrows-alt-v</v-icon></button>
-                                            <button @click="performTableAction(tableActions.REMOVECOLUMN)"><v-icon>fas fa-arrows-alt-h</v-icon></button>
-                                        </v-list-tile>
-                                    </v-list>
-                                </v-card-text>
-                          </v-card>
-                        </v-menu>
+                        <v-btn
+                                slot="activator"
+                                dark
+                                flat
+                                small
+                                class="tableButton"
+                        >
+                            <v-icon color="black tableIcon">fas fa-table</v-icon>
+                        </v-btn>
+                        <v-card>
+                            <v-card-title primary-title style="padding-bottom: 0">
+                                <h3>
+                                    Table options
+                                </h3>
+                            </v-card-title>
+                            <v-card-text style="padding-top: 0">
+                                <v-list>
+                                    <v-list-tile>
+                                        <button @click="performTableAction(tableActions.CREATETABLE)" class="mr-3">
+                                            <v-icon>fas fa-plus</v-icon>
+                                        </button>
+                                        <button @click="performTableAction(tableActions.REMOVETABLE)">
+                                            <v-icon>fas fa-minus</v-icon>
+                                        </button>
+                                    </v-list-tile>
+                                    <v-list-tile>
+                                        <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)" class="mr-3">
+                                            <v-icon>fas fa-arrow-left</v-icon>
+                                        </button>
+                                        <button @click="performTableAction(tableActions.CREATENEWCOLUMNRIGHT)">
+                                            <v-icon>fas fa-arrow-right</v-icon>
+                                        </button>
+                                    </v-list-tile>
+                                    <v-list-tile>
+                                        <button @click="performTableAction(tableActions.CREATENEWROWUP)" class="mr-3">
+                                            <v-icon>fas fa-arrow-up</v-icon>
+                                        </button>
+                                        <button @click="performTableAction(tableActions.CREATENEWROWDOWN)">
+                                            <v-icon>fas fa-arrow-down</v-icon>
+                                        </button>
+                                    </v-list-tile>
+                                    <v-list-tile>
+                                        <button @click="performTableAction(tableActions.REMOVEROW)" class="mr-3">
+                                            <v-icon>fas fa-arrows-alt-v</v-icon>
+                                        </button>
+                                        <button @click="performTableAction(tableActions.REMOVECOLUMN)">
+                                            <v-icon>fas fa-arrows-alt-h</v-icon>
+                                        </button>
+                                    </v-list-tile>
+                                </v-list>
+                            </v-card-text>
+                        </v-card>
+                    </v-menu>
                 </span>
             </div>
             <div class="editor">
             </div>
         </div>
+        <v-btn fab small depressed color="primary" :style="tooltipButtonStyling" style="position: fixed;" v-if="showTooltip" @click="openMarkdownDialog"><v-icon>fas fa-edit</v-icon></v-btn>
         <v-dialog v-model="loadDraftDialog" persistent max-width="290">
             <v-card>
                 <v-card-title class="headline">Open draft?</v-card-title>
@@ -128,8 +155,20 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-    </div>
 
+        <v-dialog v-model="markdownDialogState.open" fullscreen hide-overlay transition="dialog-bottom-transition">
+            <v-card>
+                <v-toolbar dark color="primary">
+                    <v-btn icon dark @click="closeMarkdownDialog">
+                        <v-icon>fas fa-times</v-icon>
+                    </v-btn>
+                    <v-toolbar-title>Markdown editor</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                </v-toolbar>
+                <MarkdownEditor v-if="markdownDialogState"></MarkdownEditor>
+            </v-card>
+        </v-dialog>
+    </div>
 </template>
 
 <script lang="ts">
@@ -137,11 +176,16 @@
     import localForage from "localforage";
     import Delta from "quill-delta/dist/Delta";
     import {Component, Prop} from "vue-property-decorator";
+    import {Blot} from "parchment/dist/src/blot/abstract/blot";
 
     import katex from "katex";
     import "katex/dist/katex.min.css";
 
-    import Quill from "quill";
+    // @ts-ignore
+    import mk from "markdown-it-katex";
+    import MarkdownIt from "markdown-it";
+
+    import Quill, {RangeStatic} from "quill";
     import "quill/dist/quill.core.css";
     import "quill/dist/quill.snow.css";
 
@@ -153,6 +197,12 @@
 
     import {logStringConsole} from "../../utilities";
     import {idGenerator} from "../../utilities/id-generator";
+
+    import {blotName, markdownParser} from "./MarkdownLatexQuill";
+    import MarkdownEditor from "./MarkdownEditor.vue";
+
+    import {markdownDialogType} from "../../store/ui/state";
+    import uiState from "../../store/ui";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -169,7 +219,8 @@
     }
 
     @Component({
-        name: "QuillEditor"
+        name: "QuillEditor",
+        components: {MarkdownEditor}
     })
     export default class QuillEditor extends Vue {
 
@@ -179,7 +230,7 @@
         @Prop(Object) private initialValue: Delta;
         @Prop({type: null, required: true, default: {allowEdit: true, showToolbar: true, postHash: -1}}) private editorSetup: IQuillEditSetup;
 
-        private editor: any = null;
+        private editor: Quill = null;
         private editorOptions: any = defaultOptions;
 
         private typingTimeout: number = null;
@@ -190,10 +241,20 @@
         private postHashCacheItemID = "";
         private quillId = "";
 
+        private showTooltip = false;
+        private tooltipButtonStyling: {
+            top: string,
+            left: string
+        } = null;
+        private markdownTextString = "";
+        private currentlySelectedDomNodes: object[] = [];
+
         /**
          * Lifecycle hooks
          */
         private mounted() {
+
+            const md = new MarkdownIt().use(mk);
 
             (window as any).katex = katex;
 
@@ -227,21 +288,49 @@
         }
 
         /**
+         * Computed properties
+         */
+        get markdownDialogState(): markdownDialogType {
+            return uiState.mardownDialogState;
+        }
+
+        set markdownDialogState(state: markdownDialogType) {
+            uiState.setMarkdownDialogState(state);
+        }
+
+        /**
          * Methods
          */
+        private setMarkDown(): void {
+            const sel = this.editor.getSelection();
+            if (sel !== null) {
+                const obKeys = Object.keys(this.editor.getFormat(sel));
+                if (obKeys.length === 0) {
+                    this.editor.format(blotName, true);
+                } else if (obKeys[0] === blotName) {
+                    this.editor.removeFormat(sel.index, sel.length);
+                } else {
+                    this.editor.format(blotName, true);
+                }
+            }
+
+        }
+
         private getHTML() {
-            const node = this.editor.container.firstChild;
+            const node = (this.editor as any).container.firstChild;
 
             // Converts the classes of all the code blocks so that hljs can highlight them properly
-            const allNodes: HTMLElement[] = node.getElementsByTagName("*");
+            const allNodes: any[] = [...node.getElementsByTagName("*")];
 
             let prevElement: {
                 isCodeBlock: boolean,
+                isMarkdownBlock: boolean,
                 lang?: string,
                 containerNode?: HTMLElement,
                 currString?: string
             } = {
-                isCodeBlock: false
+                isCodeBlock: false,
+                isMarkdownBlock: false
             };
 
             const finalizeCodeBlock = () => {
@@ -252,7 +341,26 @@
                     prevElement.containerNode.after(newNode);
 
                     prevElement = {
-                        isCodeBlock: false
+                        isCodeBlock: false,
+                        isMarkdownBlock: false
+                    };
+                }
+            };
+
+            const finalizeMarkdownBlock = () => {
+                if (prevElement.isMarkdownBlock) {
+                    prevElement.currString = prevElement.currString.substr(0, prevElement.currString.length - 1);
+                    const newNode = document.createElement("div");
+                    // To not have a break at the end
+                    newNode.style.display = "grid";
+                    newNode.classList.add("markdown-body");
+                    newNode.innerHTML = markdownParser.render(prevElement.currString);
+
+                    prevElement.containerNode.before(newNode);
+
+                    prevElement = {
+                        isCodeBlock: false,
+                        isMarkdownBlock: false
                     };
                 }
             };
@@ -261,6 +369,7 @@
 
             for (const domNode of allNodes) {
                 if (domNode.tagName === "DIV") {
+                    finalizeMarkdownBlock();
                     if (domNode.classList.contains("ql-code-block-container")) {
                         toBeDeletedNodes.push(domNode);
                         prevElement.containerNode = domNode;
@@ -291,13 +400,29 @@
                         finalizeCodeBlock();
                     }
                 } else if (domNode.tagName === "SELECT" || domNode.tagName === "OPTION") {
+                    finalizeMarkdownBlock();
                     toBeDeletedNodes.push(domNode);
-                } else if (domNode.tagName === "SPAN") {
-                    if (domNode.classList.contains("mord") && domNode.classList.contains("accent")) {
-                        domNode.setAttribute("style", "background-color: transparent !important");
+                } else if ((domNode.tagName === "PRE" && domNode.classList.contains(blotName))) {
+                    toBeDeletedNodes.push(domNode);
+                    if (prevElement.isMarkdownBlock) {
+                        if (domNode.innerText !== "\n") {
+                            prevElement.currString += domNode.innerText;
+                        }
+                        prevElement.currString += "\n";
+                    } else {
+                        prevElement = {
+                            isMarkdownBlock: true,
+                            isCodeBlock: false,
+                            containerNode: domNode,
+                            currString: `${domNode.innerText}\n`
+                        };
                     }
+                } else if (!(domNode.tagName === "BR" && domNode.parentNode.classList.contains(blotName))) {
+                    finalizeMarkdownBlock();
                 }
             }
+
+            finalizeMarkdownBlock();
 
             toBeDeletedNodes.forEach((domNode: HTMLElement) => {
                 domNode.remove();
@@ -379,6 +504,7 @@
 
             // Specify function to be called on change
             this.editor.on("text-change", this.textChanged);
+            this.editor.on("selection-change", this.selectionChanged);
         }
 
         private textChanged(delta: Delta, oldContents: Delta, source: any) {
@@ -392,6 +518,87 @@
                 }
             }, 1000);
         }
+
+        private openMarkdownDialog() {
+            this.markdownDialogState = {
+                open: true,
+                blots: this.currentlySelectedDomNodes as Blot[]
+            };
+        }
+
+        private closeMarkdownDialog() {
+            this.markdownDialogState = {
+                ...this.markdownDialogState,
+                open: false
+            };
+        }
+
+        private selectionChanged(range: RangeStatic, oldRange: RangeStatic, source: any) {
+            if (range !== null && range.length !== 0) {
+                const selection = this.editor.getFormat(range);
+                const obKeys = Object.keys(selection);
+                if (obKeys[0] === blotName) {
+
+                    const currentLineArray = this.editor.getLines(range);
+
+                    let elem = document.getElementsByClassName("snow-container")[0] as any;
+
+                    let distanceFromTop = 0;
+                    let distanceFromLeft = 0;
+                    if (elem.offsetParent) {
+                        do {
+                            distanceFromTop += elem.offsetTop;
+                            distanceFromLeft += elem.offsetLeft;
+                            elem = elem.offsetParent;
+                        } while (elem);
+                    }
+
+                    const selectedElem = (currentLineArray[0] as any).domNode;
+                    const bounds = this.editor.getBounds(range.index, range.length);
+
+                    this.tooltipButtonStyling = {
+                        top: distanceFromTop + (bounds.top - selectedElem.scrollTop) + "px",
+                        left: distanceFromLeft + bounds.left + "px"
+                    };
+
+                    if (currentLineArray.length > 0) {
+
+                        const newLineArray = [];
+
+                        let prev = currentLineArray[0];
+
+                        while (true) {
+                            if (prev.domNode.className === blotName) {
+                                if (prev.prev !== null) {
+                                    prev = prev.prev;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+
+                        while (true) {
+                            if (prev !== null && prev.domNode.className === blotName) {
+                                newLineArray.push(prev);
+                                prev = prev.next;
+                            } else {
+                                break;
+                            }
+                        }
+
+                        this.showTooltip = true;
+                        this.currentlySelectedDomNodes = newLineArray;
+                    }
+
+                } else {
+                    this.showTooltip = false;
+                }
+            } else {
+                this.showTooltip = false;
+            }
+        }
     }
 </script>
 
@@ -402,21 +609,27 @@
         border: none;
     }
 
-    #tableButton {
+    .tableButton {
         min-width: 10px;
     }
 
-    #tableButton:focus,
-    #tableButton:hover {
+    .tableButton:focus,
+    .tableButton:hover {
         color: white;
     }
 
-    #tableIcon:hover {
+    .tableIcon:hover {
         caret-color: #00A6D8 !important;
         color: #00A6D8 !important;
     }
 
     .editor >>> .ql-code-block-container {
         background-color: #b3b3b3;
+    }
+
+    .editor >>> .mklqx {
+        white-space: pre-wrap;
+        color: black;
+        background-color: rgba(182, 182, 182, 0.13);
     }
 </style>
