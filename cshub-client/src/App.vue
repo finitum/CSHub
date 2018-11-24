@@ -135,4 +135,8 @@
         font-weight: inherit;
         box-shadow: none;
     }
+
+    .markdown-body li {
+        list-style-type: decimal !important;
+    }
 </style>

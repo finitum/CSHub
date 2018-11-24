@@ -569,7 +569,7 @@
 
                         while (true) {
                             if (prev.domNode.className === blotName) {
-                                if (prev.prev !== null) {
+                                if (prev.prev !== null && prev.prev.domNode.className === blotName) {
                                     prev = prev.prev;
                                 } else {
                                     break;
