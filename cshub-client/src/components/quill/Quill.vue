@@ -355,7 +355,9 @@
                     const markdownParser = new MarkdownIt({}).use(mk);
 
                     prevElement.currString = prevElement.currString.substr(0, prevElement.currString.length - 1);
-                    const newNode = document.createElement("span");
+                    const newNode = document.createElement("div");
+                    // To not have a break at the end
+                    newNode.style.display = "grid";
                     newNode.innerHTML = markdownParser.render(prevElement.currString);
 
                     prevElement.containerNode.before(newNode);
@@ -538,7 +540,7 @@
                 if (obKeys[0] === blotName) {
                     const bounds = this.editor.getBounds(range.index, range.length);
 
-                    let elem = document.getElementsByClassName("container")[0] as any;
+                    let elem = document.getElementsByClassName("snow-container")[0] as any;
 
                     let distanceFromTop = 0;
                     if (elem.offsetParent) {
@@ -549,7 +551,7 @@
                     }
 
                     this.tooltipButtonStyling = {
-                        top: bounds.top + distanceFromTop + bounds.height - 10 + "px",
+                        top: bounds.top + distanceFromTop - 10 + "px",
                         bottom: bounds.bottom + "px",
                         left: bounds.left + 30 + "px",
                         right: bounds.right + "px"
