@@ -198,7 +198,7 @@
     import {logStringConsole} from "../../utilities";
     import {idGenerator} from "../../utilities/id-generator";
 
-    import {blotName} from "./MarkdownLatexQuill";
+    import {blotName, markdownParser} from "./MarkdownLatexQuill";
     import MarkdownEditor from "./MarkdownEditor.vue";
 
     import {markdownDialogType} from "../../store/ui/state";
@@ -244,9 +244,7 @@
         private showTooltip = false;
         private tooltipButtonStyling: {
             top: string,
-            bottom: string,
-            left: string,
-            right: string
+            left: string
         } = null;
         private markdownTextString = "";
         private currentlySelectedDomNodes: object[] = [];
@@ -351,13 +349,11 @@
 
             const finalizeMarkdownBlock = () => {
                 if (prevElement.isMarkdownBlock) {
-
-                    const markdownParser = new MarkdownIt({}).use(mk);
-
                     prevElement.currString = prevElement.currString.substr(0, prevElement.currString.length - 1);
                     const newNode = document.createElement("div");
                     // To not have a break at the end
                     newNode.style.display = "grid";
+                    newNode.classList.add("markdown-body");
                     newNode.innerHTML = markdownParser.render(prevElement.currString);
 
                     prevElement.containerNode.before(newNode);
@@ -406,10 +402,12 @@
                 } else if (domNode.tagName === "SELECT" || domNode.tagName === "OPTION") {
                     finalizeMarkdownBlock();
                     toBeDeletedNodes.push(domNode);
-                } else if (domNode.tagName === "PRE" && domNode.classList.contains(blotName)) {
+                } else if ((domNode.tagName === "PRE" && domNode.classList.contains(blotName))) {
                     toBeDeletedNodes.push(domNode);
                     if (prevElement.isMarkdownBlock) {
-                        prevElement.currString += domNode.innerText;
+                        if (domNode.innerText !== "\n") {
+                            prevElement.currString += domNode.innerText;
+                        }
                         prevElement.currString += "\n";
                     } else {
                         prevElement = {
@@ -419,10 +417,12 @@
                             currString: `${domNode.innerText}\n`
                         };
                     }
-                } else {
+                } else if (!(domNode.tagName === "BR" && domNode.parentNode.classList.contains(blotName))) {
                     finalizeMarkdownBlock();
                 }
             }
+
+            finalizeMarkdownBlock();
 
             toBeDeletedNodes.forEach((domNode: HTMLElement) => {
                 domNode.remove();
@@ -530,7 +530,7 @@
             this.markdownDialogState = {
                 ...this.markdownDialogState,
                 open: false
-            }
+            };
         }
 
         private selectionChanged(range: RangeStatic, oldRange: RangeStatic, source: any) {
@@ -538,45 +538,49 @@
                 const selection = this.editor.getFormat(range);
                 const obKeys = Object.keys(selection);
                 if (obKeys[0] === blotName) {
-                    const bounds = this.editor.getBounds(range.index, range.length);
+
+                    const currentLineArray = this.editor.getLines(range);
 
                     let elem = document.getElementsByClassName("snow-container")[0] as any;
 
                     let distanceFromTop = 0;
+                    let distanceFromLeft = 0;
                     if (elem.offsetParent) {
                         do {
                             distanceFromTop += elem.offsetTop;
+                            distanceFromLeft += elem.offsetLeft;
                             elem = elem.offsetParent;
                         } while (elem);
                     }
 
-                    this.tooltipButtonStyling = {
-                        top: bounds.top + distanceFromTop - 10 + "px",
-                        bottom: bounds.bottom + "px",
-                        left: bounds.left + 30 + "px",
-                        right: bounds.right + "px"
-                    };
+                    const selectedElem = (currentLineArray[0] as any).domNode;
+                    const bounds = this.editor.getBounds(range.index, range.length);
 
-                    const currentLineArray = this.editor.getLines(range);
+                    this.tooltipButtonStyling = {
+                        top: distanceFromTop + (bounds.top - selectedElem.scrollTop) + "px",
+                        left: distanceFromLeft + bounds.left + "px"
+                    };
 
                     if (currentLineArray.length > 0) {
 
                         const newLineArray = [];
 
-                        let prev = currentLineArray[0].prev;
+                        let prev = currentLineArray[0];
 
                         while (true) {
                             if (prev.domNode.className === blotName) {
-                                prev = prev.prev;
+                                if (prev.prev !== null) {
+                                    prev = prev.prev;
+                                } else {
+                                    break;
+                                }
                             } else {
                                 break;
                             }
                         }
 
-                        prev = prev.next;
-
                         while (true) {
-                            if (prev.domNode.className === blotName) {
+                            if (prev !== null && prev.domNode.className === blotName) {
                                 newLineArray.push(prev);
                                 prev = prev.next;
                             } else {
@@ -624,6 +628,7 @@
     }
 
     .editor >>> .mklqx {
+        white-space: pre-wrap;
         color: black;
         background-color: rgba(182, 182, 182, 0.13);
     }

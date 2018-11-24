@@ -121,4 +121,18 @@
     .mord.accent {
         background-color: inherit !important;
     }
+
+    code:before {
+        content: initial;
+    }
+
+    code:after {
+        content: initial;
+    }
+
+    code {
+        color: inherit;
+        font-weight: inherit;
+        box-shadow: none;
+    }
 </style>

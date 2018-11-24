@@ -77,7 +77,7 @@
                     </span>
                 </v-card-title>
                 <v-container
-                        v-show="fullPostComputed"
+                        v-if="!editModeComputed"
                         position="relative"
                         class="scroll-y"
                         :class="'postScrollWindow_' + domId"
@@ -88,15 +88,20 @@
                             justify-center
                             v-scroll:#post-scroll-target>
                         <v-card-text v-if="!loadingIcon" id="postCardText">
-                            <Quill key="editQuill" ref="editQuill" v-if="editModeComputed"
-                                   :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
-                                   :initialValue="editContent"></Quill>
                             <div class="ql-editor">
-                                <div v-if="!editModeComputed" v-show="showContent" v-html="post.htmlContent"></div>
+                                <div v-show="showContent" v-html="post.htmlContent"></div>
                             </div>
                         </v-card-text>
                     </v-layout>
                 </v-container>
+                <Quill key="editQuill"
+                       ref="editQuill"
+                       :class="'postScrollWindow_' + domId"
+                       v-if="!loadingIcon && editModeComputed"
+                       style="margin-bottom: 20px"
+                       :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
+                       :initialValue="editContent"></Quill>
+
                 <div v-if="loadingIcon">
                     <v-progress-circular
                             :size="150"

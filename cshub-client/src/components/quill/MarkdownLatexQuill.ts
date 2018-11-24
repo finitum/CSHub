@@ -13,3 +13,21 @@ MarkdownLatexQuill.className = blotName;
 MarkdownLatexQuill.tagName = "PRE";
 
 Quill.register(MarkdownLatexQuill);
+
+// @ts-ignore
+import mk from "markdown-it-katex";
+import MarkdownIt from "markdown-it";
+
+export const markdownParser = new MarkdownIt({
+    highlight: (str, lang) => {
+        if (lang && (window as any).hljs.getLanguage(lang)) {
+            try {
+                return (window as any).hljs.highlight(lang, str).value;
+            } catch (__) {
+                return "";
+            }
+        }
+
+        return ""; // use external default escaping
+    }
+}).use(mk);

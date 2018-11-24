@@ -2,7 +2,7 @@
     <div>
         <v-container style="max-width: inherit">
             <v-layout>
-                <v-flex xs6>
+                <v-flex xs6 style="padding-right: 20px">
                     <v-textarea
                             title="Input"
                             id="input"
@@ -16,8 +16,8 @@
                             placeholder="Type here">
                     </v-textarea>
                 </v-flex>
-                <v-flex xs6>
-                    <p v-html="output"></p>
+                <v-flex xs6 style="padding-left: 20px">
+                    <p v-html="output" class="markdown-body"></p>
                 </v-flex>
             </v-layout>
         </v-container>
@@ -28,14 +28,12 @@
     import Vue from "vue";
     import {Prop, Component, Watch} from "vue-property-decorator";
 
-    import MarkdownIt from "markdown-it";
     import "github-markdown-css";
     import "katex/dist/katex.min.css";
 
-    // @ts-ignore
-    import mk from "markdown-it-katex";
     import uiState from "../../store/ui";
     import {markdownDialogType} from "../../store/ui/state";
+    import {markdownParser} from "./MarkdownLatexQuill";
 
     @Component({
         name: "MarkdownEditor"
@@ -49,7 +47,6 @@
 
         private input = "";
         private output = "";
-        private markdown = {md: new MarkdownIt({}).use(mk)};
 
         /**
          * Lifecycle hooks
@@ -106,7 +103,7 @@
          * Methods
          */
         private renderMarkdown() {
-            this.output = this.markdown.md.render(this.input);
+            this.output = markdownParser.render(this.input);
         }
 
         private tabHandler(event: Event) {
@@ -122,7 +119,4 @@
 </script>
 
 <style scoped>
-    .accent {
-        background-color: transparent !important;
-    }
 </style>
