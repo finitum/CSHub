@@ -4468,7 +4468,7 @@ markdown-it-katex@^2.0.3:
   resolved "https://registry.yarnpkg.com/markdown-it-katex/-/markdown-it-katex-2.0.3.tgz#d7b86a1aea0b9d6496fab4e7919a18fdef589c39"
   integrity sha1-17hqGuoLnWSW+rTnkZoY/e9YnDk=
   dependencies:
-    katex "^0.6.0"
+    katex "^0.10.0"
 
 markdown-it@^8.4.2:
   version "8.4.2"
