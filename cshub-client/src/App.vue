@@ -136,7 +136,11 @@
         box-shadow: none;
     }
 
-    .markdown-body li {
+    .markdown-body ol li {
         list-style-type: decimal !important;
+    }
+
+    .markdown-body ul li {
+        list-style-type: disc !important;
     }
 </style>

@@ -352,7 +352,7 @@
                     prevElement.currString = prevElement.currString.substr(0, prevElement.currString.length - 1);
                     const newNode = document.createElement("div");
                     // To not have a break at the end
-                    newNode.style.display = "grid";
+                    newNode.style.whiteSpace = "normal";
                     newNode.classList.add("markdown-body");
                     newNode.innerHTML = markdownParser.render(prevElement.currString);
 
