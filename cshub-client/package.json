@@ -14,7 +14,7 @@
     "axios": "^0.18.0",
     "dayjs": "^1.7.7",
     "github-markdown-css": "^2.10.0",
-    "katex": "^0.7.0",
+    "katex": "^0.10.0",
     "localforage": "^1.7.3",
     "lodash": "^4.17.11",
     "markdown-it": "^8.4.2",

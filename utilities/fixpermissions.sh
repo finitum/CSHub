@@ -1,7 +1,7 @@
 #!/bin/bash
-chown pm2:faqsite ./cshub-server -R
-chown pm2:faqsite ./cshub-shared -R
-chown victor:faqsite ./cshub-client -R
+chown pm2 ./cshub-server -R
+chown pm2 ./cshub-shared -R
+chown root:root ./cshub-client -R
 
 chmod 770 ./cshub-server -R
 chmod 770 ./cshub-shared -R
