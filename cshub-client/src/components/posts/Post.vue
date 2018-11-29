@@ -227,15 +227,17 @@ export default class Post extends Vue {
      */
     @Watch("$route")
     private routeChanged(to: Route, from: Route) {
-        if (this.fullPostComputed && (from.name === "topic" || from.fullPath === Routes.INDEX)) {
-            this.getContentRequest(this.post);
-            this.previousTopicURL = from.fullPath;
-        } else if (this.editsListComputed) {
-            this.previousTopicURL = Routes.INDEX;
-            this.viewEditDialog();
-        } else {
-            this.previousTopicURL = Routes.INDEX;
+        if (this.fullPostComputed || to.fullPath.includes(this.postHash.toString())) {
+            if (from.name === "topic" || from.fullPath === Routes.INDEX) {
+                this.getContentRequest(this.post);
+                this.previousTopicURL = from.fullPath;
+            } else if (this.editsListComputed) {
+                this.viewEditDialog();
+            } else if (!this.editModeComputed) {
+                this.previousTopicURL = Routes.INDEX;
+            }
         }
+
     }
 
     @Watch("showContent")
@@ -257,7 +259,15 @@ export default class Post extends Vue {
         window.addEventListener("resize", this.windowHeightChanged);
         this.getPostRequest();
 
-        this.previousTopicURL = Routes.INDEX;
+        if (uiState.previousRoute.fullPath === Routes.USERDASHBOARD) {
+            this.previousTopicURL = Routes.USERDASHBOARD;
+        } else if (uiState.previousRoute.fullPath === Routes.ADMINDASHBOARD) {
+            this.previousTopicURL = Routes.ADMINDASHBOARD;
+        }
+
+        if (this.previousTopicURL === "") {
+            this.previousTopicURL = Routes.INDEX;
+        }
 
         if (this.editModeComputed) {
             this.enableEdit();
@@ -312,11 +322,15 @@ export default class Post extends Vue {
 
                 const newHeight = postCard.clientHeight - postCardTitleHeight - 50;
 
-                (document.getElementsByClassName(`postScrollWindow_${this.domId}`).item(0) as HTMLElement).style.maxHeight = `${newHeight}px`;
-
-                setTimeout(() => {
+                const element = (document.getElementsByClassName(`postScrollWindow_${this.domId}`).item(0) as HTMLElement);
+                if (element !== null) {
+                    element.style.maxHeight = `${newHeight}px`;
+                    setTimeout(() => {
+                        this.canResize = true;
+                    }, 1000);
+                } else {
                     this.canResize = true;
-                }, 1000);
+                }
             } else {
                 this.canResize = true;
             }

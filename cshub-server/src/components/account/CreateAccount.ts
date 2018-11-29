@@ -18,7 +18,18 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
         validationObject: {
             minlength: 8
         }
-    }, {input: createAccountRequest.email}, {input: createAccountRequest.firstname}, {input: createAccountRequest.lastname});
+    }, {input: createAccountRequest.email, validationObject: {
+            tuemail: true
+        }
+    }, {input: createAccountRequest.firstname, validationObject: {
+            minlength: 2,
+            maxlength: 127
+        }
+    }, {input: createAccountRequest.lastname, validationObject: {
+            minlength: 2,
+            maxlength: 127
+        }
+    });
 
     if (inputsValidation.valid) {
 

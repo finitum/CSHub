@@ -1,11 +1,18 @@
 import {uiStateGetter, uiStoreBuilder} from "./state";
-import {drawerState, editDialogState, markdownDialog, notificationDialog, paginationPageState} from "./getters";
+import {
+    drawerState,
+    editDialogState,
+    markdownDialog,
+    notificationDialog,
+    paginationPageState,
+    previousRoute
+} from "./getters";
 import {
     setDrawerState,
     setEditDialogState,
     setMarkdownDialogState,
     setNotificationDialogState,
-    setPaginationPageState
+    setPaginationPageState, setPreviousRouteState
 } from "./mutations";
 
 const uiState = {
@@ -16,12 +23,14 @@ const uiState = {
     get paginationPageState() { return paginationPageState(); },
     get notificationDialogState() { return notificationDialog(); },
     get mardownDialogState() { return markdownDialog(); },
+    get previousRoute() { return previousRoute(); },
 
     setDrawerState: uiStoreBuilder.commit(setDrawerState, "setDrawerState"),
     setEditDialogState: uiStoreBuilder.commit(setEditDialogState, "setEditDialogState"),
     setPaginationPageState: uiStoreBuilder.commit(setPaginationPageState, "setPaginationPageState"),
     setNotificationDialogState: uiStoreBuilder.commit(setNotificationDialogState, "setNotificationDialogState"),
-    setMarkdownDialogState: uiStoreBuilder.commit(setMarkdownDialogState, "setMarkdownDialogState")
+    setMarkdownDialogState: uiStoreBuilder.commit(setMarkdownDialogState, "setMarkdownDialogState"),
+    setPreviousRouteState: uiStoreBuilder.commit(setPreviousRouteState, "setPreviousRouteState")
 };
 
 export default uiState;

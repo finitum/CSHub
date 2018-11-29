@@ -141,7 +141,7 @@ import {ForgotPasswordMailResponseTypes} from "../../../../cshub-shared/src/api-
                                     header: "Mail sent",
                                     text: "The password reset mail has been sent."
                                 });
-                                this.$router.push(Routes.INDEX);
+                                this.forgotPassword = false;
                             } else {
                                 this.userData.emailerror = "Unknown email address";
                             }
@@ -160,7 +160,7 @@ import {ForgotPasswordMailResponseTypes} from "../../../../cshub-shared/src/api-
                                     localStorage.setItem(LocalStorageData.EMAIL, this.userData.email);
                                 }
                                 userState.changeUserModel(callbackData.userModel);
-                                router.push(Routes.INDEX);
+                                router.go(-1);
                             } else if (callbackData.response === LoginResponseTypes.NOEXISTINGACCOUNT) {
                                 logStringConsole("Account does not exist");
                                 this.userData.emailerror = "Account does not exist.";

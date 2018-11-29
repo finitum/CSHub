@@ -54,7 +54,7 @@
                                     v-model="userData.firstname"
                                     :error-messages="errors.collect('firstname')"
                                     name="firstname"
-                                    v-validate="'required'"
+                                    v-validate="'required|min:2'"
                                     required
                                     box
                                     @keyup.enter="doCreateAccount"
@@ -64,7 +64,7 @@
                                     v-model="userData.lastname"
                                     :error-messages="errors.collect('lastname')"
                                     name="lastname"
-                                    v-validate="'required'"
+                                    v-validate="'required|min:2'"
                                     required
                                     box
                                     @keyup.enter="doCreateAccount"
