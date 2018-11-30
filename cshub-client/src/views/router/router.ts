@@ -25,6 +25,7 @@ import dataState from "../../store/data";
 
 import {AxiosError} from "axios";
 import {ApiWrapper, logStringConsole} from "../../utilities";
+import uiState from "../../store/ui";
 
 Vue.use(Router);
 
@@ -127,6 +128,10 @@ router.beforeEach((to: Route, from: Route, next) => {
         next();
     }
 
+});
+
+router.afterEach((to: Route, from: Route) => {
+    uiState.setPreviousRouteState(from);
 });
 
 export default router;
