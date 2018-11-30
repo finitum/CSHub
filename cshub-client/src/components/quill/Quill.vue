@@ -203,6 +203,8 @@
 
     import {markdownDialogType} from "../../store/ui/state";
     import uiState from "../../store/ui";
+    import {ClientDataUpdated, ClientDataUpdatedCallBack} from "../../../../cshub-shared/src/api-calls/realtime-edit";
+    import {SocketWrapper} from "../../utilities/socket-wrapper";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -517,6 +519,10 @@
                         });
                 }
             }, 1000);
+
+            SocketWrapper.emitSocket(new ClientDataUpdated(null, (data: ClientDataUpdatedCallBack) => {
+                console.log(data);
+            }), this.$socket);
         }
 
         private openMarkdownDialog() {
