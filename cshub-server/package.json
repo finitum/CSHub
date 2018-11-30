@@ -20,6 +20,7 @@
     "sharp": "^0.21.0",
     "ssh2": "^0.6.1",
     "tslint": "^5.11.0",
+    "universal-analytics": "^0.4.20",
     "winston": "^3.1.0"
   },
   "devDependencies": {

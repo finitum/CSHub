@@ -27,7 +27,7 @@ app.post(GetPost.getURL, (req: Request, res: Response) => {
                     } else {
                         res.json(data);
                     }
-                })
+                });
         });
 });
 

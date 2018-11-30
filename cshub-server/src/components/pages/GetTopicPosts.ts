@@ -1,4 +1,3 @@
-import async from "async";
 import {Request, Response} from "express";
 
 import {app, logger} from "../../";
@@ -8,10 +7,16 @@ import {GetTopicPostsCallBack, GetTopicPosts} from "../../../../cshub-shared/src
 import {getTopicTree} from "../../utilities/TopicsUtils";
 import {ITopic} from "../../../../cshub-shared/src/models";
 import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
+import tracker from "../../utilities/Tracking";
 
 app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
 
     const topicPostsRequest: GetTopicPosts = req.body as GetTopicPosts;
+
+    const reqURL = "/topic/" + topicPostsRequest.topicHash;
+    tracker.pageview(reqURL).send();
+
+    console.log(reqURL);
 
     const getChildHashes = (inputTopic: ITopic[]): number[] => {
 

@@ -11,15 +11,20 @@ import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 import {getPostData} from "./GetPost";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import tracker from "../../utilities/Tracking";
 
 app.post(GetPostContent.getURL, (req: Request, res: Response) => {
 
     const postContentRequest = req.body as GetPostContent;
 
+    // Analytics
+    const reqURL = "/post/" + postContentRequest.postHash;
+    tracker.pageview(reqURL).send();
+
     type contentReturn = {
         content: string,
         approved: number
-    }
+    };
 
     // Check if the user actually has access to the post
     hasAccessToPost(postContentRequest.postHash, req.cookies["token"])
@@ -50,8 +55,8 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
                                         } else {
                                             res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
                                         }
-                                    })
-                            })
+                                    });
+                            });
                     } else if (postContentRequest.getHTMLOnNoUpdate) {
                         getContent(approved)
                             .then((returnContent: contentReturn) => {
@@ -101,6 +106,6 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
                         approved: -1
                     };
                 }
-            })
-    }
+            });
+    };
 });
