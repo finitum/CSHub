@@ -3,6 +3,7 @@
 export interface ISettings {
     LIVE: boolean;
     PORT: number;
+    SOCKETPORT: number;
     DATABASE: {
         HOST: string;
         USER: string;
@@ -40,6 +41,7 @@ export interface ISettings {
 export const Settings: ISettings = {
     LIVE: true,
     PORT: 0,
+    SOCKETPORT: 2999,
     DATABASE: {
         HOST: "",
         USER: "",

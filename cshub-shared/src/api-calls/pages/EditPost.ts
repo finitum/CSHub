@@ -1,6 +1,6 @@
 import {IApiRequest} from "../../models/IApiRequest";
 
-import {AuthRequests} from "../AuthRequests";
+import {Requests} from "../Requests";
 // @ts-ignore
 import Delta from "quill-delta/dist/Delta";
 
@@ -9,7 +9,7 @@ export class EditPostCallback {
 
 export class EditPost implements IApiRequest {
 
-    public static getURL: string = AuthRequests.EDITPOST;
+    public static getURL: string = Requests.EDITPOST;
     public URL: string = EditPost.getURL;
 
     constructor(

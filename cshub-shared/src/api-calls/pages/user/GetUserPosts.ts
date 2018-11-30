@@ -1,6 +1,6 @@
 import {IApiRequest} from "../../../models/IApiRequest";
 
-import {AuthRequests} from "../../AuthRequests";
+import {Requests} from "../../Requests";
 
 export class GetUserPostsCallback {
 
@@ -11,6 +11,6 @@ export class GetUserPostsCallback {
 
 export class GetUserPosts implements IApiRequest {
 
-    public static getURL: string = AuthRequests.DASHBOARD;
+    public static getURL: string = Requests.DASHBOARD;
     public URL: string = GetUserPosts.getURL;
 }

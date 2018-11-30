@@ -1,5 +1,5 @@
 import {IApiRequest, IUser} from "../../models";
-import {AdminRequests} from "../AdminRequests";
+import {Requests} from "../Requests";
 
 export class GetUnverifiedPostsCallBack {
 
@@ -9,6 +9,6 @@ export class GetUnverifiedPostsCallBack {
 }
 
 export class GetUnverifiedPosts implements IApiRequest {
-    public static getURL: string = AdminRequests.GETUNVERIFIEDPOSTS;
+    public static getURL: string = Requests.GETUNVERIFIEDPOSTS;
     public URL: string = GetUnverifiedPosts.getURL;
 }

@@ -7,7 +7,7 @@ import {ClientResponse} from "@sendgrid/client/src/response";
 import {Settings} from "../settings";
 import {query} from "./DatabaseConnection";
 import {logger} from "../index";
-import {NonAuthRequests} from "../../../cshub-shared/src/api-calls/index";
+import {Requests} from "../../../cshub-shared/src/api-calls/index";
 import {Routes} from "../../../cshub-shared/src/Routes";
 
 sgMail.setApiKey(Settings.MAIL.APIKEY);
@@ -68,7 +68,7 @@ export const sendVerificationEmail = (to: string, name: string, insertId: number
     `, hash, insertId)
         .then(() => {
             fs.readFile(`${__dirname}/mailTemplate.html`, "utf8", (err, html: string) => {
-                const replaceToAddress = `${Settings.MAIL.VERIFYMAILADDRESSPREFIX + NonAuthRequests.VERIFYMAIL}?hash=${hash}&accId=${insertId}`;
+                const replaceToAddress = `${Settings.MAIL.VERIFYMAILADDRESSPREFIX + Requests.VERIFYMAIL}?hash=${hash}&accId=${insertId}`;
                 const newHTML = html
                     .replace("{0}", `Dear ${name}, please verify your email address`)
                     .replace("{1}", "Thanks for signing up for CSHub! We're excited to have you here.")

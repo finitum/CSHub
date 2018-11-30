@@ -20,10 +20,8 @@ logger.add(new winston.transports.Console({
 
 import {Settings} from "./settings";
 
-import https from "https";
 import http from "http";
 import express from "express";
-import fs from "fs";
 
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -44,10 +42,8 @@ app.use(cookieParser());
 
 import "./auth/AuthMiddleware";
 
-let server: http.Server | https.Server;
-
-// Run the server on port 3000 if running local
-server = http.createServer(app).listen(Settings.PORT);
+// Run the server on port 3000
+export const server = http.createServer(app).listen(Settings.PORT);
 
 // Here all the connectors will be defined
 import "./components";

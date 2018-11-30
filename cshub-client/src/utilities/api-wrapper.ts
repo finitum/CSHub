@@ -2,7 +2,7 @@ import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from "axios";
 
 import {IApiRequest} from "../../../cshub-shared/src/models/IApiRequest";
 import dataState from "../store/data";
-import {NonAuthRequests} from "../../../cshub-shared/src/api-calls";
+import {Requests} from "../../../cshub-shared/src/api-calls";
 
 const axiosApi = axios.create({
     baseURL: process.env.VUE_APP_API_URL,
@@ -15,7 +15,7 @@ const axiosApi = axios.create({
 
 axiosApi.interceptors.request.use((config: AxiosRequestConfig) => {
 
-    if (!dataState.hasConnection && config.url !== NonAuthRequests.VERIFYTOKEN) {
+    if (!dataState.hasConnection && config.url !== Requests.VERIFYTOKEN) {
         throw new axios.Cancel();
     } else {
         return config;

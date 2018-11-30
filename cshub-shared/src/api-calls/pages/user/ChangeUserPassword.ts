@@ -1,6 +1,6 @@
 import {IApiRequest} from "../../../models/IApiRequest";
 
-import {AuthRequests} from "../../AuthRequests";
+import {Requests} from "../../Requests";
 
 export enum ChangeUserPasswordReponseTypes {
     INVALIDINPUT,
@@ -17,7 +17,7 @@ export class ChangeUserPasswordCallback {
 
 export class ChangeUserPassword implements IApiRequest {
 
-    public static getURL: string = AuthRequests.CHANGEPASSWORD;
+    public static getURL: string = Requests.CHANGEPASSWORD;
     public URL: string = ChangeUserPassword.getURL;
 
     constructor(public currentPassword: string,

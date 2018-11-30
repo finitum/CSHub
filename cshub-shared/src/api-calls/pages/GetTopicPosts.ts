@@ -1,6 +1,6 @@
 import {IApiRequest} from "../../models/IApiRequest";
 
-import {NonAuthRequests} from "../NonAuthRequests";
+import {Requests} from "../Requests";
 
 export class GetTopicPostsCallBack {
 
@@ -11,7 +11,7 @@ export class GetTopicPostsCallBack {
 
 export class GetTopicPosts implements IApiRequest {
 
-    public static getURL: string = NonAuthRequests.TOPICPOSTS;
+    public static getURL: string = Requests.TOPICPOSTS;
     public URL: string = GetTopicPosts.getURL;
 
     constructor(

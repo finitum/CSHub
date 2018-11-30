@@ -1,5 +1,5 @@
 import {IApiRequest, IUser} from "../../models";
-import {AdminRequests} from "../AdminRequests";
+import {Requests} from "../Requests";
 
 export class GetAllUsersCallBack {
 
@@ -10,7 +10,7 @@ export class GetAllUsersCallBack {
 }
 
 export class GetAllUsers implements IApiRequest {
-    public static getURL: string = AdminRequests.GETALLUSERS;
+    public static getURL: string = Requests.GETALLUSERS;
     public URL: string = GetAllUsers.getURL;
 
     constructor(public rowsPerPage: number, public page: number) {}

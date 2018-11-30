@@ -1,6 +1,6 @@
 import {IApiRequest} from "../../models/IApiRequest";
 
-import {NonAuthRequests} from "../NonAuthRequests";
+import {Requests} from "../Requests";
 
 export enum CreateAccountResponseTypes {
     INVALIDINPUT,
@@ -17,7 +17,7 @@ export class CreateAccountCallBack {
 
 export class CreateAccount implements IApiRequest {
 
-    public static getURL: string = NonAuthRequests.CREATEACCOUNTREQUEST;
+    public static getURL: string = Requests.CREATEACCOUNTREQUEST;
     public URL: string = CreateAccount.getURL;
 
     constructor(
