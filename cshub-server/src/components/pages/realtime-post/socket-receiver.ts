@@ -11,6 +11,7 @@ import cookieParser from "cookie-parser";
 import {customValidator, validateMultipleInputs} from "../../../utilities/StringUtils";
 import {hasAccessToPost, postAccessType} from "../../../auth/validateRights/PostAccess";
 import {CursorUpdatedHandler} from "./CursorUpdatedHandler";
+import {type} from "os";
 
 export const io = socket(server);
 
@@ -26,6 +27,10 @@ io.use(cookieparser());
 
 io.on("connection", (socketConn: Socket) => {
 
+    socketConn.on("disconnect", () => {
+        CursorUpdatedHandler.removeCursor(socketConn);
+    });
+
     socketConn.on(ClientCursorUpdated.getURL, (cursorUpdated: ClientCursorUpdated, fn: () => void) => {
         CursorUpdatedHandler.changedCursor(cursorUpdated.selection, socketConn);
 
@@ -33,7 +38,10 @@ io.on("connection", (socketConn: Socket) => {
     });
 
     socketConn.on(ClientDataUpdated.getURL, (dataUpdated: ClientDataUpdated, fn: () => void) => {
-        DataUpdatedHandler.applyNewEdit(dataUpdated.edit, socketConn);
+        // There is a very odd thing which I can't locate to what it is, it went to this method after the ClientCursorUpdated thingy, so then the edit is undefined
+        if (dataUpdated.edit !== null && typeof dataUpdated.edit !== "undefined") {
+            DataUpdatedHandler.applyNewEdit(dataUpdated.edit, socketConn);
+        }
 
         fn();
     });

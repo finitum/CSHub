@@ -13,40 +13,55 @@ export class CursorUpdatedHandler {
         return CursorUpdatedHandler.cursorList.getSelectList(postHash);
     }
 
+    public static removeCursor(currSocket: Socket) {
+        const userModel = validateAccessToken(currSocket.request.cookies["token"]);
+
+        for (const room in currSocket.rooms) {
+            const roomId = parseInt(currSocket.rooms[room].split("POST_")[1]);
+            if (roomId !== NaN) {
+                const currSelects = CursorUpdatedHandler.cursorList.getSelectList(roomId);
+                const currUserIndex = currSelects.findIndex((x) => x.userId === userModel.user.id);
+                if (currUserIndex !== -1) {
+                    currSelects.splice(currUserIndex, 1);
+                }
+            }
+        }
+    }
+
     public static changedCursor(select: IRealtimeSelect, currSocket: Socket): void {
         const currSelects = CursorUpdatedHandler.cursorList.getSelectList(select.postHash);
 
         const roomId = `POST_${select.postHash}`;
 
-        let userAlreadyExists = false;
+        const currUserIndex = currSelects.findIndex((x) => x.userId === select.userId);
 
-        if (select.userId !== null) {
-            for (let currSelect of currSelects) {
-                if (currSelect.userId === select.userId) {
-                    currSelect = select;
-                    userAlreadyExists = true;
-                    break;
+        if (select.active) {
+            if (currUserIndex === -1) {
+                while (true) {
+
+                    const userModel = validateAccessToken(currSocket.request.cookies["token"]);
+
+                    select.color = randomColor({
+                        luminosity: "bright",
+                        alpha: 0.1
+                    });
+                    select.userId = userModel.user.id;
+                    select.userName = userModel.user.firstname;
+
+                    const index = currSelects.findIndex((x) => x.color === select.color);
+                    if (index === -1) {
+                        break;
+                    }
                 }
+
+                currSelects.push(select);
+            } else {
+                currSelects[currUserIndex] = select;
             }
+        } else if (currUserIndex !== -1) {
+            currSelects.splice(currUserIndex, 1);
         }
 
-        if (!userAlreadyExists) {
-            while (true) {
-
-                const userModel = validateAccessToken(currSocket.request.cookies["token"]);
-
-                select.color = randomColor();
-                select.userId = userModel.user.id;
-                select.userName = userModel.user.firstname;
-
-                const index = currSelects.findIndex((x) => x.color === select.color);
-                if (index === -1) {
-                    break;
-                }
-            }
-
-            currSelects.push(select);
-        }
 
         const response = new ServerCursorUpdated(select, () => {});
         io.to(roomId).emit(response.URL, response);

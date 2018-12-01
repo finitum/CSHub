@@ -273,7 +273,6 @@
 
         // Realtime edit related variables
         private lastFewEdits: IRealtimeEdit[] = [];
-        private cursors: IRealtimeSelect[] = [];
         private myCursor: IRealtimeSelect;
 
         // Markdown editor related variables
@@ -313,16 +312,9 @@
             });
 
             this.sockets.subscribe(ServerCursorUpdated.getURL, (data: ServerCursorUpdated) => {
-                const cursorIndex = this.cursors.findIndex((x) => x.userId === data.select.userId);
 
-                if (cursorIndex === -1) {
-                    if (userState.userModel.id !== data.select.userId) {
-                        this.cursors.push(data.select);
-                    } else {
-                        this.myCursor = data.select;
-                    }
-                } else {
-                    this.editor.getModule("cursors").setCursor(data.select.userId, data.select.selection);
+                if (userState.userModel.id !== data.select.userId) {
+                    this.editor.getModule("cursors").setCursor(data.select.userId, data.select.selection, data.select.userName, data.select.color);
                 }
             });
 
@@ -351,10 +343,6 @@
                             userGeneratedIdentifier: serverData.userGeneratedIdentifier
                         });
 
-                        for (const select of selects) {
-                            this.editor.getModule("cursors").setCursor(select.userId, select.selection, select.userName, select.color);
-                        }
-
                         this.initialValue = serverData.delta;
 
                         const md = new MarkdownIt().use(mk);
@@ -381,7 +369,7 @@
                         // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
                         setTimeout(() => {
                             logStringConsole("Initializing quill with edit: " + this.editorSetup.allowEdit);
-                            this.initQuill(); // Actually init quill itself
+                            this.initQuill(selects); // Actually init quill itself
                         });
                     }
 
@@ -588,7 +576,7 @@
             }
         }
 
-        private initQuill() {
+        private initQuill(selects: IRealtimeSelect[]) {
             // Create the editor
             this.editorOptions.bounds = `#${this.editorId} .editor`;
             this.editorOptions.modules.toolbar = `#${this.editorId} .toolbar`;
@@ -609,6 +597,10 @@
             // Show the editor again
             if (this.editorSetup.allowEdit) {
                 this.editor.enable(true);
+            }
+
+            for (const select of selects) {
+                this.editor.getModule("cursors").setCursor(select.userId, select.selection, select.userName, select.color);
             }
 
             this.editor.focus();
