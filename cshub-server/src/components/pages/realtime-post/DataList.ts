@@ -1,6 +1,6 @@
 import {IRealtimeEdit} from "../../../../../cshub-shared/src/api-calls/realtime-edit";
 
-export class PostHistory {
+export class DataList {
 
     private readonly editObj: {[postId: number]: IRealtimeEdit[]} = {};
 

@@ -191,6 +191,10 @@
     import mk from "markdown-it-katex";
     import MarkdownIt from "markdown-it";
 
+    // @ts-ignore
+    import QuillCursors from "quill-cursors";
+    import "quill-cursors/dist/quill-cursors.css";
+
     import Quill, {RangeStatic, Sources} from "quill";
     import "quill/dist/quill.core.css";
     import "quill/dist/quill.snow.css";
@@ -210,8 +214,9 @@
     import {markdownDialogType} from "../../store/ui/state";
     import uiState from "../../store/ui";
     import {
+        ClientCursorUpdated,
         ClientDataUpdated,
-        IRealtimeEdit, ServerDataUpdated,
+        IRealtimeEdit, IRealtimeSelect, ServerCursorUpdated, ServerDataUpdated,
         TogglePostJoin
     } from "../../../../cshub-shared/src/api-calls/realtime-edit";
     import {SocketWrapper} from "../../utilities/socket-wrapper";
@@ -222,6 +227,7 @@
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
+    (window as any).Quill.register("modules/cursors", QuillCursors);
 
     enum TableActions {
         CREATETABLE,
@@ -267,6 +273,8 @@
 
         // Realtime edit related variables
         private lastFewEdits: IRealtimeEdit[] = [];
+        private cursors: IRealtimeSelect[] = [];
+        private myCursor: IRealtimeSelect;
 
         // Markdown editor related variables
         private showTooltip = false;
@@ -304,10 +312,33 @@
 
             });
 
+            this.sockets.subscribe(ServerCursorUpdated.getURL, (data: ServerCursorUpdated) => {
+                const cursorIndex = this.cursors.findIndex((x) => x.userId === data.select.userId);
+
+                if (cursorIndex === -1) {
+                    if (userState.userModel.id !== data.select.userId) {
+                        this.cursors.push(data.select);
+                    } else {
+                        this.myCursor = data.select;
+                    }
+                } else {
+                    this.editor.getModule("cursors").setCursor(data.select.userId, data.select.selection);
+                }
+            });
+
+            this.myCursor = {
+                color: null,
+                userId: null,
+                userName: null,
+                postHash: this.editorSetup.postHash,
+                selection: null,
+                active: true
+            };
+
             SocketWrapper.emitSocket(new TogglePostJoin(
                 this.editorSetup.postHash,
                 true,
-                (serverData: IRealtimeEdit) => {
+                (serverData: IRealtimeEdit, selects: IRealtimeSelect[]) => {
 
                     if (serverData === null) {
                         this.$router.push(Routes.INDEX);
@@ -319,6 +350,10 @@
                             editHash: serverData.editHash,
                             userGeneratedIdentifier: serverData.userGeneratedIdentifier
                         });
+
+                        for (const select of selects) {
+                            this.editor.getModule("cursors").setCursor(select.userId, select.selection, select.userName, select.color);
+                        }
 
                         this.initialValue = serverData.delta;
 
@@ -358,7 +393,9 @@
         private beforeDestroy() {
             // Remove the editor on destroy
             this.editor = null;
+            SocketWrapper.emitSocket(new ClientCursorUpdated({...this.myCursor, active: false}, () => {}), this.$socket);
             this.sockets.unsubscribe(ServerDataUpdated.getURL);
+            this.sockets.unsubscribe(ServerCursorUpdated.getURL);
         }
 
         /**
@@ -621,6 +658,12 @@
         }
 
         private selectionChanged(range: RangeStatic, oldRange: RangeStatic, source: any) {
+
+            SocketWrapper.emitSocket(new ClientCursorUpdated({
+                ...this.myCursor,
+                selection: range
+            }, () => {}), this.$socket);
+
             if (range !== null && range.length !== 0) {
                 const selection = this.editor.getFormat(range);
                 const obKeys = Object.keys(selection);

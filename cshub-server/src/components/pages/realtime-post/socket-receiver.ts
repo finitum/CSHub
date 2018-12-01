@@ -2,15 +2,15 @@ import {server} from "../../../index";
 import socket, {Socket} from "socket.io";
 import {
     ClientDataUpdated,
-    ClientCursorUpdated,
-    ClientCursorUpdatedCallBack
+    ClientCursorUpdated, IRealtimeSelect
 } from "../../../../../cshub-shared/src/api-calls";
-import {EditDataHandler} from "./EditDataHandler";
+import {DataUpdatedHandler} from "./DataUpdatedHandler";
 import {TogglePostJoin} from "../../../../../cshub-shared/src/api-calls";
 import {IRealtimeEdit} from "../../../../../cshub-shared/src/api-calls";
 import cookieParser from "cookie-parser";
 import {customValidator, validateMultipleInputs} from "../../../utilities/StringUtils";
 import {hasAccessToPost, postAccessType} from "../../../auth/validateRights/PostAccess";
+import {CursorUpdatedHandler} from "./CursorUpdatedHandler";
 
 export const io = socket(server);
 
@@ -26,17 +26,19 @@ io.use(cookieparser());
 
 io.on("connection", (socketConn: Socket) => {
 
-    socketConn.on(ClientCursorUpdated.getURL, (cursorUpdated: ClientCursorUpdated, fn: (data: ClientCursorUpdatedCallBack) => void) => {
-
-    });
-
-    socketConn.on(ClientDataUpdated.getURL, (dataUpdated: ClientDataUpdated, fn: () => void) => {
-        EditDataHandler.applyNewEdit(dataUpdated.edit, socketConn);
+    socketConn.on(ClientCursorUpdated.getURL, (cursorUpdated: ClientCursorUpdated, fn: () => void) => {
+        CursorUpdatedHandler.changedCursor(cursorUpdated.selection, socketConn);
 
         fn();
     });
 
-    socketConn.on(TogglePostJoin.getURL, (togglePost: TogglePostJoin, fn: (data: IRealtimeEdit) => void) => {
+    socketConn.on(ClientDataUpdated.getURL, (dataUpdated: ClientDataUpdated, fn: () => void) => {
+        DataUpdatedHandler.applyNewEdit(dataUpdated.edit, socketConn);
+
+        fn();
+    });
+
+    socketConn.on(TogglePostJoin.getURL, (togglePost: TogglePostJoin, fn: (edit: IRealtimeEdit, select: IRealtimeSelect[]) => void) => {
         const inputsValidation = customValidator({
             input: togglePost.postHash
         });
@@ -51,20 +53,24 @@ io.on("connection", (socketConn: Socket) => {
                         if (togglePost.join) {
                             socketConn.join(roomName);
 
-                            EditDataHandler.getCurrentPostData(togglePost.postHash)
+                            let edit: IRealtimeEdit;
+
+                            DataUpdatedHandler.getCurrentPostData(togglePost.postHash)
                                 .then((data) => {
-                                    fn(data);
+                                    edit = data;
+                                    const select = CursorUpdatedHandler.getCurrentPostData(togglePost.postHash);
+                                    fn(edit, select);
                                 })
                         } else {
                             socketConn.leave(roomName);
-                            fn(null);
+                            fn(null, null);
                         }
                     } else {
-                        fn(null);
+                        fn(null, null);
                     }
                 })
         } else {
-            fn(null);
+            fn(null, null);
         }
     });
 });

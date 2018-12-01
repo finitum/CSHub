@@ -1,4 +1,4 @@
-import {PostHistory} from "./PostHistory";
+import {DataList} from "./DataList";
 import {Socket} from "socket.io";
 import {
     ServerDataUpdated,
@@ -14,9 +14,9 @@ import {validateAccessToken} from "../../../auth/JWTHandler";
 import {getRandomNumberLarge} from "../../../../../cshub-shared/src/utilities/Random";
 import {transformFromArray} from "../../../../../cshub-shared/src/utilities/Transform";
 
-export class EditDataHandler {
+export class DataUpdatedHandler {
 
-    private static postHistoryHandler = new PostHistory();
+    private static postHistoryHandler = new DataList();
 
     private static getPreviousEditHash(postHash: number, currEdits: IRealtimeEdit[]): Promise<number> {
         if (currEdits.length === 0) {
@@ -39,7 +39,7 @@ export class EditDataHandler {
     }
 
     public static applyNewEdit(edit: IRealtimeEdit, currSocket: Socket): void {
-        const currEdits = EditDataHandler.postHistoryHandler.getEditList(edit.postHash);
+        const currEdits = DataUpdatedHandler.postHistoryHandler.getEditList(edit.postHash);
 
         this.getPreviousEditHash(edit.postHash, currEdits)
             .then((previousEditHash: number) => {
@@ -50,7 +50,7 @@ export class EditDataHandler {
                 }
 
                 const editHash = getRandomNumberLarge();
-                EditDataHandler.postHistoryHandler.addPostEdit({
+                DataUpdatedHandler.postHistoryHandler.addPostEdit({
                     ...edit,
                     editHash,
                     previousEditHash

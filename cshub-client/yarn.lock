@@ -5937,6 +5937,14 @@ querystringify@^2.0.0:
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.1.0.tgz#7ded8dfbf7879dcc60d0a644ac6754b283ad17ef"
   integrity sha512-sluvZZ1YiTLD5jsqZcDmFyV2EwToyXZBfpoVOmktMmW+VEnhgakFHnasVph65fOjGPTWN0Nw3+XQaSeMayr0kg==
 
+quill-cursors@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/quill-cursors/-/quill-cursors-1.0.3.tgz#81c813cae32a38977d5a322f17aad3336718d190"
+  integrity sha512-rS81BZIlHdWXucf00qo5NIp3QrpT/4JHwoHTRlR48fO+k6AzBJvVyGoNrWkO5yzdlwUwHSw3jPoLWfxyzLOoxw==
+  dependencies:
+    rangefix "^0.2.5"
+    tinycolor2 "^1.4.1"
+
 quill-delta@4.1.0, quill-delta@^4.0.1, quill-delta@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/quill-delta/-/quill-delta-4.1.0.tgz#f250bfc86eafb70aa07835c7e03777ef5a75da5d"
@@ -5977,6 +5985,11 @@ range-parser@^1.0.3, range-parser@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/range-parser/-/range-parser-1.2.0.tgz#f49be6b487894ddc40dcc94a322f611092e00d5e"
   integrity sha1-9JvmtIeJTdxA3MlKMi9hEJLgDV4=
+
+rangefix@^0.2.5:
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/rangefix/-/rangefix-0.2.5.tgz#bce78c921b23582bae211f597464a591fd1a94f9"
+  integrity sha1-vOeMkhsjWCuuIR9ZdGSlkf0alPk=
 
 raw-body@2.3.3:
   version "2.3.3"
@@ -6968,6 +6981,11 @@ timsort@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/timsort/-/timsort-0.3.0.tgz#405411a8e7e6339fe64db9a234de11dc31e02bd4"
   integrity sha1-QFQRqOfmM5/mTbmiNN4R3DHgK9Q=
+
+tinycolor2@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/tinycolor2/-/tinycolor2-1.4.1.tgz#f4fad333447bc0b07d4dc8e9209d8f39a8ac77e8"
+  integrity sha1-9PrTM0R7wLB9TcjpIJ2POaisd+g=
 
 to-array@0.1.4:
   version "0.1.4"

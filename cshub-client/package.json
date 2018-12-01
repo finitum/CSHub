@@ -21,6 +21,7 @@
     "markdown-it": "^8.4.2",
     "markdown-it-katex": "^2.0.3",
     "quill": "^2.0.0-dev.3",
+    "quill-cursors": "^1.0.3",
     "quill-delta": "^4.1.0",
     "register-service-worker": "^1.0.0",
     "rxjs": "^6.3.3",
