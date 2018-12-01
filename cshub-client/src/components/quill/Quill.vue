@@ -191,7 +191,7 @@
     import mk from "markdown-it-katex";
     import MarkdownIt from "markdown-it";
 
-    import Quill, {RangeStatic} from "quill";
+    import Quill, {RangeStatic, Sources} from "quill";
     import "quill/dist/quill.core.css";
     import "quill/dist/quill.snow.css";
 
@@ -216,6 +216,7 @@
     } from "../../../../cshub-shared/src/api-calls/realtime-edit";
     import {SocketWrapper} from "../../utilities/socket-wrapper";
     import {Routes} from "../../../../cshub-shared/src/Routes";
+    import userState from "../../store/user";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -280,12 +281,16 @@
         private mounted() {
 
             this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
-                console.log(data)
-                console.log(this.lastFewEdits)
-                if (this.lastFewEdits[this.lastFewEdits.length - 1].editHash === data.edit.previousEditHash) {
-                    this.lastFewEdits.push(data.edit);
-                    this.editor.updateContents(data.edit.delta);
+
+                if (userState.userModel.id !== data.edit.userId) {
+                    if (this.lastFewEdits[this.lastFewEdits.length - 1].editHash === data.edit.previousEditHash) {
+                        this.editor.updateContents(data.edit.delta);
+                    } else {
+                        // TODO use operational transform
+                    }
                 }
+
+                this.lastFewEdits.push(data.edit);
             });
 
             SocketWrapper.emitSocket(new TogglePostJoin(
@@ -296,7 +301,6 @@
                     if (serverData === null) {
                         this.$router.push(Routes.INDEX);
                     } else {
-
                         this.lastFewEdits.push({
                             postHash: this.editorSetup.postHash,
                             delta: serverData.delta,
@@ -342,6 +346,7 @@
         private beforeDestroy() {
             // Remove the editor on destroy
             this.editor = null;
+            this.sockets.unsubscribe(ServerDataUpdated.getURL);
         }
 
         /**
@@ -564,7 +569,7 @@
             this.editor.on("selection-change", this.selectionChanged);
         }
 
-        private textChanged(delta: Delta, oldContents: Delta, source: any) {
+        private textChanged(delta: Delta, oldContents: Delta, source: Sources) {
             clearTimeout(this.draftTypingTimeout);
             this.draftTypingTimeout = setTimeout(() => {
                 if (this.editor !== null) {
@@ -575,16 +580,17 @@
                 }
             }, 1000);
 
-            const userEdit: IRealtimeEdit = {
-                postHash: this.editorSetup.postHash,
-                delta,
-                timestamp: dayjs(),
-                previousEditHash: this.lastFewEdits[this.lastFewEdits.length - 1].editHash
-            };
+            if (source === "user") {
+                const userEdit: IRealtimeEdit = {
+                    postHash: this.editorSetup.postHash,
+                    delta,
+                    timestamp: dayjs(),
+                    previousEditHash: this.lastFewEdits[this.lastFewEdits.length - 1].editHash
+                };
 
-            this.lastFewEdits.push(userEdit);
-
-            SocketWrapper.emitSocket(new ClientDataUpdated(userEdit, () => {}), this.$socket);
+                SocketWrapper.emitSocket(new ClientDataUpdated(userEdit, () => {
+                }), this.$socket);
+            }
         }
 
         private openMarkdownDialog() {

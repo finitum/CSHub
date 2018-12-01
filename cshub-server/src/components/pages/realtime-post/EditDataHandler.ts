@@ -10,6 +10,7 @@ import Delta from "quill-delta/dist/Delta";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import {logger} from "../../../index";
 import {io} from "./socket-receiver";
+import {validateAccessToken} from "../../../auth/JWTHandler";
 
 export class EditDataHandler {
 
@@ -53,32 +54,33 @@ export class EditDataHandler {
                     previousEditHash
                 });
 
-                let serverEdit: IRealtimeEdit;
+                const userModel = validateAccessToken(currSocket.request.cookies["token"]);
+
+                let serverEdit: IRealtimeEdit = {
+                    postHash: edit.postHash,
+                    delta: operationalDelta,
+                    timestamp: dayjs(),
+                    editHash,
+                    previousEditHash,
+                    userId: userModel.user.id
+                };
+
                 if (operationalDelta !== null) {
                     serverEdit = {
-                        postHash: edit.postHash,
-                        delta: operationalDelta,
-                        timestamp: dayjs(),
-                        editHash,
-                        previousEditHash
+                        ...serverEdit,
+                        delta: operationalDelta
                     }
                 } else {
                     serverEdit = {
-                        postHash: edit.postHash,
-                        delta: edit.delta,
-                        timestamp: dayjs(),
-                        editHash,
-                        previousEditHash
+                        ...serverEdit,
+                        delta: edit.delta
                     }
                 }
-                console.log(serverEdit);
 
                 const roomId = `POST_${edit.postHash}`;
 
-                currSocket.leave(roomId);
                 const response = new ServerDataUpdated(serverEdit, () => {});
                 io.to(roomId).emit(response.URL, response);
-                currSocket.join(roomId);
             });
     }
 

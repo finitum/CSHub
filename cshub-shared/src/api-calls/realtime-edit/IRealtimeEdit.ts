@@ -8,4 +8,5 @@ export interface IRealtimeEdit {
     timestamp: Dayjs;
     previousEditHash?: number;
     editHash?: number;
+    userId?: number;
 }
