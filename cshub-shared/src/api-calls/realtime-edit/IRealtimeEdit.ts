@@ -9,4 +9,5 @@ export interface IRealtimeEdit {
     previousEditHash?: number;
     editHash?: number;
     userId?: number;
+    userGeneratedIdentifier: number;
 }

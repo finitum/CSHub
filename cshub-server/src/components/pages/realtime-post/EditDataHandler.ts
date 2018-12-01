@@ -11,6 +11,8 @@ import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import {logger} from "../../../index";
 import {io} from "./socket-receiver";
 import {validateAccessToken} from "../../../auth/JWTHandler";
+import {getRandomNumberLarge} from "../../../../../cshub-shared/src/utilities/Random";
+import {transformFromArray} from "../../../../../cshub-shared/src/utilities/Transform";
 
 export class EditDataHandler {
 
@@ -44,10 +46,10 @@ export class EditDataHandler {
                 let operationalDelta: Delta = null;
 
                 if (currEdits.length !== 0 && edit.previousEditHash !== previousEditHash) {
-                    // TODO operational transform
+                    edit.delta = transformFromArray(currEdits, edit, false);
                 }
 
-                const editHash = Math.floor(Math.random() * (9999999999 - 1000000001)) + 1000000000;
+                const editHash = getRandomNumberLarge();
                 EditDataHandler.postHistoryHandler.addPostEdit({
                     ...edit,
                     editHash,
@@ -58,11 +60,12 @@ export class EditDataHandler {
 
                 let serverEdit: IRealtimeEdit = {
                     postHash: edit.postHash,
-                    delta: operationalDelta,
+                    delta: null,
                     timestamp: dayjs(),
                     editHash,
                     previousEditHash,
-                    userId: userModel.user.id
+                    userId: userModel.user.id,
+                    userGeneratedIdentifier: edit.userGeneratedIdentifier
                 };
 
                 if (operationalDelta !== null) {
@@ -133,6 +136,7 @@ export class EditDataHandler {
                 let lastTimestamp: Dayjs;
                 let editHash: number;
                 let previousEditHash: number;
+                let userGeneratedIdentifier: number;
 
                 if (currentExtraEdits.length > 0) {
 
@@ -143,11 +147,13 @@ export class EditDataHandler {
                     }
 
                     previousEditHash = currentExtraEdits[0].previousEditHash;
+                    userGeneratedIdentifier = currentExtraEdits[0].userGeneratedIdentifier;
                     editHash = currentExtraEdits[0].editHash;
                     lastTimestamp = currentExtraEdits[0].timestamp;
                 } else {
                     editHash = dbEdits[dbEdits.length - 1].editHash;
                     lastTimestamp = dbEdits[dbEdits.length - 1].datetime;
+                    userGeneratedIdentifier = getRandomNumberLarge();
                 }
 
                 const returnedValue: IRealtimeEdit = {
@@ -155,7 +161,8 @@ export class EditDataHandler {
                     delta: composedDelta,
                     timestamp: lastTimestamp,
                     editHash,
-                    previousEditHash
+                    previousEditHash,
+                    userGeneratedIdentifier
                 };
 
                 return returnedValue;

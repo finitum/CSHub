@@ -9,6 +9,7 @@ import {query} from "./DatabaseConnection";
 import {logger} from "../index";
 import {Requests} from "../../../cshub-shared/src/api-calls/index";
 import {Routes} from "../../../cshub-shared/src/Routes";
+import {getRandomNumberLarge} from "../../../cshub-shared/src/utilities/Random";
 
 sgMail.setApiKey(Settings.MAIL.APIKEY);
 const nodeMailer = nodemailer.createTransport({
@@ -59,7 +60,7 @@ export const sendMail = (subject: string, html: string, to: string) => {
 };
 
 export const sendVerificationEmail = (to: string, name: string, insertId: number) => {
-    const hash = parseInt((Math.random() * 1000000000).toString(), 10);
+    const hash = getRandomNumberLarge();
 
     query(`
       UPDATE users
@@ -92,7 +93,7 @@ export const sendVerificationEmail = (to: string, name: string, insertId: number
 };
 
 export const sendPasswordResetMail = (to: string, name: string, userId: number) => {
-    const hash = parseInt((Math.random() * 1000000000).toString(), 10);
+    const hash = getRandomNumberLarge();
 
     query(`
       UPDATE users

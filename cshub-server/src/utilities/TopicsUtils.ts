@@ -1,9 +1,10 @@
 import {ITopic} from "../../../cshub-shared/src/models";
 import {DatabaseResultSet, query} from "./DatabaseConnection";
 import {getTopicFromHash} from "../../../cshub-shared/src/utilities/Topics";
+import {getRandomNumberLarge} from "../../../cshub-shared/src/utilities/Random";
 
 export const generateRandomTopicHash = (): Promise<number> => {
-    const hash = parseInt((Math.random() * 1000000000).toString(), 10);
+    const hash = getRandomNumberLarge();
 
     // Right now, using getTopicTree each time is terribly inefficient, but in the future we want to optimize this one. So just use this one for now and the optimizations will be in this method so not much refactoring has to be done.
     return getTopicTree()

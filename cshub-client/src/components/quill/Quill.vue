@@ -217,6 +217,8 @@
     import {SocketWrapper} from "../../utilities/socket-wrapper";
     import {Routes} from "../../../../cshub-shared/src/Routes";
     import userState from "../../store/user";
+    import {getRandomNumberLarge} from "../../../../cshub-shared/src/utilities/Random";
+    import {transformFromArray} from "../../../../cshub-shared/src/utilities/Transform";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -284,13 +286,22 @@
 
                 if (userState.userModel.id !== data.edit.userId) {
                     if (this.lastFewEdits[this.lastFewEdits.length - 1].editHash === data.edit.previousEditHash) {
+                        this.lastFewEdits.push(data.edit);
                         this.editor.updateContents(data.edit.delta);
                     } else {
-                        // TODO use operational transform
+                        const delta = transformFromArray(this.lastFewEdits, data.edit, true);
+
+                        this.editor.updateContents(delta);
+                    }
+
+                } else {
+                    for (let i = this.lastFewEdits.length - 1; i >= 0; i--) {
+                        if (this.lastFewEdits[i].userGeneratedIdentifier === data.edit.userGeneratedIdentifier) {
+                            this.lastFewEdits[i] = data.edit;
+                        }
                     }
                 }
 
-                this.lastFewEdits.push(data.edit);
             });
 
             SocketWrapper.emitSocket(new TogglePostJoin(
@@ -305,7 +316,8 @@
                             postHash: this.editorSetup.postHash,
                             delta: serverData.delta,
                             timestamp: serverData.timestamp,
-                            editHash: serverData.editHash
+                            editHash: serverData.editHash,
+                            userGeneratedIdentifier: serverData.userGeneratedIdentifier
                         });
 
                         this.initialValue = serverData.delta;
@@ -585,11 +597,12 @@
                     postHash: this.editorSetup.postHash,
                     delta,
                     timestamp: dayjs(),
-                    previousEditHash: this.lastFewEdits[this.lastFewEdits.length - 1].editHash
+                    previousEditHash: this.lastFewEdits[this.lastFewEdits.length - 1].editHash,
+                    userGeneratedIdentifier: getRandomNumberLarge()
                 };
 
-                SocketWrapper.emitSocket(new ClientDataUpdated(userEdit, () => {
-                }), this.$socket);
+                this.lastFewEdits.push(userEdit);
+                SocketWrapper.emitSocket(new ClientDataUpdated(userEdit, () => {}), this.$socket);
             }
         }
 
