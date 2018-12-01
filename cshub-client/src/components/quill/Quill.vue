@@ -1,7 +1,7 @@
 <template>
     <!-- Shamelessly stolen from the quilljs homepage -->
     <div class="snow-wrapper" style="height: 100%">
-        <div class="snow-container" :id="quillId" style="height: 100%">
+        <div class="snow-container" :id="editorId" style="height: 100%">
             <div class="toolbar" v-show="editorSetup.showToolbar" style="border: none; padding: 1%;">
                 <span class="ql-formats">
                     <select class="ql-header" title="Header">
@@ -211,10 +211,11 @@
     import uiState from "../../store/ui";
     import {
         ClientDataUpdated,
-        IServerEdit,
+        IRealtimeEdit, ServerDataUpdated,
         TogglePostJoin
     } from "../../../../cshub-shared/src/api-calls/realtime-edit";
     import {SocketWrapper} from "../../utilities/socket-wrapper";
+    import {Routes} from "../../../../cshub-shared/src/Routes";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -239,25 +240,32 @@
         /**
          * Data
          */
-        @Prop({type: Number, required: true}) private currPostHash: number;
         @Prop({
             type: null,
             required: true,
             default: {allowEdit: true, showToolbar: true, postHash: -1}
         }) private editorSetup: IQuillEditSetup;
 
+        // Editor related options
         private editor: Quill = null;
         private editorOptions: any = defaultOptions;
-
-        private typingTimeout: number = null;
-        private draftValue: Delta = null;
-        private loadDraftDialog = false;
-        private tableMenuOpen = false;
-        private tableActions = TableActions;
-        private postHashCacheItemID = "";
-        private quillId = "";
+        private editorId = "";
         private initialValue: Delta;
 
+        // Drafting related variables
+        private draftTypingTimeout: number = null;
+        private draftValue: Delta = null;
+        private loadDraftDialog = false;
+        private postHashCacheItemID = "";
+
+        // Table related variables
+        private tableMenuOpen = false;
+        private tableActions = TableActions;
+
+        // Realtime edit related variables
+        private lastFewEdits: IRealtimeEdit[] = [];
+
+        // Markdown editor related variables
         private showTooltip = false;
         private tooltipButtonStyling: {
             top: string,
@@ -271,40 +279,61 @@
          */
         private mounted() {
 
+            this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
+                console.log(data)
+                console.log(this.lastFewEdits)
+                if (this.lastFewEdits[this.lastFewEdits.length - 1].editHash === data.edit.previousEditHash) {
+                    this.lastFewEdits.push(data.edit);
+                    this.editor.updateContents(data.edit.delta);
+                }
+            });
+
             SocketWrapper.emitSocket(new TogglePostJoin(
-                this.currPostHash,
+                this.editorSetup.postHash,
                 true,
-                (serverData: IServerEdit) => {
+                (serverData: IRealtimeEdit) => {
 
-                    console.log(serverData)
+                    if (serverData === null) {
+                        this.$router.push(Routes.INDEX);
+                    } else {
 
-                    this.initialValue = serverData.delta;
-                    const md = new MarkdownIt().use(mk);
+                        this.lastFewEdits.push({
+                            postHash: this.editorSetup.postHash,
+                            delta: serverData.delta,
+                            timestamp: serverData.timestamp,
+                            editHash: serverData.editHash
+                        });
 
-                    (window as any).katex = katex;
+                        this.initialValue = serverData.delta;
 
-                    if (this.editorSetup.allowEdit) {
-                        this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
-                        localForage.getItem<Delta>(this.postHashCacheItemID)
-                            .then((cachedDraft: Delta) => {
-                                if (cachedDraft !== null) {
-                                    this.loadDraftDialog = true;
-                                    this.draftValue = cachedDraft;
-                                }
-                            });
+                        const md = new MarkdownIt().use(mk);
+
+                        (window as any).katex = katex;
+
+                        if (this.editorSetup.allowEdit) {
+                            this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
+                            localForage.getItem<Delta>(this.postHashCacheItemID)
+                                .then((cachedDraft: Delta) => {
+                                    if (cachedDraft !== null) {
+                                        this.loadDraftDialog = true;
+                                        this.draftValue = cachedDraft;
+                                    }
+                                });
+                        }
+
+                        logStringConsole("Mounted quill with edit: " + this.editorSetup.allowEdit);
+
+                        this.editorId = idGenerator();
+
+                        mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
+
+                        // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
+                        setTimeout(() => {
+                            logStringConsole("Initializing quill with edit: " + this.editorSetup.allowEdit);
+                            this.initQuill(); // Actually init quill itself
+                        });
                     }
 
-                    logStringConsole("Mounted quill with edit: " + this.editorSetup.allowEdit);
-
-                    this.quillId = idGenerator();
-
-                    mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
-
-                    // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
-                    setTimeout(() => {
-                        logStringConsole("Initializing quill with edit: " + this.editorSetup.allowEdit);
-                        this.initQuill(); // Actually init quill itself
-                    });
                 }), this.$socket);
 
 
@@ -507,13 +536,13 @@
 
         private initQuill() {
             // Create the editor
-            this.editorOptions.bounds = `#${this.quillId} .editor`;
-            this.editorOptions.modules.toolbar = `#${this.quillId} .toolbar`;
+            this.editorOptions.bounds = `#${this.editorId} .editor`;
+            this.editorOptions.modules.toolbar = `#${this.editorId} .toolbar`;
 
             if (!this.editorSetup.allowEdit) {
                 this.editorOptions.placeholder = "";
             }
-            this.editor = new Quill(`#${this.quillId} .editor`, this.editorOptions);
+            this.editor = new Quill(`#${this.editorId} .editor`, this.editorOptions);
 
             (this.editor as any).enableMathQuillFormulaAuthoring(); // Enable mathquill4quillMin
             this.editor.enable(false); // Hide it before we set the content
@@ -536,8 +565,8 @@
         }
 
         private textChanged(delta: Delta, oldContents: Delta, source: any) {
-            clearTimeout(this.typingTimeout);
-            this.typingTimeout = setTimeout(() => {
+            clearTimeout(this.draftTypingTimeout);
+            this.draftTypingTimeout = setTimeout(() => {
                 if (this.editor !== null) {
                     localForage.setItem<Delta>(this.postHashCacheItemID, this.getDelta())
                         .then(() => {
@@ -546,12 +575,16 @@
                 }
             }, 1000);
 
-            // SocketWrapper.emitSocket(new ClientDataUpdated({
-            //     delta: delta,
-            //     timestamp: dayjs()
-            // }, (data: ClientDataUpdatedCallBack) => {
-            //     console.log(data);
-            // }), this.$socket);
+            const userEdit: IRealtimeEdit = {
+                postHash: this.editorSetup.postHash,
+                delta,
+                timestamp: dayjs(),
+                previousEditHash: this.lastFewEdits[this.lastFewEdits.length - 1].editHash
+            };
+
+            this.lastFewEdits.push(userEdit);
+
+            SocketWrapper.emitSocket(new ClientDataUpdated(userEdit, () => {}), this.$socket);
         }
 
         private openMarkdownDialog() {

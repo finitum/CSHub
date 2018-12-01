@@ -2,8 +2,10 @@
 import Delta from "quill-delta/dist/Delta";
 import {Dayjs} from "dayjs";
 
-export interface IServerEdit {
+export interface IRealtimeEdit {
+    postHash: number;
     delta: Delta;
     timestamp: Dayjs;
-    serverId: number;
+    previousEditHash?: number;
+    editHash?: number;
 }

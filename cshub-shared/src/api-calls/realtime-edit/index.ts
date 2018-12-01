@@ -1,6 +1,5 @@
 export * from "./ClientCursorUpdated";
 export * from "./ClientDataUpdated";
-export * from "./IUserEdit";
-export * from "./IServerEdit";
+export * from "./IRealtimeEdit";
 export * from "./TogglePostJoin";
 export * from "./ServerDataUpdated";

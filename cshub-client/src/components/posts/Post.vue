@@ -96,7 +96,6 @@
                        :class="'postScrollWindow_' + domId"
                        v-if="fullPostComputed && !loadingIcon && editModeComputed"
                        style="margin-bottom: 20px"
-                       :currPostHash="post.hash"
                        :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
                        ></Quill>
 

@@ -16,8 +16,6 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
 
     const getEditContent: GetEditContent = req.body as GetEditContent;
 
-    const userObj = checkTokenValidity(req);
-
     const inputsValidation = validateMultipleInputs({input: getEditContent.postHash});
 
     if (inputsValidation.valid) {

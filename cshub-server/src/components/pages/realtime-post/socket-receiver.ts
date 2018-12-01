@@ -7,10 +7,12 @@ import {
 } from "../../../../../cshub-shared/src/api-calls";
 import {EditDataHandler} from "./EditDataHandler";
 import {TogglePostJoin} from "../../../../../cshub-shared/src/api-calls";
-import {IServerEdit} from "../../../../../cshub-shared/src/api-calls";
+import {IRealtimeEdit} from "../../../../../cshub-shared/src/api-calls";
 import cookieParser from "cookie-parser";
+import {customValidator, validateMultipleInputs} from "../../../utilities/StringUtils";
+import {hasAccessToPost, postAccessType} from "../../../auth/validateRights/PostAccess";
 
-const io = socket(server);
+export const io = socket(server);
 
 const cookieparser = () => {
     const parser = cookieParser.apply(null, arguments);
@@ -34,21 +36,35 @@ io.on("connection", (socketConn: Socket) => {
         fn();
     });
 
-    socketConn.on(TogglePostJoin.getURL, (togglePost: TogglePostJoin, fn: (data: IServerEdit) => void) => {
-        // TODO check if the user has accessing rights to this post
+    socketConn.on(TogglePostJoin.getURL, (togglePost: TogglePostJoin, fn: (data: IRealtimeEdit) => void) => {
+        const inputsValidation = customValidator({
+            input: togglePost.postHash
+        });
 
-        const roomName = `POST_${togglePost.postHash}`;
-        if (togglePost.join) {
-            socketConn.join(roomName);
+        // TODO write middleware for the auth instead of this :)
 
-            EditDataHandler.getCurrentPostData(togglePost.postHash)
-                .then((data) => {
-                    fn(data);
+        if (inputsValidation.valid) {
+            hasAccessToPost(togglePost.postHash, socketConn.request.cookies["token"])
+                .then((approved: postAccessType) => {
+                    if (approved.access) {
+                        const roomName = `POST_${togglePost.postHash}`;
+                        if (togglePost.join) {
+                            socketConn.join(roomName);
+
+                            EditDataHandler.getCurrentPostData(togglePost.postHash)
+                                .then((data) => {
+                                    fn(data);
+                                })
+                        } else {
+                            socketConn.leave(roomName);
+                            fn(null);
+                        }
+                    } else {
+                        fn(null);
+                    }
                 })
         } else {
-            socketConn.leave(roomName);
             fn(null);
         }
-
     });
 });
