@@ -111,7 +111,8 @@
                                         </button>
                                     </v-list-tile>
                                     <v-list-tile>
-                                        <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)" class="mr-3">
+                                        <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)"
+                                                class="mr-3">
                                             <v-icon>fas fa-arrow-left</v-icon>
                                         </button>
                                         <button @click="performTableAction(tableActions.CREATENEWCOLUMNRIGHT)">
@@ -143,11 +144,16 @@
             <div class="editor">
             </div>
         </div>
-        <v-btn fab small depressed color="primary" :style="tooltipButtonStyling" style="position: fixed;" v-if="showTooltip" @click="openMarkdownDialog"><v-icon>fas fa-edit</v-icon></v-btn>
+        <v-btn fab small depressed color="primary" :style="tooltipButtonStyling" style="position: fixed;"
+               v-if="showTooltip" @click="openMarkdownDialog">
+            <v-icon>fas fa-edit</v-icon>
+        </v-btn>
         <v-dialog v-model="loadDraftDialog" persistent max-width="290">
             <v-card>
                 <v-card-title class="headline">Open draft?</v-card-title>
-                <v-card-text>A draft of this post was saved. Load this draft? If you don't load the draft, it will be discarded once you type.</v-card-text>
+                <v-card-text>A draft of this post was saved. Load this draft? If you don't load the draft, it will be
+                    discarded once you type.
+                </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="green darken-1" flat @click="loadDraft(true)">Load</v-btn>
@@ -177,7 +183,7 @@
     import Delta from "quill-delta/dist/Delta";
     import {Component, Prop} from "vue-property-decorator";
     import {Blot} from "parchment/dist/src/blot/abstract/blot";
-
+    import dayjs from "dayjs";
     import katex from "katex";
     import "katex/dist/katex.min.css";
 
@@ -203,7 +209,11 @@
 
     import {markdownDialogType} from "../../store/ui/state";
     import uiState from "../../store/ui";
-    import {ClientDataUpdated, ClientDataUpdatedCallBack} from "../../../../cshub-shared/src/api-calls/realtime-edit";
+    import {
+        ClientDataUpdated,
+        IServerEdit,
+        TogglePostJoin
+    } from "../../../../cshub-shared/src/api-calls/realtime-edit";
     import {SocketWrapper} from "../../utilities/socket-wrapper";
 
     (window as any).Quill = Quill;
@@ -229,8 +239,12 @@
         /**
          * Data
          */
-        @Prop(Object) private initialValue: Delta;
-        @Prop({type: null, required: true, default: {allowEdit: true, showToolbar: true, postHash: -1}}) private editorSetup: IQuillEditSetup;
+        @Prop({type: Number, required: true}) private currPostHash: number;
+        @Prop({
+            type: null,
+            required: true,
+            default: {allowEdit: true, showToolbar: true, postHash: -1}
+        }) private editorSetup: IQuillEditSetup;
 
         private editor: Quill = null;
         private editorOptions: any = defaultOptions;
@@ -242,6 +256,7 @@
         private tableActions = TableActions;
         private postHashCacheItemID = "";
         private quillId = "";
+        private initialValue: Delta;
 
         private showTooltip = false;
         private tooltipButtonStyling: {
@@ -256,32 +271,43 @@
          */
         private mounted() {
 
-            const md = new MarkdownIt().use(mk);
+            SocketWrapper.emitSocket(new TogglePostJoin(
+                this.currPostHash,
+                true,
+                (serverData: IServerEdit) => {
 
-            (window as any).katex = katex;
+                    console.log(serverData)
 
-            if (this.editorSetup.allowEdit) {
-                this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
-                localForage.getItem<Delta>(this.postHashCacheItemID)
-                    .then((cachedDraft: Delta) => {
-                        if (cachedDraft !== null) {
-                            this.loadDraftDialog = true;
-                            this.draftValue = cachedDraft;
-                        }
+                    this.initialValue = serverData.delta;
+                    const md = new MarkdownIt().use(mk);
+
+                    (window as any).katex = katex;
+
+                    if (this.editorSetup.allowEdit) {
+                        this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
+                        localForage.getItem<Delta>(this.postHashCacheItemID)
+                            .then((cachedDraft: Delta) => {
+                                if (cachedDraft !== null) {
+                                    this.loadDraftDialog = true;
+                                    this.draftValue = cachedDraft;
+                                }
+                            });
+                    }
+
+                    logStringConsole("Mounted quill with edit: " + this.editorSetup.allowEdit);
+
+                    this.quillId = idGenerator();
+
+                    mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
+
+                    // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
+                    setTimeout(() => {
+                        logStringConsole("Initializing quill with edit: " + this.editorSetup.allowEdit);
+                        this.initQuill(); // Actually init quill itself
                     });
-            }
+                }), this.$socket);
 
-            logStringConsole("Mounted quill with edit: " + this.editorSetup.allowEdit);
 
-            this.quillId = idGenerator();
-
-            mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
-
-            // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
-            setTimeout(() => {
-                logStringConsole("Initializing quill with edit: " + this.editorSetup.allowEdit);
-                this.initQuill(); // Actually init quill itself
-            });
         }
 
         private beforeDestroy() {
@@ -520,9 +546,12 @@
                 }
             }, 1000);
 
-            SocketWrapper.emitSocket(new ClientDataUpdated(null, (data: ClientDataUpdatedCallBack) => {
-                console.log(data);
-            }), this.$socket);
+            // SocketWrapper.emitSocket(new ClientDataUpdated({
+            //     delta: delta,
+            //     timestamp: dayjs()
+            // }, (data: ClientDataUpdatedCallBack) => {
+            //     console.log(data);
+            // }), this.$socket);
         }
 
         private openMarkdownDialog() {

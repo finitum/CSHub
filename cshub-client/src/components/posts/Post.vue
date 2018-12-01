@@ -40,9 +40,6 @@
                                        v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
                                     <v-icon>fas fa-edit</v-icon>
                                 </v-btn>
-                                <v-btn v-if="editModeComputed" depressed small color="orange" @click="editPost">
-                                    <v-icon>fas fa-save</v-icon>
-                                </v-btn>
                                 <v-btn depressed small color="primary" @click="viewEditDialog">
                                     <v-icon>fas fa-history</v-icon>
                                 </v-btn>
@@ -99,8 +96,9 @@
                        :class="'postScrollWindow_' + domId"
                        v-if="fullPostComputed && !loadingIcon && editModeComputed"
                        style="margin-bottom: 20px"
+                       :currPostHash="post.hash"
                        :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
-                       :initialValue="editContent"></Quill>
+                       ></Quill>
 
                 <div v-if="loadingIcon">
                     <v-progress-circular
@@ -126,11 +124,9 @@
 <script lang="ts">
 import Vue from "vue";
 import localForage from "localforage";
-import Delta from "quill-delta/dist/Delta";
 import {Watch, Component, Prop} from "vue-property-decorator";
 import {Route} from "vue-router";
 import {AxiosError} from "axios";
-import isEqual from "lodash/isEqual";
 
 import Quill from "../quill/Quill.vue";
 import PostEditsDialog from "./PostEditsDialog.vue";
@@ -144,7 +140,7 @@ import {
     GetPostContent,
     PostVersionTypes,
     VerifyPostCallBack,
-    VerifyPost, GetEditContent, GetEditContentCallback
+    VerifyPost
 } from "../../../../cshub-shared/src/api-calls";
 import {IPost, ITopic} from "../../../../cshub-shared/src/models";
 import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
@@ -179,7 +175,6 @@ export default class Post extends Vue {
     private post: IPost = null;
     private topicNames: IBreadCrumbType[] = [];
     private canResize = true;
-    private editContent: Delta = new Delta();
     private showContent = true;
     private loadingIcon = false;
     private previousTopicURL = "";
@@ -363,16 +358,7 @@ export default class Post extends Vue {
     }
 
     private enableEdit() {
-        ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
-            let baseDelta = new Delta(callbackData.edits[0].content);
-            for (let i = 1; i < callbackData.edits.length; i++) {
-                baseDelta = baseDelta.compose(callbackData.edits[i].content);
-            }
-
-            this.editContent = baseDelta;
-
-            this.$router.push(`${this.currentPostURLComputed}/edit`);
-        });
+        this.$router.push(`${this.currentPostURLComputed}/edit`);
     }
 
     private getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
@@ -389,42 +375,6 @@ export default class Post extends Vue {
         } else {
             return [currTopic];
         }
-    }
-
-    private editPost() {
-        const delta: Delta = (this.$refs as any).editQuill.getDelta();
-
-        ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
-            .then((newValue: Delta) => {
-                const diff = this.editContent.diff(newValue);
-
-                if (!isEqual(diff, new Delta())) {
-                    const html: string = (this.$refs as any).editQuill.getHTML();
-
-                    logStringConsole("Editing post");
-
-                    ApiWrapper.sendPostRequest(new EditPost(this.postHash, {
-                        delta: diff,
-                        html
-                    }, this.post.title, this.activeTopicHash[0]), (callbackData: EditPostCallback) => {
-                        this.$router.push(this.currentPostURLComputed);
-                        this.getPostRequest();
-                        uiState.setNotificationDialogState({
-                            on: true,
-                            header: "Edited post",
-                            text: "Post was edited successfully"
-                        });
-                    });
-                } else {
-                    uiState.setNotificationDialogState({
-                        on: true,
-                        header: "Not edited",
-                        text: "You have not edited content"
-                    });
-                }
-
-
-            });
     }
 
     private getPostRequest() {
