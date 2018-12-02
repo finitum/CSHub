@@ -144,7 +144,7 @@
             <div class="editor" style="overflow: hidden;">
             </div>
         </div>
-        <v-btn v-show="showTooltip" fab small depressed color="primary" class="ql-tooltip" id="markdownTooltip" @click="openMarkdownDialog">
+        <v-btn fab small depressed color="primary" class="ql-tooltip" id="markdownTooltip" @click="openMarkdownDialog">
             <v-icon>fas fa-edit</v-icon>
         </v-btn>
         <v-dialog v-model="loadDraftDialog" persistent max-width="290">
@@ -190,9 +190,8 @@
     import mk from "markdown-it-katex";
     import MarkdownIt from "markdown-it";
 
-    // @ts-ignore
-    import QuillCursors from "quill-cursors";
-    import "quill-cursors/dist/quill-cursors.css";
+    import QuillCursors from "../../plugins/cursor/cursors.min.js";
+    import "../../plugins/cursor/cursors.min.css";
 
     import Quill, {RangeStatic, Sources} from "quill";
     import "quill/dist/quill.core.css";
@@ -276,11 +275,7 @@
         private myCursor: IRealtimeSelect;
 
         // Markdown editor related variables
-        private showTooltip = false;
-        private tooltipButtonStyling: {
-            top: string,
-            left: string
-        } = null;
+        private markdownTooltip;
         private markdownTextString = "";
         private currentlySelectedDomNodes: object[] = [];
 
@@ -600,10 +595,14 @@
             }
 
             for (const select of selects) {
-                this.editor.getModule("cursors").setCursor(select.userId, select.selection, select.userName, select.color);
+                if (select.userId !== userState.userModel.id) {
+                    this.editor.getModule("cursors").setCursor(select.userId, select.selection, select.userName, select.color);
+                }
             }
 
             this.editor.focus();
+
+            this.markdownTooltip = new CustomTooltip(this.editor, null, document.getElementById("markdownTooltip")) as any;
 
             // Specify function to be called on change
             this.editor.on("text-change", this.textChanged);
@@ -650,7 +649,7 @@
         }
 
         private selectionChanged(range: RangeStatic, oldRange: RangeStatic, source: any) {
-
+            
             SocketWrapper.emitSocket(new ClientCursorUpdated({
                 ...this.myCursor,
                 selection: range
@@ -663,10 +662,8 @@
 
                     const bounds = this.editor.getBounds(range.index, range.length);
 
-                    const element = document.getElementById("markdownTooltip");
-                    const markdownTooltip = new CustomTooltip(this.editor, null, element) as any;
-                    markdownTooltip.show();
-                    markdownTooltip.position(bounds);
+                    this.markdownTooltip.show();
+                    this.markdownTooltip.position(bounds);
 
                     const currentLineArray = this.editor.getLines(range);
 
@@ -697,15 +694,15 @@
                             }
                         }
 
-                        this.showTooltip = true;
+                        this.markdownTooltip.show();
                         this.currentlySelectedDomNodes = newLineArray;
                     }
 
                 } else {
-                    this.showTooltip = false;
+                    this.markdownTooltip.hide();
                 }
             } else {
-                this.showTooltip = false;
+                this.markdownTooltip.hide();
             }
         }
     }
