@@ -7,6 +7,6 @@ export class ClientCursorUpdated implements IApiRequest {
     public static getURL: string = SocketRequests.CLIENTCURSORUPDATED;
     public URL: string = ClientCursorUpdated.getURL;
 
-    constructor(public selection: IRealtimeSelect, public callback: () => void) {}
+    constructor(public selection: IRealtimeSelect) {}
 
 }

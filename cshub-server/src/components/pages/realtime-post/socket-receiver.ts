@@ -31,19 +31,12 @@ io.on("connection", (socketConn: Socket) => {
         CursorUpdatedHandler.removeCursor(socketConn);
     });
 
-    socketConn.on(ClientCursorUpdated.getURL, (cursorUpdated: ClientCursorUpdated, fn: () => void) => {
+    socketConn.on(ClientCursorUpdated.getURL, (cursorUpdated: ClientCursorUpdated) => {
         CursorUpdatedHandler.changedCursor(cursorUpdated.selection, socketConn);
-
-        fn();
     });
 
-    socketConn.on(ClientDataUpdated.getURL, (dataUpdated: ClientDataUpdated, fn: () => void) => {
-        // There is a very odd thing which I can't locate to what it is, it went to this method after the ClientCursorUpdated thingy, so then the edit is undefined
-        if (dataUpdated.edit !== null && typeof dataUpdated.edit !== "undefined") {
-            DataUpdatedHandler.applyNewEdit(dataUpdated.edit, socketConn);
-        }
-
-        fn();
+    socketConn.on(ClientDataUpdated.getURL, (dataUpdated: ClientDataUpdated) => {
+        DataUpdatedHandler.applyNewEdit(dataUpdated.edit, socketConn);
     });
 
     socketConn.on(TogglePostJoin.getURL, (togglePost: TogglePostJoin, fn: (edit: IRealtimeEdit, select: IRealtimeSelect[]) => void) => {

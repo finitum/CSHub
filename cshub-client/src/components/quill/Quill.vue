@@ -141,11 +141,10 @@
                     </v-menu>
                 </span>
             </div>
-            <div class="editor">
+            <div class="editor" style="overflow: hidden;">
             </div>
         </div>
-        <v-btn fab small depressed color="primary" :style="tooltipButtonStyling" style="position: fixed;"
-               v-if="showTooltip" @click="openMarkdownDialog">
+        <v-btn v-show="showTooltip" fab small depressed color="primary" class="ql-tooltip" id="markdownTooltip" @click="openMarkdownDialog">
             <v-icon>fas fa-edit</v-icon>
         </v-btn>
         <v-dialog v-model="loadDraftDialog" persistent max-width="290">
@@ -224,6 +223,7 @@
     import userState from "../../store/user";
     import {getRandomNumberLarge} from "../../../../cshub-shared/src/utilities/Random";
     import {transformFromArray} from "../../../../cshub-shared/src/utilities/Transform";
+    import {CustomTooltip} from "./CustomTooltip";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -381,7 +381,7 @@
         private beforeDestroy() {
             // Remove the editor on destroy
             this.editor = null;
-            SocketWrapper.emitSocket(new ClientCursorUpdated({...this.myCursor, active: false}, () => {}), this.$socket);
+            SocketWrapper.emitSocket(new ClientCursorUpdated({...this.myCursor, active: false}), this.$socket);
             this.sockets.unsubscribe(ServerDataUpdated.getURL);
             this.sockets.unsubscribe(ServerCursorUpdated.getURL);
         }
@@ -631,7 +631,7 @@
                 };
 
                 this.lastFewEdits.push(userEdit);
-                SocketWrapper.emitSocket(new ClientDataUpdated(userEdit, () => {}), this.$socket);
+                SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
             }
         }
 
@@ -654,34 +654,21 @@
             SocketWrapper.emitSocket(new ClientCursorUpdated({
                 ...this.myCursor,
                 selection: range
-            }, () => {}), this.$socket);
+            }), this.$socket);
 
             if (range !== null && range.length !== 0) {
                 const selection = this.editor.getFormat(range);
                 const obKeys = Object.keys(selection);
                 if (obKeys[0] === blotName) {
 
-                    const currentLineArray = this.editor.getLines(range);
-
-                    let elem = document.getElementsByClassName("snow-container")[0] as any;
-
-                    let distanceFromTop = 0;
-                    let distanceFromLeft = 0;
-                    if (elem.offsetParent) {
-                        do {
-                            distanceFromTop += elem.offsetTop;
-                            distanceFromLeft += elem.offsetLeft;
-                            elem = elem.offsetParent;
-                        } while (elem);
-                    }
-
-                    const selectedElem = (currentLineArray[0] as any).domNode;
                     const bounds = this.editor.getBounds(range.index, range.length);
 
-                    this.tooltipButtonStyling = {
-                        top: distanceFromTop + (bounds.top - selectedElem.scrollTop) + "px",
-                        left: distanceFromLeft + bounds.left + "px"
-                    };
+                    const element = document.getElementById("markdownTooltip");
+                    const markdownTooltip = new CustomTooltip(this.editor, null, element) as any;
+                    markdownTooltip.show();
+                    markdownTooltip.position(bounds);
+
+                    const currentLineArray = this.editor.getLines(range);
 
                     if (currentLineArray.length > 0) {
 

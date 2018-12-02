@@ -82,7 +82,7 @@ export class DataUpdatedHandler {
 
                 const roomId = `POST_${edit.postHash}`;
 
-                const response = new ServerDataUpdated(serverEdit, () => {});
+                const response = new ServerDataUpdated(serverEdit);
                 io.to(roomId).emit(response.URL, response);
             });
     }
