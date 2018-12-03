@@ -18,35 +18,13 @@ export class DataUpdatedHandler {
 
     private static postHistoryHandler = new DataList();
 
-    private static getPreviousEditHash(postHash: number, currEdits: IRealtimeEdit[]): Promise<number> {
-        if (currEdits.length === 0) {
-            return query(`
-              SELECT T1.content,
-                     T1.editHash,
-                     T1.datetime
-              FROM edits T1
-                     INNER JOIN posts T2 ON T1.post = T2.id
-              WHERE T2.hash = ?
-              ORDER BY T1.datetime DESC
-              LIMIT 1
-            `, postHash)
-                .then((edit: DatabaseResultSet) => {
-                    return edit.getNumberFromDB("editHash");
-                })
-        } else {
-            return new Promise((resolve, reject) => { resolve(currEdits[currEdits.length - 1].editHash); });
-        }
-    }
-
     public static applyNewEdit(edit: IRealtimeEdit, currSocket: Socket): void {
-        const currEdits = DataUpdatedHandler.postHistoryHandler.getEditList(edit.postHash);
-
-        this.getPreviousEditHash(edit.postHash, currEdits)
+        this.postHistoryHandler.getPreviousEditHash(edit.postHash)
             .then((previousEditHash: number) => {
                 let operationalDelta: Delta = null;
 
-                if (currEdits.length !== 0 && edit.previousEditHash !== previousEditHash) {
-                    edit.delta = transformFromArray(currEdits, edit, false);
+                if (edit.previousEditHash !== previousEditHash) {
+                    edit.delta = this.postHistoryHandler.transformArray(edit, false);
                 }
 
                 const editHash = getRandomNumberLarge();
@@ -120,18 +98,7 @@ export class DataUpdatedHandler {
 
                 const lastDbEditHash = dbEdits[dbEdits.length - 1].editHash;
 
-                const currentEditList = this.postHistoryHandler.getEditList(postHash);
-                const currentExtraEdits: IRealtimeEdit[] = [];
-
-                for (let j = currentEditList.length - 1; j >= 0; j--) {
-                    const currEdit = currentEditList[j];
-
-                    currentExtraEdits.push(currEdit);
-
-                    if (currEdit.previousEditHash === lastDbEditHash) {
-                        break;
-                    }
-                }
+                const currentExtraEdits = this.postHistoryHandler.getAllEditsSinceDB(postHash, lastDbEditHash);
 
                 let lastTimestamp: Dayjs;
                 let editHash: number;
