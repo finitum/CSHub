@@ -80,6 +80,7 @@ import {ForgotPasswordMailResponseTypes} from "../../../../cshub-shared/src/api-
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
     import router from "../router/router";
+    import {SocketWrapper} from "../../utilities/socket-wrapper";
 
     @Component({
         name: "LoginScreen",
@@ -159,6 +160,7 @@ import {ForgotPasswordMailResponseTypes} from "../../../../cshub-shared/src/api-
                                 if (this.userData.rememberuser) {
                                     localStorage.setItem(LocalStorageData.EMAIL, this.userData.email);
                                 }
+                                SocketWrapper.reconnectSocket(this.$socket);
                                 userState.changeUserModel(callbackData.userModel);
                                 router.go(-1);
                             } else if (callbackData.response === LoginResponseTypes.NOEXISTINGACCOUNT) {

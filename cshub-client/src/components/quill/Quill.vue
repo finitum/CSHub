@@ -245,6 +245,7 @@
     })
     export default class QuillEditor extends Vue {
 
+
         /**
          * Data
          */
@@ -275,7 +276,7 @@
         private myCursor: IRealtimeSelect;
 
         // Markdown editor related variables
-        private markdownTooltip;
+        private markdownTooltip: any;
         private markdownTextString = "";
         private currentlySelectedDomNodes: object[] = [];
 
@@ -649,7 +650,6 @@
         }
 
         private selectionChanged(range: RangeStatic, oldRange: RangeStatic, source: any) {
-            
             SocketWrapper.emitSocket(new ClientCursorUpdated({
                 ...this.myCursor,
                 selection: range

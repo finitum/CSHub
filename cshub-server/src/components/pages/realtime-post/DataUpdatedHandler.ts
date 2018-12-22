@@ -135,7 +135,7 @@ export class DataUpdatedHandler {
                 return returnedValue;
             })
             .catch(err => {
-                logger.error(`Editing failed`);
+                logger.error(`Realtime editing failed`);
                 logger.error(err);
                 return null;
             });

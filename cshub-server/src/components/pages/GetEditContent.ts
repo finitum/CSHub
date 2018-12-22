@@ -73,7 +73,7 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                             res.json(new GetEditContentCallback(editArray));
                         })
                         .catch(err => {
-                            logger.error(`Editing failed`);
+                            logger.error(`Edit content retrieve failed`);
                             logger.error(err);
                             res.status(500).send();
                         });
