@@ -45,7 +45,6 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
                  T3.name,
                  T3.hash      AS topicHash,
                  T1.id,
-                 T1.approved,
                  T1.postVersion
           FROM posts T1
                  INNER JOIN users T2 ON T1.author = T2.id
@@ -75,7 +74,6 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
                     avatar: post.getStringFromDB("authorAvatar"),
                     admin: post.getNumberFromDB("authorAdmin") === 1
                 },
-                approved: post.getNumberFromDB("approved") === 1,
                 postVersion: post.getNumberFromDB("postVersion")
             };
 

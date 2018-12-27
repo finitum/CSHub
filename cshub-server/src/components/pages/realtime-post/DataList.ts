@@ -2,104 +2,97 @@ import {IRealtimeEdit} from "../../../../../cshub-shared/src/api-calls/realtime-
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import Delta = require("quill-delta/dist/Delta");
 import {transformFromArray} from "../../../../../cshub-shared/src/utilities/Transform";
-
-type editObjectType = {
-    edits: IRealtimeEdit[],
-    editsSinceDb: number
-};
+import async from "async";
+import {logger} from "../../../index";
 
 export class DataList {
 
-    private readonly editObj: { [postId: number]: editObjectType } = {};
+    private readonly editQueues: { [postId: number]: IRealtimeEdit[] } = {};
 
     public addPost(postHash: number) {
-        this.editObj[postHash] = {edits: [], editsSinceDb: 0};
+        this.editQueues[postHash] = [];
     }
 
-    public addPostEdit(edit: IRealtimeEdit) {
-        const editList = this.getEditList(edit.postHash);
+    public addPostEdit(newEdit: IRealtimeEdit) {
 
-        editList.edits.push(edit);
+        const editQueue = this.getEditQueue(newEdit.postHash);
+        editQueue.push(newEdit);
 
-        const newAmountOfEdits = ++editList.editsSinceDb;
+        async.eachSeries(editQueue, (currRecord, next) => {
+            logger.info("Inserting edit");
+            query(`
+              SELECT T1.content
+              FROM edits T1
+                     INNER JOIN posts T2 ON T1.post = T2.id
+              WHERE T2.hash = ?
+                AND approved = 0
+              ORDER BY T1.datetime DESC
+              LIMIT 1
+            `, newEdit.postHash)
+                .then((edit: DatabaseResultSet) => {
+                    let content = null;
 
-        if (newAmountOfEdits > 9) {
-            const currLength = editList.edits.length;
-            const editListSpliced = editList.edits.slice(currLength - newAmountOfEdits, currLength - 1);
-            this.addEditsToDatabase(edit.postHash, editListSpliced);
-        }
+                    if (edit.getRows().length !== 0) {
+                        content = edit.getStringFromDB("content");
+                    }
+
+                    let composedDelta = null;
+                    if (content == null) {
+                        composedDelta = newEdit.delta;
+                        return query(`
+                          INSERT INTO edits
+                          SET post     = (
+                            SELECT id
+                            FROM posts
+                            WHERE hash = ?
+                          ),
+                              content  = ?,
+                              datetime = NOW()
+                        `, newEdit.postHash, JSON.stringify(composedDelta))
+                    } else {
+                        const lastDelta = new Delta(JSON.parse(content));
+                        composedDelta = lastDelta.compose(newEdit.delta);
+                        return query(`
+                          UPDATE edits
+                            INNER JOIN posts ON edits.post = posts.id
+                          SET edits.content = ?
+                          WHERE edits.approved = 0
+                          ORDER BY edits.datetime DESC
+                          LIMIT 1
+                        `, JSON.stringify(composedDelta))
+                    }
+
+                })
+                .then(() => {
+                    next();
+                });
+        });
     }
 
     public transformArray(newEdit: IRealtimeEdit, newEditHasPriority: boolean): Delta {
-        const edits = this.getEditList(newEdit.postHash).edits;
-        if (edits.length > 0) {
-            return transformFromArray(edits, newEdit, newEditHasPriority);
+        const editQueue = this.getEditQueue(newEdit.postHash);
+        if (editQueue.length > 0) {
+            return transformFromArray(editQueue, newEdit, newEditHasPriority);
         } else {
             return new Delta();
         }
     }
 
-    public getAllEditsSinceDB(postHash: number, dbHash: number): IRealtimeEdit[] {
-
-        const currentEditList = this.getEditList(postHash).edits;
-        const currentExtraEdits: IRealtimeEdit[] = [];
-
-        for (let j = currentEditList.length - 1; j >= 0; j--) {
-            const currEdit = currentEditList[j];
-
-            currentExtraEdits.push(currEdit);
-
-            if (currEdit.previousEditHash === dbHash) {
-                break;
-            }
-        }
-
-        return currentExtraEdits;
-
-    }
-
-    public getPreviousEditHash(postHash: number): Promise<number> {
-        const currEdits = this.getEditList(postHash).edits;
-        if (currEdits.length === 0) {
-            return query(`
-              SELECT T1.content,
-                     T1.editHash,
-                     T1.datetime
-              FROM edits T1
-                     INNER JOIN posts T2 ON T1.post = T2.id
-              WHERE T2.hash = ?
-              ORDER BY T1.datetime DESC
-              LIMIT 1
-            `, postHash)
-                .then((edit: DatabaseResultSet) => {
-                    return edit.getNumberFromDB("editHash");
-                })
+    public getPreviousServerID(postHash: number): number {
+        const currQueue = this.getEditQueue(postHash);
+        if (currQueue.length === 0) {
+            return -1;
         } else {
-            return new Promise((resolve, reject) => {
-                resolve(currEdits[currEdits.length - 1].editHash);
-            });
+            currQueue[currQueue.length - 1].serverGeneratedId;
         }
     }
 
-    private addEditsToDatabase(postHash: number, toAdd: IRealtimeEdit[]) {
-
-        let composedDelta = toAdd[0].delta;
-
-        for (const edit of toAdd) {
-            composedDelta = composedDelta.compose(edit.delta);
-        }
-
-        query(`
-            
-        `)
-    }
-
-    private getEditList(postHash: number): editObjectType {
-        if (this.editObj.hasOwnProperty(postHash)) {
-            return this.editObj[postHash];
+    private getEditQueue(postHash: number): IRealtimeEdit[] {
+        if (this.editQueues.hasOwnProperty(postHash)) {
+            return this.editQueues[postHash];
         } else {
             this.addPost(postHash);
-            return {edits: null, editsSinceDb: null};
+            return [];
         }
     }
 

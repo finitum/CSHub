@@ -12,7 +12,7 @@ import Delta from "quill-delta/dist/Delta";
 export const transformFromArray = (inputEdits: IRealtimeEdit[], newEdit: IRealtimeEdit, newEditHasPriority: boolean): Delta => {
     const toBeTransformed: IRealtimeEdit[] = [];
     for (let i = inputEdits.length - 1; i >= 0; i--) {
-        if (inputEdits[i].editHash === newEdit.previousEditHash) {
+        if (inputEdits[i].serverGeneratedId === newEdit.prevServerGeneratedId) {
             break;
         } else {
             toBeTransformed.push(inputEdits[i]);

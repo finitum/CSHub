@@ -6,8 +6,8 @@ export interface IRealtimeEdit {
     postHash: number;
     delta: Delta;
     timestamp: Dayjs;
-    previousEditHash?: number;
-    editHash?: number;
+    prevServerGeneratedId?: number;
+    serverGeneratedId?: number;
     userId?: number;
-    userGeneratedIdentifier: number;
+    userGeneratedId: number;
 }

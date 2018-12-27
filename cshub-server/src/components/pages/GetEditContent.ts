@@ -36,7 +36,7 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                              T3.admin     AS authorAdmin
                       FROM edits T1
                              INNER JOIN posts T2 ON T1.post = T2.id
-                             INNER JOIN users T3 ON T1.editedBy = T3.id
+                             INNER JOIN users T3 ON T1.approvedBy = T3.id
                       WHERE T2.hash = ?
                     `, getEditContent.postHash)
                         .then((edits: DatabaseResultSet) => {
@@ -48,7 +48,7 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                                     parentPostId: edit.getNumberFromDB("post"),
                                     content: JSON.parse(edit.getStringFromDB("content")),
                                     datetime: dayjs(edit.getStringFromDB("datetime")),
-                                    editedBy: {
+                                    approvedBy: {
                                         id: edit.getNumberFromDB("authorId"),
                                         firstname: edit.getStringFromDB("authorFirstName"),
                                         lastname: edit.getStringFromDB("authorLastName"),

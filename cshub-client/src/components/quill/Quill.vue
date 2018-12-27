@@ -288,7 +288,7 @@
             this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
 
                 if (userState.userModel.id !== data.edit.userId) {
-                    if (this.lastFewEdits[this.lastFewEdits.length - 1].editHash === data.edit.previousEditHash) {
+                    if (this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId === data.edit.prevServerGeneratedId) {
                         this.lastFewEdits.push(data.edit);
                         this.editor.updateContents(data.edit.delta);
                     } else {
@@ -299,7 +299,7 @@
 
                 } else {
                     for (let i = this.lastFewEdits.length - 1; i >= 0; i--) {
-                        if (this.lastFewEdits[i].userGeneratedIdentifier === data.edit.userGeneratedIdentifier) {
+                        if (this.lastFewEdits[i].userGeneratedId === data.edit.userGeneratedId) {
                             this.lastFewEdits[i] = data.edit;
                         }
                     }
@@ -335,8 +335,8 @@
                             postHash: this.editorSetup.postHash,
                             delta: serverData.delta,
                             timestamp: serverData.timestamp,
-                            editHash: serverData.editHash,
-                            userGeneratedIdentifier: serverData.userGeneratedIdentifier
+                            serverGeneratedId: serverData.serverGeneratedId,
+                            userGeneratedId: serverData.userGeneratedId
                         });
 
                         this.initialValue = serverData.delta;
@@ -626,8 +626,8 @@
                     postHash: this.editorSetup.postHash,
                     delta,
                     timestamp: dayjs(),
-                    previousEditHash: this.lastFewEdits[this.lastFewEdits.length - 1].editHash,
-                    userGeneratedIdentifier: getRandomNumberLarge()
+                    prevServerGeneratedId: this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId,
+                    userGeneratedId: getRandomNumberLarge()
                 };
 
                 this.lastFewEdits.push(userEdit);

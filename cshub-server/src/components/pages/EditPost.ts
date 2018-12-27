@@ -32,14 +32,9 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                                                  WHERE hash = ?),
                                   htmlContent = ?,
                                   content     = ?,
-                                  editedBy    = ?,
-                                  approved    = (
-                                        SELECT approved
-                                        FROM posts
-                                        WHERE hash = ?
-                                  ) = 1 AND ? = 1,
-                                  approvedBy  = ?
-                            `, editPostRequest.postHash, editPostRequest.content.html, JSON.stringify(editPostRequest.content.delta), userObj.tokenObj.user.id, editPostRequest.postHash, userIsAdmin ? 1 : 0, userIsAdmin ? userObj.tokenObj.user.id : null)
+                                  approvedBy    = ?,
+                                  approved    = 1
+                            `, editPostRequest.postHash, editPostRequest.content.html, JSON.stringify(editPostRequest.content.delta), userObj.tokenObj.user.id, editPostRequest.postHash)
                         })
                         .then(() => {
                             if (userObj.tokenObj.user.admin) {

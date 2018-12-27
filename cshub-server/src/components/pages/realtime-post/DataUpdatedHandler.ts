@@ -12,63 +12,60 @@ import {logger} from "../../../index";
 import {io} from "./socket-receiver";
 import {validateAccessToken} from "../../../auth/JWTHandler";
 import {getRandomNumberLarge} from "../../../../../cshub-shared/src/utilities/Random";
-import {transformFromArray} from "../../../../../cshub-shared/src/utilities/Transform";
 
 export class DataUpdatedHandler {
 
     private static postHistoryHandler = new DataList();
 
     public static applyNewEdit(edit: IRealtimeEdit, currSocket: Socket): void {
-        this.postHistoryHandler.getPreviousEditHash(edit.postHash)
-            .then((previousEditHash: number) => {
-                let operationalDelta: Delta = null;
+        const previousServerId = this.postHistoryHandler.getPreviousServerID(edit.postHash);
 
-                if (edit.previousEditHash !== previousEditHash) {
-                    edit.delta = this.postHistoryHandler.transformArray(edit, false);
-                }
+        let operationalDelta: Delta = null;
 
-                const editHash = getRandomNumberLarge();
-                DataUpdatedHandler.postHistoryHandler.addPostEdit({
-                    ...edit,
-                    editHash,
-                    previousEditHash
-                });
+        if (edit.prevServerGeneratedId !== previousServerId && previousServerId != -1) {
+            edit.delta = this.postHistoryHandler.transformArray(edit, false);
+        }
 
-                const userModel = validateAccessToken(currSocket.request.cookies["token"]);
+        const serverGeneratedIdentifier = getRandomNumberLarge();
+        DataUpdatedHandler.postHistoryHandler.addPostEdit({
+            ...edit,
+            serverGeneratedId: serverGeneratedIdentifier,
+            prevServerGeneratedId: previousServerId
+        });
 
-                let serverEdit: IRealtimeEdit = {
-                    postHash: edit.postHash,
-                    delta: null,
-                    timestamp: dayjs(),
-                    editHash,
-                    previousEditHash,
-                    userId: userModel.user.id,
-                    userGeneratedIdentifier: edit.userGeneratedIdentifier
-                };
+        const userModel = validateAccessToken(currSocket.request.cookies["token"]);
 
-                if (operationalDelta !== null) {
-                    serverEdit = {
-                        ...serverEdit,
-                        delta: operationalDelta
-                    }
-                } else {
-                    serverEdit = {
-                        ...serverEdit,
-                        delta: edit.delta
-                    }
-                }
+        let serverEdit: IRealtimeEdit = {
+            postHash: edit.postHash,
+            delta: null,
+            timestamp: dayjs(),
+            serverGeneratedId: serverGeneratedIdentifier,
+            prevServerGeneratedId: previousServerId,
+            userId: userModel.user.id,
+            userGeneratedId: edit.userGeneratedId
+        };
 
-                const roomId = `POST_${edit.postHash}`;
+        if (operationalDelta !== null) {
+            serverEdit = {
+                ...serverEdit,
+                delta: operationalDelta
+            }
+        } else {
+            serverEdit = {
+                ...serverEdit,
+                delta: edit.delta
+            }
+        }
 
-                const response = new ServerDataUpdated(serverEdit);
-                io.to(roomId).emit(response.URL, response);
-            });
+        const roomId = `POST_${edit.postHash}`;
+
+        const response = new ServerDataUpdated(serverEdit);
+        io.to(roomId).emit(response.URL, response);
     }
 
     public static getCurrentPostData(postHash: number): Promise<IRealtimeEdit> {
         return query(`
           SELECT T1.content,
-                 T1.editHash,
                  T1.datetime
           FROM edits T1
                  INNER JOIN posts T2 ON T1.post = T2.id
@@ -77,12 +74,11 @@ export class DataUpdatedHandler {
         `, postHash)
             .then((edits: DatabaseResultSet) => {
 
-                const dbEdits: Array<{content: Delta, editHash: number, datetime: Dayjs}> = [];
+                const dbEdits: Array<{content: Delta, datetime: Dayjs}> = [];
 
                 for (const editObj of edits.convertRowsToResultObjects()) {
                     dbEdits.push({
                         content: JSON.parse(editObj.getStringFromDB("content")),
-                        editHash: editObj.getNumberFromDB("editHash"),
                         datetime: dayjs(editObj.getStringFromDB("datetime"))
                     });
                 }
@@ -96,46 +92,21 @@ export class DataUpdatedHandler {
                     }
                 }
 
-                const lastDbEditHash = dbEdits[dbEdits.length - 1].editHash;
-
-                const currentExtraEdits = this.postHistoryHandler.getAllEditsSinceDB(postHash, lastDbEditHash);
-
-                let lastTimestamp: Dayjs;
-                let editHash: number;
-                let previousEditHash: number;
-                let userGeneratedIdentifier: number;
-
-                if (currentExtraEdits.length > 0) {
-
-                    for (let i = currentExtraEdits.length - 1; i >= 0; i--) {
-                        const currExtraEdit = currentExtraEdits[i];
-
-                        composedDelta = composedDelta.compose(new Delta(currExtraEdit.delta));
-                    }
-
-                    previousEditHash = currentExtraEdits[0].previousEditHash;
-                    userGeneratedIdentifier = currentExtraEdits[0].userGeneratedIdentifier;
-                    editHash = currentExtraEdits[0].editHash;
-                    lastTimestamp = currentExtraEdits[0].timestamp;
-                } else {
-                    editHash = dbEdits[dbEdits.length - 1].editHash;
-                    lastTimestamp = dbEdits[dbEdits.length - 1].datetime;
-                    userGeneratedIdentifier = getRandomNumberLarge();
-                }
+                const lastTimestamp: Dayjs = dbEdits[dbEdits.length - 1].datetime;
 
                 const returnedValue: IRealtimeEdit = {
                     postHash,
                     delta: composedDelta,
                     timestamp: lastTimestamp,
-                    editHash,
-                    previousEditHash,
-                    userGeneratedIdentifier
+                    serverGeneratedId: null,
+                    prevServerGeneratedId: null,
+                    userGeneratedId: null
                 };
 
                 return returnedValue;
             })
             .catch(err => {
-                logger.error(`Realtime editing failed`);
+                logger.error(`Getting current post data failed`);
                 logger.error(err);
                 return null;
             });

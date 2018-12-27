@@ -274,7 +274,7 @@ export default class Post extends Vue {
     }
 
     private updated() {
-        if (this.fullPostComputed && this.post !== null && !this.editModeComputed && !this.loadingIcon) {
+        if (this.fullPostComputed && this.post !== null && !this.loadingIcon) {
             this.windowHeightChanged();
             this.highlightCode();
         }
@@ -321,7 +321,7 @@ export default class Post extends Vue {
                     element.style.maxHeight = `${newHeight}px`;
                     setTimeout(() => {
                         this.canResize = true;
-                    }, 1000);
+                    }, 250);
                 } else {
                     this.canResize = true;
                 }

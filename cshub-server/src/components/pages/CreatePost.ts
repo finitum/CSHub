@@ -60,8 +60,9 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
                                           INSERT INTO edits
                                           SET post     = ?,
                                               content  = ?,
-                                              editedBy = ?,
-                                              htmlContent = ?
+                                              approvedBy = ?,
+                                              htmlContent = ?,
+                                              approved = 1
                                         `, insertResult.getInsertId(), JSON.stringify(submitPostRequest.postBody), userObj.tokenObj.user.id, submitPostRequest.postHTML);
                                     })
                                     .then((insertEdit: DatabaseResultSet) => {
