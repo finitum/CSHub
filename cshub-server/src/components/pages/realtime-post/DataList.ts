@@ -64,6 +64,7 @@ export class DataList {
 
                 })
                 .then(() => {
+                    editQueue.shift();
                     next();
                 });
         });

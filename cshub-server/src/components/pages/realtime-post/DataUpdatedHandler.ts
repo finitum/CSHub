@@ -88,7 +88,7 @@ export class DataUpdatedHandler {
                     if (composedDelta === null) {
                         composedDelta = new Delta(dbEdit.content);
                     } else {
-                        composedDelta.compose(new Delta(dbEdit.content));
+                        composedDelta = composedDelta.compose(new Delta(dbEdit.content));
                     }
                 }
 
