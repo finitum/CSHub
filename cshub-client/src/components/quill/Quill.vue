@@ -288,7 +288,7 @@
             this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
 
                 if (userState.userModel.id !== data.edit.userId) {
-                    if (this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId === data.edit.prevServerGeneratedId) {
+                    if (this.lastFewEdits.length === 1 || this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId === data.edit.prevServerGeneratedId) {
                         this.lastFewEdits.push(data.edit);
                         this.editor.updateContents(data.edit.delta);
                     } else {
@@ -629,6 +629,8 @@
                     prevServerGeneratedId: this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId,
                     userGeneratedId: getRandomNumberLarge()
                 };
+
+                console.log(this.lastFewEdits)
 
                 this.lastFewEdits.push(userEdit);
                 SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);

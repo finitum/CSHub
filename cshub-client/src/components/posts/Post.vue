@@ -30,10 +30,10 @@
                                     <router-link :to="item.url">{{item.name}}</router-link>
                                 </v-breadcrumbs-item>
                                 <v-breadcrumbs-item :disabled="true"> {{post.title}} </v-breadcrumbs-item>
-                                <v-btn color="green" depressed small @click="verifyPost(true)" v-if="!post.approved && userAdminComputed">
+                                <v-btn color="green" depressed small @click="verifyPost(true)" v-if="!post.online && userAdminComputed">
                                     <v-icon>fas fa-check</v-icon>
                                 </v-btn>
-                                <v-btn color="red" depressed small @click="verifyPost(false)" v-if="post.approved && userAdminComputed">
+                                <v-btn color="red" depressed small @click="verifyPost(false)" v-if="post.online && userAdminComputed">
                                     <v-icon>fas fa-times</v-icon>
                                 </v-btn>
                                 <v-btn color="orange" depressed small @click="enableEdit"
@@ -147,7 +147,6 @@ import {Routes} from "../../../../cshub-shared/src/Routes";
 
 import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
 import {CacheTypes} from "../../utilities/cache-types";
-import {ImgurUpload} from "../../utilities/imgur";
 import {idGenerator} from "../../utilities/id-generator";
 
 import dataState from "../../store/data";
@@ -427,13 +426,13 @@ export default class Post extends Vue {
                 this.post = callbackContent.postUpdated;
                 this.activeTopicHash = [callbackContent.postUpdated.topicHash];
                 this.post.htmlContent = callbackContent.content.html;
-                this.post.approved = callbackContent.content.approved;
+                this.post.online = callbackContent.content.approved;
                 hasBeenUpdated = true;
             } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
                 this.post = cachedValue;
                 this.activeTopicHash = [cachedValue.topicHash];
                 this.post.htmlContent = callbackContent.content.html;
-                this.post.approved = callbackContent.content.approved;
+                this.post.online = callbackContent.content.approved;
                 hasBeenUpdated = true;
             } else if (callbackContent.postVersionType === PostVersionTypes.NOCHANGE) {
                 this.post = cachedValue;

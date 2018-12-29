@@ -13,7 +13,7 @@ app.post(VerifyPost.getURL, (req: Request, res: Response) => {
     if (token.valid && token.tokenObj.user.admin) {
         query(`
           UPDATE posts
-          SET postVersion = postVersion + 1
+          SET postVersion = postVersion + 1, online = 1
           WHERE hash = ?
         `, verifyPostRequest.verify ? 1 : 0, token.tokenObj.user.id, verifyPostRequest.postHash)
             .then((result: DatabaseResultSet) => {

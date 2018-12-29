@@ -9,5 +9,6 @@ export interface IPost {
     upvotes: number;
     id: number;
     postVersion: number;
+    online: boolean;
     htmlContent?: string;
 }

@@ -18,16 +18,17 @@ app.post(GetPost.getURL, (req: Request, res: Response) => {
         .then((approved: postAccessType) => {
             if (!approved.access) {
                 res.status(401).send();
+            } else {
+                // Get all the post data from database
+                getPostData(postRequest.postHash)
+                    .then((data: GetPostCallBack) => {
+                        if (data === null) {
+                            res.status(500).send();
+                        } else {
+                            res.json(data);
+                        }
+                    })
             }
-            // Get all the post data from database
-            getPostData(postRequest.postHash)
-                .then((data: GetPostCallBack) => {
-                    if (data === null) {
-                        res.status(500).send();
-                    } else {
-                        res.json(data);
-                    }
-                })
         });
 });
 
@@ -45,11 +46,11 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
                  T3.name,
                  T3.hash      AS topicHash,
                  T1.id,
-                 T1.postVersion
+                 T1.postVersion,
+                 T1.online
           FROM posts T1
                  INNER JOIN users T2 ON T1.author = T2.id
                  INNER JOIN topics T3 ON T1.topic = T3.id
-                 LEFT JOIN users T4 ON T1.approvedBy = T4.id
           WHERE T1.hash = ?
           ORDER BY datetime DESC
         `, postHash)
@@ -74,7 +75,8 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
                     avatar: post.getStringFromDB("authorAvatar"),
                     admin: post.getNumberFromDB("authorAdmin") === 1
                 },
-                postVersion: post.getNumberFromDB("postVersion")
+                postVersion: post.getNumberFromDB("postVersion"),
+                online: post.getNumberFromDB("online") === 1
             };
 
             if (postBase.author.avatar !== null) {
