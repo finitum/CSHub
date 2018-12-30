@@ -40,6 +40,9 @@
                                        v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
                                     <v-icon>fas fa-edit</v-icon>
                                 </v-btn>
+                                <v-btn v-if="editModeComputed && userAdminComputed" depressed small color="orange" @click="editPost">
+                                    <v-icon>fas fa-save</v-icon>
+                                </v-btn>
                                 <v-btn depressed small color="primary" @click="viewEditDialog">
                                     <v-icon>fas fa-history</v-icon>
                                 </v-btn>
@@ -478,6 +481,22 @@ export default class Post extends Vue {
 
             this.$router.push(this.currentPostURLComputed);
         }
+    }
+
+    private editPost() {
+        logStringConsole("Editing post");
+        ApiWrapper.sendPostRequest(new EditPost(
+            this.postHash,
+            this.post.title,
+            this.activeTopicHash[0]), (callbackData: EditPostCallback) => {
+            this.$router.push(this.currentPostURLComputed);
+            this.getPostRequest();
+            uiState.setNotificationDialogState({
+                on: true,
+                header: "Edited post",
+                text: "Post was edited successfully"
+            });
+        });
     }
 }
 </script>

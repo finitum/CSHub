@@ -200,13 +200,13 @@
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
     import {ImageResize} from "../../plugins/quill/ImageResize.min";
 
-    import defaultOptions from "./QuillDefaultOptions";
+    import defaultOptions from "../../../../cshub-shared/src/utilities/QuillDefaultOptions";
     import {IQuillEditSetup} from "./IQuillEditSetup";
 
     import {logStringConsole} from "../../utilities";
     import {idGenerator} from "../../utilities/id-generator";
 
-    import {blotName, markdownParser} from "./MarkdownLatexQuill";
+    import {MarkdownLatexQuill} from "../../../../cshub-shared/src/utilities/MarkdownLatexQuill";
     import MarkdownEditor from "./MarkdownEditor.vue";
 
     import {markdownDialogType} from "../../store/ui/state";
@@ -356,16 +356,16 @@
                                 });
                         }
 
-                        logStringConsole("Mounted quill with edit: " + this.editorSetup.allowEdit);
+                        logStringConsole("Mounted quillInstance with edit: " + this.editorSetup.allowEdit);
 
                         this.editorId = idGenerator();
 
                         mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
 
-                        // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
+                        // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quillInstance will error)
                         setTimeout(() => {
-                            logStringConsole("Initializing quill with edit: " + this.editorSetup.allowEdit);
-                            this.initQuill(selects); // Actually init quill itself
+                            logStringConsole("Initializing quillInstance with edit: " + this.editorSetup.allowEdit);
+                            this.initQuill(selects); // Actually init quillInstance itself
                         });
                     }
 
@@ -401,129 +401,14 @@
             if (sel !== null) {
                 const obKeys = Object.keys(this.editor.getFormat(sel));
                 if (obKeys.length === 0) {
-                    this.editor.format(blotName, true);
-                } else if (obKeys[0] === blotName) {
+                    this.editor.format(MarkdownLatexQuill.blotName, true);
+                } else if (obKeys[0] === MarkdownLatexQuill.blotName) {
                     this.editor.removeFormat(sel.index, sel.length);
                 } else {
-                    this.editor.format(blotName, true);
+                    this.editor.format(MarkdownLatexQuill.blotName, true);
                 }
             }
 
-        }
-
-        private getHTML() {
-            const node = (this.editor as any).container.firstChild;
-
-            // Converts the classes of all the code blocks so that hljs can highlight them properly
-            const allNodes: any[] = [...node.getElementsByTagName("*")];
-
-            let prevElement: {
-                isCodeBlock: boolean,
-                isMarkdownBlock: boolean,
-                lang?: string,
-                containerNode?: HTMLElement,
-                currString?: string
-            } = {
-                isCodeBlock: false,
-                isMarkdownBlock: false
-            };
-
-            const finalizeCodeBlock = () => {
-                if (prevElement.isCodeBlock) {
-                    const newNode = document.createElement("pre");
-                    newNode.innerHTML = `<code class="${prevElement.lang} hljsBlock">${prevElement.currString}</code>`;
-
-                    prevElement.containerNode.after(newNode);
-
-                    prevElement = {
-                        isCodeBlock: false,
-                        isMarkdownBlock: false
-                    };
-                }
-            };
-
-            const finalizeMarkdownBlock = () => {
-                if (prevElement.isMarkdownBlock) {
-                    prevElement.currString = prevElement.currString.substr(0, prevElement.currString.length - 1);
-                    const newNode = document.createElement("div");
-                    // To not have a break at the end
-                    newNode.style.whiteSpace = "normal";
-                    newNode.classList.add("markdown-body");
-                    newNode.innerHTML = markdownParser.render(prevElement.currString);
-
-                    prevElement.containerNode.before(newNode);
-
-                    prevElement = {
-                        isCodeBlock: false,
-                        isMarkdownBlock: false
-                    };
-                }
-            };
-
-            const toBeDeletedNodes: HTMLElement[] = [];
-
-            for (const domNode of allNodes) {
-                if (domNode.tagName === "DIV") {
-                    finalizeMarkdownBlock();
-                    if (domNode.classList.contains("ql-code-block-container")) {
-                        toBeDeletedNodes.push(domNode);
-                        prevElement.containerNode = domNode;
-
-                        domNode.childNodes.forEach((childNode: any) => {
-                            if (childNode.classList.contains("ql-code-block")) {
-
-                                if (!prevElement.isCodeBlock) {
-                                    const lang = childNode.attributes.getNamedItem("data-language") ? childNode.attributes.getNamedItem("data-language").value : "";
-                                    prevElement = {
-                                        ...prevElement,
-                                        isCodeBlock: true,
-                                        lang,
-                                        currString: childNode.innerText
-                                    };
-                                } else {
-                                    prevElement = {
-                                        ...prevElement,
-                                        currString: prevElement.currString + "\n" + childNode.innerText
-                                    };
-                                }
-                                toBeDeletedNodes.push(childNode);
-                            }
-                        });
-
-                        finalizeCodeBlock();
-                    } else if (!domNode.classList.contains("ql-code-block")) {
-                        finalizeCodeBlock();
-                    }
-                } else if (domNode.tagName === "SELECT" || domNode.tagName === "OPTION") {
-                    finalizeMarkdownBlock();
-                    toBeDeletedNodes.push(domNode);
-                } else if ((domNode.tagName === "PRE" && domNode.classList.contains(blotName))) {
-                    toBeDeletedNodes.push(domNode);
-                    if (prevElement.isMarkdownBlock) {
-                        if (domNode.innerText !== "\n") {
-                            prevElement.currString += domNode.innerText;
-                        }
-                        prevElement.currString += "\n";
-                    } else {
-                        prevElement = {
-                            isMarkdownBlock: true,
-                            isCodeBlock: false,
-                            containerNode: domNode,
-                            currString: `${domNode.innerText}\n`
-                        };
-                    }
-                } else if (!(domNode.tagName === "BR" && domNode.parentNode.classList.contains(blotName))) {
-                    finalizeMarkdownBlock();
-                }
-            }
-
-            finalizeMarkdownBlock();
-
-            toBeDeletedNodes.forEach((domNode: HTMLElement) => {
-                domNode.remove();
-            });
-
-            return node.innerHTML; // Doesn't have images replaced
         }
 
         private loadDraft(load: boolean) {
@@ -585,7 +470,7 @@
             (this.editor as any).enableMathQuillFormulaAuthoring(); // Enable mathquill4quillMin
             this.editor.enable(false); // Hide it before we set the content
 
-            // Set the content (with input a quill delta object)
+            // Set the content (with input a quillInstance delta object)
             if (this.initialValue) {
                 this.editor.setContents(this.initialValue);
             }
@@ -605,6 +490,9 @@
 
             this.markdownTooltip = new CustomTooltip(this.editor, null, document.getElementById("markdownTooltip")) as any;
 
+            const markdownLatexQuill = new MarkdownLatexQuill(Quill);
+            markdownLatexQuill.registerQuill();
+
             // Specify function to be called on change
             this.editor.on("text-change", this.textChanged);
             this.editor.on("selection-change", this.selectionChanged);
@@ -616,7 +504,7 @@
                 if (this.editor !== null) {
                     localForage.setItem<Delta>(this.postHashCacheItemID, this.getDelta())
                         .then(() => {
-                            logStringConsole("Drafted current post", "textchanged quill");
+                            logStringConsole("Drafted current post", "textchanged quillInstance");
                         });
                 }
             }, 1000);
@@ -629,8 +517,6 @@
                     prevServerGeneratedId: this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId,
                     userGeneratedId: getRandomNumberLarge()
                 };
-
-                console.log(this.lastFewEdits)
 
                 this.lastFewEdits.push(userEdit);
                 SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
@@ -660,7 +546,7 @@
             if (range !== null && range.length !== 0) {
                 const selection = this.editor.getFormat(range);
                 const obKeys = Object.keys(selection);
-                if (obKeys[0] === blotName) {
+                if (obKeys[0] === MarkdownLatexQuill.blotName) {
 
                     const bounds = this.editor.getBounds(range.index, range.length);
 
@@ -676,8 +562,8 @@
                         let prev = currentLineArray[0];
 
                         while (true) {
-                            if (prev.domNode.className === blotName) {
-                                if (prev.prev !== null && prev.prev.domNode.className === blotName) {
+                            if (prev.domNode.className === MarkdownLatexQuill.blotName) {
+                                if (prev.prev !== null && prev.prev.domNode.className === MarkdownLatexQuill.blotName) {
                                     prev = prev.prev;
                                 } else {
                                     break;
@@ -688,7 +574,7 @@
                         }
 
                         while (true) {
-                            if (prev !== null && prev.domNode.className === blotName) {
+                            if (prev !== null && prev.domNode.className === MarkdownLatexQuill.blotName) {
                                 newLineArray.push(prev);
                                 prev = prev.next;
                             } else {

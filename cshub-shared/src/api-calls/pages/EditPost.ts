@@ -4,7 +4,13 @@ import {Requests} from "../Requests";
 // @ts-ignore
 import Delta from "quill-delta/dist/Delta";
 
+export enum EditPostReturnTypes {
+    SUCCESS,
+    NOTHINGTOUPDATE
+}
+
 export class EditPostCallback {
+    constructor(public result: EditPostReturnTypes) {}
 }
 
 export class EditPost implements IApiRequest {
@@ -14,10 +20,6 @@ export class EditPost implements IApiRequest {
 
     constructor(
         public postHash: number,
-        public content: {
-            delta: Delta,
-            html: string
-        },
         public postTitle: string,
         public postTopicHash: number
     ) {}
