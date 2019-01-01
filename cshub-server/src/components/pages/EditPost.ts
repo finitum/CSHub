@@ -61,7 +61,7 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
 
                                     for (let i = 1; i < rows.length; i++) {
                                         const currRow = rows[i];
-                                        delta = delta.compose(JSON.parse(currRow.getStringFromDB("content")));
+                                        delta = delta.compose(new Delta(JSON.parse(currRow.getStringFromDB("content"))));
                                     }
 
                                     const jsdom = new JSDOM(`
@@ -222,7 +222,7 @@ const getHTML = (quillEditor: any, document: Document, window: Window) => {
             finalizeCodeBlock();
             toBeDeletedNodes.push(domNode);
             if (prevElement.isMarkdownBlock) {
-                if (domNode.innerText !== "\n") {
+                if (domNode.textContent !== "\n") {
                     prevElement.currString += domNode.textContent;
                 }
                 prevElement.currString += "\n";
@@ -231,7 +231,7 @@ const getHTML = (quillEditor: any, document: Document, window: Window) => {
                     isMarkdownBlock: true,
                     isCodeBlock: false,
                     containerNode: domNode,
-                    currString: `${domNode.innerText}\n`
+                    currString: `${domNode.textContent}\n`
                 };
             }
         } else if (domNode.tagName === "P" && domNode.innerHTML === "") {

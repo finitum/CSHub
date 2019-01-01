@@ -341,8 +341,6 @@
 
                         this.initialValue = serverData.delta;
 
-                        const md = new MarkdownIt().use(mk);
-
                         (window as any).katex = katex;
 
                         if (this.editorSetup.allowEdit) {
@@ -401,11 +399,11 @@
             if (sel !== null) {
                 const obKeys = Object.keys(this.editor.getFormat(sel));
                 if (obKeys.length === 0) {
-                    this.editor.format(MarkdownLatexQuill.blotName, true);
+                    this.editor.format(MarkdownLatexQuill.blotName, true, "user");
                 } else if (obKeys[0] === MarkdownLatexQuill.blotName) {
-                    this.editor.removeFormat(sel.index, sel.length);
+                    this.editor.removeFormat(sel.index, sel.length, "user");
                 } else {
-                    this.editor.format(MarkdownLatexQuill.blotName, true);
+                    this.editor.format(MarkdownLatexQuill.blotName, true, "user");
                 }
             }
 
@@ -470,6 +468,9 @@
             (this.editor as any).enableMathQuillFormulaAuthoring(); // Enable mathquill4quillMin
             this.editor.enable(false); // Hide it before we set the content
 
+            const markdownLatexQuill = new MarkdownLatexQuill(Quill);
+            markdownLatexQuill.registerQuill();
+
             // Set the content (with input a quillInstance delta object)
             if (this.initialValue) {
                 this.editor.setContents(this.initialValue);
@@ -489,9 +490,6 @@
             this.editor.focus();
 
             this.markdownTooltip = new CustomTooltip(this.editor, null, document.getElementById("markdownTooltip")) as any;
-
-            const markdownLatexQuill = new MarkdownLatexQuill(Quill);
-            markdownLatexQuill.registerQuill();
 
             // Specify function to be called on change
             this.editor.on("text-change", this.textChanged);
@@ -519,6 +517,7 @@
                 };
 
                 this.lastFewEdits.push(userEdit);
+                console.log(userEdit)
                 SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
             }
         }

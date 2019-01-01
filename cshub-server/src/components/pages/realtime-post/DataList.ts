@@ -2,13 +2,16 @@ import {IRealtimeEdit} from "../../../../../cshub-shared/src/api-calls/realtime-
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import Delta = require("quill-delta/dist/Delta");
 import {transformFromArray} from "../../../../../cshub-shared/src/utilities/Transform";
-import async from "async";
+import async, {AsyncFunction} from "async";
 import {logger} from "../../../index";
+import {DataUpdatedHandler} from "./DataUpdatedHandler";
 
 type queueType = {
     toAdd: IRealtimeEdit[],
     fullList: IRealtimeEdit[],
-    isAsyncRunning: boolean
+    isAsyncRunning: boolean,
+    currComposedDelta: Delta,
+    dbComposedDelta: Delta
 }
 
 export class DataList {
@@ -19,7 +22,9 @@ export class DataList {
         this.editQueues[postHash] = {
             toAdd: [],
             fullList: [],
-            isAsyncRunning: false
+            isAsyncRunning: false,
+            currComposedDelta: null,
+            dbComposedDelta: null
         };
     }
 
@@ -32,60 +37,54 @@ export class DataList {
         if (!queue.isAsyncRunning) {
             queue.isAsyncRunning = true;
 
-            async.eachSeries(queue.toAdd, (currRecord, next) => {
-                logger.info("Inserting edit");
-                query(`
-                  SELECT T1.content
-                  FROM edits T1
-                         INNER JOIN posts T2 ON T1.post = T2.id
-                  WHERE T2.hash = ?
-                    AND approved = 0
-                  ORDER BY T1.datetime DESC
-                  LIMIT 1
-                `, newEdit.postHash)
-                    .then((edit: DatabaseResultSet) => {
-                        let content = null;
+            async.whilst(
+                () => queue.toAdd.length !== 0,
+                (next) => {
 
-                        if (edit.getRows().length !== 0) {
-                            content = edit.getStringFromDB("content");
-                        }
+                    const currRecord = queue.toAdd[0];
 
-                        let composedDelta = null;
-                        if (content == null) {
-                            composedDelta = newEdit.delta;
-                            return query(`
-                              INSERT INTO edits
-                              SET post     = (
-                                SELECT id
-                                FROM posts
-                                WHERE hash = ?
-                              ),
-                                  content  = ?,
-                                  datetime = NOW()
-                            `, newEdit.postHash, JSON.stringify(composedDelta))
-                        } else {
-                            const lastDelta = new Delta(JSON.parse(content));
-                            composedDelta = lastDelta.compose(newEdit.delta);
-                            return query(`
-                              UPDATE edits
-                                INNER JOIN posts ON edits.post = posts.id
-                              SET edits.content = ?
-                              WHERE edits.approved = 0
-                              ORDER BY edits.datetime DESC
-                              LIMIT 1
-                            `, JSON.stringify(composedDelta))
-                        }
-
-                    })
-                    .then(() => {
-                        queue.toAdd.shift();
-                        next();
-                    });
-            }, () => {
-                queue.isAsyncRunning = false;
-            });
+                    if (queue.currComposedDelta === null) {
+                        DataUpdatedHandler.getOldAndNewDeltas(currRecord.postHash)
+                            .then((deltas) => {
+                                queue.currComposedDelta = deltas.fullDelta;
+                                queue.dbComposedDelta = deltas.oldDelta;
+                                this.handleSave(next, queue);
+                            });
+                    } else {
+                        this.handleSave(next, queue);
+                    }
+                }, () => {
+                    queue.isAsyncRunning = false;
+                });
         }
+    }
 
+    private handleSave(next: () => void, queue: queueType): void {
+
+        const currRecord = queue.toAdd[0];
+
+        logger.info(`STARTING inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId} and delta ${currRecord.delta.ops[1]}`);
+
+        new Promise(resolve => resolve())
+            .then(() => {
+
+                queue.currComposedDelta = queue.currComposedDelta.compose(currRecord.delta);
+                const toBeSavedEdit = queue.dbComposedDelta.diff(queue.currComposedDelta);
+
+                return query(`
+                  UPDATE edits
+                    INNER JOIN posts ON edits.post = posts.id
+                  SET edits.content = ?
+                  WHERE edits.approved = 0
+                  ORDER BY edits.datetime DESC
+                  LIMIT 1
+                `, JSON.stringify(toBeSavedEdit))
+            })
+            .then(() => {
+                queue.toAdd.shift();
+                logger.info(`DONE inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId}`);
+                next();
+            });
     }
 
     public transformArray(newEdit: IRealtimeEdit, newEditHasPriority: boolean): Delta {

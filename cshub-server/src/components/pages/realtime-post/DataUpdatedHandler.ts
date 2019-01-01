@@ -13,6 +13,12 @@ import {io} from "./socket-receiver";
 import {validateAccessToken} from "../../../auth/JWTHandler";
 import {getRandomNumberLarge} from "../../../../../cshub-shared/src/utilities/Random";
 
+type deltaReturnType = {
+    fullDelta: Delta,
+    oldDelta: Delta,
+    latestTime: Dayjs
+}
+
 export class DataUpdatedHandler {
 
     private static postHistoryHandler = new DataList();
@@ -63,10 +69,11 @@ export class DataUpdatedHandler {
         io.to(roomId).emit(response.URL, response);
     }
 
-    public static getCurrentPostData(postHash: number): Promise<IRealtimeEdit> {
+    public static getOldAndNewDeltas(postHash: number): Promise<deltaReturnType> {
         return query(`
           SELECT T1.content,
-                 T1.datetime
+                 T1.datetime,
+                 T1.approved
           FROM edits T1
                  INNER JOIN posts T2 ON T1.post = T2.id
           WHERE T2.hash = ?
@@ -74,33 +81,34 @@ export class DataUpdatedHandler {
         `, postHash)
             .then((edits: DatabaseResultSet) => {
 
-                const dbEdits: Array<{content: Delta, datetime: Dayjs}> = [];
+                const dbEdits: Array<{content: Delta, datetime: Dayjs, approved: boolean}> = [];
 
                 for (const editObj of edits.convertRowsToResultObjects()) {
                     dbEdits.push({
-                        content: JSON.parse(editObj.getStringFromDB("content")),
-                        datetime: dayjs(editObj.getStringFromDB("datetime"))
+                        content: new Delta(JSON.parse(editObj.getStringFromDB("content"))),
+                        datetime: dayjs(editObj.getStringFromDB("datetime")),
+                        approved: editObj.getNumberFromDB("approved") === 1
                     });
                 }
 
-                let composedDelta: Delta = null;
+                let fullDelta: Delta = null;
+                let oldDelta: Delta = null;
+
                 for (const dbEdit of dbEdits) {
-                    if (composedDelta === null) {
-                        composedDelta = new Delta(dbEdit.content);
+                    if (fullDelta === null) {
+                        fullDelta = dbEdit.content;
+                    } else if (!dbEdit.approved) {
+                        fullDelta = fullDelta.compose(dbEdit.content);
                     } else {
-                        composedDelta = composedDelta.compose(new Delta(dbEdit.content));
+                        oldDelta = fullDelta.slice();
+                        fullDelta = fullDelta.compose(dbEdit.content);
                     }
                 }
 
-                const lastTimestamp: Dayjs = dbEdits[dbEdits.length - 1].datetime;
-
-                const returnedValue: IRealtimeEdit = {
-                    postHash,
-                    delta: composedDelta,
-                    timestamp: lastTimestamp,
-                    serverGeneratedId: null,
-                    prevServerGeneratedId: null,
-                    userGeneratedId: null
+                const returnedValue: deltaReturnType = {
+                    fullDelta,
+                    oldDelta,
+                    latestTime: dbEdits[dbEdits.length - 1].datetime
                 };
 
                 return returnedValue;
@@ -110,5 +118,24 @@ export class DataUpdatedHandler {
                 logger.error(err);
                 return null;
             });
+    }
+
+    public static getCurrentPostData(postHash: number): Promise<IRealtimeEdit> {
+
+        return this.getOldAndNewDeltas(postHash)
+            .then((deltas: deltaReturnType) => {
+
+                const returnedValue: IRealtimeEdit = {
+                    postHash,
+                    delta: deltas.fullDelta,
+                    timestamp: deltas.latestTime,
+                    serverGeneratedId: null,
+                    prevServerGeneratedId: null,
+                    userGeneratedId: null
+                };
+
+                return returnedValue;
+            })
+
     }
 }
