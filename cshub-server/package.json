@@ -16,6 +16,7 @@
     "express": "^4.16.2",
     "jsdom": "^13.1.0",
     "jsonwebtoken": "^8.3.0",
+    "lodash": "^4.17.11",
     "markdown-it": "latest",
     "markdown-it-katex": "latest",
     "mysql2": "^1.6.1",

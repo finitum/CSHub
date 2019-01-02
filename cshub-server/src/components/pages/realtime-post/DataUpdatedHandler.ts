@@ -21,10 +21,12 @@ type deltaReturnType = {
 
 export class DataUpdatedHandler {
 
-    private static postHistoryHandler = new DataList();
+    public static postHistoryHandler = new DataList();
 
     public static applyNewEdit(edit: IRealtimeEdit, currSocket: Socket): void {
         const previousServerId = this.postHistoryHandler.getPreviousServerID(edit.postHash);
+
+        logger.info(`RECEIVING1 edit from ${edit.timestamp} with id ${edit.userGeneratedId} and delta ${JSON.stringify(edit.delta)} or deltas ${JSON.stringify(edit.deltas)}`);
 
         let operationalDelta: Delta = null;
 
@@ -97,12 +99,17 @@ export class DataUpdatedHandler {
                 for (const dbEdit of dbEdits) {
                     if (fullDelta === null) {
                         fullDelta = dbEdit.content;
-                    } else if (!dbEdit.approved) {
+                    } else if (dbEdit.approved) {
                         fullDelta = fullDelta.compose(dbEdit.content);
                     } else {
                         oldDelta = fullDelta.slice();
                         fullDelta = fullDelta.compose(dbEdit.content);
+                        break;
                     }
+                }
+
+                if (oldDelta === null) {
+                    oldDelta = fullDelta.slice();
                 }
 
                 const returnedValue: deltaReturnType = {

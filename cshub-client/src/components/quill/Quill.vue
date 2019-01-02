@@ -260,6 +260,8 @@
         private editorOptions: any = defaultOptions;
         private editorId = "";
         private initialValue: Delta;
+        private socketTypingTimeout: number = null;
+        private currentEdits: Delta[] = [];
 
         // Drafting related variables
         private draftTypingTimeout: number = null;
@@ -507,19 +509,29 @@
                 }
             }, 1000);
 
-            if (source === "user") {
-                const userEdit: IRealtimeEdit = {
-                    postHash: this.editorSetup.postHash,
-                    delta,
-                    timestamp: dayjs(),
-                    prevServerGeneratedId: this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId,
-                    userGeneratedId: getRandomNumberLarge()
-                };
+            this.currentEdits.push(delta);
 
-                this.lastFewEdits.push(userEdit);
-                console.log(userEdit)
-                SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
-            }
+            clearTimeout(this.socketTypingTimeout);
+            this.socketTypingTimeout = setTimeout(() => {
+                if (this.editor !== null) {
+                    if (source === "user") {
+                        const userEdit: IRealtimeEdit = {
+                            postHash: this.editorSetup.postHash,
+                            deltas: this.currentEdits,
+                            timestamp: dayjs(),
+                            prevServerGeneratedId: this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId,
+                            userGeneratedId: getRandomNumberLarge()
+                        };
+
+                        this.lastFewEdits.push(userEdit);
+                        this.currentEdits = [];
+                        logStringConsole(`SENDING edit from ${userEdit.timestamp} with id ${userEdit.userGeneratedId} and delta ${JSON.stringify(userEdit.delta)} or deltas ${JSON.stringify(userEdit.deltas)}`);
+                        SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
+                    }
+                }
+            }, 20);
+
+
         }
 
         private openMarkdownDialog() {

@@ -34,6 +34,8 @@ export class DataList {
         queue.toAdd.push(newEdit);
         queue.fullList.push(newEdit);
 
+        logger.info(`RECEIVING edit from ${newEdit.timestamp} with id ${newEdit.userGeneratedId} and delta ${JSON.stringify(newEdit.delta)} or deltas ${JSON.stringify(newEdit.deltas)}`);
+
         if (!queue.isAsyncRunning) {
             queue.isAsyncRunning = true;
 
@@ -63,28 +65,64 @@ export class DataList {
 
         const currRecord = queue.toAdd[0];
 
-        logger.info(`STARTING inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId} and delta ${currRecord.delta.ops[1]}`);
+        logger.info(`STARTING inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId} and delta ${JSON.stringify(currRecord.delta)} or deltas ${JSON.stringify(currRecord.deltas)}`);
 
         new Promise(resolve => resolve())
             .then(() => {
 
-                queue.currComposedDelta = queue.currComposedDelta.compose(currRecord.delta);
-                const toBeSavedEdit = queue.dbComposedDelta.diff(queue.currComposedDelta);
+                const diff = queue.currComposedDelta.diff(queue.dbComposedDelta);
 
-                return query(`
-                  UPDATE edits
-                    INNER JOIN posts ON edits.post = posts.id
-                  SET edits.content = ?
-                  WHERE edits.approved = 0
-                  ORDER BY edits.datetime DESC
-                  LIMIT 1
-                `, JSON.stringify(toBeSavedEdit))
+                if (currRecord.delta !== null && typeof currRecord.delta !== "undefined") {
+                    queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(currRecord.delta));
+                } else if (currRecord.deltas !== null && typeof currRecord.deltas !== "undefined") {
+                    for (const delta of currRecord.deltas) {
+                        queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(delta));
+                    }
+                }
+
+                try {
+                    const toBeSavedEdit = queue.dbComposedDelta.diff(queue.currComposedDelta);
+
+                    logger.info(`ONGOING inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId} and diff ${JSON.stringify(toBeSavedEdit)}`);
+
+                    if (diff.ops.length === 0) {
+                        return query(`
+                          INSERT INTO edits
+                          SET post     = (
+                            SELECT id
+                            FROM posts
+                            WHERE hash = ?
+                          ),
+                              content  = ?,
+                              datetime = NOW()
+                        `, currRecord.postHash, JSON.stringify(toBeSavedEdit))
+                    } else {
+                        return query(`
+                          UPDATE edits
+                            INNER JOIN posts ON edits.post = posts.id
+                          SET edits.content = ?
+                          WHERE edits.approved = 0
+                          ORDER BY edits.datetime DESC
+                          LIMIT 1
+                        `, JSON.stringify(toBeSavedEdit))
+                    }
+                } catch (e) {
+                    logger.error("Error with saving realtime edit");
+                    logger.error(e);
+                    return null; // NOOP
+                }
+
+
             })
             .then(() => {
                 queue.toAdd.shift();
-                logger.info(`DONE inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId}`);
+                logger.info(`DONE inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId} and delta ${JSON.stringify(currRecord.delta)} or deltas ${JSON.stringify(currRecord.deltas)}`);
                 next();
             });
+    }
+
+    public updateDbDelta(postHash: number, newDelta: Delta) {
+        this.getTodoQueue(postHash).dbComposedDelta = newDelta;
     }
 
     public transformArray(newEdit: IRealtimeEdit, newEditHasPriority: boolean): Delta {

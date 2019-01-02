@@ -12,5 +12,8 @@
     "markdown-it": "latest",
     "markdown-it-katex": "latest",
     "parchment": "^1.1.4"
+  },
+  "resolutions": {
+    "markdown-it-katex/katex": "0.10.0"
   }
 }

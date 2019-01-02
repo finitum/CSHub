@@ -12,6 +12,7 @@ import Delta from "quill-delta/dist/Delta";
 
 import {MarkdownLatexQuill, getMarkdownParser} from "../../../../cshub-shared/src/utilities/MarkdownLatexQuill";
 import QuillDefaultOptions from "../../../../cshub-shared/src/utilities/QuillDefaultOptions";
+import {DataUpdatedHandler} from "./realtime-post/DataUpdatedHandler";
 
 app.post(EditPost.getURL, (req: Request, res: Response) => {
 
@@ -101,6 +102,8 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                                         const markdownParser = new MarkdownLatexQuill(quillWindow);
                                         markdownParser.registerQuill();
                                         quill.setContents(delta);
+
+                                        DataUpdatedHandler.postHistoryHandler.updateDbDelta(editPostRequest.postHash, delta);
 
                                         query(`
                                           UPDATE edits
