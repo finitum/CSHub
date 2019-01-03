@@ -1,7 +1,7 @@
 import {IApiRequest} from "../../models/IApiRequest";
 import {IUser} from "../../models/IUser";
 
-import {NonAuthRequests} from "../NonAuthRequests";
+import {Requests} from "../Requests";
 
 export enum ForgotPasswordMailResponseTypes {
     SENT,
@@ -18,7 +18,7 @@ export class ForgotPasswordMailCallback {
 
 export class ForgotPasswordMail implements IApiRequest {
 
-    public static getURL: string = NonAuthRequests.FORGOTPASSWORDMAIL;
+    public static getURL: string = Requests.FORGOTPASSWORDMAIL;
     public URL: string = ForgotPasswordMail.getURL;
 
     constructor(

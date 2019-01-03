@@ -56,7 +56,7 @@ app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
                       SELECT T1.hash
                       FROM posts T1
                              INNER JOIN topics T2 ON T1.topic = T2.id
-                      WHERE approved = 1
+                      WHERE online = 1
                         AND T2.hash IN (?)
                       ORDER BY datetime DESC
                     `, topicHashes)

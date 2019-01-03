@@ -33,7 +33,7 @@
 
     import uiState from "../../store/ui";
     import {markdownDialogType} from "../../store/ui/state";
-    import {markdownParser} from "./MarkdownLatexQuill";
+    import {getMarkdownParser} from "../../../../cshub-shared/src/utilities/MarkdownLatexQuill";
 
     @Component({
         name: "MarkdownEditor"
@@ -103,7 +103,7 @@
          * Methods
          */
         private renderMarkdown() {
-            this.output = markdownParser.render(this.input);
+            this.output = getMarkdownParser(window).render(this.input);
         }
 
         private tabHandler(event: Event) {

@@ -24,7 +24,7 @@
                                         <v-flex xs7>
                                             <span v-if="index !== 0">Edited by </span>
                                             <span v-if="index === 0">Created by </span>
-                                            <span>{{edit.editedBy.firstname}} {{edit.editedBy.lastname}} on {{edit.datetime | formatDate}}</span>
+                                            <span>{{edit.approvedBy.firstname}} {{edit.approvedBy.lastname}} on {{edit.datetime | formatDate}}</span>
                                             <v-btn depressed small color="primary" @click="showIndex = index" v-if="showIndex === -1">View edit</v-btn>
                                             <v-btn depressed small color="primary" @click="showIndex = -1" v-if="showIndex !== -1">Close edit</v-btn>
                                         </v-flex>

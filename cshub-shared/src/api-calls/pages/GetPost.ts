@@ -1,7 +1,7 @@
 import {IApiRequest} from "../../models/IApiRequest";
 import {IPost} from "../../models/IPost";
 
-import {NonAuthRequests} from "../NonAuthRequests";
+import {Requests} from "../Requests";
 
 export class GetPostCallBack {
 
@@ -12,7 +12,7 @@ export class GetPostCallBack {
 
 export class GetPost implements IApiRequest {
 
-    public static getURL: string = NonAuthRequests.POSTDATA;
+    public static getURL: string = Requests.POSTDATA;
     public URL: string = GetPost.getURL;
 
     constructor(public postHash: number) {}

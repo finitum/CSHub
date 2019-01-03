@@ -1,7 +1,7 @@
 import {IApiRequest} from "../../models/IApiRequest";
 import {IUser} from "../../models/IUser";
 
-import {NonAuthRequests} from "../NonAuthRequests";
+import {Requests} from "../Requests";
 
 export enum LoginResponseTypes {
     INCORRECTPASS,
@@ -22,7 +22,7 @@ export class LoginCallBack {
 
 export class Login implements IApiRequest {
 
-    public static getURL: string = NonAuthRequests.LOGINREQUEST;
+    public static getURL: string = Requests.LOGINREQUEST;
     public URL: string = Login.getURL;
 
     constructor(

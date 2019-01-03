@@ -1,11 +1,11 @@
 import {IApiRequest, IUser} from "../../models";
-import {AdminRequests} from "../AdminRequests";
+import {Requests} from "../Requests";
 
 export class VerifyPostCallBack {
 }
 
 export class VerifyPost implements IApiRequest {
-    public static getURL: string = AdminRequests.VERIFYPOST;
+    public static getURL: string = Requests.VERIFYPOST;
     public URL: string = VerifyPost.getURL;
 
     constructor(public postHash: number, public verify: boolean) {}

@@ -1,7 +1,7 @@
 <template>
     <!-- Shamelessly stolen from the quilljs homepage -->
     <div class="snow-wrapper" style="height: 100%">
-        <div class="snow-container" :id="quillId" style="height: 100%">
+        <div class="snow-container" :id="editorId" style="height: 100%">
             <div class="toolbar" v-show="editorSetup.showToolbar" style="border: none; padding: 1%;">
                 <span class="ql-formats">
                     <select class="ql-header" title="Header">
@@ -111,7 +111,8 @@
                                         </button>
                                     </v-list-tile>
                                     <v-list-tile>
-                                        <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)" class="mr-3">
+                                        <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)"
+                                                class="mr-3">
                                             <v-icon>fas fa-arrow-left</v-icon>
                                         </button>
                                         <button @click="performTableAction(tableActions.CREATENEWCOLUMNRIGHT)">
@@ -140,14 +141,18 @@
                     </v-menu>
                 </span>
             </div>
-            <div class="editor">
+            <div class="editor" style="overflow: hidden;">
             </div>
         </div>
-        <v-btn fab small depressed color="primary" :style="tooltipButtonStyling" style="position: fixed;" v-if="showTooltip" @click="openMarkdownDialog"><v-icon>fas fa-edit</v-icon></v-btn>
+        <v-btn fab small depressed color="primary" class="ql-tooltip" id="markdownTooltip" @click="openMarkdownDialog">
+            <v-icon>fas fa-edit</v-icon>
+        </v-btn>
         <v-dialog v-model="loadDraftDialog" persistent max-width="290">
             <v-card>
                 <v-card-title class="headline">Open draft?</v-card-title>
-                <v-card-text>A draft of this post was saved. Load this draft? If you don't load the draft, it will be discarded once you type.</v-card-text>
+                <v-card-text>A draft of this post was saved. Load this draft? If you don't load the draft, it will be
+                    discarded once you type.
+                </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="green darken-1" flat @click="loadDraft(true)">Load</v-btn>
@@ -177,7 +182,7 @@
     import Delta from "quill-delta/dist/Delta";
     import {Component, Prop} from "vue-property-decorator";
     import {Blot} from "parchment/dist/src/blot/abstract/blot";
-
+    import dayjs from "dayjs";
     import katex from "katex";
     import "katex/dist/katex.min.css";
 
@@ -185,27 +190,43 @@
     import mk from "markdown-it-katex";
     import MarkdownIt from "markdown-it";
 
-    import Quill, {RangeStatic} from "quill";
+    import QuillCursors from "../../plugins/cursor/cursors.min.js";
+    import "../../plugins/cursor/cursors.min.css";
+
+    import Quill, {RangeStatic, Sources} from "quill";
     import "quill/dist/quill.core.css";
     import "quill/dist/quill.snow.css";
 
     import {mathquill4quill} from "../../plugins/quill/mathquill4quill.min";
     import {ImageResize} from "../../plugins/quill/ImageResize.min";
 
-    import defaultOptions from "./QuillDefaultOptions";
+    import defaultOptions from "../../../../cshub-shared/src/utilities/QuillDefaultOptions";
     import {IQuillEditSetup} from "./IQuillEditSetup";
 
     import {logStringConsole} from "../../utilities";
     import {idGenerator} from "../../utilities/id-generator";
 
-    import {blotName, markdownParser} from "./MarkdownLatexQuill";
+    import {MarkdownLatexQuill} from "../../../../cshub-shared/src/utilities/MarkdownLatexQuill";
     import MarkdownEditor from "./MarkdownEditor.vue";
 
     import {markdownDialogType} from "../../store/ui/state";
     import uiState from "../../store/ui";
+    import {
+        ClientCursorUpdated,
+        ClientDataUpdated,
+        IRealtimeEdit, IRealtimeSelect, ServerCursorUpdated, ServerDataUpdated,
+        TogglePostJoin
+    } from "../../../../cshub-shared/src/api-calls/realtime-edit";
+    import {SocketWrapper} from "../../utilities/socket-wrapper";
+    import {Routes} from "../../../../cshub-shared/src/Routes";
+    import userState from "../../store/user";
+    import {getRandomNumberLarge} from "../../../../cshub-shared/src/utilities/Random";
+    import {transformFromArray} from "../../../../cshub-shared/src/utilities/Transform";
+    import {CustomTooltip} from "./CustomTooltip";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
+    (window as any).Quill.register("modules/cursors", QuillCursors);
 
     enum TableActions {
         CREATETABLE,
@@ -224,28 +245,40 @@
     })
     export default class QuillEditor extends Vue {
 
+
         /**
          * Data
          */
-        @Prop(Object) private initialValue: Delta;
-        @Prop({type: null, required: true, default: {allowEdit: true, showToolbar: true, postHash: -1}}) private editorSetup: IQuillEditSetup;
+        @Prop({
+            type: null,
+            required: true,
+            default: {allowEdit: true, showToolbar: true, postHash: -1}
+        }) private editorSetup: IQuillEditSetup;
 
+        // Editor related options
         private editor: Quill = null;
         private editorOptions: any = defaultOptions;
+        private editorId = "";
+        private initialValue: Delta;
+        private socketTypingTimeout: number = null;
+        private currentEdits: Delta[] = [];
 
-        private typingTimeout: number = null;
+        // Drafting related variables
+        private draftTypingTimeout: number = null;
         private draftValue: Delta = null;
         private loadDraftDialog = false;
+        private postHashCacheItemID = "";
+
+        // Table related variables
         private tableMenuOpen = false;
         private tableActions = TableActions;
-        private postHashCacheItemID = "";
-        private quillId = "";
 
-        private showTooltip = false;
-        private tooltipButtonStyling: {
-            top: string,
-            left: string
-        } = null;
+        // Realtime edit related variables
+        private lastFewEdits: IRealtimeEdit[] = [];
+        private myCursor: IRealtimeSelect;
+
+        // Markdown editor related variables
+        private markdownTooltip: any;
         private markdownTextString = "";
         private currentlySelectedDomNodes: object[] = [];
 
@@ -254,37 +287,99 @@
          */
         private mounted() {
 
-            const md = new MarkdownIt().use(mk);
+            this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
 
-            (window as any).katex = katex;
+                if (userState.userModel.id !== data.edit.userId) {
+                    if (this.lastFewEdits.length === 1 || this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId === data.edit.prevServerGeneratedId) {
+                        this.lastFewEdits.push(data.edit);
+                        this.editor.updateContents(data.edit.delta);
+                    } else {
+                        const delta = transformFromArray(this.lastFewEdits, data.edit, true);
 
-            if (this.editorSetup.allowEdit) {
-                this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
-                localForage.getItem<Delta>(this.postHashCacheItemID)
-                    .then((cachedDraft: Delta) => {
-                        if (cachedDraft !== null) {
-                            this.loadDraftDialog = true;
-                            this.draftValue = cachedDraft;
+                        this.editor.updateContents(delta);
+                    }
+
+                } else {
+                    for (let i = this.lastFewEdits.length - 1; i >= 0; i--) {
+                        if (this.lastFewEdits[i].userGeneratedId === data.edit.userGeneratedId) {
+                            this.lastFewEdits[i] = data.edit;
                         }
-                    });
-            }
+                    }
+                }
 
-            logStringConsole("Mounted quill with edit: " + this.editorSetup.allowEdit);
-
-            this.quillId = idGenerator();
-
-            mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
-
-            // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quill will error)
-            setTimeout(() => {
-                logStringConsole("Initializing quill with edit: " + this.editorSetup.allowEdit);
-                this.initQuill(); // Actually init quill itself
             });
+
+            this.sockets.subscribe(ServerCursorUpdated.getURL, (data: ServerCursorUpdated) => {
+
+                if (userState.userModel.id !== data.select.userId) {
+                    this.editor.getModule("cursors").setCursor(data.select.userId, data.select.selection, data.select.userName, data.select.color);
+                }
+            });
+
+            this.myCursor = {
+                color: null,
+                userId: null,
+                userName: null,
+                postHash: this.editorSetup.postHash,
+                selection: null,
+                active: true
+            };
+
+            SocketWrapper.emitSocket(new TogglePostJoin(
+                this.editorSetup.postHash,
+                true,
+                (serverData: IRealtimeEdit, selects: IRealtimeSelect[]) => {
+
+                    if (serverData === null) {
+                        this.$router.push(Routes.INDEX);
+                    } else {
+                        this.lastFewEdits.push({
+                            postHash: this.editorSetup.postHash,
+                            delta: serverData.delta,
+                            timestamp: serverData.timestamp,
+                            serverGeneratedId: serverData.serverGeneratedId,
+                            userGeneratedId: serverData.userGeneratedId
+                        });
+
+                        this.initialValue = serverData.delta;
+
+                        (window as any).katex = katex;
+
+                        if (this.editorSetup.allowEdit) {
+                            this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
+                            localForage.getItem<Delta>(this.postHashCacheItemID)
+                                .then((cachedDraft: Delta) => {
+                                    if (cachedDraft !== null) {
+                                        this.loadDraftDialog = true;
+                                        this.draftValue = cachedDraft;
+                                    }
+                                });
+                        }
+
+                        logStringConsole("Mounted quillInstance with edit: " + this.editorSetup.allowEdit);
+
+                        this.editorId = idGenerator();
+
+                        mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
+
+                        // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quillInstance will error)
+                        setTimeout(() => {
+                            logStringConsole("Initializing quillInstance with edit: " + this.editorSetup.allowEdit);
+                            this.initQuill(selects); // Actually init quillInstance itself
+                        });
+                    }
+
+                }), this.$socket);
+
+
         }
 
         private beforeDestroy() {
             // Remove the editor on destroy
             this.editor = null;
+            SocketWrapper.emitSocket(new ClientCursorUpdated({...this.myCursor, active: false}), this.$socket);
+            this.sockets.unsubscribe(ServerDataUpdated.getURL);
+            this.sockets.unsubscribe(ServerCursorUpdated.getURL);
         }
 
         /**
@@ -306,129 +401,14 @@
             if (sel !== null) {
                 const obKeys = Object.keys(this.editor.getFormat(sel));
                 if (obKeys.length === 0) {
-                    this.editor.format(blotName, true);
-                } else if (obKeys[0] === blotName) {
-                    this.editor.removeFormat(sel.index, sel.length);
+                    this.editor.format(MarkdownLatexQuill.blotName, true, "user");
+                } else if (obKeys[0] === MarkdownLatexQuill.blotName) {
+                    this.editor.removeFormat(sel.index, sel.length, "user");
                 } else {
-                    this.editor.format(blotName, true);
+                    this.editor.format(MarkdownLatexQuill.blotName, true, "user");
                 }
             }
 
-        }
-
-        private getHTML() {
-            const node = (this.editor as any).container.firstChild;
-
-            // Converts the classes of all the code blocks so that hljs can highlight them properly
-            const allNodes: any[] = [...node.getElementsByTagName("*")];
-
-            let prevElement: {
-                isCodeBlock: boolean,
-                isMarkdownBlock: boolean,
-                lang?: string,
-                containerNode?: HTMLElement,
-                currString?: string
-            } = {
-                isCodeBlock: false,
-                isMarkdownBlock: false
-            };
-
-            const finalizeCodeBlock = () => {
-                if (prevElement.isCodeBlock) {
-                    const newNode = document.createElement("pre");
-                    newNode.innerHTML = `<code class="${prevElement.lang} hljsBlock">${prevElement.currString}</code>`;
-
-                    prevElement.containerNode.after(newNode);
-
-                    prevElement = {
-                        isCodeBlock: false,
-                        isMarkdownBlock: false
-                    };
-                }
-            };
-
-            const finalizeMarkdownBlock = () => {
-                if (prevElement.isMarkdownBlock) {
-                    prevElement.currString = prevElement.currString.substr(0, prevElement.currString.length - 1);
-                    const newNode = document.createElement("div");
-                    // To not have a break at the end
-                    newNode.style.whiteSpace = "normal";
-                    newNode.classList.add("markdown-body");
-                    newNode.innerHTML = markdownParser.render(prevElement.currString);
-
-                    prevElement.containerNode.before(newNode);
-
-                    prevElement = {
-                        isCodeBlock: false,
-                        isMarkdownBlock: false
-                    };
-                }
-            };
-
-            const toBeDeletedNodes: HTMLElement[] = [];
-
-            for (const domNode of allNodes) {
-                if (domNode.tagName === "DIV") {
-                    finalizeMarkdownBlock();
-                    if (domNode.classList.contains("ql-code-block-container")) {
-                        toBeDeletedNodes.push(domNode);
-                        prevElement.containerNode = domNode;
-
-                        domNode.childNodes.forEach((childNode: any) => {
-                            if (childNode.classList.contains("ql-code-block")) {
-
-                                if (!prevElement.isCodeBlock) {
-                                    const lang = childNode.attributes.getNamedItem("data-language") ? childNode.attributes.getNamedItem("data-language").value : "";
-                                    prevElement = {
-                                        ...prevElement,
-                                        isCodeBlock: true,
-                                        lang,
-                                        currString: childNode.innerText
-                                    };
-                                } else {
-                                    prevElement = {
-                                        ...prevElement,
-                                        currString: prevElement.currString + "\n" + childNode.innerText
-                                    };
-                                }
-                                toBeDeletedNodes.push(childNode);
-                            }
-                        });
-
-                        finalizeCodeBlock();
-                    } else if (!domNode.classList.contains("ql-code-block")) {
-                        finalizeCodeBlock();
-                    }
-                } else if (domNode.tagName === "SELECT" || domNode.tagName === "OPTION") {
-                    finalizeMarkdownBlock();
-                    toBeDeletedNodes.push(domNode);
-                } else if ((domNode.tagName === "PRE" && domNode.classList.contains(blotName))) {
-                    toBeDeletedNodes.push(domNode);
-                    if (prevElement.isMarkdownBlock) {
-                        if (domNode.innerText !== "\n") {
-                            prevElement.currString += domNode.innerText;
-                        }
-                        prevElement.currString += "\n";
-                    } else {
-                        prevElement = {
-                            isMarkdownBlock: true,
-                            isCodeBlock: false,
-                            containerNode: domNode,
-                            currString: `${domNode.innerText}\n`
-                        };
-                    }
-                } else if (!(domNode.tagName === "BR" && domNode.parentNode.classList.contains(blotName))) {
-                    finalizeMarkdownBlock();
-                }
-            }
-
-            finalizeMarkdownBlock();
-
-            toBeDeletedNodes.forEach((domNode: HTMLElement) => {
-                domNode.remove();
-            });
-
-            return node.innerHTML; // Doesn't have images replaced
         }
 
         private loadDraft(load: boolean) {
@@ -477,20 +457,23 @@
             }
         }
 
-        private initQuill() {
+        private initQuill(selects: IRealtimeSelect[]) {
             // Create the editor
-            this.editorOptions.bounds = `#${this.quillId} .editor`;
-            this.editorOptions.modules.toolbar = `#${this.quillId} .toolbar`;
+            this.editorOptions.bounds = `#${this.editorId} .editor`;
+            this.editorOptions.modules.toolbar = `#${this.editorId} .toolbar`;
 
             if (!this.editorSetup.allowEdit) {
                 this.editorOptions.placeholder = "";
             }
-            this.editor = new Quill(`#${this.quillId} .editor`, this.editorOptions);
+            this.editor = new Quill(`#${this.editorId} .editor`, this.editorOptions);
 
             (this.editor as any).enableMathQuillFormulaAuthoring(); // Enable mathquill4quillMin
             this.editor.enable(false); // Hide it before we set the content
 
-            // Set the content (with input a quill delta object)
+            const markdownLatexQuill = new MarkdownLatexQuill(Quill);
+            markdownLatexQuill.registerQuill();
+
+            // Set the content (with input a quillInstance delta object)
             if (this.initialValue) {
                 this.editor.setContents(this.initialValue);
             }
@@ -500,23 +483,55 @@
                 this.editor.enable(true);
             }
 
+            for (const select of selects) {
+                if (select.userId !== userState.userModel.id) {
+                    this.editor.getModule("cursors").setCursor(select.userId, select.selection, select.userName, select.color);
+                }
+            }
+
             this.editor.focus();
+
+            this.markdownTooltip = new CustomTooltip(this.editor, null, document.getElementById("markdownTooltip")) as any;
 
             // Specify function to be called on change
             this.editor.on("text-change", this.textChanged);
             this.editor.on("selection-change", this.selectionChanged);
         }
 
-        private textChanged(delta: Delta, oldContents: Delta, source: any) {
-            clearTimeout(this.typingTimeout);
-            this.typingTimeout = setTimeout(() => {
+        private textChanged(delta: Delta, oldContents: Delta, source: Sources) {
+            clearTimeout(this.draftTypingTimeout);
+            this.draftTypingTimeout = setTimeout(() => {
                 if (this.editor !== null) {
                     localForage.setItem<Delta>(this.postHashCacheItemID, this.getDelta())
                         .then(() => {
-                            logStringConsole("Drafted current post", "textchanged quill");
+                            logStringConsole("Drafted current post", "textchanged quillInstance");
                         });
                 }
             }, 1000);
+
+            this.currentEdits.push(delta);
+
+            clearTimeout(this.socketTypingTimeout);
+            this.socketTypingTimeout = setTimeout(() => {
+                if (this.editor !== null) {
+                    if (source === "user") {
+                        const userEdit: IRealtimeEdit = {
+                            postHash: this.editorSetup.postHash,
+                            deltas: this.currentEdits,
+                            timestamp: dayjs(),
+                            prevServerGeneratedId: this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId,
+                            userGeneratedId: getRandomNumberLarge()
+                        };
+
+                        this.lastFewEdits.push(userEdit);
+                        this.currentEdits = [];
+                        logStringConsole(`SENDING edit from ${userEdit.timestamp} with id ${userEdit.userGeneratedId} and delta ${JSON.stringify(userEdit.delta)} or deltas ${JSON.stringify(userEdit.deltas)}`);
+                        SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
+                    }
+                }
+            }, 20);
+
+
         }
 
         private openMarkdownDialog() {
@@ -534,32 +549,22 @@
         }
 
         private selectionChanged(range: RangeStatic, oldRange: RangeStatic, source: any) {
+            SocketWrapper.emitSocket(new ClientCursorUpdated({
+                ...this.myCursor,
+                selection: range
+            }), this.$socket);
+
             if (range !== null && range.length !== 0) {
                 const selection = this.editor.getFormat(range);
                 const obKeys = Object.keys(selection);
-                if (obKeys[0] === blotName) {
+                if (obKeys[0] === MarkdownLatexQuill.blotName) {
 
-                    const currentLineArray = this.editor.getLines(range);
-
-                    let elem = document.getElementsByClassName("snow-container")[0] as any;
-
-                    let distanceFromTop = 0;
-                    let distanceFromLeft = 0;
-                    if (elem.offsetParent) {
-                        do {
-                            distanceFromTop += elem.offsetTop;
-                            distanceFromLeft += elem.offsetLeft;
-                            elem = elem.offsetParent;
-                        } while (elem);
-                    }
-
-                    const selectedElem = (currentLineArray[0] as any).domNode;
                     const bounds = this.editor.getBounds(range.index, range.length);
 
-                    this.tooltipButtonStyling = {
-                        top: distanceFromTop + (bounds.top - selectedElem.scrollTop) + "px",
-                        left: distanceFromLeft + bounds.left + "px"
-                    };
+                    this.markdownTooltip.show();
+                    this.markdownTooltip.position(bounds);
+
+                    const currentLineArray = this.editor.getLines(range);
 
                     if (currentLineArray.length > 0) {
 
@@ -568,8 +573,8 @@
                         let prev = currentLineArray[0];
 
                         while (true) {
-                            if (prev.domNode.className === blotName) {
-                                if (prev.prev !== null && prev.prev.domNode.className === blotName) {
+                            if (prev.domNode.className === MarkdownLatexQuill.blotName) {
+                                if (prev.prev !== null && prev.prev.domNode.className === MarkdownLatexQuill.blotName) {
                                     prev = prev.prev;
                                 } else {
                                     break;
@@ -580,7 +585,7 @@
                         }
 
                         while (true) {
-                            if (prev !== null && prev.domNode.className === blotName) {
+                            if (prev !== null && prev.domNode.className === MarkdownLatexQuill.blotName) {
                                 newLineArray.push(prev);
                                 prev = prev.next;
                             } else {
@@ -588,15 +593,15 @@
                             }
                         }
 
-                        this.showTooltip = true;
+                        this.markdownTooltip.show();
                         this.currentlySelectedDomNodes = newLineArray;
                     }
 
                 } else {
-                    this.showTooltip = false;
+                    this.markdownTooltip.hide();
                 }
             } else {
-                this.showTooltip = false;
+                this.markdownTooltip.hide();
             }
         }
     }

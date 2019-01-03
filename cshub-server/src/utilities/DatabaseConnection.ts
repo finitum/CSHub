@@ -137,6 +137,10 @@ export class DatabaseResultSet {
         return this.insertId;
     }
 
+    public getLength(): number {
+        return this.rows.length;
+    }
+
     public getStringFromDB(name: string, index: number = 0): string {
         return DatabaseResultSet.getStringFromDB(name, this.rows[index]);
     }

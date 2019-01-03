@@ -30,17 +30,17 @@
                                     <router-link :to="item.url">{{item.name}}</router-link>
                                 </v-breadcrumbs-item>
                                 <v-breadcrumbs-item :disabled="true"> {{post.title}} </v-breadcrumbs-item>
-                                <v-btn color="green" depressed small @click="verifyPost(true)" v-if="!post.approved && userAdminComputed">
+                                <v-btn color="green" depressed small @click="verifyPost(true)" v-if="!post.online && userAdminComputed">
                                     <v-icon>fas fa-check</v-icon>
                                 </v-btn>
-                                <v-btn color="red" depressed small @click="verifyPost(false)" v-if="post.approved && userAdminComputed">
+                                <v-btn color="red" depressed small @click="verifyPost(false)" v-if="post.online && userAdminComputed">
                                     <v-icon>fas fa-times</v-icon>
                                 </v-btn>
                                 <v-btn color="orange" depressed small @click="enableEdit"
                                        v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
                                     <v-icon>fas fa-edit</v-icon>
                                 </v-btn>
-                                <v-btn v-if="editModeComputed" depressed small color="orange" @click="editPost">
+                                <v-btn v-if="editModeComputed && userAdminComputed" depressed small color="orange" @click="editPost">
                                     <v-icon>fas fa-save</v-icon>
                                 </v-btn>
                                 <v-btn depressed small color="primary" @click="viewEditDialog">
@@ -100,7 +100,7 @@
                        v-if="fullPostComputed && !loadingIcon && editModeComputed"
                        style="margin-bottom: 20px"
                        :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
-                       :initialValue="editContent"></Quill>
+                       ></Quill>
 
                 <div v-if="loadingIcon">
                     <v-progress-circular
@@ -126,11 +126,9 @@
 <script lang="ts">
 import Vue from "vue";
 import localForage from "localforage";
-import Delta from "quill-delta/dist/Delta";
 import {Watch, Component, Prop} from "vue-property-decorator";
 import {Route} from "vue-router";
 import {AxiosError} from "axios";
-import isEqual from "lodash/isEqual";
 
 import Quill from "../quill/Quill.vue";
 import PostEditsDialog from "./PostEditsDialog.vue";
@@ -144,7 +142,7 @@ import {
     GetPostContent,
     PostVersionTypes,
     VerifyPostCallBack,
-    VerifyPost, GetEditContent, GetEditContentCallback
+    VerifyPost
 } from "../../../../cshub-shared/src/api-calls";
 import {IPost, ITopic} from "../../../../cshub-shared/src/models";
 import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
@@ -152,7 +150,6 @@ import {Routes} from "../../../../cshub-shared/src/Routes";
 
 import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
 import {CacheTypes} from "../../utilities/cache-types";
-import {ImgurUpload} from "../../utilities/imgur";
 import {idGenerator} from "../../utilities/id-generator";
 
 import dataState from "../../store/data";
@@ -179,7 +176,6 @@ export default class Post extends Vue {
     private post: IPost = null;
     private topicNames: IBreadCrumbType[] = [];
     private canResize = true;
-    private editContent: Delta = new Delta();
     private showContent = true;
     private loadingIcon = false;
     private previousTopicURL = "";
@@ -280,7 +276,7 @@ export default class Post extends Vue {
     }
 
     private updated() {
-        if (this.fullPostComputed && this.post !== null && !this.editModeComputed && !this.loadingIcon) {
+        if (this.fullPostComputed && this.post !== null && !this.loadingIcon) {
             this.windowHeightChanged();
             this.highlightCode();
         }
@@ -327,7 +323,7 @@ export default class Post extends Vue {
                     element.style.maxHeight = `${newHeight}px`;
                     setTimeout(() => {
                         this.canResize = true;
-                    }, 1000);
+                    }, 250);
                 } else {
                     this.canResize = true;
                 }
@@ -363,16 +359,7 @@ export default class Post extends Vue {
     }
 
     private enableEdit() {
-        ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
-            let baseDelta = new Delta(callbackData.edits[0].content);
-            for (let i = 1; i < callbackData.edits.length; i++) {
-                baseDelta = baseDelta.compose(callbackData.edits[i].content);
-            }
-
-            this.editContent = baseDelta;
-
-            this.$router.push(`${this.currentPostURLComputed}/edit`);
-        });
+        this.$router.push(`${this.currentPostURLComputed}/edit`);
     }
 
     private getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
@@ -389,42 +376,6 @@ export default class Post extends Vue {
         } else {
             return [currTopic];
         }
-    }
-
-    private editPost() {
-        const delta: Delta = (this.$refs as any).editQuill.getDelta();
-
-        ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
-            .then((newValue: Delta) => {
-                const diff = this.editContent.diff(newValue);
-
-                if (!isEqual(diff, new Delta())) {
-                    const html: string = (this.$refs as any).editQuill.getHTML();
-
-                    logStringConsole("Editing post");
-
-                    ApiWrapper.sendPostRequest(new EditPost(this.postHash, {
-                        delta: diff,
-                        html
-                    }, this.post.title, this.activeTopicHash[0]), (callbackData: EditPostCallback) => {
-                        this.$router.push(this.currentPostURLComputed);
-                        this.getPostRequest();
-                        uiState.setNotificationDialogState({
-                            on: true,
-                            header: "Edited post",
-                            text: "Post was edited successfully"
-                        });
-                    });
-                } else {
-                    uiState.setNotificationDialogState({
-                        on: true,
-                        header: "Not edited",
-                        text: "You have not edited content"
-                    });
-                }
-
-
-            });
     }
 
     private getPostRequest() {
@@ -478,13 +429,13 @@ export default class Post extends Vue {
                 this.post = callbackContent.postUpdated;
                 this.activeTopicHash = [callbackContent.postUpdated.topicHash];
                 this.post.htmlContent = callbackContent.content.html;
-                this.post.approved = callbackContent.content.approved;
+                this.post.online = callbackContent.content.approved;
                 hasBeenUpdated = true;
             } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
                 this.post = cachedValue;
                 this.activeTopicHash = [cachedValue.topicHash];
                 this.post.htmlContent = callbackContent.content.html;
-                this.post.approved = callbackContent.content.approved;
+                this.post.online = callbackContent.content.approved;
                 hasBeenUpdated = true;
             } else if (callbackContent.postVersionType === PostVersionTypes.NOCHANGE) {
                 this.post = cachedValue;
@@ -530,6 +481,22 @@ export default class Post extends Vue {
 
             this.$router.push(this.currentPostURLComputed);
         }
+    }
+
+    private editPost() {
+        logStringConsole("Editing post");
+        ApiWrapper.sendPostRequest(new EditPost(
+            this.postHash,
+            this.post.title,
+            this.activeTopicHash[0]), (callbackData: EditPostCallback) => {
+            this.$router.push(this.currentPostURLComputed);
+            this.getPostRequest();
+            uiState.setNotificationDialogState({
+                on: true,
+                header: "Edited post",
+                text: "Post was edited successfully"
+            });
+        });
     }
 }
 </script>

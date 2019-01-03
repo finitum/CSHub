@@ -1,5 +1,5 @@
 import {IApiRequest} from "../../models/IApiRequest";
-import {NonAuthRequests} from "../NonAuthRequests";
+import {Requests} from "../Requests";
 
 export class GetSearchPostsCallback {
 
@@ -8,7 +8,7 @@ export class GetSearchPostsCallback {
 
 export class GetSearchPosts implements IApiRequest {
 
-    public static getURL: string = NonAuthRequests.SEARCH;
+    public static getURL: string = Requests.SEARCH;
     public URL: string = GetSearchPosts.getURL;
 
     constructor(

@@ -1,7 +1,7 @@
 import {IApiRequest} from "../../models/IApiRequest";
 import {IUser} from "../../models/IUser";
 
-import {NonAuthRequests} from "../NonAuthRequests";
+import {Requests} from "../Requests";
 
 export enum VerifyUserTokenResponseTypes {
     VALID,
@@ -18,6 +18,6 @@ export class VerifyUserTokenCallback {
 
 export class VerifyUserToken implements IApiRequest {
 
-    public static getURL: string = NonAuthRequests.VERIFYTOKEN;
+    public static getURL: string = Requests.VERIFYTOKEN;
     public URL: string = VerifyUserToken.getURL;
 }
