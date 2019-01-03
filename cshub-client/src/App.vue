@@ -143,4 +143,12 @@
     .markdown-body ul li {
         list-style-type: disc !important;
     }
+
+    html {
+        font-size: 16px !important;
+    }
+
+    strong {
+        font-weight: 800 !important;
+    }
 </style>

@@ -28,7 +28,6 @@
     import Vue from "vue";
     import {Prop, Component, Watch} from "vue-property-decorator";
 
-    import "github-markdown-css";
     import "katex/dist/katex.min.css";
 
     import uiState from "../../store/ui";
