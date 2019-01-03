@@ -80,6 +80,8 @@ export class DataList {
                     }
                 }
 
+                // TODO fix the issue in the case that retain is the last item or compose doesn't do the right thing with changing attributes
+				// See https://github.com/quilljs/quill/issues/2450
                 try {
                     const toBeSavedEdit = queue.dbComposedDelta.diff(queue.currComposedDelta);
 
