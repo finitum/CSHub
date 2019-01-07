@@ -23,120 +23,114 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
     const inputsValidation = validateMultipleInputs({input: editPostRequest.postHash}, {input: editPostRequest.postTitle}, {input: editPostRequest.postTopicHash});
 
     if (inputsValidation.valid && userObj.valid) {
-        hasAccessToPost(editPostRequest.postHash, req.cookies["token"])
-            .then((approved: postAccessType) => {
-                if (approved.access) {
-                    const userIsAdmin = userObj.tokenObj.user.admin;
 
-                    if (userIsAdmin) {
-                        return query(`
-                          UPDATE posts
-                          SET title       = ?,
-                              topic       = (SELECT id
-                                             FROM topics
-                                             WHERE hash = ?),
-                              postVersion = postVersion + 1
-                          WHERE id = (SELECT id FROM posts WHERE hash = ?)
-                        `, editPostRequest.postTitle, editPostRequest.postTopicHash, editPostRequest.postHash)
-                            .then(() => {
-                                return query(`
-                                  SELECT content, approved
-                                  FROM edits
-                                  WHERE post = (
-                                    SELECT id
-                                    FROM posts
-                                    WHERE hash = ?
-                                  )
-                                  ORDER BY datetime ASC
-                                `, editPostRequest.postHash)
-                            })
-                            .then((edits: DatabaseResultSet) => {
-                                const rows = edits.convertRowsToResultObjects();
-                                const lastRow = rows[rows.length - 1];
-                                if (lastRow.getNumberFromDB("approved") !== 0) {
-                                    res.json(new EditPostCallback(EditPostReturnTypes.NOTHINGTOUPDATE));
-                                } else {
-                                    res.json(new EditPostCallback(EditPostReturnTypes.SUCCESS));
+        const userIsAdmin = userObj.tokenObj.user.admin;
 
-                                    let delta = new Delta(JSON.parse(rows[0].getStringFromDB("content")));
-
-                                    for (let i = 1; i < rows.length; i++) {
-                                        const currRow = rows[i];
-                                        delta = delta.compose(new Delta(JSON.parse(currRow.getStringFromDB("content"))));
-                                    }
-
-                                    const jsdom = new JSDOM(`
-                                        <!DOCTYPE html>
-                                        <head>
-                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.7.22/MutationObserver.js"></script>
-                                            <script src="https://unpkg.com/highlight.js@9.12.0/lib/highlight.js"></script>
-                                            <script src="https://unpkg.com/quill@2.0.0-dev.3/dist/quill.min.js"></script>
-                                            <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
-                                        </head>
-                                        <body><div id="editor-container"></div></body>`, {
-                                        runScripts: "dangerously",
-                                        resources: "usable"
-                                    });
-
-                                    const window = jsdom.window;
-
-                                    window.onload = () => {
-                                        const document = window.document;
-                                        const container = document.getElementById("editor-container");
-
-                                        // @ts-ignore
-                                        document.getSelection = function () {
-                                            return {
-                                                getRangeAt: function () {
-                                                }
-                                            };
-                                        };
-                                        // @ts-ignore
-                                        const quillWindow = window.Quill;
-
-                                        const options = QuillDefaultOptions;
-                                        delete options.modules.cursors;
-                                        delete options.modules.resize;
-
-                                        const quill = new quillWindow(container, options);
-                                        const markdownParser = new MarkdownLatexQuill(quillWindow);
-                                        markdownParser.registerQuill();
-                                        quill.setContents(delta);
-
-                                        DataUpdatedHandler.postHistoryHandler.updateDbDelta(editPostRequest.postHash, delta);
-
-                                        query(`
-                                          UPDATE edits
-                                          SET approved    = 1,
-                                              approvedBy  = ?,
-                                              htmlContent = ?
-                                          WHERE post = (
-                                            SELECT id
-                                            FROM posts
-                                            WHERE hash = ?
-                                          )
-                                            AND approved = 0
-                                          ORDER BY datetime DESC
-                                          LIMIT 1
-                                        `, userObj.tokenObj.user.id, getHTML(quill, document, window), editPostRequest.postHash)
-                                    };
-
-                                }
-                            })
-                            .catch(err => {
-                                logger.error(`Editing failed`);
-                                logger.error(err);
-                                res.status(500).send();
-                            });
+        if (userIsAdmin) {
+            return query(`
+              UPDATE posts
+              SET title       = ?,
+                  topic       = (SELECT id
+                                 FROM topics
+                                 WHERE hash = ?),
+                  postVersion = postVersion + 1,
+                  online = 1
+              WHERE id = (SELECT id FROM posts WHERE hash = ?)
+            `, editPostRequest.postTitle, editPostRequest.postTopicHash, editPostRequest.postHash)
+                .then(() => {
+                    return query(`
+                      SELECT content, approved
+                      FROM edits
+                      WHERE post = (
+                        SELECT id
+                        FROM posts
+                        WHERE hash = ?
+                      )
+                      ORDER BY datetime ASC
+                    `, editPostRequest.postHash)
+                })
+                .then((edits: DatabaseResultSet) => {
+                    const rows = edits.convertRowsToResultObjects();
+                    const lastRow = rows[rows.length - 1];
+                    if (lastRow.getNumberFromDB("approved") !== 0) {
+                        res.json(new EditPostCallback(EditPostReturnTypes.NOTHINGTOUPDATE));
                     } else {
-                        res.status(401).send();
-                    }
-                }
-            });
-    } else {
-        res.status(401).send();
-    }
+                        res.json(new EditPostCallback(EditPostReturnTypes.SUCCESS));
 
+                        let delta = new Delta(JSON.parse(rows[0].getStringFromDB("content")));
+
+                        for (let i = 1; i < rows.length; i++) {
+                            const currRow = rows[i];
+                            delta = delta.compose(new Delta(JSON.parse(currRow.getStringFromDB("content"))));
+                        }
+
+                        const jsdom = new JSDOM(`
+                            <!DOCTYPE html>
+                            <head>
+                                <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.7.22/MutationObserver.js"></script>
+                                <script src="https://unpkg.com/highlight.js@9.12.0/lib/highlight.js"></script>
+                                <script src="https://unpkg.com/quill@2.0.0-dev.3/dist/quill.min.js"></script>
+                                <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
+                            </head>
+                            <body><div id="editor-container"></div></body>`, {
+                            runScripts: "dangerously",
+                            resources: "usable"
+                        });
+
+                        const window = jsdom.window;
+
+                        window.onload = () => {
+                            const document = window.document;
+                            const container = document.getElementById("editor-container");
+
+                            // @ts-ignore
+                            document.getSelection = function () {
+                                return {
+                                    getRangeAt: function () {
+                                    }
+                                };
+                            };
+                            // @ts-ignore
+                            const quillWindow = window.Quill;
+
+                            const options = QuillDefaultOptions;
+                            delete options.modules.cursors;
+                            delete options.modules.resize;
+
+                            const quill = new quillWindow(container, options);
+                            const markdownParser = new MarkdownLatexQuill(quillWindow);
+                            markdownParser.registerQuill();
+                            quill.setContents(delta);
+
+                            DataUpdatedHandler.postHistoryHandler.updateDbDelta(editPostRequest.postHash, delta);
+
+                            query(`
+                              UPDATE edits
+                              SET approved    = 1,
+                                  approvedBy  = ?,
+                                  htmlContent = ?
+                              WHERE post = (
+                                SELECT id
+                                FROM posts
+                                WHERE hash = ?
+                              )
+                                AND approved = 0
+                              ORDER BY datetime DESC
+                              LIMIT 1
+                            `, userObj.tokenObj.user.id, getHTML(quill, document, window), editPostRequest.postHash)
+                        };
+
+                    }
+                })
+                .catch(err => {
+                    logger.error(`Editing failed`);
+                    logger.error(err);
+                    res.status(500).send();
+                });
+        } else {
+            res.status(401).send();
+        }
+    }
 });
 
 const getHTML = (quillEditor: any, document: Document, window: Window) => {

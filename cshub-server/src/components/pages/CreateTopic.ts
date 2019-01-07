@@ -63,7 +63,7 @@ app.post(CreateTopic.getURL, (req: Request, res: Response) => {
                                 return query(`
                                     UPDATE cacheversion
                                     SET version = version + 1
-                                    WHERE type = "TOPICS"
+                                    WHERE type = 'TOPICS'
                                 `)
                             })
                             .then(() => {

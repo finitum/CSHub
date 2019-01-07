@@ -23,7 +23,7 @@ export const hasAccessToPost = (postHash: number, jwt: string): Promise<postAcce
         return new Promise((resolve, reject) => { resolve({access: true, isOwner: true}); });
     } else {
         return query(`
-            SELECT approved, author
+            SELECT online, author
             FROM posts
             WHERE hash = ?
         `, postHash)
@@ -31,7 +31,7 @@ export const hasAccessToPost = (postHash: number, jwt: string): Promise<postAcce
                 if (tokenResult !== undefined && tokenResult.user.id === databaseResult.getNumberFromDB("author")) {
                     return {access: true, isOwner: true};
                 }
-                return {access: databaseResult.getNumberFromDB("approved") !== 0, isOwner: false};
+                return {access: databaseResult.getNumberFromDB("online") !== 0, isOwner: false};
             });
     }
 };

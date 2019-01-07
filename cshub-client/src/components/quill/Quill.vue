@@ -221,7 +221,7 @@
     import {Routes} from "../../../../cshub-shared/src/Routes";
     import userState from "../../store/user";
     import {getRandomNumberLarge} from "../../../../cshub-shared/src/utilities/Random";
-    import {transformFromArray} from "../../../../cshub-shared/src/utilities/Transform";
+    import {transformFromArray} from "../../../../cshub-shared/src/utilities/DeltaHandler";
     import {CustomTooltip} from "./CustomTooltip";
 
     (window as any).Quill = Quill;

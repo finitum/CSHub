@@ -12,6 +12,7 @@ import {logger} from "../../../index";
 import {io} from "./socket-receiver";
 import {validateAccessToken} from "../../../auth/JWTHandler";
 import {getRandomNumberLarge} from "../../../../../cshub-shared/src/utilities/Random";
+import {createDeltaObject} from "../../../../../cshub-shared/src/utilities/DeltaHandler";
 
 type deltaReturnType = {
     fullDelta: Delta,
@@ -59,10 +60,12 @@ export class DataUpdatedHandler {
                 delta: operationalDelta
             }
         } else {
+            const delta: Delta = createDeltaObject(edit);
+
             serverEdit = {
                 ...serverEdit,
-                delta: edit.delta
-            }
+                delta
+            };
         }
 
         const roomId = `POST_${edit.postHash}`;
@@ -108,14 +111,30 @@ export class DataUpdatedHandler {
                     }
                 }
 
-                if (oldDelta === null) {
+                if (oldDelta === null && fullDelta !== null) {
                     oldDelta = fullDelta.slice();
+                }
+
+                if (oldDelta === null) {
+                    oldDelta = new Delta();
+                }
+
+                if (fullDelta === null) {
+                    fullDelta = new Delta();
+                }
+
+                let latestTime: Dayjs;
+
+                if (dbEdits.length === 0) {
+                    latestTime = null;
+                } else {
+                    latestTime = dbEdits[dbEdits.length - 1].datetime;
                 }
 
                 const returnedValue: deltaReturnType = {
                     fullDelta,
                     oldDelta,
-                    latestTime: dbEdits[dbEdits.length - 1].datetime
+                    latestTime
                 };
 
                 return returnedValue;

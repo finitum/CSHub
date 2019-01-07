@@ -22,7 +22,7 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
             minlength: 4,
             maxlength: 50
         }
-    }, {input: JSON.stringify(submitPostRequest.postBody)}, {input: submitPostRequest.postTopicHash});
+    }, {input: submitPostRequest.postTopicHash});
 
     if (inputsValidation.valid && userObj.valid) {
         const topics = getTopicTree();
@@ -55,19 +55,8 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
                                       title  = ?,
                                       hash   = ?
                                 `, requestTopic.id, userObj.tokenObj.user.id, submitPostRequest.postTitle, topicHash)
-                                    .then((insertResult: DatabaseResultSet) => {
-                                        return query(`
-                                          INSERT INTO edits
-                                          SET post     = ?,
-                                              content  = ?,
-                                              approvedBy = ?,
-                                              htmlContent = ?,
-                                              approved = 1
-                                        `, insertResult.getInsertId(), JSON.stringify(submitPostRequest.postBody), userObj.tokenObj.user.id, submitPostRequest.postHTML);
-                                    })
                                     .then((insertEdit: DatabaseResultSet) => {
                                         res.json(new CreatePostCallback(SubmitPostResponse.SUCCESS, topicHash));
-
                                     })
                                     .catch((err) => {
                                         logger.error(`Inserting into db failed`);

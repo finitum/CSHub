@@ -1,3 +1,3 @@
 export const getRandomNumberLarge = () => {
-    return Math.floor(Math.random() * (9999999999 - 1000000001)) + 1000000000;
+    return Math.floor(Math.random() * (999999999 - 100000001)) + 100000000;
 };

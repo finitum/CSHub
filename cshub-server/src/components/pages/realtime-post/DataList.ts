@@ -1,7 +1,7 @@
 import {IRealtimeEdit} from "../../../../../cshub-shared/src/api-calls/realtime-edit";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import Delta = require("quill-delta/dist/Delta");
-import {transformFromArray} from "../../../../../cshub-shared/src/utilities/Transform";
+import {transformFromArray} from "../../../../../cshub-shared/src/utilities/DeltaHandler";
 import async, {AsyncFunction} from "async";
 import {logger} from "../../../index";
 import {DataUpdatedHandler} from "./DataUpdatedHandler";
@@ -70,18 +70,21 @@ export class DataList {
         new Promise(resolve => resolve())
             .then(() => {
 
+                const op = queue.currComposedDelta.ops[queue.currComposedDelta.ops.length - 1];
+                if (typeof op !== "undefined" && op.insert !== "\n") {
+                    queue.currComposedDelta.ops.push({insert: "\n"});
+                }
+
                 const diff = queue.currComposedDelta.diff(queue.dbComposedDelta);
 
-                if (currRecord.delta !== null && typeof currRecord.delta !== "undefined") {
+                if (currRecord.delta !== null && typeof currRecord.delta !== "undefined" && currRecord.delta.ops.length > 0) {
                     queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(currRecord.delta));
-                } else if (currRecord.deltas !== null && typeof currRecord.deltas !== "undefined") {
+                } else if (currRecord.deltas !== null && typeof currRecord.deltas !== "undefined" && currRecord.deltas[0].ops.length > 0) {
                     for (const delta of currRecord.deltas) {
                         queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(delta));
                     }
                 }
 
-                // TODO fix the issue in the case that retain is the last item or compose doesn't do the right thing with changing attributes
-				// See https://github.com/quilljs/quill/issues/2450
                 try {
                     const toBeSavedEdit = queue.dbComposedDelta.diff(queue.currComposedDelta);
 

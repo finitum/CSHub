@@ -30,11 +30,8 @@
                                     <router-link :to="item.url">{{item.name}}</router-link>
                                 </v-breadcrumbs-item>
                                 <v-breadcrumbs-item :disabled="true"> {{post.title}} </v-breadcrumbs-item>
-                                <v-btn color="green" depressed small @click="verifyPost(true)" v-if="!post.online && userAdminComputed">
-                                    <v-icon>fas fa-check</v-icon>
-                                </v-btn>
-                                <v-btn color="red" depressed small @click="verifyPost(false)" v-if="post.online && userAdminComputed">
-                                    <v-icon>fas fa-times</v-icon>
+                                <v-btn color="red" depressed small @click="hidePost()" v-if="post.online && userAdminComputed">
+                                    <v-icon>fas fa-trash</v-icon>
                                 </v-btn>
                                 <v-btn color="orange" depressed small @click="enableEdit"
                                        v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
@@ -141,8 +138,8 @@ import {
     GetPostContentCallBack,
     GetPostContent,
     PostVersionTypes,
-    VerifyPostCallBack,
-    VerifyPost
+    HidePostCallBack,
+    HidePost
 } from "../../../../cshub-shared/src/api-calls";
 import {IPost, ITopic} from "../../../../cshub-shared/src/models";
 import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
@@ -333,8 +330,8 @@ export default class Post extends Vue {
         }
     }
 
-    private verifyPost(type: boolean) {
-        ApiWrapper.sendPostRequest(new VerifyPost(this.postHash, type), (callback: VerifyPostCallBack) => {
+    private hidePost() {
+        ApiWrapper.sendPostRequest(new HidePost(this.postHash), (callback: HidePostCallBack) => {
             logStringConsole("Verified post");
             this.$router.push(Routes.INDEX);
         });
@@ -456,7 +453,9 @@ export default class Post extends Vue {
             clearTimeout(timeOut);
             this.loadingIcon = false;
 
-            this.post.htmlContent = cachedValue.htmlContent;
+            if (cachedValue !== null && this.post !== null) {
+                this.post.htmlContent = cachedValue.htmlContent;
+            }
             this.$forceUpdate();
         });
     }

@@ -24,8 +24,6 @@ export class CreatePost implements IApiRequest {
 
     constructor(
         public postTitle: string,
-        public postBody: Delta,
-        public postHTML: string,
         public postTopicHash: number
     ) {}
 }

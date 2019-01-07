@@ -11,7 +11,6 @@ import cookieParser from "cookie-parser";
 import {customValidator, validateMultipleInputs} from "../../../utilities/StringUtils";
 import {hasAccessToPost, postAccessType} from "../../../auth/validateRights/PostAccess";
 import {CursorUpdatedHandler} from "./CursorUpdatedHandler";
-import {type} from "os";
 
 export const io = socket(server);
 
@@ -43,8 +42,6 @@ io.on("connection", (socketConn: Socket) => {
         const inputsValidation = customValidator({
             input: togglePost.postHash
         });
-
-        // TODO write middleware for the auth instead of this :)
 
         if (inputsValidation.valid) {
             hasAccessToPost(togglePost.postHash, socketConn.request.cookies["token"])

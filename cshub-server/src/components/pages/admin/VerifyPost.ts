@@ -2,46 +2,22 @@ import {app} from "../../../";
 import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
-import {VerifyPostCallBack, VerifyPost} from "../../../../../cshub-shared/src/api-calls";
+import {HidePostCallBack, HidePost} from "../../../../../cshub-shared/src/api-calls";
 
-app.post(VerifyPost.getURL, (req: Request, res: Response) => {
+app.post(HidePost.getURL, (req: Request, res: Response) => {
 
-    const verifyPostRequest = req.body as VerifyPost;
+    const verifyPostRequest = req.body as HidePost;
 
     const token = checkTokenValidity(req);
 
     if (token.valid && token.tokenObj.user.admin) {
         query(`
           UPDATE posts
-          SET postVersion = postVersion + 1, online = 1
+          SET postVersion = postVersion + 1, online = 0
           WHERE hash = ?
-        `, verifyPostRequest.verify ? 1 : 0, token.tokenObj.user.id, verifyPostRequest.postHash)
-            .then((result: DatabaseResultSet) => {
-
-                return query(`
-                  UPDATE edits
-                  SET approved   = ?,
-                      approvedBy = ?
-                  WHERE post = (SELECT id FROM posts WHERE hash = ?)
-                `, verifyPostRequest.verify ? 1 : 0, token.tokenObj.user.id, verifyPostRequest.postHash);
-            })
+        `, verifyPostRequest.postHash)
             .then(() => {
-                if (verifyPostRequest.verify) {
-                    query(`
-                      UPDATE edits
-                      SET htmlContent = ""
-                      WHERE id IN (SELECT id
-                                   FROM edits
-                                   WHERE post = (SELECT id FROM posts WHERE hash = ?)
-                                     AND datetime < (SELECT datetime
-                                                     FROM edits
-                                                     WHERE post = (SELECT id FROM posts WHERE hash = ?)
-                                                     ORDER BY datetime DESC
-                                                     LIMIT 1))
-                    `, verifyPostRequest.postHash, verifyPostRequest.postHash);
-                }
-
-                res.json(new VerifyPostCallBack());
+                res.json(new HidePostCallBack());
             });
     } else {
         res.status(401).send();
