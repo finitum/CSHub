@@ -294,7 +294,7 @@
                         this.lastFewEdits.push(data.edit);
                         this.editor.updateContents(data.edit.delta);
                     } else {
-                        const delta = transformFromArray(this.lastFewEdits, data.edit, true);
+                        const delta = transformFromArray(this.lastFewEdits, data.edit, true, this.editor.getContents());
 
                         this.editor.updateContents(delta);
                     }

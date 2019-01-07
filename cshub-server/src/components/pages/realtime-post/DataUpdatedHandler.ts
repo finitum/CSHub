@@ -29,49 +29,51 @@ export class DataUpdatedHandler {
 
         logger.info(`RECEIVING1 edit from ${edit.timestamp} with id ${edit.userGeneratedId} and delta ${JSON.stringify(edit.delta)} or deltas ${JSON.stringify(edit.deltas)}`);
 
-        let operationalDelta: Delta = null;
+        DataUpdatedHandler.postHistoryHandler.getCurrComposedDelta(edit.postHash).then((currDelta) => {
+            let operationalDelta: Delta = null;
 
-        if (edit.prevServerGeneratedId !== previousServerId && previousServerId != -1) {
-            edit.delta = this.postHistoryHandler.transformArray(edit, false);
-        }
-
-        const serverGeneratedIdentifier = getRandomNumberLarge();
-        DataUpdatedHandler.postHistoryHandler.addPostEdit({
-            ...edit,
-            serverGeneratedId: serverGeneratedIdentifier,
-            prevServerGeneratedId: previousServerId
-        });
-
-        const userModel = validateAccessToken(currSocket.request.cookies["token"]);
-
-        let serverEdit: IRealtimeEdit = {
-            postHash: edit.postHash,
-            delta: null,
-            timestamp: dayjs(),
-            serverGeneratedId: serverGeneratedIdentifier,
-            prevServerGeneratedId: previousServerId,
-            userId: userModel.user.id,
-            userGeneratedId: edit.userGeneratedId
-        };
-
-        if (operationalDelta !== null) {
-            serverEdit = {
-                ...serverEdit,
-                delta: operationalDelta
+            if (edit.prevServerGeneratedId !== previousServerId && previousServerId != -1) {
+                edit.delta = this.postHistoryHandler.transformArray(edit, false, currDelta);
             }
-        } else {
-            const delta: Delta = createDeltaObject(edit);
 
-            serverEdit = {
-                ...serverEdit,
-                delta
+            const serverGeneratedIdentifier = getRandomNumberLarge();
+            DataUpdatedHandler.postHistoryHandler.addPostEdit({
+                ...edit,
+                serverGeneratedId: serverGeneratedIdentifier,
+                prevServerGeneratedId: previousServerId
+            });
+
+            const userModel = validateAccessToken(currSocket.request.cookies["token"]);
+
+            let serverEdit: IRealtimeEdit = {
+                postHash: edit.postHash,
+                delta: null,
+                timestamp: dayjs(),
+                serverGeneratedId: serverGeneratedIdentifier,
+                prevServerGeneratedId: previousServerId,
+                userId: userModel.user.id,
+                userGeneratedId: edit.userGeneratedId
             };
-        }
 
-        const roomId = `POST_${edit.postHash}`;
+            if (operationalDelta !== null) {
+                serverEdit = {
+                    ...serverEdit,
+                    delta: operationalDelta
+                }
+            } else {
+                const delta: Delta = createDeltaObject(edit, currDelta);
 
-        const response = new ServerDataUpdated(serverEdit);
-        io.to(roomId).emit(response.URL, response);
+                serverEdit = {
+                    ...serverEdit,
+                    delta
+                };
+            }
+
+            const roomId = `POST_${edit.postHash}`;
+
+            const response = new ServerDataUpdated(serverEdit);
+            io.to(roomId).emit(response.URL, response);
+        });
     }
 
     public static getOldAndNewDeltas(postHash: number): Promise<deltaReturnType> {

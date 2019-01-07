@@ -19,45 +19,76 @@ export class DataList {
     private readonly editQueues: { [postId: number]: queueType } = {};
 
     public addPost(postHash: number) {
-        this.editQueues[postHash] = {
-            toAdd: [],
-            fullList: [],
-            isAsyncRunning: false,
-            currComposedDelta: null,
-            dbComposedDelta: null
-        };
+
+        return DataUpdatedHandler.getOldAndNewDeltas(postHash)
+            .then((deltas) => {
+                this.editQueues[postHash] = {
+                    toAdd: [],
+                    fullList: [],
+                    isAsyncRunning: false,
+                    currComposedDelta: null,
+                    dbComposedDelta: null
+                };
+
+                this.editQueues[postHash].currComposedDelta = deltas.fullDelta;
+                this.editQueues[postHash].dbComposedDelta = deltas.oldDelta;
+            });
     }
 
-    public addPostEdit(newEdit: IRealtimeEdit) {
+    public async addPostEdit(newEdit: IRealtimeEdit) {
 
         const queue = this.getTodoQueue(newEdit.postHash);
-        queue.toAdd.push(newEdit);
-        queue.fullList.push(newEdit);
+        if (queue === null) {
+            await this.addPost(newEdit.postHash);
+            this.addPostEdit(newEdit);
+        } else {
+            queue.toAdd.push(newEdit);
+            queue.fullList.push(newEdit);
 
-        logger.info(`RECEIVING edit from ${newEdit.timestamp} with id ${newEdit.userGeneratedId} and delta ${JSON.stringify(newEdit.delta)} or deltas ${JSON.stringify(newEdit.deltas)}`);
+            logger.info(`RECEIVING edit from ${newEdit.timestamp} with id ${newEdit.userGeneratedId} and delta ${JSON.stringify(newEdit.delta)} or deltas ${JSON.stringify(newEdit.deltas)}`);
 
-        if (!queue.isAsyncRunning) {
-            queue.isAsyncRunning = true;
+            if (!queue.isAsyncRunning) {
+                queue.isAsyncRunning = true;
 
-            async.whilst(
-                () => queue.toAdd.length !== 0,
-                (next) => {
+                async.whilst(
+                    () => queue.toAdd.length !== 0,
+                    (next) => {
 
-                    const currRecord = queue.toAdd[0];
+                        const currRecord = queue.toAdd[0];
 
-                    if (queue.currComposedDelta === null) {
-                        DataUpdatedHandler.getOldAndNewDeltas(currRecord.postHash)
-                            .then((deltas) => {
-                                queue.currComposedDelta = deltas.fullDelta;
-                                queue.dbComposedDelta = deltas.oldDelta;
-                                this.handleSave(next, queue);
-                            });
-                    } else {
-                        this.handleSave(next, queue);
-                    }
-                }, () => {
-                    queue.isAsyncRunning = false;
-                });
+                        if (queue.currComposedDelta === null) {
+                            DataUpdatedHandler.getOldAndNewDeltas(currRecord.postHash)
+                                .then((deltas) => {
+                                    queue.currComposedDelta = deltas.fullDelta;
+                                    queue.dbComposedDelta = deltas.oldDelta;
+                                    this.handleSave(next, queue);
+                                });
+                        } else {
+                            this.handleSave(next, queue);
+                        }
+                    }, () => {
+                        queue.isAsyncRunning = false;
+                    });
+            }
+        }
+    }
+
+    public getCurrComposedDelta(postHash: number): Promise<Delta> {
+
+        const queue = this.getTodoQueue(postHash);
+        if (queue !== null) {
+            const currComposedDelta = queue.currComposedDelta;
+            if (currComposedDelta === null) {
+                DataUpdatedHandler.getOldAndNewDeltas(postHash)
+                    .then((deltas) => {
+                        queue.currComposedDelta = deltas.fullDelta;
+                        queue.dbComposedDelta = deltas.oldDelta;
+                        return queue.currComposedDelta;
+                    });
+            }
+            return new Promise((resolve) => resolve(currComposedDelta));
+        } else {
+            return new Promise((resolve) => resolve(new Delta()));
         }
     }
 
@@ -71,11 +102,11 @@ export class DataList {
             .then(() => {
 
                 const op = queue.currComposedDelta.ops[queue.currComposedDelta.ops.length - 1];
+                const diff = queue.currComposedDelta.diff(queue.dbComposedDelta);
+
                 if (typeof op !== "undefined" && op.insert !== "\n") {
                     queue.currComposedDelta.ops.push({insert: "\n"});
                 }
-
-                const diff = queue.currComposedDelta.diff(queue.dbComposedDelta);
 
                 if (currRecord.delta !== null && typeof currRecord.delta !== "undefined" && currRecord.delta.ops.length > 0) {
                     queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(currRecord.delta));
@@ -106,10 +137,10 @@ export class DataList {
                           UPDATE edits
                             INNER JOIN posts ON edits.post = posts.id
                           SET edits.content = ?
-                          WHERE edits.approved = 0
+                          WHERE edits.approved = 0 AND posts.hash = ?
                           ORDER BY edits.datetime DESC
                           LIMIT 1
-                        `, JSON.stringify(toBeSavedEdit))
+                        `, JSON.stringify(toBeSavedEdit), currRecord.postHash)
                     }
                 } catch (e) {
                     logger.error("Error with saving realtime edit");
@@ -130,10 +161,10 @@ export class DataList {
         this.getTodoQueue(postHash).dbComposedDelta = newDelta;
     }
 
-    public transformArray(newEdit: IRealtimeEdit, newEditHasPriority: boolean): Delta {
+    public transformArray(newEdit: IRealtimeEdit, newEditHasPriority: boolean, currDelta: Delta): Delta {
         const editQueue = this.getEditQueue(newEdit.postHash);
         if (editQueue.length > 0) {
-            return transformFromArray(editQueue, newEdit, newEditHasPriority);
+            return transformFromArray(editQueue, newEdit, newEditHasPriority, currDelta);
         } else {
             return new Delta();
         }

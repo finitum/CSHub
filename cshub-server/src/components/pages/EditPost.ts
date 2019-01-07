@@ -5,7 +5,6 @@ import {app, logger} from "../../";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import {EditPost, EditPostCallback, EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages/EditPost";
-import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {JSDOM} from "jsdom";
 import Delta from "quill-delta/dist/Delta";
