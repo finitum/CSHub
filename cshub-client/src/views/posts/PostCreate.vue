@@ -16,8 +16,7 @@
                             </v-flex>
                             <v-flex class="text-xs-right">
                                 <v-btn depressed large color="primary" @click="submitPost">
-                                    <span v-if="!showCloseIcon">Submit</span>
-                                    <v-icon v-if="showCloseIcon">fas fa-times</v-icon>
+                                    <span>Submit</span>
                                 </v-btn>
                             </v-flex>
                         </v-layout>

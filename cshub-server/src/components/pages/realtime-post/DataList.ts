@@ -1,5 +1,5 @@
 import {IRealtimeEdit} from "../../../../../cshub-shared/src/api-calls/realtime-edit";
-import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
+import {query} from "../../../utilities/DatabaseConnection";
 import Delta = require("quill-delta/dist/Delta");
 import {transformFromArray} from "../../../../../cshub-shared/src/utilities/DeltaHandler";
 import async, {AsyncFunction} from "async";
@@ -45,7 +45,7 @@ export class DataList {
             queue.toAdd.push(newEdit);
             queue.fullList.push(newEdit);
 
-            logger.info(`RECEIVING edit from ${newEdit.timestamp} with id ${newEdit.userGeneratedId} and delta ${JSON.stringify(newEdit.delta)} or deltas ${JSON.stringify(newEdit.deltas)}`);
+            logger.info(`RECEIVING edit from ${newEdit.timestamp} with id ${newEdit.userGeneratedId} and delta ${JSON.stringify(newEdit.delta)}`);
 
             if (!queue.isAsyncRunning) {
                 queue.isAsyncRunning = true;
@@ -73,30 +73,11 @@ export class DataList {
         }
     }
 
-    public getCurrComposedDelta(postHash: number): Promise<Delta> {
-
-        const queue = this.getTodoQueue(postHash);
-        if (queue !== null) {
-            const currComposedDelta = queue.currComposedDelta;
-            if (currComposedDelta === null) {
-                DataUpdatedHandler.getOldAndNewDeltas(postHash)
-                    .then((deltas) => {
-                        queue.currComposedDelta = deltas.fullDelta;
-                        queue.dbComposedDelta = deltas.oldDelta;
-                        return queue.currComposedDelta;
-                    });
-            }
-            return new Promise((resolve) => resolve(currComposedDelta));
-        } else {
-            return new Promise((resolve) => resolve(new Delta()));
-        }
-    }
-
     private handleSave(next: () => void, queue: queueType): void {
 
         const currRecord = queue.toAdd[0];
 
-        logger.info(`STARTING inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId} and delta ${JSON.stringify(currRecord.delta)} or deltas ${JSON.stringify(currRecord.deltas)}`);
+        logger.info(`STARTING inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId} and delta ${JSON.stringify(currRecord.delta)}`);
 
         new Promise(resolve => resolve())
             .then(() => {
@@ -108,13 +89,7 @@ export class DataList {
                     queue.currComposedDelta.ops.push({insert: "\n"});
                 }
 
-                if (currRecord.delta !== null && typeof currRecord.delta !== "undefined" && currRecord.delta.ops.length > 0) {
-                    queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(currRecord.delta));
-                } else if (currRecord.deltas !== null && typeof currRecord.deltas !== "undefined" && currRecord.deltas[0].ops.length > 0) {
-                    for (const delta of currRecord.deltas) {
-                        queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(delta));
-                    }
-                }
+                queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(currRecord.delta));
 
                 try {
                     const toBeSavedEdit = queue.dbComposedDelta.diff(queue.currComposedDelta);
@@ -152,7 +127,7 @@ export class DataList {
             })
             .then(() => {
                 queue.toAdd.shift();
-                logger.info(`DONE inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId} and delta ${JSON.stringify(currRecord.delta)} or deltas ${JSON.stringify(currRecord.deltas)}`);
+                logger.info(`DONE inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId} and delta ${JSON.stringify(currRecord.delta)}`);
                 next();
             });
     }
@@ -161,10 +136,10 @@ export class DataList {
         this.getTodoQueue(postHash).dbComposedDelta = newDelta;
     }
 
-    public transformArray(newEdit: IRealtimeEdit, newEditHasPriority: boolean, currDelta: Delta): Delta {
+    public transformArray(newEdit: IRealtimeEdit, newEditHasPriority: boolean): Delta {
         const editQueue = this.getEditQueue(newEdit.postHash);
         if (editQueue.length > 0) {
-            return transformFromArray(editQueue, newEdit, newEditHasPriority, currDelta);
+            return transformFromArray(editQueue, newEdit, newEditHasPriority);
         } else {
             return new Delta();
         }

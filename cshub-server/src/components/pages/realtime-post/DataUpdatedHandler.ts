@@ -12,7 +12,6 @@ import {logger} from "../../../index";
 import {io} from "./socket-receiver";
 import {validateAccessToken} from "../../../auth/JWTHandler";
 import {getRandomNumberLarge} from "../../../../../cshub-shared/src/utilities/Random";
-import {createDeltaObject} from "../../../../../cshub-shared/src/utilities/DeltaHandler";
 
 type deltaReturnType = {
     fullDelta: Delta,
@@ -27,53 +26,35 @@ export class DataUpdatedHandler {
     public static applyNewEdit(edit: IRealtimeEdit, currSocket: Socket): void {
         const previousServerId = this.postHistoryHandler.getPreviousServerID(edit.postHash);
 
-        logger.info(`RECEIVING1 edit from ${edit.timestamp} with id ${edit.userGeneratedId} and delta ${JSON.stringify(edit.delta)} or deltas ${JSON.stringify(edit.deltas)}`);
+        logger.info(`RECEIVING1 edit from ${edit.timestamp} with id ${edit.userGeneratedId} and delta ${JSON.stringify(edit.delta)}`);
 
-        DataUpdatedHandler.postHistoryHandler.getCurrComposedDelta(edit.postHash).then((currDelta) => {
-            let operationalDelta: Delta = null;
+        if (edit.prevServerGeneratedId !== previousServerId && previousServerId != -1) {
+            edit.delta = this.postHistoryHandler.transformArray(edit, false);
+        }
 
-            if (edit.prevServerGeneratedId !== previousServerId && previousServerId != -1) {
-                edit.delta = this.postHistoryHandler.transformArray(edit, false, currDelta);
-            }
-
-            const serverGeneratedIdentifier = getRandomNumberLarge();
-            DataUpdatedHandler.postHistoryHandler.addPostEdit({
-                ...edit,
-                serverGeneratedId: serverGeneratedIdentifier,
-                prevServerGeneratedId: previousServerId
-            });
-
-            const userModel = validateAccessToken(currSocket.request.cookies["token"]);
-
-            let serverEdit: IRealtimeEdit = {
-                postHash: edit.postHash,
-                delta: null,
-                timestamp: dayjs(),
-                serverGeneratedId: serverGeneratedIdentifier,
-                prevServerGeneratedId: previousServerId,
-                userId: userModel.user.id,
-                userGeneratedId: edit.userGeneratedId
-            };
-
-            if (operationalDelta !== null) {
-                serverEdit = {
-                    ...serverEdit,
-                    delta: operationalDelta
-                }
-            } else {
-                const delta: Delta = createDeltaObject(edit, currDelta);
-
-                serverEdit = {
-                    ...serverEdit,
-                    delta
-                };
-            }
-
-            const roomId = `POST_${edit.postHash}`;
-
-            const response = new ServerDataUpdated(serverEdit);
-            io.to(roomId).emit(response.URL, response);
+        const serverGeneratedIdentifier = getRandomNumberLarge();
+        DataUpdatedHandler.postHistoryHandler.addPostEdit({
+            ...edit,
+            serverGeneratedId: serverGeneratedIdentifier,
+            prevServerGeneratedId: previousServerId
         });
+
+        const userModel = validateAccessToken(currSocket.request.cookies["token"]);
+
+        let serverEdit: IRealtimeEdit = {
+            postHash: edit.postHash,
+            delta: edit.delta,
+            timestamp: dayjs(),
+            serverGeneratedId: serverGeneratedIdentifier,
+            prevServerGeneratedId: previousServerId,
+            userId: userModel.user.id,
+            userGeneratedId: edit.userGeneratedId
+        };
+
+        const roomId = `POST_${edit.postHash}`;
+
+        const response = new ServerDataUpdated(serverEdit);
+        io.to(roomId).emit(response.URL, response);
     }
 
     public static getOldAndNewDeltas(postHash: number): Promise<deltaReturnType> {
@@ -157,7 +138,7 @@ export class DataUpdatedHandler {
                     postHash,
                     delta: deltas.fullDelta,
                     timestamp: deltas.latestTime,
-                    serverGeneratedId: null,
+                    serverGeneratedId: -1,
                     prevServerGeneratedId: null,
                     userGeneratedId: null
                 };

@@ -10,5 +10,4 @@ export interface IRealtimeEdit {
     serverGeneratedId?: number;
     userId?: number;
     userGeneratedId: number;
-    deltas?: Delta[];
 }

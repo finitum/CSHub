@@ -186,10 +186,6 @@
     import katex from "katex";
     import "katex/dist/katex.min.css";
 
-    // @ts-ignore
-    import mk from "markdown-it-katex";
-    import MarkdownIt from "markdown-it";
-
     import QuillCursors from "../../plugins/cursor/cursors.min.js";
     import "../../plugins/cursor/cursors.min.css";
 
@@ -294,7 +290,7 @@
                         this.lastFewEdits.push(data.edit);
                         this.editor.updateContents(data.edit.delta);
                     } else {
-                        const delta = transformFromArray(this.lastFewEdits, data.edit, true, this.editor.getContents());
+                        const delta = transformFromArray(this.lastFewEdits, data.edit, true);
 
                         this.editor.updateContents(delta);
                     }
@@ -340,7 +336,7 @@
                             serverGeneratedId: serverData.serverGeneratedId,
                             userGeneratedId: serverData.userGeneratedId
                         });
-
+                        
                         this.initialValue = serverData.delta;
 
                         (window as any).katex = katex;
@@ -515,9 +511,15 @@
             this.socketTypingTimeout = setTimeout(() => {
                 if (this.editor !== null) {
                     if (source === "user") {
+
+                        let edit = new Delta();
+                        for (const currentEdit of this.currentEdits) {
+                            edit = edit.compose(currentEdit);
+                        }
+
                         const userEdit: IRealtimeEdit = {
                             postHash: this.editorSetup.postHash,
-                            deltas: this.currentEdits,
+                            delta: edit,
                             timestamp: dayjs(),
                             prevServerGeneratedId: this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId,
                             userGeneratedId: getRandomNumberLarge()
@@ -525,7 +527,7 @@
 
                         this.lastFewEdits.push(userEdit);
                         this.currentEdits = [];
-                        logStringConsole(`SENDING edit from ${userEdit.timestamp} with id ${userEdit.userGeneratedId} and delta ${JSON.stringify(userEdit.delta)} or deltas ${JSON.stringify(userEdit.deltas)}`);
+                        logStringConsole(`SENDING edit from ${userEdit.timestamp} with id ${userEdit.userGeneratedId} and delta ${JSON.stringify(userEdit.delta)}`);
                         SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
                     }
                 }
