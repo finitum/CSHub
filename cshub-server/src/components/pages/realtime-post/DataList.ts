@@ -82,16 +82,16 @@ export class DataList {
         new Promise(resolve => resolve())
             .then(() => {
 
-                const op = queue.currComposedDelta.ops[queue.currComposedDelta.ops.length - 1];
-                const diff = queue.currComposedDelta.diff(queue.dbComposedDelta);
-
-                if (typeof op !== "undefined" && op.insert !== "\n") {
-                    queue.currComposedDelta.ops.push({insert: "\n"});
-                }
-
-                queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(currRecord.delta));
-
                 try {
+                    const op = queue.currComposedDelta.ops[queue.currComposedDelta.ops.length - 1];
+                    const diff = queue.currComposedDelta.diff(queue.dbComposedDelta);
+
+                    if (typeof op !== "undefined" && !(op.insert === "\n" || op.insert.toString().endsWith("\n"))) {
+                        queue.currComposedDelta.ops.push({insert: "\n"});
+                    }
+
+                    queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(currRecord.delta));
+
                     const toBeSavedEdit = queue.dbComposedDelta.diff(queue.currComposedDelta);
 
                     logger.info(`ONGOING inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId} and diff ${JSON.stringify(toBeSavedEdit)}`);

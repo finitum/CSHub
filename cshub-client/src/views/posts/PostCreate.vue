@@ -85,14 +85,12 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import Delta from "quill-delta/dist/Delta";
     import {Component, Watch} from "vue-property-decorator";
 
     import Quill from "../../components/quill/Quill.vue";
 
     import dataState from "../../store/data";
 
-    import {ImgurUpload} from "../../utilities/imgur";
     import {ApiWrapper} from "../../utilities";
 
     import {

@@ -367,7 +367,6 @@
 
                 }), this.$socket);
 
-
         }
 
         private beforeDestroy() {
@@ -531,7 +530,7 @@
                         SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
                     }
                 }
-            }, 20);
+            }, 50);
 
 
         }

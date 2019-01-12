@@ -134,11 +134,13 @@ export class DataUpdatedHandler {
         return this.getOldAndNewDeltas(postHash)
             .then((deltas: deltaReturnType) => {
 
+                const prevEdit = this.postHistoryHandler.getPreviousServerID(postHash);
+
                 const returnedValue: IRealtimeEdit = {
                     postHash,
                     delta: deltas.fullDelta,
                     timestamp: deltas.latestTime,
-                    serverGeneratedId: -1,
+                    serverGeneratedId: prevEdit,
                     prevServerGeneratedId: null,
                     userGeneratedId: null
                 };
