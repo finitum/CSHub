@@ -10,7 +10,7 @@ import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAcc
 import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/src/api-calls";
 
 import dayjs from "dayjs";
-import {IEdit} from "../../../../cshub-shared/src/models";
+import {IEdit, IUserCensored} from "../../../../cshub-shared/src/models";
 
 app.post(GetEditContent.getURL, (req: Request, res: Response) => {
 
@@ -36,7 +36,8 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                              T3.admin     AS authorAdmin
                       FROM edits T1
                              INNER JOIN posts T2 ON T1.post = T2.id
-                             INNER JOIN users T3 ON T1.approvedBy = T3.id
+                             INNER JOIN editusers T4 on T1.id = T4.edit
+                             INNER JOIN users T3 ON T4.user = T3.id
                       WHERE T2.hash = ?
                     `, getEditContent.postHash)
                         .then((edits: DatabaseResultSet) => {
@@ -44,20 +45,27 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                             const editArray: IEdit[] = [];
 
                             for (const edit of edits.convertRowsToResultObjects()) {
-                                editArray.push({
-                                    parentPostId: edit.getNumberFromDB("post"),
-                                    content: JSON.parse(edit.getStringFromDB("content")),
-                                    datetime: dayjs(edit.getStringFromDB("datetime")),
-                                    approvedBy: {
-                                        id: edit.getNumberFromDB("authorId"),
-                                        firstname: edit.getStringFromDB("authorFirstName"),
-                                        lastname: edit.getStringFromDB("authorLastName"),
-                                        avatar: "",
-                                        admin: edit.getNumberFromDB("authorAdmin") === 1
-                                    },
-                                    id: edit.getNumberFromDB("id"),
-                                    approved: edit.getNumberFromDB("approved") === 1
-                                });
+                                const editObj = editArray.find(x => x.id === edit.getNumberFromDB("id"));
+
+                                const currUser: IUserCensored = {
+                                    id: edit.getNumberFromDB("authorId"),
+                                    admin: edit.getNumberFromDB("authorAdmin") === 1,
+                                    firstname: edit.getStringFromDB("authorFirstName"),
+                                    avatar: edit.getStringFromDB("authorAvatar"),
+                                    lastname: edit.getStringFromDB("authorLastName")
+                                };
+
+                                if (editObj === null || typeof editObj === "undefined") {
+                                    editArray.push({
+                                        parentPostId: edit.getNumberFromDB("post"),
+                                        content: JSON.parse(edit.getStringFromDB("content")),
+                                        datetime: dayjs(edit.getStringFromDB("datetime")),
+                                        editedBy: [currUser],
+                                        id: edit.getNumberFromDB("id")
+                                    });
+                                } else {
+                                    editObj.editedBy.push(currUser);
+                                }
                             }
 
                             editArray.sort((left, right) => {

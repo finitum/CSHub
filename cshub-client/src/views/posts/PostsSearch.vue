@@ -12,7 +12,7 @@
             </v-layout>
         </v-container>
 
-        <PostList :postHashes="postHashes"></PostList>
+        <PostList :postHashesProp="postHashes"></PostList>
     </div>
 </template>
 

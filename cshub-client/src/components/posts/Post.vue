@@ -37,7 +37,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                                     <v-icon>fas fa-trash</v-icon>
                                 </v-btn>
                                 <v-btn color="orange" depressed small @click="enableEdit"
-                                       v-if="!editModeComputed">
+                                       v-if="!editModeComputed && userIsLoggedIn">
                                     <v-icon>fas fa-edit</v-icon>
                                 </v-btn>
                                 <v-btn v-if="editModeComputed && userAdminComputed" depressed small color="orange"
@@ -201,6 +201,10 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
 
         get userAdminComputed(): boolean {
             return userState.isAdmin;
+        }
+
+        get userIsLoggedIn(): boolean {
+            return userState.isLoggedIn;
         }
 
         get currentPostURLComputed(): string {

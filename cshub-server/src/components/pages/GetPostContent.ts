@@ -35,7 +35,7 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
     // Check if the user actually has access to the post
     hasAccessToPost(postContentRequest.postHash, req.cookies["token"])
         .then((approved: postAccessType) => {
-            if (!approved) {
+            if (!approved.access) {
                 res.status(401).send();
             }
 

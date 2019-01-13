@@ -4,7 +4,7 @@
             Your posts
         </v-subheader>
 
-        <PostList :postHashes="postHashes"></PostList>
+        <PostList :postHashesProp="postHashes"></PostList>
 
         <v-subheader>
             Your profile

@@ -26,8 +26,6 @@ export class DataUpdatedHandler {
     public static applyNewEdit(edit: IRealtimeEdit, currSocket: Socket): void {
         const previousServerId = this.postHistoryHandler.getPreviousServerID(edit.postHash);
 
-        logger.info(`RECEIVING1 edit from ${edit.timestamp} with id ${edit.userGeneratedId} and delta ${JSON.stringify(edit.delta)}`);
-
         if (edit.prevServerGeneratedId !== previousServerId && previousServerId != -1) {
             edit.delta = this.postHistoryHandler.transformArray(edit, false);
         }

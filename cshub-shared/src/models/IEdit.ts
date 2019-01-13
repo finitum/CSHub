@@ -6,8 +6,7 @@ import {Dayjs} from "dayjs";
 export interface IEdit {
     parentPostId: number;
     content: Delta;
-    approvedBy: IUserCensored;
-    approved: boolean;
+    editedBy: IUserCensored[];
     id: number;
     datetime: Dayjs;
 }

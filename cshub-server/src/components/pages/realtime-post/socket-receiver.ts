@@ -1,4 +1,4 @@
-import {server} from "../../../index";
+import {app, server} from "../../../index";
 import socket, {Socket} from "socket.io";
 import {
     ClientDataUpdated,
@@ -46,7 +46,7 @@ io.on("connection", (socketConn: Socket) => {
         if (inputsValidation.valid) {
             hasAccessToPost(togglePost.postHash, socketConn.request.cookies["token"])
                 .then((approved: postAccessType) => {
-                    if (approved.access) {
+                    if (approved.access && approved.editRights) {
                         const roomName = `POST_${togglePost.postHash}`;
                         if (togglePost.join) {
                             socketConn.join(roomName);

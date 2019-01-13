@@ -387,6 +387,10 @@
             uiState.setMarkdownDialogState(state);
         }
 
+        get userId() {
+            return userState.userModel.id;
+        }
+
         /**
          * Methods
          */
@@ -519,6 +523,7 @@
                             postHash: this.editorSetup.postHash,
                             delta: edit,
                             timestamp: dayjs(),
+                            userId: this.userId,
                             prevServerGeneratedId: this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId,
                             userGeneratedId: getRandomNumberLarge()
                         };

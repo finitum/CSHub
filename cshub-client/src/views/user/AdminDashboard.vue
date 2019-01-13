@@ -14,7 +14,7 @@
         <v-subheader>
             Unverified posts
         </v-subheader>
-        <PostList :postHashes="postHashes" :isNewPost="isNewPost"></PostList>
+        <PostList :postHashesProp="postHashes" :isNewPost="isNewPost"></PostList>
     </div>
 </template>
 

@@ -3,7 +3,6 @@
         <div v-for="(postHash, index) in postHashes" :key="postHash.index">
             <Post :postHash="postHash" :isNewPost="isNewPost.length === postHashes.length ? isNewPost[index] : null" v-show="showCurrentPost(index, postHash)" :key="postHash"></Post>
         </div>
-        <h2 v-if="postHashes.length === 0" style="text-align: center; width: 100%">No posts found!</h2>
         <PostPagination v-if="postHashes.length !== 0 && currentPostHash === -1" :elements="postHashes.length" :range="range"></PostPagination>
     </div>
 </template>
@@ -30,12 +29,13 @@
         /**
          * Data
          */
-        @Prop(null) private postHashes: number[];
+        @Prop(null) private postHashesProp: number[];
         @Prop({default: () => []}) private isNewPost: boolean[];
 
         private paginationStartIndex: number = 0;
         private currentPostHash = -1;
         private range = 5; // Just the default value
+        private postHashes: number[] = [];
 
         /**
          * Computed properties
@@ -61,8 +61,8 @@
             this.updateCurrHashes();
         }
 
-        @Watch("postHashes")
-        private postHashesChanged(hashes: number[]) {
+        @Watch("postHashesProp")
+        private postHashesPropChanged(hashes: number[]) {
             if (Math.ceil(hashes.length / this.range) < this.paginationPageState) {
                 this.paginationPageState = 1;
             }
@@ -77,6 +77,7 @@
             window.addEventListener("resize", this.windowHeightChanged);
             this.doOnRouteChange();
             this.windowHeightChanged();
+            this.updateCurrHashes();
         }
 
         private beforeDestroy() {
@@ -87,9 +88,9 @@
          * Methods
          */
         private windowHeightChanged() {
-            // For smaller screens, show 10
+            // For smaller screens, show 5
             if (window.innerHeight < 1000) {
-                this.range = 10;
+                this.range = 5;
             } else {
                 // Getting the window height, subtracting 350 pixels. Then dividing by 100 for a very wild guess of amount of possible cards on this screen
                 let range = Math.floor((window.innerHeight - 350) / 75);
@@ -109,6 +110,7 @@
         }
 
         private updateCurrHashes() {
+            this.postHashes = this.postHashesProp.slice(((this.paginationPageState - 1) * this.range) - 1, (this.paginationPageState * this.range) -1);
             this.paginationStartIndex = (this.paginationPageState - 1) * this.range;
         }
 
