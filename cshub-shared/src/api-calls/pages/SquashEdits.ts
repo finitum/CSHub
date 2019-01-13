@@ -2,9 +2,6 @@ import {IApiRequest} from "../../models/IApiRequest";
 import {Requests} from "../Requests";
 
 export class SquashEditsCallback {
-
-    constructor(
-    ) {}
 }
 
 export class SquashEdits implements IApiRequest {

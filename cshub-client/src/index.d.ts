@@ -9,8 +9,8 @@ declare var process: {
 };
 
 declare module "vue/types/vue" {
+
     export interface Vue   {
-        errors?: any;
         $socket: any;
         sockets: any;
     }

@@ -250,6 +250,7 @@
             required: true,
             default: {allowEdit: true, showToolbar: true, postHash: -1}
         }) private editorSetup: IQuillEditSetup;
+        @Prop(null) private initialValueProp: Delta;
 
         // Editor related options
         private editor: Quill = null;
@@ -283,57 +284,55 @@
          */
         private mounted() {
 
-            this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
+            if (this.editorSetup.allowEdit) {
+                this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
 
-                logStringConsole(`Current server id: ${data.edit.serverGeneratedId}, previous: ${data.edit.prevServerGeneratedId} last few edits server id ${this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId}`);
-                if (userState.userModel.id !== data.edit.userId) {
-                    if (this.lastFewEdits.length === 1 || this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId === data.edit.prevServerGeneratedId) {
-                        this.lastFewEdits.push(data.edit);
-                        this.editor.updateContents(data.edit.delta);
+                    logStringConsole(`Current server id: ${data.edit.serverGeneratedId}, previous: ${data.edit.prevServerGeneratedId} last few edits server id ${this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId}`);
+                    if (userState.userModel.id !== data.edit.userId) {
+                        if (this.lastFewEdits.length === 1 || this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId === data.edit.prevServerGeneratedId) {
+                            this.lastFewEdits.push(data.edit);
+                            this.editor.updateContents(data.edit.delta);
+                        } else {
+                            logStringConsole("Doing operational transform");
+                            const delta = transformFromArray(this.lastFewEdits, data.edit, true);
+                            data.edit.delta = delta;
+                            this.lastFewEdits.push(data.edit);
+
+                            this.editor.updateContents(delta);
+                        }
+
                     } else {
-                        logStringConsole("Doing operational transform");
-                        const delta = transformFromArray(this.lastFewEdits, data.edit, true);
-                        data.edit.delta = delta;
-                        this.lastFewEdits.push(data.edit);
-
-                        this.editor.updateContents(delta);
-                    }
-
-                } else {
-                    for (let i = this.lastFewEdits.length - 1; i >= 0; i--) {
-                        if (this.lastFewEdits[i].userGeneratedId === data.edit.userGeneratedId) {
-                            logStringConsole("Overwriting right edit");
-                            this.lastFewEdits[i] = data.edit;
+                        for (let i = this.lastFewEdits.length - 1; i >= 0; i--) {
+                            if (this.lastFewEdits[i].userGeneratedId === data.edit.userGeneratedId) {
+                                logStringConsole("Overwriting right edit");
+                                this.lastFewEdits[i] = data.edit;
+                            }
                         }
                     }
-                }
 
-            });
+                });
 
-            this.sockets.subscribe(ServerCursorUpdated.getURL, (data: ServerCursorUpdated) => {
+                this.sockets.subscribe(ServerCursorUpdated.getURL, (data: ServerCursorUpdated) => {
 
-                if (userState.userModel.id !== data.select.userId) {
-                    this.editor.getModule("cursors").setCursor(data.select.userId, data.select.selection, data.select.userName, data.select.color);
-                }
-            });
+                    if (userState.userModel.id !== data.select.userId) {
+                        this.editor.getModule("cursors").setCursor(data.select.userId, data.select.selection, data.select.userName, data.select.color);
+                    }
+                });
 
-            this.myCursor = {
-                color: null,
-                userId: null,
-                userName: null,
-                postHash: this.editorSetup.postHash,
-                selection: null,
-                active: true
-            };
+                this.myCursor = {
+                    color: null,
+                    userId: null,
+                    userName: null,
+                    postHash: this.editorSetup.postHash,
+                    selection: null,
+                    active: true
+                };
 
-            SocketWrapper.emitSocket(new TogglePostJoin(
-                this.editorSetup.postHash,
-                true,
-                (serverData: IRealtimeEdit, selects: IRealtimeSelect[]) => {
+                SocketWrapper.emitSocket(new TogglePostJoin(
+                    this.editorSetup.postHash,
+                    true,
+                    (serverData: IRealtimeEdit, selects: IRealtimeSelect[]) => {
 
-                    if (serverData === null) {
-                        this.$router.push(Routes.INDEX);
-                    } else {
                         this.lastFewEdits.push({
                             postHash: this.editorSetup.postHash,
                             delta: serverData.delta,
@@ -341,36 +340,46 @@
                             serverGeneratedId: serverData.serverGeneratedId,
                             userGeneratedId: serverData.userGeneratedId
                         });
-                        this.initialValue = serverData.delta;
 
-                        (window as any).katex = katex;
+                        this.setupQuill(serverData.delta, selects);
 
-                        if (this.editorSetup.allowEdit) {
-                            this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
-                            localForage.getItem<Delta>(this.postHashCacheItemID)
-                                .then((cachedDraft: Delta) => {
-                                    if (cachedDraft !== null) {
-                                        this.loadDraftDialog = true;
-                                        this.draftValue = cachedDraft;
-                                    }
-                                });
-                        }
+                    }), this.$socket);
+            } else {
+                this.setupQuill(this.initialValueProp, null);
+            }
+        }
 
-                        logStringConsole("Mounted quillInstance with edit: " + this.editorSetup.allowEdit);
+        private setupQuill(delta: Delta, selects: IRealtimeSelect[]) {
+            if (delta === null) {
+                this.$router.push(Routes.INDEX);
+            } else {
+                this.initialValue = delta;
 
-                        this.editorId = idGenerator();
+                (window as any).katex = katex;
 
-                        mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
-
-                        // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quillInstance will error)
-                        setTimeout(() => {
-                            logStringConsole("Initializing quillInstance with edit: " + this.editorSetup.allowEdit);
-                            this.initQuill(selects); // Actually init quillInstance itself
+                if (this.editorSetup.allowEdit) {
+                    this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
+                    localForage.getItem<Delta>(this.postHashCacheItemID)
+                        .then((cachedDraft: Delta) => {
+                            if (cachedDraft !== null) {
+                                this.loadDraftDialog = true;
+                                this.draftValue = cachedDraft;
+                            }
                         });
-                    }
+                }
 
-                }), this.$socket);
+                logStringConsole("Mounted quillInstance with edit: " + this.editorSetup.allowEdit);
 
+                this.editorId = idGenerator();
+
+                mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
+
+                // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quillInstance will error)
+                setTimeout(() => {
+                    logStringConsole("Initializing quillInstance with edit: " + this.editorSetup.allowEdit);
+                    this.initQuill(selects); // Actually init quillInstance itself
+                });
+            }
         }
 
         private beforeDestroy() {
@@ -486,9 +495,11 @@
                 this.editor.enable(true);
             }
 
-            for (const select of selects) {
-                if (select.userId !== userState.userModel.id) {
-                    this.editor.getModule("cursors").setCursor(select.userId, select.selection, select.userName, select.color);
+            if (selects !== null) {
+                for (const select of selects) {
+                    if (select.userId !== userState.userModel.id) {
+                        this.editor.getModule("cursors").setCursor(select.userId, select.selection, select.userName, select.color);
+                    }
                 }
             }
 

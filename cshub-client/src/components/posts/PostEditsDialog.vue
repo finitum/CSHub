@@ -47,7 +47,7 @@
                 </v-timeline>
                 <Quill key="currEditQuill" ref="currEditQuill" v-if="showIndex !== -1 && (initQuill || edits.length === 1)"
                        :editorSetup="{allowEdit: false, showToolbar: false, postHash}"
-                       :initialValue="edits[showIndex].content"></Quill>
+                       :initialValueProp="edits[showIndex].content"></Quill>
             </v-card-text>
         </v-card>
     </v-dialog>
@@ -138,7 +138,7 @@
 
                         if (i > 0) {
                             const currContent = currEdit.content;
-                            const originalContent = JSON.parse(JSON.stringify(callbackData.edits[i].content));
+                            const originalContent = new Delta(currEdit.content).slice();
 
                             for (const op of currContent.ops) {
                                 if (op.hasOwnProperty("insert")) {
@@ -194,10 +194,10 @@
 
             if (currSquashIndexes.length > 0) {
                 const firstIndex = currSquashIndexes[0];
-                let minIndex = firstIndex !== 0 ? firstIndex - 1 : 0;
+                const minIndex = firstIndex !== 0 ? firstIndex - 1 : 0;
 
                 const lastIndex = currSquashIndexes[currSquashIndexes.length - 1];
-                let maxIndex = lastIndex !== edits.length - 1 ? lastIndex + 1 : edits.length - 1;
+                const maxIndex = lastIndex !== edits.length - 1 ? lastIndex + 1 : edits.length - 1;
 
                 for (let i = 0; i < edits.length; i++) {
                     edits[i].squashDisabled = !(i >= minIndex && i <= maxIndex);
@@ -206,7 +206,7 @@
                     }
                 }
             } else {
-                edits.forEach(x => x.squashDisabled = false);
+                edits.forEach((x) => x.squashDisabled = false);
             }
 
         }
@@ -222,8 +222,8 @@
             }
 
             ApiWrapper.sendPostRequest(new SquashEdits(this.postHash, squashIds), (callback: SquashEditsCallback) => {
-                this.dialogActive = {on: false, hash: -1}
-            })
+                this.dialogActive = {on: false, hash: -1};
+            });
         }
     }
 </script>
