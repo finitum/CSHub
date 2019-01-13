@@ -13,7 +13,7 @@ app.post(HidePost.getURL, (req: Request, res: Response) => {
     if (token.valid && token.tokenObj.user.admin) {
         query(`
           UPDATE posts
-          SET postVersion = postVersion + 1, online = 0
+          SET postVersion = postVersion + 1, deleted = 1
           WHERE hash = ?
         `, verifyPostRequest.postHash)
             .then(() => {

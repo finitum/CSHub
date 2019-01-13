@@ -10,28 +10,51 @@ export type postAccessType = {
 // Test whether the user has enough rights to access this post; only admins have access to non-verified posts
 export const hasAccessToPost = (postHash: number, jwt: string): Promise<postAccessType> => {
     if (jwt === null || jwt === undefined) {
-        return new Promise((resolve, reject) => { resolve({access: false, isOwner: false}); });
+        return new Promise((resolve, reject) => {
+            resolve({access: false, isOwner: false});
+        });
     }
 
     const tokenResult = validateAccessToken(jwt);
 
-    if (dayjs(tokenResult.expirydate * 1000).isBefore(dayjs())) {
-        return new Promise((resolve, reject) => { resolve({access: false, isOwner: false}); });
-    }
+    if (tokenResult !== undefined) {
+        if (dayjs(tokenResult.expirydate * 1000).isBefore(dayjs())) {
+            return new Promise((resolve, reject) => {
+                resolve({access: false, isOwner: false});
+            });
+        }
 
-    if (tokenResult !== undefined && tokenResult.user.admin) {
-        return new Promise((resolve, reject) => { resolve({access: true, isOwner: true}); });
-    } else {
         return query(`
-            SELECT online, author
-            FROM posts
-            WHERE hash = ?
+          SELECT deleted, author, editCount
+          FROM posts
+                 LEFT JOIN (
+            SELECT COUNT(*) AS editCount, post
+            FROM edits
+            GROUP BY post
+          ) e on posts.id = e.post
+          WHERE hash = ?
         `, postHash)
             .then((databaseResult: DatabaseResultSet) => {
-                if (tokenResult !== undefined && tokenResult.user.id === databaseResult.getNumberFromDB("author")) {
+                if (databaseResult.getNumberFromDB("deleted") === 1) {
+                    return {access: false, isOwner: false};
+                }
+
+                if (tokenResult.user.admin) {
                     return {access: true, isOwner: true};
                 }
-                return {access: databaseResult.getNumberFromDB("online") !== 0, isOwner: false};
+
+                if (tokenResult.user.id === databaseResult.getNumberFromDB("author")) {
+                    return {access: true, isOwner: true};
+                }
+
+                const editCount = databaseResult.getNumberFromDB("editCount");
+                if (editCount !== null || editCount > 1) {
+                    return {access: true, isOwner: false};
+                } else {
+                    return {access: false, isOwner: false};
+                }
             });
     }
+
+
 };

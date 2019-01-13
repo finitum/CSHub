@@ -34,26 +34,25 @@ app.post(GetPost.getURL, (req: Request, res: Response) => {
 
 export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
     return query(`
-          SELECT T1.datetime,
-                 T1.title,
-                 T1.hash,
-                 T1.upvotes,
-                 T2.id        AS authorId,
-                 T2.firstname AS authorFirstName,
-                 T2.lastname  AS authorLastName,
-                 T2.avatar    AS authorAvatar,
-                 T2.admin     AS authorAdmin,
-                 T3.name,
-                 T3.hash      AS topicHash,
-                 T1.id,
-                 T1.postVersion,
-                 T1.online
-          FROM posts T1
-                 INNER JOIN users T2 ON T1.author = T2.id
-                 INNER JOIN topics T3 ON T1.topic = T3.id
-          WHERE T1.hash = ?
-          ORDER BY datetime DESC
-        `, postHash)
+      SELECT T1.datetime,
+             T1.title,
+             T1.hash,
+             T1.upvotes,
+             T2.id        AS authorId,
+             T2.firstname AS authorFirstName,
+             T2.lastname  AS authorLastName,
+             T2.avatar    AS authorAvatar,
+             T2.admin     AS authorAdmin,
+             T3.name,
+             T3.hash      AS topicHash,
+             T1.id,
+             T1.postVersion
+      FROM posts T1
+             INNER JOIN users T2 ON T1.author = T2.id
+             INNER JOIN topics T3 ON T1.topic = T3.id
+      WHERE T1.hash = ?
+      ORDER BY datetime DESC
+    `, postHash)
         .then((post: DatabaseResultSet) => {
 
             if (post.convertRowsToResultObjects().length === 0) {
@@ -75,8 +74,7 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
                     avatar: post.getStringFromDB("authorAvatar"),
                     admin: post.getNumberFromDB("authorAdmin") === 1
                 },
-                postVersion: post.getNumberFromDB("postVersion"),
-                online: post.getNumberFromDB("online") === 1
+                postVersion: post.getNumberFromDB("postVersion")
             };
 
             if (postBase.author.avatar !== null) {

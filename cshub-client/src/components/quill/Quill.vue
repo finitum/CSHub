@@ -336,7 +336,6 @@
                             serverGeneratedId: serverData.serverGeneratedId,
                             userGeneratedId: serverData.userGeneratedId
                         });
-                        
                         this.initialValue = serverData.delta;
 
                         (window as any).katex = katex;

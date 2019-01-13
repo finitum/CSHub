@@ -110,8 +110,6 @@ export class DatabaseResultSet {
         try {
             return currObj as string;
         } catch (err) {
-            logger.error(`Error getting number from database string, name: ${name}.`);
-            logger.error(err);
             return null;
         }
     }
@@ -127,8 +125,6 @@ export class DatabaseResultSet {
         try {
             return currObj as number;
         } catch (err) {
-            logger.error(`Error getting value from database string, name: ${name}.`);
-            logger.error(err);
             return null;
         }
     }

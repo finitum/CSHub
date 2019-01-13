@@ -1,4 +1,5 @@
 import {Request, Response} from "express";
+import escapeHtml from "escape-html";
 
 import {app, logger} from "../../";
 
@@ -32,8 +33,7 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                   topic       = (SELECT id
                                  FROM topics
                                  WHERE hash = ?),
-                  postVersion = postVersion + 1,
-                  online = 1
+                  postVersion = postVersion + 1
               WHERE id = (SELECT id FROM posts WHERE hash = ?)
             `, editPostRequest.postTitle, editPostRequest.postTopicHash, editPostRequest.postHash)
                 .then(() => {
@@ -54,8 +54,6 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                     if (lastRow.getNumberFromDB("approved") !== 0) {
                         res.json(new EditPostCallback(EditPostReturnTypes.NOTHINGTOUPDATE));
                     } else {
-                        res.json(new EditPostCallback(EditPostReturnTypes.SUCCESS));
-
                         let delta = new Delta(JSON.parse(rows[0].getStringFromDB("content")));
 
                         for (let i = 1; i < rows.length; i++) {
@@ -67,7 +65,7 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                             <!DOCTYPE html>
                             <head>
                                 <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.7.22/MutationObserver.js"></script>
-                                <script src="https://unpkg.com/highlight.js@9.12.0/lib/highlight.js"></script>
+                                <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
                                 <script src="https://unpkg.com/quill@2.0.0-dev.3/dist/quill.min.js"></script>
                                 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
                             </head>
@@ -104,19 +102,24 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                             DataUpdatedHandler.postHistoryHandler.updateDbDelta(editPostRequest.postHash, delta);
 
                             query(`
-                              UPDATE edits
-                              SET approved    = 1,
-                                  approvedBy  = ?,
-                                  htmlContent = ?
-                              WHERE post = (
+                              UPDATE edits, posts
+                              SET edits.approved    = 1,
+                                  edits.approvedBy  = ?,
+                                  edits.htmlContent = ?,
+                                  posts.postVersion = posts.postVersion + 1
+                              WHERE edits.post = (
                                 SELECT id
                                 FROM posts
                                 WHERE hash = ?
                               )
-                                AND approved = 0
-                              ORDER BY datetime DESC
+                                AND edits.approved = 0
+                                AND posts.hash = ?
+                              ORDER BY edits.datetime DESC
                               LIMIT 1
-                            `, userObj.tokenObj.user.id, getHTML(quill, document, window), editPostRequest.postHash)
+                            `, userObj.tokenObj.user.id, getHTML(quill, document, window), editPostRequest.postHash, editPostRequest.postHash)
+                                .then(() => {
+                                    res.json(new EditPostCallback(EditPostReturnTypes.SUCCESS));
+                                });
                         };
 
                     }
@@ -152,7 +155,10 @@ const getHTML = (quillEditor: any, document: Document, window: Window) => {
     const finalizeCodeBlock = () => {
         if (prevElement.isCodeBlock) {
             const newNode = document.createElement("pre");
-            newNode.innerHTML = `<code class="${prevElement.lang} hljsBlock">${prevElement.currString}</code>`;
+
+            const currStringEcaped = escapeHtml(prevElement.currString);
+
+            newNode.innerHTML = `<code class="${prevElement.lang} hljsBlock">${currStringEcaped}</code>`;
 
             prevElement.containerNode.after(newNode);
 

@@ -1,3 +1,3 @@
 import "./GetAllUsers";
 import "./GetUnverifiedPosts";
-import "./VerifyPost";
+import "./HidePost";

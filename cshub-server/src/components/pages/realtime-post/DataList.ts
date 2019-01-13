@@ -77,8 +77,6 @@ export class DataList {
 
         const currRecord = queue.toAdd[0];
 
-        logger.info(`STARTING inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId} and delta ${JSON.stringify(currRecord.delta)}`);
-
         new Promise(resolve => resolve())
             .then(() => {
 
@@ -93,8 +91,6 @@ export class DataList {
                     queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(currRecord.delta));
 
                     const toBeSavedEdit = queue.dbComposedDelta.diff(queue.currComposedDelta);
-
-                    logger.info(`ONGOING inserting edit from ${currRecord.timestamp} with id ${currRecord.userGeneratedId} and diff ${JSON.stringify(toBeSavedEdit)}`);
 
                     if (diff.ops.length === 0) {
                         return query(`

@@ -1,3 +1,4 @@
+import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages";
 <template>
     <div>
         <div v-if="post !== null">
@@ -30,11 +31,11 @@
                                     <router-link :to="item.url">{{item.name}}</router-link>
                                 </v-breadcrumbs-item>
                                 <v-breadcrumbs-item :disabled="true"> {{post.title}} </v-breadcrumbs-item>
-                                <v-btn color="red" depressed small @click="hidePost()" v-if="post.online && userAdminComputed">
+                                <v-btn color="red" depressed small @click="hidePost()" v-if="userAdminComputed">
                                     <v-icon>fas fa-trash</v-icon>
                                 </v-btn>
                                 <v-btn color="orange" depressed small @click="enableEdit"
-                                       v-if="(userOwnsThisPostComputed || userAdminComputed) && !editModeComputed">
+                                       v-if="!editModeComputed">
                                     <v-icon>fas fa-edit</v-icon>
                                 </v-btn>
                                 <v-btn v-if="editModeComputed && userAdminComputed" depressed small color="orange" @click="editPost">
@@ -55,7 +56,7 @@
                                 </v-list-tile-avatar>
                                 <v-list-tile-content class="pt-2 d-inline">
                                     <v-list-tile-sub-title class="whitespaceInit black--text post-title">
-                                        <span v-if="!editModeComputed || !userAdminComputed">{{post.title}}</span>
+                                        <span v-if="!editModeComputed || !userAdminComputed">{{post.title}}{{isNewPost !== null ? (isNewPost ? " - new post" : " - new edits") : ""}}</span>
                                         <input v-else style="width: 100%" v-model="post.title"/>
                                     </v-list-tile-sub-title>
                                     <v-list-tile-sub-title class="whitespaceInit">{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</v-list-tile-sub-title>
@@ -121,39 +122,39 @@
     </div>
 </template>
 <script lang="ts">
-import Vue from "vue";
-import localForage from "localforage";
-import {Watch, Component, Prop} from "vue-property-decorator";
-import {Route} from "vue-router";
-import {AxiosError} from "axios";
+    import Vue from "vue";
+    import localForage from "localforage";
+    import {Component, Prop, Watch} from "vue-property-decorator";
+    import {Route} from "vue-router";
+    import {AxiosError} from "axios";
 
-import Quill from "../quill/Quill.vue";
-import PostEditsDialog from "./PostEditsDialog.vue";
+    import Quill from "../quill/Quill.vue";
+    import PostEditsDialog from "./PostEditsDialog.vue";
 
-import {
-    EditPostCallback,
-    EditPost,
-    GetPostCallBack,
-    GetPost,
-    GetPostContentCallBack,
-    GetPostContent,
-    PostVersionTypes,
-    HidePostCallBack,
-    HidePost
-} from "../../../../cshub-shared/src/api-calls";
-import {IPost, ITopic} from "../../../../cshub-shared/src/models";
-import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
-import {Routes} from "../../../../cshub-shared/src/Routes";
+    import {
+        EditPost,
+        EditPostCallback, EditPostReturnTypes,
+        GetPost,
+        GetPostCallBack,
+        GetPostContent,
+        GetPostContentCallBack,
+        HidePost,
+        HidePostCallBack,
+        PostVersionTypes
+    } from "../../../../cshub-shared/src/api-calls";
+    import {IPost, ITopic} from "../../../../cshub-shared/src/models";
+    import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
+    import {Routes} from "../../../../cshub-shared/src/Routes";
 
-import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
-import {CacheTypes} from "../../utilities/cache-types";
-import {idGenerator} from "../../utilities/id-generator";
+    import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
+    import {CacheTypes} from "../../utilities/cache-types";
+    import {idGenerator} from "../../utilities/id-generator";
 
-import dataState from "../../store/data";
-import userState from "../../store/user";
-import uiState from "../../store/ui";
+    import dataState from "../../store/data";
+    import userState from "../../store/user";
+    import uiState from "../../store/ui";
 
-interface IBreadCrumbType {
+    interface IBreadCrumbType {
     name: string;
     url: string;
 }
@@ -168,6 +169,7 @@ export default class Post extends Vue {
      * Data
      */
     @Prop(Number) private postHash: number;
+    @Prop(Boolean) private isNewPost: boolean;
 
     private domId: string = idGenerator();
     private post: IPost = null;
@@ -426,13 +428,11 @@ export default class Post extends Vue {
                 this.post = callbackContent.postUpdated;
                 this.activeTopicHash = [callbackContent.postUpdated.topicHash];
                 this.post.htmlContent = callbackContent.content.html;
-                this.post.online = callbackContent.content.approved;
                 hasBeenUpdated = true;
             } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
                 this.post = cachedValue;
                 this.activeTopicHash = [cachedValue.topicHash];
                 this.post.htmlContent = callbackContent.content.html;
-                this.post.online = callbackContent.content.approved;
                 hasBeenUpdated = true;
             } else if (callbackContent.postVersionType === PostVersionTypes.NOCHANGE) {
                 this.post = cachedValue;
@@ -487,14 +487,24 @@ export default class Post extends Vue {
         ApiWrapper.sendPostRequest(new EditPost(
             this.postHash,
             this.post.title,
-            this.activeTopicHash[0]), (callbackData: EditPostCallback) => {
+            this.activeTopicHash[0]
+        ), (callbackData: EditPostCallback) => {
+            if (callbackData.result === EditPostReturnTypes.SUCCESS) {
+                uiState.setNotificationDialogState({
+                    on: true,
+                    header: "Edited post",
+                    text: "Post was edited successfully"
+                });
+            } else {
+                uiState.setNotificationDialogState({
+                    on: true,
+                    header: "Didn't edit post",
+                    text: "There was nothing to update!"
+                });
+            }
+
             this.$router.push(this.currentPostURLComputed);
             this.getPostRequest();
-            uiState.setNotificationDialogState({
-                on: true,
-                header: "Edited post",
-                text: "Post was edited successfully"
-            });
         });
     }
 }

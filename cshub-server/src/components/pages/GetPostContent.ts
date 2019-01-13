@@ -90,16 +90,16 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
     const getContent = (approved: postAccessType) => {
 
         return query(`
-              SELECT T2.htmlContent, T2.approved, T1.online
+              SELECT T2.htmlContent, T2.approved, T1.deleted
               FROM posts T1
                      LEFT JOIN edits T2 ON T1.id = T2.post AND T2.approved = 1
-              WHERE T1.hash = ?
-              ORDER BY T1.datetime DESC
+              WHERE T1.hash = ? AND deleted = 0
+              ORDER BY T2.datetime DESC
               LIMIT 1
             `,  postContentRequest.postHash)
             .then((content: DatabaseResultSet) => {
                 if (content.convertRowsToResultObjects().length > 0) {
-                    if (content.getNumberFromDB("online") === 0 && approved.isOwner) {
+                    if (content.getStringFromDB("htmlContent") === null && approved.isOwner) {
                         return {
                             content: "No content yet!",
                             state: postState.FIRSTEDIT
@@ -115,6 +115,14 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
                         content: "No accessible content found!",
                         state: postState.DELETED
                     };
+                }
+            })
+            .catch(err => {
+                logger.error("Error getting content");
+                logger.error(err);
+                return {
+                    content: "Error",
+                    state: postState.DELETED
                 }
             });
     };

@@ -1,10 +1,15 @@
 import {IApiRequest, IUser} from "../../models";
 import {Requests} from "../Requests";
 
+export type GetUnverifiedPostsType = {
+    hash: number,
+    isNewPost: boolean
+};
+
 export class GetUnverifiedPostsCallBack {
 
     constructor(
-        public postHashes: number[]
+        public postHashes: GetUnverifiedPostsType[]
     ) {}
 }
 

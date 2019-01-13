@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-for="(postHash, index) in postHashes" :key="postHash.index">
-            <Post :postHash="postHash" v-show="showCurrentPost(index, postHash)" :key="postHash"></Post>
+            <Post :postHash="postHash" :isNewPost="isNewPost.length === postHashes.length ? isNewPost[index] : null" v-show="showCurrentPost(index, postHash)" :key="postHash"></Post>
         </div>
         <h2 v-if="postHashes.length === 0" style="text-align: center; width: 100%">No posts found!</h2>
         <PostPagination v-if="postHashes.length !== 0 && currentPostHash === -1" :elements="postHashes.length" :range="range"></PostPagination>
@@ -19,6 +19,7 @@
     import PostPagination from "./PostPagination.vue";
 
     import uiState from "../../store/ui";
+    import {GetUnverifiedPostsType} from "../../../../cshub-shared/src/api-calls/admin";
 
     @Component({
         name: "PostList",
@@ -30,6 +31,7 @@
          * Data
          */
         @Prop(null) private postHashes: number[];
+        @Prop({default: () => []}) private isNewPost: boolean[];
 
         private paginationStartIndex: number = 0;
         private currentPostHash = -1;
@@ -64,6 +66,7 @@
             if (Math.ceil(hashes.length / this.range) < this.paginationPageState) {
                 this.paginationPageState = 1;
             }
+
             this.updateCurrHashes();
         }
 
@@ -84,12 +87,18 @@
          * Methods
          */
         private windowHeightChanged() {
-            // Getting the window height, subtracting 350 pixels. Then dividing by 100 for a very wild guess of amount of possible cards on this screen
-            let range = Math.floor((window.innerHeight - 350) / 100);
-            if (range === 0) {
-                range++;
+            // For smaller screens, show 10
+            if (window.innerHeight < 1000) {
+                this.range = 10;
+            } else {
+                // Getting the window height, subtracting 350 pixels. Then dividing by 100 for a very wild guess of amount of possible cards on this screen
+                let range = Math.floor((window.innerHeight - 350) / 75);
+                if (range === 0) {
+                    range = 1;
+                }
+                this.range = range;
             }
-            this.range = range;
+
         }
 
         private showCurrentPost(index: number, postHash: number): boolean {
@@ -106,11 +115,12 @@
         private doOnRouteChange() {
             if (this.$route.fullPath.includes(Routes.POST)) {
                 this.currentPostHash = +this.$route.params.hash;
+            } else if (this.$route.fullPath === Routes.ADMINDASHBOARD) {
+                this.currentPostHash = -1;
             } else {
                 this.currentPostHash = -1;
             }
         }
-
     }
 </script>
 
