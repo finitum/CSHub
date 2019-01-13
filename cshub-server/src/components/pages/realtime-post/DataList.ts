@@ -68,6 +68,10 @@ export class DataList {
                         queue.isAsyncRunning = false;
                     });
             }
+
+            if (queue.fullList.length > 10) {
+                queue.fullList.splice(0, queue.fullList.length - 11);
+            }
         }
     }
 
@@ -126,7 +130,7 @@ export class DataList {
             })
             .then(() => {
                 queue.toAdd.shift();
-                logger.info(`DONE inserting edit from time ${currRecord.timestamp} and user ${currRecord.userId} with id ${currRecord.userGeneratedId} and delta ${JSON.stringify(currRecord.delta)}`);
+                logger.verbose(`DONE inserting edit from time ${currRecord.timestamp} and user ${currRecord.userId} with id ${currRecord.userGeneratedId} and delta ${JSON.stringify(currRecord.delta)}`);
                 next();
             });
     }
@@ -172,6 +176,20 @@ export class DataList {
             return -1;
         } else {
             return currQueue[currQueue.length - 1].serverGeneratedId;
+        }
+    }
+
+    public getPreviousServerIDOfUser(postHash: number, userId: number): number {
+        const currQueue = this.getEditQueue(postHash);
+        if (currQueue.length === 0) {
+            return -1;
+        } else {
+            for (let i = currQueue.length - 1; i >= 0; i--) {
+                if (currQueue[i].userId === userId) {
+                    return currQueue[i].serverGeneratedId;
+                }
+            }
+            return this.getPreviousServerID(postHash);
         }
     }
 

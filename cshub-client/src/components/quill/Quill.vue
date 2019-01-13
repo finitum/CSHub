@@ -285,12 +285,16 @@
 
             this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
 
+                logStringConsole(`Current server id: ${data.edit.serverGeneratedId}, previous: ${data.edit.prevServerGeneratedId} last few edits server id ${this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId}`);
                 if (userState.userModel.id !== data.edit.userId) {
                     if (this.lastFewEdits.length === 1 || this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId === data.edit.prevServerGeneratedId) {
                         this.lastFewEdits.push(data.edit);
                         this.editor.updateContents(data.edit.delta);
                     } else {
+                        logStringConsole("Doing operational transform");
                         const delta = transformFromArray(this.lastFewEdits, data.edit, true);
+                        data.edit.delta = delta;
+                        this.lastFewEdits.push(data.edit);
 
                         this.editor.updateContents(delta);
                     }
@@ -298,6 +302,7 @@
                 } else {
                     for (let i = this.lastFewEdits.length - 1; i >= 0; i--) {
                         if (this.lastFewEdits[i].userGeneratedId === data.edit.userGeneratedId) {
+                            logStringConsole("Overwriting right edit");
                             this.lastFewEdits[i] = data.edit;
                         }
                     }
@@ -507,7 +512,9 @@
                 }
             }, 1000);
 
-            this.currentEdits.push(delta);
+            if (source === "user") {
+                this.currentEdits.push(delta);
+            }
 
             clearTimeout(this.socketTypingTimeout);
             this.socketTypingTimeout = setTimeout(() => {

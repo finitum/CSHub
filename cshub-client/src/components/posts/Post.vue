@@ -44,7 +44,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                                        @click="editPost">
                                     <v-icon>fas fa-save</v-icon>
                                 </v-btn>
-                                <v-btn depressed small color="primary" @click="viewEditDialog">
+                                <v-btn depressed small color="primary" @click="viewEditDialog" v-if="!editModeComputed">
                                     <v-icon>fas fa-history</v-icon>
                                 </v-btn>
                                 <v-btn depressed small color="secondary" @click="showTopMenu = false">
@@ -157,7 +157,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
     import dataState from "../../store/data";
     import userState from "../../store/user";
     import uiState from "../../store/ui";
-    import Delta = require("quill-delta/dist/Delta");
+    import Delta from "quill-delta/dist/Delta";
 
     interface IBreadCrumbType {
         name: string;

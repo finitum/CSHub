@@ -30,7 +30,7 @@
          * Data
          */
         @Prop(null) private postHashesProp: number[];
-        @Prop({default: () => []}) private isNewPost: boolean[];
+        @Prop({default: (): boolean[] => []}) private isNewPost: boolean[];
 
         private paginationStartIndex: number = 0;
         private currentPostHash = -1;
@@ -110,7 +110,7 @@
         }
 
         private updateCurrHashes() {
-            this.postHashes = this.postHashesProp.slice(((this.paginationPageState - 1) * this.range) - 1, (this.paginationPageState * this.range) -1);
+            this.postHashes = this.postHashesProp.slice(((this.paginationPageState - 1) * this.range) - 1, (this.paginationPageState * this.range) - 1);
             this.paginationStartIndex = (this.paginationPageState - 1) * this.range;
         }
 

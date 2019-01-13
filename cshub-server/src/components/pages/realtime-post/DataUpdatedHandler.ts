@@ -26,7 +26,13 @@ export class DataUpdatedHandler {
     public static applyNewEdit(edit: IRealtimeEdit, currSocket: Socket): void {
         const previousServerId = this.postHistoryHandler.getPreviousServerID(edit.postHash);
 
+        if (typeof edit.prevServerGeneratedId === "undefined") {
+            edit.prevServerGeneratedId = this.postHistoryHandler.getPreviousServerIDOfUser(edit.postHash, edit.userId);
+        }
+
         if (edit.prevServerGeneratedId !== previousServerId && previousServerId != -1) {
+            logger.info("Performing operational transform");
+            logger.info(`Current server id: ${edit.serverGeneratedId}, previous: ${edit.prevServerGeneratedId} last few edits server id ${previousServerId}`);
             edit.delta = this.postHistoryHandler.transformArray(edit, false);
         }
 

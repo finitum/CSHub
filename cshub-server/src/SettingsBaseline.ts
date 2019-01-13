@@ -3,7 +3,6 @@
 export interface ISettings {
     LIVE: boolean;
     PORT: number;
-    SOCKETPORT: number;
     DATABASE: {
         HOST: string;
         USER: string;
@@ -35,42 +34,43 @@ export interface ISettings {
         DEBUGMAILADDRESS: string;
         VERIFYMAILADDRESSPREFIX: string;
     };
+    LOGLEVEL: string;
 
 }
 
 export const Settings: ISettings = {
-    LIVE: true,
-    PORT: 0,
-    SOCKETPORT: 2999,
+    LIVE: false,
+    PORT: 3000,
     DATABASE: {
-        HOST: "",
-        USER: "",
-        PASSWORD: "",
-        NAME: ""
+        HOST: "localhost",
+        USER: "xxx",
+        PASSWORD: "xxx",
+        NAME: "CSHubTest"
     },
     USESSH: true,
     SSH: {
-        HOST: "",
-        USER: "",
+        HOST: "xxx",
+        USER: "xxx",
         PORT: 0,
-        PRIVATEKEYLOCATION: ""
+        PRIVATEKEYLOCATION: "xxx"
     },
-    DOMAIN: "",
-    SITEADDRESS: "",
-    TOKENAGEMILLISECONDS: 0,
-    PASSWORDITERATIONS: 0,
-    JWTHASH: "",
-    PASSWORDSALT: "",
+    DOMAIN: "192.168.xxx",
+    SITEADDRESS: "http://192.168.xxx",
+    TOKENAGEMILLISECONDS: 7200000,
+    PASSWORDITERATIONS: 42424,
+    JWTHASH: "xxxxx",
+    PASSWORDSALT: "xxxxx",
     MAIL: {
         USEGMAIL: false,
         GMAILSETTINGS: {
-            PASSWORD: "",
-            MAILADDRESS: ""
+            PASSWORD: "xxxx",
+            MAILADDRESS: "xxx@gmail.com"
         },
-        APIKEY: "",
-        NOREPLYADDRESS: "",
-        SUFFIX: "",
-        DEBUGMAILADDRESS: "",
-        VERIFYMAILADDRESSPREFIX: ""
-    }
+        APIKEY: "xxxx",
+        NOREPLYADDRESS: "no-reply@xxx.nl",
+        SUFFIX: "@xxxxx",
+        DEBUGMAILADDRESS: "xxxx",
+        VERIFYMAILADDRESSPREFIX: "xxx"
+    },
+    LOGLEVEL: "info"
 };

@@ -1,8 +1,9 @@
 import winston, {format} from "winston";
+import {Settings} from "./settings";
 
 // Create the logger object, it will log to two different files, depending on the severity of the log
 export const logger = winston.createLogger({
-    level: "info",
+    level: Settings.LOGLEVEL,
     format: format.combine(
         format.timestamp(),
         format.json()
@@ -17,8 +18,6 @@ export const logger = winston.createLogger({
 logger.add(new winston.transports.Console({
     format: winston.format.simple()
 }));
-
-import {Settings} from "./settings";
 
 import http from "http";
 import express from "express";
