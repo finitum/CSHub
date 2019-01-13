@@ -162,15 +162,15 @@ export class DatabaseResultSet implements Iterable<DatabaseResultRow> {
 
     [Symbol.iterator](): Iterator<DatabaseResultRow> {
 
-        const rows = this.convertRowsToResultObjects();
+        const rows = this.rows;
 
         let index = 0;
 
         return {
             next(value?: any): IteratorResult<DatabaseResultRow> {
                 return {
-                    done: index === rows.length - 1,
-                    value: rows[index++]
+                    done: !(index < rows.length),
+                    value: new DatabaseResultRow(rows[index++])
                 };
             }
         };

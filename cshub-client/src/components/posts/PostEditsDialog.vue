@@ -132,7 +132,7 @@
 
                     let previousDelta = new Delta(JSON.parse(JSON.stringify(callbackData.edits[0].content)));
 
-                    for (let i = 1; i < callbackData.edits.length; i++) {
+                    for (let i = 0; i < callbackData.edits.length; i++) {
 
                         const currEdit = callbackData.edits[i];
 
@@ -190,7 +190,7 @@
                 }
             }
 
-            currSquashIndexes.sort();
+            currSquashIndexes = currSquashIndexes.sort((a, b) => a - b);
 
             if (currSquashIndexes.length > 0) {
                 const firstIndex = currSquashIndexes[0];

@@ -26,6 +26,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
         const userIsAdmin = userObj.tokenObj.user.admin;
 
         if (userIsAdmin) {
+            logger.info(`Executing squash for post id ${squashEditRequest.postHash}`);
             query(`
               SELECT content, datetime, T1.id, T2.user
               FROM edits T1
@@ -73,7 +74,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                     }
 
                     if (isValidRequest) {
-                        currSquashIndexes.sort();
+                        currSquashIndexes = currSquashIndexes.sort((a, b) => a - b);
 
                         let prevIndex = currSquashIndexes[0];
 
@@ -90,12 +91,14 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                         if (isValidRequest) {
                             // All checks passed, so valid request
                             let delta = dbEdits[currSquashIndexes[0]].content;
-                            let users = new Set(dbEdits[currSquashIndexes[0]].users);
+                            let users: Set<number> = new Set();
 
-                            for (let i = 1; i < currSquashIndexes.length; i++) {
+                            for (let i = 0; i < currSquashIndexes.length; i++) {
                                 const dbEdit = dbEdits[currSquashIndexes[i]];
 
-                                delta = delta.compose(dbEdit.content);
+                                if (i > 0) {
+                                    delta = delta.compose(dbEdit.content);
+                                }
 
                                 for (const user of dbEdit.users) {
                                     if (user !== null) {
@@ -114,7 +117,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                             `, JSON.stringify(delta), editId)
                                 .then(() => {
 
-                                    async.eachSeries(users.entries(), (item, callback) => {
+                                    async.each(Array.from(users), (item, callback) => {
                                         if (item !== null) {
                                             query(`
                                               INSERT INTO editusers
@@ -142,7 +145,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                                           DELETE
                                           FROM editusers
                                           WHERE edit = ?
-                                        `, editId)
+                                        `, item)
                                             .then(() => {
                                                 callback();
                                             })
@@ -161,6 +164,11 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
 
                     }
 
+                })
+                .catch((e) => {
+                    logger.error("Error squashsing");
+                    logger.error(e);
+                    res.status(501).send();
                 })
         } else {
             res.status(401).send();

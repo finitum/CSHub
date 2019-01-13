@@ -75,7 +75,7 @@ export class DataUpdatedHandler {
 
                 const dbEdits: Array<{content: Delta, datetime: Dayjs, approved: boolean}> = [];
 
-                for (const editObj of edits.convertRowsToResultObjects()) {
+                for (const editObj of edits) {
                     dbEdits.push({
                         content: new Delta(JSON.parse(editObj.getStringFromDB("content"))),
                         datetime: dayjs(editObj.getStringFromDB("datetime")),
