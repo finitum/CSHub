@@ -14,7 +14,8 @@
         <v-subheader>
             Unverified posts
         </v-subheader>
-        <PostList :postHashesProp="postHashes" :isNewPost="isNewPost"></PostList>
+        <PostList :postHashesProp="postHashes" :isNewPost="isNewPost" v-if="postHashes.length > 0"></PostList>
+        <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
     </div>
 </template>
 

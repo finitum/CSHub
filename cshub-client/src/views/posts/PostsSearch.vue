@@ -12,7 +12,8 @@
             </v-layout>
         </v-container>
 
-        <PostList :postHashesProp="postHashes"></PostList>
+        <PostList :postHashesProp="postHashes" v-if="postHashes.length > 0"></PostList>
+        <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
     </div>
 </template>
 

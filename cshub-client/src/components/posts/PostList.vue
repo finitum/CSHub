@@ -110,7 +110,7 @@
         }
 
         private updateCurrHashes() {
-            this.postHashes = this.postHashesProp.slice(((this.paginationPageState - 1) * this.range) - 1, (this.paginationPageState * this.range) - 1);
+            this.postHashes = this.postHashesProp.slice(((this.paginationPageState - 1) * this.range), (this.paginationPageState * this.range) - 1);
             this.paginationStartIndex = (this.paginationPageState - 1) * this.range;
         }
 
