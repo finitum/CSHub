@@ -36,9 +36,9 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                              T3.admin     AS authorAdmin
                       FROM edits T1
                              INNER JOIN posts T2 ON T1.post = T2.id
-                             INNER JOIN editusers T4 on T1.id = T4.edit
-                             INNER JOIN users T3 ON T4.user = T3.id
-                      WHERE T2.hash = ?
+                             LEFT JOIN editusers T4 on T1.id = T4.edit
+                             LEFT JOIN users T3 ON T4.user = T3.id
+                      WHERE T2.hash = ? AND T1.approved = 1
                     `, getEditContent.postHash)
                         .then((edits: DatabaseResultSet) => {
 

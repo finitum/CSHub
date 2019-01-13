@@ -6,6 +6,7 @@ export class Requests {
     public static readonly POSTCONTENT: string = "/postcontent";
     public static readonly TOPICS: string = "/topics";
     public static readonly VERIFYTOKEN: string = "/verifytoken";
+    public static readonly SQUASHEDITS: string = "/squashedits";
     public static readonly VERIFYMAIL: string = "/verifymail";
     public static readonly SEARCH: string = "/search";
     public static readonly FORGOTPASSWORDMAIL: string = "/forgotpasswordmail";

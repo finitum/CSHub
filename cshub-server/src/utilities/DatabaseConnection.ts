@@ -95,7 +95,7 @@ export const query = (query: string, ...args: any[]) => {
     });
 };
 
-export class DatabaseResultSet {
+export class DatabaseResultSet implements Iterable<DatabaseResultRow> {
 
     constructor(private rows: any[], private insertId: number) {}
 
@@ -158,6 +158,22 @@ export class DatabaseResultSet {
         }
 
         return convertedRows;
+    }
+
+    [Symbol.iterator](): Iterator<DatabaseResultRow> {
+
+        const rows = this.convertRowsToResultObjects();
+
+        let index = 0;
+
+        return {
+            next(value?: any): IteratorResult<DatabaseResultRow> {
+                return {
+                    done: index === rows.length - 1,
+                    value: rows[index++]
+                };
+            }
+        };
     }
 }
 

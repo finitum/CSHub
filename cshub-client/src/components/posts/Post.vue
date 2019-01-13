@@ -33,7 +33,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                                     <router-link :to="item.url">{{item.name}}</router-link>
                                 </v-breadcrumbs-item>
                                 <v-breadcrumbs-item :disabled="true"> {{post.title}} </v-breadcrumbs-item>
-                                <v-btn color="red" depressed small @click="hidePost()" v-if="userAdminComputed">
+                                <v-btn color="red" depressed small @click="hidePost()" v-if="!editModeComputed && userAdminComputed">
                                     <v-icon>fas fa-trash</v-icon>
                                 </v-btn>
                                 <v-btn color="orange" depressed small @click="enableEdit"

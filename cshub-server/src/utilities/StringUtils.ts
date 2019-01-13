@@ -1,11 +1,11 @@
 export interface ICustomValidatorResponse {
     valid: boolean;
-    value?: string | number;
+    value?: string | number | object;
     error?: CustomValidatorReponseTypes;
 }
 
 export interface ICustomValidatorInput {
-    input: string | number;
+    input: string | number | object;
     validationObject?: ICustomValidatorInputObject;
 }
 
