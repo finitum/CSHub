@@ -529,12 +529,6 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                         header: "Edited post",
                         text: "Post was edited successfully"
                     });
-
-                    const postHashCacheItemID = `POSTDRAFT_${this.postHash === -1 ? "def" : this.postHash}`;
-                    localForage.setItem<Delta>(postHashCacheItemID, null)
-                        .then(() => {
-                            logStringConsole("Undrafted current post", "post");
-                        });
                 } else {
                     uiState.setNotificationDialogState({
                         on: true,

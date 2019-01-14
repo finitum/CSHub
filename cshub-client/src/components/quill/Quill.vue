@@ -147,19 +147,6 @@
         <v-btn fab small depressed color="primary" class="ql-tooltip" id="markdownTooltip" @click="openMarkdownDialog">
             <v-icon>fas fa-edit</v-icon>
         </v-btn>
-        <v-dialog v-model="loadDraftDialog" persistent max-width="290">
-            <v-card>
-                <v-card-title class="headline">Open draft?</v-card-title>
-                <v-card-text>A draft of this post was saved. Load this draft? If you don't load the draft, it will be
-                    discarded once you type.
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" flat @click="loadDraft(true)">Load</v-btn>
-                    <v-btn color="green darken-1" flat @click="loadDraft(false)">Discard</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
 
         <v-dialog v-model="markdownDialogState.open" fullscreen hide-overlay transition="dialog-bottom-transition">
             <v-card>
@@ -167,7 +154,7 @@
                     <v-btn icon dark @click="closeMarkdownDialog">
                         <v-icon>fas fa-times</v-icon>
                     </v-btn>
-                    <v-toolbar-title>Markdown editor</v-toolbar-title>
+                    <v-toolbar-title>Markdown preview</v-toolbar-title>
                     <v-spacer></v-spacer>
                 </v-toolbar>
                 <MarkdownEditor v-if="markdownDialogState"></MarkdownEditor>
@@ -260,12 +247,6 @@
         private socketTypingTimeout: number = null;
         private currentEdits: Delta[] = [];
 
-        // Drafting related variables
-        private draftTypingTimeout: number = null;
-        private draftValue: Delta = null;
-        private loadDraftDialog = false;
-        private postHashCacheItemID = "";
-
         // Table related variables
         private tableMenuOpen = false;
         private tableActions = TableActions;
@@ -357,17 +338,6 @@
 
                 (window as any).katex = katex;
 
-                if (this.editorSetup.allowEdit) {
-                    this.postHashCacheItemID = `POSTDRAFT_${this.editorSetup.postHash === -1 ? "def" : this.editorSetup.postHash}`;
-                    localForage.getItem<Delta>(this.postHashCacheItemID)
-                        .then((cachedDraft: Delta) => {
-                            if (cachedDraft !== null) {
-                                this.loadDraftDialog = true;
-                                this.draftValue = cachedDraft;
-                            }
-                        });
-                }
-
                 logStringConsole("Mounted quillInstance with edit: " + this.editorSetup.allowEdit);
 
                 this.editorId = idGenerator();
@@ -421,16 +391,6 @@
                 }
             }
 
-        }
-
-        private loadDraft(load: boolean) {
-            if (load) {
-                this.editor.setContents(this.draftValue);
-            } else {
-                this.draftValue = null;
-            }
-
-            this.loadDraftDialog = false;
         }
 
         private getDelta() {
@@ -513,16 +473,6 @@
         }
 
         private textChanged(delta: Delta, oldContents: Delta, source: Sources) {
-            clearTimeout(this.draftTypingTimeout);
-            this.draftTypingTimeout = setTimeout(() => {
-                if (this.editor !== null) {
-                    localForage.setItem<Delta>(this.postHashCacheItemID, this.getDelta())
-                        .then(() => {
-                            logStringConsole("Drafted current post", "textchanged quillInstance");
-                        });
-                }
-            }, 1000);
-
             if (source === "user") {
                 this.currentEdits.push(delta);
             }
