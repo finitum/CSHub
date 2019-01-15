@@ -1,9 +1,25 @@
 version: '3'
 services:
+  shared:
+    image: cshub-shared
+    build: cshub-shared/
+
   frontend:
+    image: cshub-client
     build: cshub-client
+    depends_on:
+      - shared
     environment:
       - VUE_APP_API_URL=https://api-dev.cshub.nl
       - VUE_APP_DEBUG=true
     ports:
       - "8080:80"
+
+  backend:
+    image: cshub-server
+    build: cshub-server
+    depends_on:
+      - shared
+    env_file: cshub-server/settings.env
+    ports:
+      - "3000:3000"
