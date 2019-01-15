@@ -15,6 +15,7 @@ import {CursorUpdatedHandler} from "./CursorUpdatedHandler";
 export const io = socket(server);
 
 const cookieparser = () => {
+    // @ts-ignore TODO: Why does this break?
     const parser = cookieParser.apply(null, arguments);
 
     return (socket, next) => {
