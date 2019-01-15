@@ -1,0 +1,9 @@
+version: '3'
+services:
+  frontend:
+    build: cshub-client
+    environment:
+      - VUE_APP_API_URL=https://api-dev.cshub.nl
+      - VUE_APP_DEBUG=true
+    ports:
+      - "8080:80"

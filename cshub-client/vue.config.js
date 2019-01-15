@@ -13,6 +13,5 @@ module.exports = {
     runtimeCompiler: undefined,
     productionSourceMap: false,
     parallel: undefined,
-    css: undefined,
-
+    css: undefined
 };
