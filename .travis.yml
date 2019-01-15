@@ -38,3 +38,4 @@ cache:
     directories:
         - cshub-client/node_modules
         - cshub-server/node_modules
+        - cshub-shared/node_modules
