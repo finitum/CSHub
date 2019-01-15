@@ -1,6 +1,24 @@
+language: bash
 services:
   - docker
 
-script:
-  - cp cshub-server/settings_example.env cshub-server/settings.env
-  - docker-compose build
+before_script:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - cd cshub-shared/
+  - docker build -t $DOCKER_USERNAME/shared:$TRAVIS_BRANCH .
+  - docker push $DOCKER_USERNAME/shared:$TRAVIS_BRANCH
+  - cd ..
+
+matrix:
+  include:
+    - name: "client"
+      script:
+        - cd cshub-client
+        - docker build --build-arg BASE_IMAGE=$DOCKER_USERNAME/shared:$TRAVIS_BRANCH -t $DOCKER_USERNAME/client:$TRAVIS_BRANCH .
+        - docker push $DOCKER_USERNAME/client:$TRAVIS_BRANCH
+    - name: "server"
+      script:
+        - cd cshub-server
+        - docker build --build-arg BASE_IMAGE=$DOCKER_USERNAME/shared:$TRAVIS_BRANCH -t $DOCKER_USERNAME/server:$TRAVIS_BRANCH .
+        - docker push $DOCKER_USERNAME/server:$TRAVIS_BRANCH
+

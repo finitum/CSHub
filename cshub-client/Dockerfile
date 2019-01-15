@@ -1,5 +1,8 @@
-# Build frontend
-FROM cshub-shared as build-client
+ARG BASE_IMAGE=cshub-shared
+
+# build stage
+FROM $BASE_IMAGE as build-client
+
 
 # Set work dir
 WORKDIR /app/cshub-client

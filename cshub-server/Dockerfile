@@ -1,5 +1,7 @@
+ARG BASE_IMAGE=cshub-shared
+
 # build stage
-FROM cshub-shared as build-server
+FROM $BASE_IMAGE as build-server
 
 # set the current working directory
 WORKDIR /app/cshub-server
