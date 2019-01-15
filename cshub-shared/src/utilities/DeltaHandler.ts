@@ -19,12 +19,17 @@ export const transformFromArray = (inputEdits: IRealtimeEdit[], newEdit: IRealti
         }
     }
 
-    let editDelta = newEdit.delta;
+    let editDelta: Delta = null;
 
-    for (let j = toBeTransformed.length - 1; j >= 0; j--) {
-        const currTransformable = new Delta(toBeTransformed[j].delta);
-        editDelta = currTransformable.transform(editDelta, !newEditHasPriority); // Quill priority works the other way around
+    for (const transformable of toBeTransformed) {
+        if (editDelta === null) {
+            editDelta = new Delta(transformable.delta);
+        } else {
+            editDelta = editDelta.compose(new Delta(transformable.delta));
+        }
     }
 
-    return editDelta;
+    const transformed = editDelta.transform(newEdit.delta, !newEditHasPriority); // Quill priority works the other way around
+
+    return transformed;
 };

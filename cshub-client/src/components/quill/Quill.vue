@@ -268,7 +268,6 @@
             if (this.editorSetup.allowEdit) {
                 this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
 
-                    logStringConsole(`Current server id: ${data.edit.serverGeneratedId}, previous: ${data.edit.prevServerGeneratedId} last few edits server id ${this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId}`);
                     if (userState.userModel.id !== data.edit.userId) {
                         if (this.lastFewEdits.length === 1 || this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId === data.edit.prevServerGeneratedId) {
                             this.lastFewEdits.push(data.edit);
@@ -290,6 +289,8 @@
                             }
                         }
                     }
+
+                    logStringConsole(`Delta ${JSON.stringify(data.edit.delta)}, current server id: ${data.edit.serverGeneratedId}, previous: ${data.edit.prevServerGeneratedId} last few edits server id ${this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId}`, "Quill socket subscribe");
 
                 });
 

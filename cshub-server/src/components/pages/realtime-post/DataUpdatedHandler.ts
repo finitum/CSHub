@@ -34,6 +34,7 @@ export class DataUpdatedHandler {
             logger.info("Performing operational transform");
             logger.info(`Current server id: ${edit.serverGeneratedId}, previous: ${edit.prevServerGeneratedId} last few edits server id ${previousServerId}`);
             edit.delta = this.postHistoryHandler.transformArray(edit, false);
+            logger.info(`Done transforming: ${JSON.stringify(edit.delta)}`);
         }
 
         const serverGeneratedIdentifier = getRandomNumberLarge();

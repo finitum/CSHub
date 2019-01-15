@@ -40,11 +40,11 @@ export const hasAccessToPost = (postHash: number, jwt: string): Promise<postAcce
                 return {access: false, isOwner: false, editRights: false};
             }
 
-            if (isLoggedIn && tokenResult.user.admin) {
+            if (typeof tokenResult !== "undefined" && isLoggedIn && tokenResult.user.admin) {
                 return {access: true, isOwner: true, editRights: true};
             }
 
-            if (isLoggedIn && tokenResult.user.id === databaseResult.getNumberFromDB("author")) {
+            if (typeof tokenResult !== "undefined" && isLoggedIn && tokenResult.user.id === databaseResult.getNumberFromDB("author")) {
                 return {access: true, isOwner: true, editRights: true};
             }
 

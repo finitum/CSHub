@@ -46,5 +46,10 @@ export const server = http.createServer(app).listen(Settings.PORT);
 
 // Here all the connectors will be defined
 import "./components";
+import {query} from "./utilities/DatabaseConnection";
 
 logger.info("Express server started");
+
+setInterval(() => {
+    query("SELECT 1");
+}, 60 * 5 * 1000);
