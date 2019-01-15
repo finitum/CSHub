@@ -1,5 +1,6 @@
 src/settings.ts
 src/certs/csedelft-privkey.pem
+settings.env
 logs
 
 # Default gitignore:
