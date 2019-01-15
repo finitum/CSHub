@@ -1,12 +1,10 @@
 version: '3'
 services:
   shared:
-    image: cshub-shared
-    build: cshub-shared/
+    image: cshubnl/shared:dev
 
   frontend:
-    image: cshub-client
-    build: cshub-client
+    image: cshubnl/client:dev
     depends_on:
       - shared
     environment:
@@ -16,8 +14,7 @@ services:
       - "8080:80"
 
   backend:
-    image: cshub-server
-    build: cshub-server
+    image: cshubnl/server:dev
     depends_on:
       - shared
     env_file: cshub-server/settings.env
