@@ -1,41 +1,6 @@
-matrix:
-  include:
-  - language: node_js
-    env:
-        - CLIENT=true
-    node_js:
-        - "8"
-        - "10"
-        - "11"
-    before_script:
-        - cd cshub-shared
-        - yarn
-        - cd ..
-        - cd cshub-client
-    script:
-        - yarn
-        - yarn build
+services:
+  - docker
 
-  - language: node_js
-    env:
-        - SERVER=true
-    node_js:
-        - "8"
-        - "10"
-        - "11"
-    before_script:
-        - cd cshub-shared
-        - yarn
-        - cd ..
-        - cd cshub-server/src/
-        - cp SettingsBaseline.ts settings.ts
-        - cd ..
-    script:
-        - yarn
-        - tsc
-
-cache:
-    directories:
-        - cshub-client/node_modules
-        - cshub-server/node_modules
-        - cshub-shared/node_modules
+script:
+  - cp cshub-server/settings_example.env cshub-server/settings.env
+  - docker-compose build
