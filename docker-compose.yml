@@ -1,46 +1,18 @@
+# Development containers
 version: '3'
 services:
-#  # Production containers
-#  shared_master:
-#    image: cshubnl/shared:master
-#  frontend_master:
-#    image: cshubnl/client:master
-#    depends_on:
-#      - shared_master
-#    environment:
-#      - VUE_APP_API_URL=https://api.cshub.nl
-#      - VUE_APP_DEBUG=true
-#    ports:
-#      - "8181:80"
-#  backend_master:
-#    image: cshubnl/server:master
-#    depends_on:
-#      - shared_master
-#    env_file: cshub-server/settings_prod.env
-#    ports:
-#      - "3000:3000"
-
-  # Development containers
-  shared_dev:
-    image: cshubnl/shared:dev
   frontend_dev:
     image: cshubnl/client:dev
-    depends_on:
-      - shared_dev
     environment:
       - VUE_APP_API_URL=https://api-dev.cshub.nl
-      - VUE_APP_DEBUG=true
     ports:
       - "8080:80"
   backend_dev:
     image: cshubnl/server:dev
-    depends_on:
-      - shared_dev
     env_file: cshub-server/settings.env
     ports:
       - "3001:3001"
 
-  # Watchtower
   watchtower:
     image: v2tec/watchtower
     volumes:
