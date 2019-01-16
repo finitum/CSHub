@@ -9,7 +9,6 @@
         "dev-build": "vue-cli-service build --mode development",
         "lint": "vue-cli-service lint"
     },
-    "pre-commit": "bump-version",
     "dependencies": {
         "@babel/polyfill": "^7.0.0-rc.1",
         "@types/socket.io-client": "^1.4.32",
@@ -48,7 +47,6 @@
         "@vue/cli-plugin-typescript": "^3.1.1",
         "@vue/cli-service": "^3.1.2",
         "beautify": "^0.0.8",
-        "pre-commit": "^1.2.2",
         "typescript": "^3.1.6",
         "vue-cli-plugin-vuetify": "^0.2.1",
         "vue-template-compiler": "^2.5.22"
