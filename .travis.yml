@@ -31,16 +31,16 @@ matrix:
         - docker push $DOCKER_USERNAME/server:$TRAVIS_BRANCH
 
     - name: "client-pull"
-        if: type = pull_request
-        stage: others
-        script:
-          - docker build -t shared-$TRAVIS_PULL_REQUEST_SHA cshub-shared
-          - docker build --build-arg BASE_IMAGE=shared-$TRAVIS_PULL_REQUEST_SHA cshub-client
+      if: type = pull_request
+      stage: others
+      script:
+        - docker build -t shared-$TRAVIS_PULL_REQUEST_SHA cshub-shared
+        - docker build --build-arg BASE_IMAGE=shared-$TRAVIS_PULL_REQUEST_SHA cshub-client
 
     - name: "server-pull"
-        if: type = pull_request
-        stage: others
-        script:
-          - docker build -t shared-$TRAVIS_PULL_REQUEST_SHA cshub-shared
-          - docker build --build-arg BASE_IMAGE=shared-$TRAVIS_PULL_REQUEST_SHA cshub-server
+      if: type = pull_request
+      stage: others
+      script:
+        - docker build -t shared-$TRAVIS_PULL_REQUEST_SHA cshub-shared
+        - docker build --build-arg BASE_IMAGE=shared-$TRAVIS_PULL_REQUEST_SHA cshub-server
 
