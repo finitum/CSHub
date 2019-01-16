@@ -23,3 +23,7 @@ declare module 'vue/types/options' {
         sockets?: any;
     }
 }
+
+declare var window: {
+    appConfig: any;
+};

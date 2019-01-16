@@ -22,5 +22,10 @@ RUN yarn build
 
 # production stage
 FROM nginx:1.15-alpine as production-stage
-COPY --from=build-client /app/cshub-client/dist /usr/share/nginx/html
+WORKDIR /usr/share/nginx/html
+COPY --from=build-client /app/cshub-client/dist .
+COPY --from=build-client /app/cshub-client/src/config.sh .
+RUN ["chmod", "+x", "./config.sh"]
+CMD ["/usr/share/nginx/html/config.sh"]
 EXPOSE 80
+
