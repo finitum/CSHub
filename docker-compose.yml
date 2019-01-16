@@ -11,7 +11,7 @@ services:
 #      - VUE_APP_API_URL=https://api.cshub.nl
 #      - VUE_APP_DEBUG=true
 #    ports:
-#      - "8080:80"
+#      - "8181:80"
 #  backend_master:
 #    image: cshubnl/server:master
 #    depends_on:
@@ -38,7 +38,7 @@ services:
       - shared_dev
     env_file: cshub-server/settings.env
     ports:
-      - "3000:3000"
+      - "3001:3001"
 
   # Watchtower
   watchtower:
@@ -46,4 +46,4 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /root/.docker/config.json:/config.json
-    command: --interval 300
+    command: --interval 180
