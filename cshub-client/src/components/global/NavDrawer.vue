@@ -55,6 +55,11 @@
                 <router-link v-if="userAdminComputed" :to="`${navigationLocations.ADMINDASHBOARD}/${adminRoutes.TOPICCREATE}`"><NavDrawerItem icon="fas fa-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
             </div>
         </v-list>
+        <div id="version">
+            <span :title="fullGitSHA">{{ shortVersionString }}</span>
+            <br>
+            {{ buildDate }}
+        </div>
     </v-navigation-drawer>
 </template>
 
@@ -96,6 +101,11 @@
         private topics: ITopic[] = [];
         private navigationLocations = Routes;
         private adminRoutes = AdminRoutes;
+
+        // Build information
+        private shortVersionString = "SHA: " + process.env.VUE_APP_VERSION.substr(0, 7);
+        private fullGitSHA = process.env.VUE_APP_VERSION;
+        private buildDate = "Build Date: " + process.env.VUE_APP_BUILDDATE;
 
         /**
          * Computed properties
@@ -225,5 +235,13 @@
     padding-left: 16px;
 }
 
+#version {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(0,0,0,.54);
 
+    position: absolute;
+    left: 5px;
+    bottom: 10px;
+}
 </style>

@@ -1,3 +1,8 @@
+const { readFileSync } = require("fs");
+
+process.env.VUE_APP_VERSION = JSON.parse(readFileSync("package.json"))["gitSHA"];
+process.env.VUE_APP_BUILDDATE = new Date().toLocaleString();
+
 module.exports = {
     pwa: {
       themeColor: '#00A6D8',

@@ -1,4 +1,4 @@
-language: bash
+language: nodejs
 services:
   - docker
 
@@ -19,6 +19,10 @@ matrix:
     - name: "client-push"
       if: type = push
       stage: others
+      before_script:
+        - cd cshub-client
+        - node version.js
+        - cd ..
       script:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
         - docker build --build-arg BASE_IMAGE=$DOCKER_USERNAME/shared:$TRAVIS_BRANCH -t $DOCKER_USERNAME/client:$TRAVIS_BRANCH cshub-client
