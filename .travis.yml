@@ -20,6 +20,7 @@ matrix:
       if: type = push
       stage: others
       script:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
         - docker build --build-arg BASE_IMAGE=$DOCKER_USERNAME/shared:$TRAVIS_BRANCH -t $DOCKER_USERNAME/client:$TRAVIS_BRANCH cshub-client
         - docker push $DOCKER_USERNAME/client:$TRAVIS_BRANCH
 
@@ -27,6 +28,7 @@ matrix:
       if: type = push
       stage: others
       script:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
         - docker build --build-arg BASE_IMAGE=$DOCKER_USERNAME/shared:$TRAVIS_BRANCH -t $DOCKER_USERNAME/server:$TRAVIS_BRANCH cshub-server
         - docker push $DOCKER_USERNAME/server:$TRAVIS_BRANCH
 
