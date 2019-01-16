@@ -153,6 +153,10 @@
          * Lifecycle hooks
          */
         private mounted() {
+            // TODO: Remove
+            console.log("Git SHA: " + process.env.VUE_APP_VERSION);
+            console.log("Build Date: " + process.env.VUE_APP_BUILDDATE);
+
             type topicCache = {
                 version: number,
                 topics: ITopic[]

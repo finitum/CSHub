@@ -5,6 +5,8 @@ declare var process: {
         NODE_ENV: string,
         VUE_APP_API_URL: string,
         VUE_APP_DEBUG: string
+        VUE_APP_VERSION: string,
+        VUE_APP_BUILDDATE: string
     }
 };
 
