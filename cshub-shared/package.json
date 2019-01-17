@@ -1,19 +1,20 @@
 {
-  "name": "cshub-shared",
-  "version": "0.2.2",
-  "devDependencies": {
-    "@types/markdown-it": "^0.0.7",
-    "@types/quill": "^2.0.1",
-    "dayjs": "^1.7.7",
-    "quill-delta": "^4.1.0"
-  },
-  "dependencies": {
-    "katex": "^0.10.0",
-    "markdown-it": "latest",
-    "markdown-it-katex": "latest",
-    "parchment": "^1.1.4"
-  },
-  "resolutions": {
-    "markdown-it-katex/katex": "0.10.0"
-  }
+    "name": "cshub-shared",
+    "version": "0.2.2",
+    "devDependencies": {
+        "@types/markdown-it": "^0.0.7",
+        "@types/quill": "^2.0.1",
+        "dayjs": "^1.7.7",
+        "quill-delta": "^4.1.0"
+    },
+    "dependencies": {
+        "katex": "^0.10.0",
+        "markdown-it": "latest",
+        "markdown-it-katex": "latest",
+        "parchment": "^1.1.4"
+    },
+    "resolutions": {
+        "markdown-it-katex/katex": "0.10.0"
+    },
+    "gitSHA": "7e18b95d5e736c28b745b741320aee5f067366eb"
 }
