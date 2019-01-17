@@ -13,8 +13,9 @@ COPY package.json ./
 COPY yarn.lock ./
 
 # Install dependencies
-RUN apk add python make g++ --no-cache
+RUN apk add python make g++ --no-cache -t builddep
 RUN yarn install
+RUN apk del builddep
 
 # Copy src files
 COPY . .
