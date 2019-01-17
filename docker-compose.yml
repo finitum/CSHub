@@ -3,6 +3,8 @@ version: '3'
 services:
   frontend_dev:
     image: cshubnl/client:dev
+    labels:
+      - traefik.frontend.rule=Host:dev.cshub.nl
     environment:
       - VUE_APP_API_URL=https://api-dev.cshub.nl
     ports:
@@ -10,9 +12,10 @@ services:
   backend_dev:
     image: cshubnl/server:dev
     env_file: cshub-server/settings.env
+    labels:
+      - traefik.frontend.rule=Host:api-dev.cshub.nl
     ports:
       - "3001:3001"
-
   watchtower:
     image: v2tec/watchtower
     volumes:
