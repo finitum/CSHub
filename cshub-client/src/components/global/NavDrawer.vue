@@ -56,7 +56,7 @@
             </div>
         </v-list>
         <div id="version">
-            <span :title="fullGitSHA">{{ shortVersionString }}</span>
+            <a :title="fullGitSHA" :href="githubLink">{{ shortVersionString }}</a>
             <br>
             {{ buildDate }}
         </div>
@@ -105,6 +105,7 @@
         // Build information
         private shortVersionString = "SHA: " + process.env.VUE_APP_VERSION.substr(0, 7);
         private fullGitSHA = process.env.VUE_APP_VERSION;
+        private githubLink = "https://github.com/RobbinBaauw/CSHub/commit/" + this.fullGitSHA;
         private buildDate = "Build Date: " + process.env.VUE_APP_BUILDDATE;
 
         /**
@@ -153,9 +154,8 @@
          * Lifecycle hooks
          */
         private mounted() {
-            // TODO: Remove
-            console.log("Git SHA: " + process.env.VUE_APP_VERSION);
-            console.log("Build Date: " + process.env.VUE_APP_BUILDDATE);
+            logStringConsole("Git SHA: " + process.env.VUE_APP_VERSION, "NavDrawer.vue");
+            logStringConsole("Build Date: " + process.env.VUE_APP_BUILDDATE, "NavDrawer.vue");
 
             type topicCache = {
                 version: number,
