@@ -1,7 +1,7 @@
 # Development containers
 version: '3'
 services:
-  frontend_dev:
+  frontend:
     image: cshubnl/client:dev
     labels:
       - traefik.frontend.rule=Host:dev.cshub.nl
@@ -9,15 +9,11 @@ services:
       - VUE_APP_API_URL=https://api-dev.cshub.nl
     ports:
       - "8080:80"
-  backend_dev:
+  backend:
     image: cshubnl/server:dev
-    env_file: cshub-server/settings.env
+    env_file: ./settings.env
     labels:
       - traefik.frontend.rule=Host:api-dev.cshub.nl
+      - treafik.frontend.port=3001
     ports:
       - "3001:3001"
-  watchtower:
-    image: v2tec/watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 180 --cleanup

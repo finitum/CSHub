@@ -1,0 +1,10 @@
+traefik:
+    image: traefik # The official Traefik docker image
+    command: --api --docker
+    ports:
+      - "80:80"     # The HTTP port
+      - "8484:8080" # The Web UI (enabled by --api)
+    volumes:
+      - ./traefik.toml:/etc/traefik/traefik.toml
+      - /var/run/docker.sock:/var/run/docker.sock
+
