@@ -1,6 +1,10 @@
 language: node_js
 node_js:
   - "11"
+
+git:
+  depth: 1
+
 services:
   - docker
 
@@ -19,6 +23,7 @@ matrix:
       script:
         - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
         - docker build -t $DOCKER_USERNAME/shared:$TRAVIS_BRANCH cshub-shared
+      after_success:
         - docker push $DOCKER_USERNAME/shared:$TRAVIS_BRANCH
 
     - name: "client-push"
@@ -27,6 +32,7 @@ matrix:
       script:
         - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
         - docker build --build-arg BASE_IMAGE=$DOCKER_USERNAME/shared:$TRAVIS_BRANCH -t $DOCKER_USERNAME/client:$TRAVIS_BRANCH cshub-client
+      after_success:
         - docker push $DOCKER_USERNAME/client:$TRAVIS_BRANCH
 
     - name: "server-push"
@@ -35,6 +41,7 @@ matrix:
       script:
         - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
         - docker build --build-arg BASE_IMAGE=$DOCKER_USERNAME/shared:$TRAVIS_BRANCH -t $DOCKER_USERNAME/server:$TRAVIS_BRANCH cshub-server
+      after_success:
         - docker push $DOCKER_USERNAME/server:$TRAVIS_BRANCH
 
     - name: "client-pull"
