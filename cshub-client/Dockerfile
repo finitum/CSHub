@@ -1,7 +1,11 @@
+# Available at cshubnl/shared
 ARG BASE_IMAGE=cshub-shared
 
 # build stage
 FROM $BASE_IMAGE as build-client
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 
 # Set work dir
 WORKDIR /app/cshub-client
