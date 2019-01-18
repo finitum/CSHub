@@ -4,9 +4,6 @@ ARG BASE_IMAGE=cshub-shared
 # build stage
 FROM $BASE_IMAGE as build-server
 
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
 # Set the current working directory
 WORKDIR /app/cshub-server
 
