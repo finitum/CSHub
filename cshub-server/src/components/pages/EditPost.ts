@@ -1,7 +1,8 @@
 import {Request, Response} from "express";
 import escapeHtml from "escape-html";
 
-import {app, logger} from "../../";
+import {app} from "../../";
+import logger from "../../utilities/Logger"
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";

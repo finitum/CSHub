@@ -18,7 +18,7 @@ RUN apk add python make g++ --no-cache -t builddep && yarn install && apk del bu
 COPY . .
 COPY ./src/SettingsBaseline.ts ./src/settings.ts
 
-# Install TS, Compiles TS, Remove TS
+# Install TSC, Compiles TS, Remove TSC
 RUN yarn global add typescript && tsc && yarn global remove typescript && yarn cache clean
 
 CMD ["node", "src/index.js"]

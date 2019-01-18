@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
 
-import {app, logger} from "../../";
+import {app} from "../../";
+import logger from "../..//utilities/Logger"
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 
 import {CreateAccount, CreateAccountCallBack, CreateAccountResponseTypes} from "../../../../cshub-shared/src/api-calls";

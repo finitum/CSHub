@@ -1,7 +1,8 @@
 import {Request, Response} from "express";
 import async from "async";
 
-import {app, logger} from "../../";
+import {app} from "../../";
+import logger from "../../utilities/Logger"
 
 import {SquashEdits, SquashEditsCallback} from "../../../../cshub-shared/src/api-calls";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
@@ -10,8 +11,6 @@ import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {Dayjs} from "dayjs";
 import dayjs = require("dayjs");
 import Delta = require("quill-delta/dist/Delta");
-import {type} from "os";
-
 
 app.post(SquashEdits.getURL, (req: Request, res: Response) => {
 

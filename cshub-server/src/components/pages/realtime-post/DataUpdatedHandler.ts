@@ -8,10 +8,10 @@ import dayjs, {Dayjs} from "dayjs";
 // @ts-ignore
 import Delta from "quill-delta/dist/Delta";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
-import {logger} from "../../../index";
+import logger from "../../../utilities/Logger"
+import {getRandomNumberLarge} from "../../../../../cshub-shared/src/utilities/Random";
 import {io} from "./socket-receiver";
 import {validateAccessToken} from "../../../auth/JWTHandler";
-import {getRandomNumberLarge} from "../../../../../cshub-shared/src/utilities/Random";
 
 type deltaReturnType = {
     fullDelta: Delta,

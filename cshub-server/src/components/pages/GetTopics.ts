@@ -1,8 +1,9 @@
 import {Request, Response} from "express";
 
-import {app, logger} from "../../";
+import {app} from "../../";
+import logger from "../../utilities/Logger"
 
-import {GetPostContent, GetTopicsCallBack, GetTopics} from "../../../../cshub-shared/src/api-calls";
+import {GetTopicsCallBack, GetTopics} from "../../../../cshub-shared/src/api-calls";
 import {getTopicTree} from "../../utilities/TopicsUtils";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 

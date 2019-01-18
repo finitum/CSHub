@@ -3,7 +3,7 @@
     "version": "0.2.2",
     "private": true,
     "scripts": {
-        "bump-version": "node version && beautify -o package.json package.json",
+        "beautify-package.json": "beautify -o package.json package.json",
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
         "dev-build": "vue-cli-service build --mode development",
@@ -51,5 +51,5 @@
         "vue-cli-plugin-vuetify": "^0.2.1",
         "vue-template-compiler": "^2.5.22"
     },
-    "gitSHA": "7e18b95d5e736c28b745b741320aee5f067366eb"
+    "gitSHA": "fa3dd408ab7d1759a643a80a4b840ad1ff371a4c"
 }

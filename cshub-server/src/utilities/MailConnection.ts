@@ -6,7 +6,7 @@ import {ClientResponse} from "@sendgrid/client/src/response";
 
 import {Settings} from "../settings";
 import {query} from "./DatabaseConnection";
-import {logger} from "../index";
+import logger from "./Logger";
 import {Requests} from "../../../cshub-shared/src/api-calls/index";
 import {Routes} from "../../../cshub-shared/src/Routes";
 import {getRandomNumberLarge} from "../../../cshub-shared/src/utilities/Random";
@@ -21,7 +21,7 @@ const nodeMailer = nodemailer.createTransport({
 });
 
 export const sendMail = (subject: string, html: string, to: string) => {
-    
+
     const emailObj = {
         to,
         subject,
@@ -46,7 +46,7 @@ export const sendMail = (subject: string, html: string, to: string) => {
             ...emailObj,
             from: Settings.MAIL.NOREPLYADDRESS
         };
-        
+
         sgMail.send(sendGridEmailObject)
             .then((response: [ClientResponse, {}]) => {
                 logger.info("Mail sent: ");
