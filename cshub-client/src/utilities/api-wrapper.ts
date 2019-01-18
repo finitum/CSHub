@@ -10,6 +10,7 @@ const axiosApi = axios.create({
     headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
+        "Version": process.env.VUE_APP_VERSION
     }
 });
 

@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 
 import logger from "./utilities/Logger"
 
+
 export const app: express.Application = express();
 
 // Use some middleware to allow all CORS and to parse the incoming body and cookies
@@ -25,6 +26,7 @@ app.use(bodyParser.json({limit: "1mb"}));
 app.use(cookieParser());
 
 import "./auth/AuthMiddleware";
+import "./utilities/VersionMiddleware";
 
 // Run the server on port 3000
 export const server = http.createServer(app).listen(Settings.PORT);
