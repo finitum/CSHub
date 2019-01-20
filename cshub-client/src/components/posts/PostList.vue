@@ -1,9 +1,9 @@
 <template>
     <div>
         <div v-for="(postHash, index) in postHashes" :key="postHash.index">
-            <Post :postHash="postHash" :isNewPost="isNewPost.length === postHashes.length ? isNewPost[index] : null" v-show="showCurrentPost(index, postHash)" :key="postHash"></Post>
+            <Post :postHash="postHash" :isNewPost="isNewPost.length === postHashesProp.length ? isNewPost[index] : null" v-show="showCurrentPost(index, postHash)" :key="postHash"></Post>
         </div>
-        <PostPagination v-if="postHashes.length !== 0 && currentPostHash === -1" :elements="postHashes.length" :range="range"></PostPagination>
+        <PostPagination v-if="postHashes.length !== 0 && currentPostHash === -1" :elements="postHashesProp.length" :range="range"></PostPagination>
     </div>
 </template>
 
@@ -32,7 +32,6 @@
         @Prop(null) private postHashesProp: number[];
         @Prop({default: (): boolean[] => []}) private isNewPost: boolean[];
 
-        private paginationStartIndex: number = 0;
         private currentPostHash = -1;
         private range = 5; // Just the default value
         private postHashes: number[] = [];
@@ -92,8 +91,8 @@
             if (window.innerHeight < 1000) {
                 this.range = 5;
             } else {
-                // Getting the window height, subtracting 350 pixels. Then dividing by 100 for a very wild guess of amount of possible cards on this screen
-                let range = Math.floor((window.innerHeight - 350) / 75);
+                // Getting the window height, subtracting 350 pixels. Then dividing by 90 for a very wild guess of amount of possible cards on this screen
+                let range = Math.ceil((window.innerHeight - 350) / 90);
                 if (range === 0) {
                     range = 1;
                 }
@@ -104,14 +103,11 @@
 
         private showCurrentPost(index: number, postHash: number): boolean {
 
-            const inIndexRange = index >= this.paginationStartIndex && index < (this.paginationStartIndex + this.range);
-
-            return (this.currentPostHash === -1 && inIndexRange) || this.currentPostHash === postHash;
+            return (this.currentPostHash === -1) || this.currentPostHash === postHash;
         }
 
         private updateCurrHashes() {
-            this.postHashes = this.postHashesProp.slice(((this.paginationPageState - 1) * this.range), (this.paginationPageState * this.range) - 1);
-            this.paginationStartIndex = (this.paginationPageState - 1) * this.range;
+            this.postHashes = this.postHashesProp.slice(((this.paginationPageState - 1) * this.range), (this.paginationPageState * this.range));
         }
 
         private doOnRouteChange() {
