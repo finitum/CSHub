@@ -2,6 +2,8 @@ version: '3'
 services:
   portainer:
     image: portainer/portainer
+    networks:
+      - web
     ports:
       - "9000:9000"
     volumes:
@@ -10,3 +12,7 @@ services:
 
 volumes:
   portainer_data:
+
+networks:
+  web:
+    external: true

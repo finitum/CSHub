@@ -3,6 +3,8 @@ version: '3'
 services:
   frontend:
     image: cshubnl/client:dev
+    networks:
+      - web
     labels:
       - traefik.frontend.rule=Host:dev.cshub.nl
     environment:
@@ -12,8 +14,14 @@ services:
   backend:
     image: cshubnl/server:dev
     env_file: ./settings.env
+    networks:
+      - web
     labels:
       - traefik.frontend.rule=Host:api-dev.cshub.nl
       - treafik.frontend.port=3001
     ports:
       - "3001:3001"
+
+networks:
+  web:
+    external: true
