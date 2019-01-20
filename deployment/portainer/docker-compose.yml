@@ -2,6 +2,9 @@ version: '3'
 services:
   portainer:
     image: portainer/portainer
+    labels:
+      - traefik.frontend.rule=Host:logs.cshub.nl
+      - treafik.frontend.port=9000
     networks:
       - web
     ports:
