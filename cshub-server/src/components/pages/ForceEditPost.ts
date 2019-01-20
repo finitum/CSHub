@@ -47,8 +47,6 @@ app.post(ForceEditPost.getURL, (req: Request, res: Response) => {
                     }
 
                     getHTMLFromDelta(delta, (html) => {
-                        DataUpdatedHandler.postHistoryHandler.updateDbDelta(editPostRequest.postHash, delta);
-
                         query(`
                           UPDATE edits, posts
                           SET edits.approved    = 1,

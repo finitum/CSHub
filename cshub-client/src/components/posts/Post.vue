@@ -161,8 +161,8 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
     import dataState from "../../store/data";
     import userState from "../../store/user";
     import uiState from "../../store/ui";
-    import Delta from "quill-delta/dist/Delta";
     import {ForceEditPost} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
+    import {colorize} from "../../utilities/codemirror-colorize";
 
     interface IBreadCrumbType {
         name: string;
@@ -332,7 +332,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         }
 
         private highlightCode() {
-            (CodeMirror as any).colorize(null, null);
+            colorize(null, CodeMirror);
         }
 
         private getAvatarURL(dbImage: string) {

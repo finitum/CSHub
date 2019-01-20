@@ -1,5 +1,5 @@
-import "codemirror/addon/runmode/runmode-standalone";
-import "codemirror/addon/runmode/colorize";
+import "codemirror/lib/codemirror";
+import "codemirror/addon/runmode/runmode";
 
 import "codemirror/mode/cypher/cypher";
 import "codemirror/mode/htmlembedded/htmlembedded";
