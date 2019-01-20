@@ -64,6 +64,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                         if (dbEditIndex !== -1) {
                             currSquashIndexes.push(dbEditIndex);
                         } else {
+                            logger.error("Invalid squash");
                             res.status(501).send();
                             isValidRequest = false;
                             break;
@@ -77,6 +78,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
 
                         for (let i = 1; i < currSquashIndexes.length; i++) {
                             if (Math.abs(currSquashIndexes[i] - prevIndex) > 1) {
+                                logger.error("Invalid squash");
                                 res.status(501).send();
                                 isValidRequest = false;
                                 break;
@@ -171,6 +173,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
             res.status(401).send();
         }
     } else {
+        logger.error("Invalid squash input");
         res.status(501).send();
     }
 

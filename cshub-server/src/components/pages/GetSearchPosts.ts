@@ -56,6 +56,7 @@ app.post(GetSearchPosts.getURL, (req: Request, res: Response) => {
                 logger.error(err);
             })
     } else {
+        logger.error("Invalid search query");
         res.status(500).send();
     }
 
