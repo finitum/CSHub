@@ -1,6 +1,6 @@
 import {IApiRequest} from "../../../models/IApiRequest";
 
-import {AuthRequests} from "../../AuthRequests";
+import {Requests} from "../../Requests";
 
 export enum ChangeUserAvatarReponseTypes {
     SUCCESS,
@@ -17,7 +17,7 @@ export class ChangeUserAvatarCallback {
 
 export class ChangeUserAvatar implements IApiRequest {
 
-    public static getURL: string = AuthRequests.CHANGEAVATAR;
+    public static getURL: string = Requests.CHANGEAVATAR;
     public URL: string = ChangeUserAvatar.getURL;
 
     constructor(public imageb64: string) {}

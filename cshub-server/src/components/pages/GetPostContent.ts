@@ -1,4 +1,5 @@
-import {app, logger} from "../../.";
+import {app} from "../../.";
+import logger from "../../utilities/Logger"
 import {Request, Response} from "express";
 import {
     GetPostCallBack,
@@ -11,20 +12,33 @@ import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 import {getPostData} from "./GetPost";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import tracker from "../../utilities/Tracking";
 
 app.post(GetPostContent.getURL, (req: Request, res: Response) => {
 
     const postContentRequest = req.body as GetPostContent;
 
+    // Analytics
+    const reqURL = "/post/" + postContentRequest.postHash;
+    tracker.pageview(reqURL).send();
+
+    logger.verbose(reqURL);
+
+    enum postState {
+        ONLINE,
+        FIRSTEDIT,
+        DELETED
+    }
+
     type contentReturn = {
         content: string,
-        approved: number
-    }
+        state: postState
+    };
 
     // Check if the user actually has access to the post
     hasAccessToPost(postContentRequest.postHash, req.cookies["token"])
         .then((approved: postAccessType) => {
-            if (!approved) {
+            if (!approved.access) {
                 res.status(401).send();
             }
 
@@ -42,25 +56,25 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
                             .then((returnContent: contentReturn) => {
                                 getPostData(postContentRequest.postHash)
                                     .then((data: GetPostCallBack) => {
-                                        if (data !== null && returnContent.approved !== -1) {
+                                        if (data !== null && returnContent.state !== postState.DELETED) {
                                             res.json(new GetPostContentCallBack(PostVersionTypes.UPDATEDPOST, {
                                                 html: returnContent.content,
-                                                approved: returnContent.approved === 1
+                                                approved: returnContent.state === postState.ONLINE
                                             }, data.post));
                                         } else {
                                             res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
                                         }
-                                    })
-                            })
+                                    });
+                            });
                     } else if (postContentRequest.getHTMLOnNoUpdate) {
                         getContent(approved)
                             .then((returnContent: contentReturn) => {
-                                if (returnContent.approved === -1) {
+                                if (returnContent.state === postState.DELETED) {
                                     res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
                                 } else {
                                     res.json(new GetPostContentCallBack(PostVersionTypes.RETRIEVEDCONTENT, {
                                         html: returnContent.content,
-                                        approved: returnContent.approved === 1
+                                        approved: returnContent.state === postState.ONLINE
                                     }));
                                 }
                             })
@@ -77,30 +91,42 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
         });
 
     const getContent = (approved: postAccessType) => {
-        const user = checkTokenValidity(req);
-
-        const mustBeApproved: number[] = approved.isOwner ? [0, 1] : [1];
 
         return query(`
-              SELECT T1.htmlContent, T1.approved
-              FROM edits T1
-                     INNER JOIN posts T2 ON T1.post = T2.id
-              WHERE T2.hash = ? AND T1.approved IN (?)
-              ORDER BY T1.datetime DESC
+              SELECT T2.htmlContent, T2.approved, T1.deleted
+              FROM posts T1
+                     LEFT JOIN edits T2 ON T1.id = T2.post AND T2.approved = 1
+              WHERE T1.hash = ? AND deleted = 0
+              ORDER BY T2.datetime DESC
               LIMIT 1
-            `,  postContentRequest.postHash, mustBeApproved)
+            `,  postContentRequest.postHash)
             .then((content: DatabaseResultSet) => {
                 if (content.convertRowsToResultObjects().length > 0) {
+                    if (content.getStringFromDB("htmlContent") === null && approved.isOwner) {
+                        return {
+                            content: "No content yet!",
+                            state: postState.FIRSTEDIT
+                        };
+                    }
+
                     return {
                         content: content.getStringFromDB("htmlContent"),
-                        approved: content.getNumberFromDB("approved")
+                        state: postState.ONLINE
                     };
                 } else {
                     return {
                         content: "No accessible content found!",
-                        approved: -1
+                        state: postState.DELETED
                     };
                 }
             })
-    }
+            .catch(err => {
+                logger.error("Error getting content");
+                logger.error(err);
+                return {
+                    content: "Error",
+                    state: postState.DELETED
+                }
+            });
+    };
 });

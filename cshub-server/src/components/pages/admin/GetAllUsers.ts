@@ -1,4 +1,4 @@
-import {app, logger} from "../../../";
+import {app} from "../../../";
 import {GetAllUsersCallBack, GetAllUsers} from "../../../../../cshub-shared/src/api-calls/admin";
 import {Request, Response} from "express";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";

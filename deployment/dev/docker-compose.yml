@@ -1,0 +1,19 @@
+# Development containers
+version: '3'
+services:
+  frontend:
+    image: cshubnl/client:dev
+    labels:
+      - traefik.frontend.rule=Host:dev.cshub.nl
+    environment:
+      - VUE_APP_API_URL=https://api-dev.cshub.nl
+    ports:
+      - "8080:80"
+  backend:
+    image: cshubnl/server:dev
+    env_file: ./settings.env
+    labels:
+      - traefik.frontend.rule=Host:api-dev.cshub.nl
+      - treafik.frontend.port=3001
+    ports:
+      - "3001:3001"

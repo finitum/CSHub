@@ -1,14 +1,19 @@
 import {IApiRequest, IUser} from "../../models";
-import {AdminRequests} from "../AdminRequests";
+import {Requests} from "../Requests";
+
+export type GetUnverifiedPostsType = {
+    hash: number,
+    isNewPost: boolean
+};
 
 export class GetUnverifiedPostsCallBack {
 
     constructor(
-        public postHashes: number[]
+        public postHashes: GetUnverifiedPostsType[]
     ) {}
 }
 
 export class GetUnverifiedPosts implements IApiRequest {
-    public static getURL: string = AdminRequests.GETUNVERIFIEDPOSTS;
+    public static getURL: string = Requests.GETUNVERIFIEDPOSTS;
     public URL: string = GetUnverifiedPosts.getURL;
 }

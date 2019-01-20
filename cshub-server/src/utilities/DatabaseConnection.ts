@@ -2,7 +2,7 @@ import mysql from "mysql2";
 import {Settings} from "../settings";
 import {Client} from "ssh2";
 import fs from "fs";
-import {logger} from "../index";
+import logger from "./Logger";
 
 const connectionconf = {
     host: Settings.DATABASE.HOST,
@@ -95,7 +95,7 @@ export const query = (query: string, ...args: any[]) => {
     });
 };
 
-export class DatabaseResultSet {
+export class DatabaseResultSet implements Iterable<DatabaseResultRow> {
 
     constructor(private rows: any[], private insertId: number) {}
 
@@ -110,8 +110,6 @@ export class DatabaseResultSet {
         try {
             return currObj as string;
         } catch (err) {
-            logger.error(`Error getting number from database string, name: ${name}.`);
-            logger.error(err);
             return null;
         }
     }
@@ -127,14 +125,16 @@ export class DatabaseResultSet {
         try {
             return currObj as number;
         } catch (err) {
-            logger.error(`Error getting value from database string, name: ${name}.`);
-            logger.error(err);
             return null;
         }
     }
 
     public getInsertId(): number {
         return this.insertId;
+    }
+
+    public getLength(): number {
+        return this.rows.length;
     }
 
     public getStringFromDB(name: string, index: number = 0): string {
@@ -158,6 +158,22 @@ export class DatabaseResultSet {
         }
 
         return convertedRows;
+    }
+
+    [Symbol.iterator](): Iterator<DatabaseResultRow> {
+
+        const rows = this.rows;
+
+        let index = 0;
+
+        return {
+            next(value?: any): IteratorResult<DatabaseResultRow> {
+                return {
+                    done: !(index < rows.length),
+                    value: new DatabaseResultRow(rows[index++])
+                };
+            }
+        };
     }
 }
 

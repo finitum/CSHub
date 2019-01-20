@@ -1,6 +1,7 @@
 # IntelliJ Files
 .idea
-FAQSite.iml
+*.iml
+settings.env
 
 cshub-server/src/**/*.js
 cshub-server/src/**/*.map

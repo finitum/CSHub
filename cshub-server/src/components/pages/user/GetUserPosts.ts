@@ -14,7 +14,7 @@ app.post(GetUserPosts.getURL, (req: Request, res: Response) => {
         query(`
         SELECT hash
         FROM posts
-        WHERE author = ?
+        WHERE author = ? AND deleted = 0  
         ORDER BY datetime DESC
         `, token.tokenObj.user.id)
             .then((result: DatabaseResultSet) => {

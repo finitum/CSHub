@@ -8,4 +8,4 @@ export * from "./GetPostContent";
 export * from "./GetEditContent";
 export * from "./GetSearchPosts";
 export * from "./user/index";
-
+export * from "./SquashEdits";

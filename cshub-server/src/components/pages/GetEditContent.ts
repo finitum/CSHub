@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
 
-import {app, logger} from "../../";
+import {app} from "../../";
+import logger from "../../utilities/Logger"
 
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
@@ -10,13 +11,11 @@ import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAcc
 import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/src/api-calls";
 
 import dayjs from "dayjs";
-import {IEdit} from "../../../../cshub-shared/src/models";
+import {IEdit, IUserCensored} from "../../../../cshub-shared/src/models";
 
 app.post(GetEditContent.getURL, (req: Request, res: Response) => {
 
     const getEditContent: GetEditContent = req.body as GetEditContent;
-
-    const userObj = checkTokenValidity(req);
 
     const inputsValidation = validateMultipleInputs({input: getEditContent.postHash});
 
@@ -38,28 +37,36 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                              T3.admin     AS authorAdmin
                       FROM edits T1
                              INNER JOIN posts T2 ON T1.post = T2.id
-                             INNER JOIN users T3 ON T1.editedBy = T3.id
-                      WHERE T2.hash = ?
+                             LEFT JOIN editusers T4 on T1.id = T4.edit
+                             LEFT JOIN users T3 ON T4.user = T3.id
+                      WHERE T2.hash = ? AND T1.approved = 1
                     `, getEditContent.postHash)
                         .then((edits: DatabaseResultSet) => {
 
                             const editArray: IEdit[] = [];
 
                             for (const edit of edits.convertRowsToResultObjects()) {
-                                editArray.push({
-                                    parentPostId: edit.getNumberFromDB("post"),
-                                    content: JSON.parse(edit.getStringFromDB("content")),
-                                    datetime: dayjs(edit.getStringFromDB("datetime")),
-                                    editedBy: {
-                                        id: edit.getNumberFromDB("authorId"),
-                                        firstname: edit.getStringFromDB("authorFirstName"),
-                                        lastname: edit.getStringFromDB("authorLastName"),
-                                        avatar: "",
-                                        admin: edit.getNumberFromDB("authorAdmin") === 1
-                                    },
-                                    id: edit.getNumberFromDB("id"),
-                                    approved: edit.getNumberFromDB("approved") === 1
-                                });
+                                const editObj = editArray.find(x => x.id === edit.getNumberFromDB("id"));
+
+                                const currUser: IUserCensored = {
+                                    id: edit.getNumberFromDB("authorId"),
+                                    admin: edit.getNumberFromDB("authorAdmin") === 1,
+                                    firstname: edit.getStringFromDB("authorFirstName"),
+                                    avatar: edit.getStringFromDB("authorAvatar"),
+                                    lastname: edit.getStringFromDB("authorLastName")
+                                };
+
+                                if (editObj === null || typeof editObj === "undefined") {
+                                    editArray.push({
+                                        parentPostId: edit.getNumberFromDB("post"),
+                                        content: JSON.parse(edit.getStringFromDB("content")),
+                                        datetime: dayjs(edit.getStringFromDB("datetime")),
+                                        editedBy: [currUser],
+                                        id: edit.getNumberFromDB("id")
+                                    });
+                                } else {
+                                    editObj.editedBy.push(currUser);
+                                }
                             }
 
                             editArray.sort((left, right) => {
@@ -75,7 +82,7 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                             res.json(new GetEditContentCallback(editArray));
                         })
                         .catch(err => {
-                            logger.error(`Editing failed`);
+                            logger.error(`Edit content retrieve failed`);
                             logger.error(err);
                             res.status(500).send();
                         });

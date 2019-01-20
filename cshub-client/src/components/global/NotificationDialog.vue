@@ -1,10 +1,11 @@
 <template>
-    <v-dialog v-model="notificationDialogComputed.on" persistent max-width="290">
+    <v-dialog v-model="notificationDialogComputed.on" persistent max-width="500">
         <v-card>
             <v-card-title class="headline">{{notificationDialogComputed.header}}</v-card-title>
             <v-card-text>{{notificationDialogComputed.text}}</v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
+                <v-btn color="red darken-1" flat v-if="notificationButtonEnabled" @click.native="doButtonClick">{{notificationDialogComputed.button.text}}</v-btn>
                 <v-btn color="green darken-1" flat @click.native="notificationDialogComputed = {on: false, text: '', header: ''}">Close</v-btn>
             </v-card-actions>
         </v-card>
@@ -32,6 +33,19 @@
 
         set notificationDialogComputed(value: notificationDialogType) {
             uiState.setNotificationDialogState(value);
+        }
+
+        get notificationButtonEnabled(): boolean {
+            return this.notificationDialogComputed.button !== null && typeof this.notificationDialogComputed.button !== "undefined";
+        }
+
+        /*
+         * Methods
+         */
+        private doButtonClick() {
+            if (this.notificationButtonEnabled) {
+                this.notificationDialogComputed.button.jsAction();
+            }
         }
     }
 </script>

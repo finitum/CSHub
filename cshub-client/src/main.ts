@@ -1,3 +1,11 @@
+import Component from "vue-class-component";
+
+Component.registerHooks([
+    "beforeRouteEnter",
+    "beforeRouteLeave",
+    "beforeRouteUpdate"
+]);
+
 import "@babel/polyfill";
 import Vue from "vue";
 import "./plugins";

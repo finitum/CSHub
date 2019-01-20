@@ -1,6 +1,6 @@
 import {IApiRequest} from "../../models/IApiRequest";
 
-import {AdminRequests} from "../AdminRequests";
+import {Requests} from "../Requests";
 
 export enum CreateTopicResponseTypes {
     SUCCESS,
@@ -17,7 +17,7 @@ export class CreateTopicCallback {
 
 export class CreateTopic implements IApiRequest {
 
-    public static getURL: string = AdminRequests.SUBMITTOPIC;
+    public static getURL: string = Requests.SUBMITTOPIC;
     public URL: string = CreateTopic.getURL;
 
     constructor(

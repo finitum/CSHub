@@ -1,17 +1,23 @@
-import async from "async";
 import {Request, Response} from "express";
 
-import {app, logger} from "../../";
+import {app} from "../../";
+import logger from "../../utilities/Logger"
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 
 import {GetTopicPostsCallBack, GetTopicPosts} from "../../../../cshub-shared/src/api-calls";
 import {getTopicTree} from "../../utilities/TopicsUtils";
 import {ITopic} from "../../../../cshub-shared/src/models";
 import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
+import tracker from "../../utilities/Tracking";
 
 app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
 
     const topicPostsRequest: GetTopicPosts = req.body as GetTopicPosts;
+
+    const reqURL = "/topic/" + topicPostsRequest.topicHash;
+    tracker.pageview(reqURL).send();
+
+    logger.verbose(reqURL);
 
     const getChildHashes = (inputTopic: ITopic[]): number[] => {
 
@@ -51,9 +57,12 @@ app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
                       SELECT T1.hash
                       FROM posts T1
                              INNER JOIN topics T2 ON T1.topic = T2.id
-                      WHERE approved = 1
+                             INNER JOIN edits T3 ON T1.id = T3.post
+                      WHERE deleted = 0
+                        AND T3.approved = 1
                         AND T2.hash IN (?)
-                      ORDER BY datetime DESC
+                      GROUP BY T3.post
+                      ORDER BY T3.datetime DESC
                     `, topicHashes)
                         .then((posts: DatabaseResultSet) => {
 

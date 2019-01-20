@@ -1,11 +1,11 @@
 <template>
     <v-toolbar color="primary" app fixed clipped-left>
         <v-toolbar-side-icon @click.native="drawerComputed = !drawerComputed"></v-toolbar-side-icon>
-        <a href="/" style="color: inherit">
+        <router-link to="/" style="color: inherit">
             <div class="title ml-3 mr-5">
                 CS&nbsp;<span class="font-weight-light">Hub</span>
             </div>
-        </a>
+        </router-link>
 
         <v-text-field
                 v-model="searchQuery"

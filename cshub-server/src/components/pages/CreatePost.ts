@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
 
-import {app, logger} from "../../";
+import {app} from "../../";
+import logger from "../../utilities/Logger"
 
 import {CreatePostCallback, CreatePost, SubmitPostResponse} from "../../../../cshub-shared/src/api-calls";
 import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
@@ -22,7 +23,7 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
             minlength: 4,
             maxlength: 50
         }
-    }, {input: JSON.stringify(submitPostRequest.postBody)}, {input: submitPostRequest.postTopicHash});
+    }, {input: submitPostRequest.postTopicHash});
 
     if (inputsValidation.valid && userObj.valid) {
         const topics = getTopicTree();
@@ -55,18 +56,8 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
                                       title  = ?,
                                       hash   = ?
                                 `, requestTopic.id, userObj.tokenObj.user.id, submitPostRequest.postTitle, topicHash)
-                                    .then((insertResult: DatabaseResultSet) => {
-                                        return query(`
-                                          INSERT INTO edits
-                                          SET post     = ?,
-                                              content  = ?,
-                                              editedBy = ?,
-                                              htmlContent = ?
-                                        `, insertResult.getInsertId(), JSON.stringify(submitPostRequest.postBody), userObj.tokenObj.user.id, submitPostRequest.postHTML);
-                                    })
                                     .then((insertEdit: DatabaseResultSet) => {
                                         res.json(new CreatePostCallback(SubmitPostResponse.SUCCESS, topicHash));
-
                                     })
                                     .catch((err) => {
                                         logger.error(`Inserting into db failed`);

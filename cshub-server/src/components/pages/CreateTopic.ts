@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
 
-import {app, logger} from "../../";
+import {app} from "../../";
+import logger from "../../utilities/Logger"
 
 import {CreateTopicCallback, CreateTopic, CreateTopicResponseTypes} from "../../../../cshub-shared/src/api-calls";
 import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
@@ -63,7 +64,7 @@ app.post(CreateTopic.getURL, (req: Request, res: Response) => {
                                 return query(`
                                     UPDATE cacheversion
                                     SET version = version + 1
-                                    WHERE type = "TOPICS"
+                                    WHERE type = 'TOPICS'
                                 `)
                             })
                             .then(() => {

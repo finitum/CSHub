@@ -3,7 +3,7 @@
         <v-container>
             <v-layout justify-center>
                 <v-flex xs12>
-                    <v-card style="background-color: transparent; border: none; box-shadow: none">
+                    <v-card style="background-color: transparent; border: none; box-shadow: none !important">
                         <v-card-text>
                             <v-pagination
                                     v-model="paginationPageState"

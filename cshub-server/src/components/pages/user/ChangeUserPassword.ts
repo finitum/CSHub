@@ -1,4 +1,5 @@
-import {app, logger} from "../../../";
+import {app} from "../../../";
+import logger from "../../../utilities/Logger"
 import {
     ChangeUserPasswordCallback,
     ChangeUserPassword,

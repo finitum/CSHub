@@ -16,8 +16,7 @@
                             </v-flex>
                             <v-flex class="text-xs-right">
                                 <v-btn depressed large color="primary" @click="submitPost">
-                                    <span v-if="!showCloseIcon">Submit</span>
-                                    <v-icon v-if="showCloseIcon">fas fa-times</v-icon>
+                                    <span>Submit</span>
                                 </v-btn>
                             </v-flex>
                         </v-layout>
@@ -77,7 +76,6 @@
                                 </v-menu>
                             </v-flex>
                         </v-layout>
-                        <Quill ref="quillEdit" :editorSetup="{allowEdit: true, showToolbar: true, postHash: -1}"></Quill>
                     </v-card-text>
                 </v-card>
             </v-flex>
@@ -87,14 +85,12 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import Delta from "quill-delta/dist/Delta";
     import {Component, Watch} from "vue-property-decorator";
 
     import Quill from "../../components/quill/Quill.vue";
 
     import dataState from "../../store/data";
 
-    import {ImgurUpload} from "../../utilities/imgur";
     import {ApiWrapper} from "../../utilities";
 
     import {
@@ -119,7 +115,6 @@
         private topicViewOpen = false;
         private postTitle = "";
         private postTitleError = "";
-        private showCloseIcon = false;
         private showTopicWrongIcon = false;
         private showTopicFilledIcon = false;
         private showLoadingIcon = false;
@@ -147,28 +142,14 @@
                 this.$validator.validateAll()
                     .then((allValid: boolean) => {
                         if (allValid) {
-                            const delta: Delta = (this.$refs as any).quillEdit.getDelta();
-                            if (delta.ops[0].insert !== "\n") {
-                                this.showLoadingIcon = true;
-                                ImgurUpload.findAndReplaceImagesWithImgurLinks(delta)
-                                    .then((newValue: Delta) => {
-                                        const html: string = (this.$refs as any).quillEdit.getHTML();
-                                        ApiWrapper.sendPostRequest(new CreatePost(this.postTitle, newValue, html, this.activeTopicHash[0]), (response: CreatePostCallback) => {
-                                            this.showLoadingIcon = false;
-                                            if (response.response === SubmitPostResponse.SUCCESS) {
-                                                this.$router.push(Routes.USERDASHBOARD);
-                                            } else if (response.response === SubmitPostResponse.TITLEALREADYINUSE) {
-                                                this.postTitleError = "Title is already in use!";
-                                            }
-                                        });
-                                    });
-                            } else {
-                                this.showCloseIcon = true;
-                                setTimeout(() => {
-                                    this.showCloseIcon = false;
-                                }, 1000);
-                            }
-
+                            ApiWrapper.sendPostRequest(new CreatePost(this.postTitle, this.activeTopicHash[0]), (response: CreatePostCallback) => {
+                                this.showLoadingIcon = false;
+                                if (response.response === SubmitPostResponse.SUCCESS) {
+                                    this.$router.push(`/post/${response.postHash}/edit`);
+                                } else if (response.response === SubmitPostResponse.TITLEALREADYINUSE) {
+                                    this.postTitleError = "Title is already in use!";
+                                }
+                            });
                         }
                     });
             } else {

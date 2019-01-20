@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
 
-import {app, logger} from "../../";
+import {app} from "../../";
+import logger from "../..//utilities/Logger"
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 
 import {CreateAccount, CreateAccountCallBack, CreateAccountResponseTypes} from "../../../../cshub-shared/src/api-calls";
@@ -18,7 +19,18 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
         validationObject: {
             minlength: 8
         }
-    }, {input: createAccountRequest.email}, {input: createAccountRequest.firstname}, {input: createAccountRequest.lastname});
+    }, {input: createAccountRequest.email, validationObject: {
+            tuemail: true
+        }
+    }, {input: createAccountRequest.firstname, validationObject: {
+            minlength: 2,
+            maxlength: 127
+        }
+    }, {input: createAccountRequest.lastname, validationObject: {
+            minlength: 2,
+            maxlength: 127
+        }
+    });
 
     if (inputsValidation.valid) {
 

@@ -1,5 +1,5 @@
 import {IApiRequest} from "../../models/IApiRequest";
-import {AuthRequests} from "../AuthRequests";
+import {Requests} from "../Requests";
 
 import {IEdit} from "../../models";
 
@@ -10,7 +10,7 @@ export class GetEditContentCallback {
 
 export class GetEditContent implements IApiRequest {
 
-    public static getURL: string = AuthRequests.EDITCONTENT;
+    public static getURL: string = Requests.EDITCONTENT;
     public URL: string = GetEditContent.getURL;
 
     constructor(

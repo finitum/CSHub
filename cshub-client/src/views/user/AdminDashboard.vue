@@ -14,7 +14,8 @@
         <v-subheader>
             Unverified posts
         </v-subheader>
-        <PostList :postHashes="postHashes"></PostList>
+        <PostList :postHashesProp="postHashes" :isNewPost="isNewPost" v-if="postHashes.length > 0"></PostList>
+        <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
     </div>
 </template>
 
@@ -29,7 +30,7 @@
 
     import {
         GetUnverifiedPostsCallBack,
-        GetUnverifiedPosts
+        GetUnverifiedPosts, GetUnverifiedPostsType
     } from "../../../../cshub-shared/src/api-calls/admin/GetUnverifiedPosts";
 
     @Component({
@@ -42,6 +43,7 @@
          * Data
          */
         private postHashes: number[] = [];
+        private isNewPost: boolean[] = [];
 
         /**
          * Lifecycle hooks
@@ -55,7 +57,10 @@
          */
         private getHashes() {
             ApiWrapper.sendPostRequest(new GetUnverifiedPosts(), (callbackData: GetUnverifiedPostsCallBack) => {
-                this.postHashes = callbackData.postHashes;
+                for (const post of callbackData.postHashes) {
+                    this.postHashes.push(post.hash);
+                    this.isNewPost.push(post.isNewPost);
+                }
                 logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
             });
         }

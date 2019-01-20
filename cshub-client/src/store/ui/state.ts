@@ -1,6 +1,7 @@
 import {getStoreBuilder} from "vuex-typex";
 import {IRootState} from "../";
 import {Blot} from "parchment/dist/src/blot/abstract/blot";
+import {Route} from "vue-router";
 
 export type editDialogType = {
     on: boolean,
@@ -15,7 +16,11 @@ export type markdownDialogType = {
 export type notificationDialogType = {
     on: boolean,
     header: string,
-    text: string
+    text: string,
+    button?: {
+        text: string,
+        jsAction: () => void
+    }
 };
 
 export interface IUIState {
@@ -26,6 +31,7 @@ export interface IUIState {
     paginationPageState: number;
     notificationDialog: notificationDialogType;
     markdownDialog: markdownDialogType;
+    previousRoute: Route;
 }
 
 export const UIState: IUIState = {
@@ -45,7 +51,8 @@ export const UIState: IUIState = {
     markdownDialog: {
         open: false,
         blots: []
-    }
+    },
+    previousRoute: null
 };
 
 export const uiStoreBuilder = getStoreBuilder<IRootState>().module("ui", UIState);

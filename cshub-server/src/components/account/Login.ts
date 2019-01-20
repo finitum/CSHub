@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
 
-import {app, logger} from "../../index";
+import {app} from "../../index";
+import logger from "../..//utilities/Logger"
 import {Settings} from "../../settings";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 

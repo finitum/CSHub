@@ -1,7 +1,7 @@
 import {IApiRequest} from "../../models/IApiRequest";
 import {IUser} from "../../models/IUser";
 
-import {NonAuthRequests} from "../NonAuthRequests";
+import {Requests} from "../Requests";
 
 export enum ForgotPasswordResponseTypes {
     CHANGED,
@@ -17,7 +17,7 @@ export class ForgotPasswordCallback {
 
 export class ForgotPassword implements IApiRequest {
 
-    public static getURL: string = NonAuthRequests.FORGOTPASSWORD;
+    public static getURL: string = Requests.FORGOTPASSWORD;
     public URL: string = ForgotPassword.getURL;
 
     constructor(

@@ -1,4 +1,3 @@
-import {ForgotPasswordResponseTypes} from "../../../../cshub-shared/src/api-calls/account";
 <template>
     <v-container fluid fill-height class="grey lighten-4">
         <v-layout justify-center align-center>

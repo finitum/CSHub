@@ -1,15 +1,16 @@
 import {Request, Response} from "express";
 
-import {app, logger} from "../../";
+import {app} from "../../";
+import logger from "../..//utilities/Logger"
 
 import {
-    NonAuthRequests
+    Requests
 } from "../../../../cshub-shared/src/api-calls";
 
 import {Settings} from "../../settings";
 import {query} from "../../utilities/DatabaseConnection";
 
-app.get(NonAuthRequests.VERIFYMAIL, (req: Request, res: Response) => {
+app.get(Requests.VERIFYMAIL, (req: Request, res: Response) => {
 
     const hash = parseInt(req.query.hash, 10);
     const userID = parseInt(req.query.accId, 10);

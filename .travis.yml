@@ -1,40 +1,59 @@
+language: node_js
+node_js:
+  - "11"
+
+git:
+  depth: 1
+
+services:
+  - docker
+
+stages:
+  - shared
+  - others
+
+before_script:
+  - node ./utilities/version.js
+
 matrix:
   include:
-  - language: node_js
-    env:
-        - CLIENT=true
-    node_js:
-        - "8"
-        - "10"
-        - "11"
-    before_script:
-        - cd cshub-shared
-        - yarn
-        - cd ..
-        - cd cshub-client
-    script:
-        - yarn
-        - yarn build
+    - name: "shared-push"
+      stage: shared
+      if: type = push
+      script:
+        - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+        - docker build -t $DOCKER_USERNAME/shared:$TRAVIS_BRANCH cshub-shared
+      after_success:
+        - docker push $DOCKER_USERNAME/shared:$TRAVIS_BRANCH
 
-  - language: node_js
-    env:
-        - SERVER=true
-    node_js:
-        - "8"
-        - "10"
-        - "11"
-    before_script:
-        - cd cshub-shared
-        - yarn
-        - cd ..
-        - cd cshub-server/src/
-        - cp SettingsBaseline.ts settings.ts
-        - cd ..
-    script:
-        - yarn
-        - tsc
+    - name: "client-push"
+      if: type = push
+      stage: others
+      script:
+        - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+        - docker build --build-arg BASE_IMAGE=$DOCKER_USERNAME/shared:$TRAVIS_BRANCH -t $DOCKER_USERNAME/client:$TRAVIS_BRANCH cshub-client
+      after_success:
+        - docker push $DOCKER_USERNAME/client:$TRAVIS_BRANCH
 
-cache:
-    directories:
-        - cshub-client/node_modules
-        - cshub-server/node_modules
+    - name: "server-push"
+      if: type = push
+      stage: others
+      script:
+        - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+        - docker build --build-arg BASE_IMAGE=$DOCKER_USERNAME/shared:$TRAVIS_BRANCH -t $DOCKER_USERNAME/server:$TRAVIS_BRANCH cshub-server
+      after_success:
+        - docker push $DOCKER_USERNAME/server:$TRAVIS_BRANCH
+
+    - name: "client-pull"
+      if: type = pull_request
+      stage: others
+      script:
+        - docker build -t shared-$TRAVIS_PULL_REQUEST_SHA cshub-shared
+        - docker build --build-arg BASE_IMAGE=shared-$TRAVIS_PULL_REQUEST_SHA cshub-client
+
+    - name: "server-pull"
+      if: type = pull_request
+      stage: others
+      script:
+        - docker build -t shared-$TRAVIS_PULL_REQUEST_SHA cshub-shared
+        - docker build --build-arg BASE_IMAGE=shared-$TRAVIS_PULL_REQUEST_SHA cshub-server

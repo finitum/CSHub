@@ -34,41 +34,43 @@ export interface ISettings {
         DEBUGMAILADDRESS: string;
         VERIFYMAILADDRESSPREFIX: string;
     };
+    LOGLEVEL: string;
 
 }
 
 export const Settings: ISettings = {
-    LIVE: true,
-    PORT: 0,
+    LIVE: process.env.LIVE ? process.env.LIVE === "true" : false,
+    PORT: process.env.PORT ? Number(process.env.PORT) : 3000,
     DATABASE: {
-        HOST: "",
-        USER: "",
-        PASSWORD: "",
-        NAME: ""
+        HOST: process.env.DATABASE_HOST ? process.env.DATABASE_HOST : "localhost",
+        USER: process.env.DATABASE_USER ? process.env.DATABASE_USER : "xxx",
+        PASSWORD: process.env.DATABASE_PASSWORD ? process.env.DATABASE_PASSWORD : "xxx",
+        NAME: process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "CSHubTest",
     },
-    USESSH: true,
+    USESSH: process.env.USESSH ? process.env.USESSH === "true" : true,
     SSH: {
-        HOST: "",
-        USER: "",
-        PORT: 0,
-        PRIVATEKEYLOCATION: ""
+        HOST: process.env.SSH_HOST ? process.env.SSH_HOST : "cshub",
+        USER: process.env.SSH_USER ? process.env.SSH_USER : "xxx",
+        PORT: process.env.SSH_PORT ? Number(process.env.SSH_PORT) : 22,
+        PRIVATEKEYLOCATION: process.env.SSH_PRIVATEKEYLOCATION ? process.env.SSH_PRIVATEKEYLOCATION : "xxx",
     },
-    DOMAIN: "",
-    SITEADDRESS: "",
-    TOKENAGEMILLISECONDS: 0,
-    PASSWORDITERATIONS: 0,
-    JWTHASH: "",
-    PASSWORDSALT: "",
+    DOMAIN: process.env.DOMAIN ? process.env.DOMAIN : "192.168.x.x",
+    SITEADDRESS: process.env.SITEADDRESS ? process.env.SITEADDRESS : "http://192.168.xxx",
+    TOKENAGEMILLISECONDS: process.env.TOKENAGEMILLISECONDS ? Number(process.env.TOKENAGEMILLISECONDS) : 7200000,
+    PASSWORDITERATIONS: process.env.PASSWORDITERATIONS ? Number(process.env.PASSWORDITERATIONS) : 42424,
+    JWTHASH: process.env.JWTHASH ? process.env.JWTHASH : "xxxxx",
+    PASSWORDSALT: process.env.PASSWORDSALT ? process.env.PASSWORDSALT : "xxxxx",
     MAIL: {
-        USEGMAIL: false,
+        USEGMAIL: process.env.MAIL_USEGMAIL ? process.env.MAIL_USEGMAIL === "true" : false,
         GMAILSETTINGS: {
-            PASSWORD: "",
-            MAILADDRESS: ""
+            PASSWORD: process.env.MAIL_GMAILSETTINGS_PASSWORD ? process.env.MAIL_GMAILSETTINGS_PASSWORD : "xxxx",
+            MAILADDRESS: process.env.MAIL_GMAILSETTINGS_MAILADDRESS ? process.env.MAIL_GMAILSETTINGS_MAILADDRESS : "xxx@gmail.com"
         },
-        APIKEY: "",
-        NOREPLYADDRESS: "",
-        SUFFIX: "",
-        DEBUGMAILADDRESS: "",
-        VERIFYMAILADDRESSPREFIX: ""
-    }
+        APIKEY: process.env.MAIL_APIKEY ? process.env.MAIL_APIKEY : "xxxx",
+        NOREPLYADDRESS: process.env.MAIL_APIKEY ? process.env.MAIL_APIKEY : "no-reply@xxx.nl",
+        SUFFIX: process.env.MAIL_SUFFIX ? process.env.MAIL_SUFFIX : "@xxxxx",
+        DEBUGMAILADDRESS: process.env.MAIL_DEBUGMAILADDRESS ? process.env.DEBUGMAILADDRESS : "xxxx",
+        VERIFYMAILADDRESSPREFIX: process.env.MAIL_VERIFYMAILADDRESSPREFIX ? process.env.VERIFYMAILADDRESSPREFIX : "xxxx"
+    },
+    LOGLEVEL: process.env.LOGLEVEL ? process.env.LOGLEVEL : "info"
 };

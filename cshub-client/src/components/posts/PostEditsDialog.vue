@@ -7,10 +7,12 @@
                 </v-btn>
                 <v-toolbar-title>Edits</v-toolbar-title>
                 <v-spacer></v-spacer>
+                <v-toolbar-items>
+                    <v-btn depressed small color="red" @click="squashEdits" v-if="userAdminComputed">Execute squash</v-btn>
+                </v-toolbar-items>
             </v-toolbar>
             <v-card-text>
                 <v-timeline dense clipped>
-
                     <div v-for="(edit, index) in edits">
                         <transition name="editList" @before-leave="initQuill = false" @before-enter="initQuill = false" @after-leave="initQuill = true">
                             <v-timeline-item
@@ -24,9 +26,19 @@
                                         <v-flex xs7>
                                             <span v-if="index !== 0">Edited by </span>
                                             <span v-if="index === 0">Created by </span>
-                                            <span>{{edit.editedBy.firstname}} {{edit.editedBy.lastname}} on {{edit.datetime | formatDate}}</span>
+                                            <span v-if="edit.editedBy[0].id === null">unknown</span>
+                                            <span v-else v-for="(user, index) in edit.editedBy">{{user.firstname}} {{user.lastname}}{{index === edit.editedBy.length - 1 ? "" : ", "}}</span>
+                                            <span> on {{edit.datetime | formatDate}}</span>
                                             <v-btn depressed small color="primary" @click="showIndex = index" v-if="showIndex === -1">View edit</v-btn>
                                             <v-btn depressed small color="primary" @click="showIndex = -1" v-if="showIndex !== -1">Close edit</v-btn>
+                                            <v-checkbox
+                                                style="margin-top: 0"
+                                                v-if="userAdminComputed"
+                                                v-model="edit.squash"
+                                                :disabled="edit.squashDisabled"
+                                                @change="editsChanged"
+                                                label="Squash"
+                                            ></v-checkbox>
                                         </v-flex>
                                 </v-layout>
                             </v-timeline-item>
@@ -35,7 +47,7 @@
                 </v-timeline>
                 <Quill key="currEditQuill" ref="currEditQuill" v-if="showIndex !== -1 && (initQuill || edits.length === 1)"
                        :editorSetup="{allowEdit: false, showToolbar: false, postHash}"
-                       :initialValue="edits[showIndex].content"></Quill>
+                       :initialValueProp="edits[showIndex].content"></Quill>
             </v-card-text>
         </v-card>
     </v-dialog>
@@ -48,7 +60,12 @@
 
     import Quill from "../quill/Quill.vue";
 
-    import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/src/api-calls/pages";
+    import {
+        GetEditContent,
+        GetEditContentCallback,
+        SquashEdits,
+        SquashEditsCallback
+    } from "../../../../cshub-shared/src/api-calls/pages";
     import {IEdit} from "../../../../cshub-shared/src/models";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
@@ -56,6 +73,12 @@
     import {editDialogType} from "../../store/ui/state";
 
     import {ApiWrapper} from "../../utilities";
+    import userState from "../../store/user";
+
+    interface EditCheckbox extends IEdit {
+        squash: boolean;
+        squashDisabled: boolean;
+    }
 
     @Component({
         name: "PostEditsDialog",
@@ -68,7 +91,7 @@
          */
         @Prop(Number) private postHash: number;
 
-        private edits: IEdit[] = [];
+        private edits: EditCheckbox[] = [];
 
         // In the template you loop through edits, with an index attached to all of them. This is the index of that list that is to be shown
         // -1 = all of them
@@ -87,7 +110,10 @@
                 this.$router.push(`${Routes.POST}/${this.postHash}`);
                 uiState.setEditDialogState(value);
             }
+        }
 
+        get userAdminComputed(): boolean {
+            return userState.isAdmin;
         }
 
         get thisDialogActive(): boolean {
@@ -102,42 +128,111 @@
             if (this.thisDialogActive) {
                 ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
 
+                    const checkboxEdits: EditCheckbox[] = [];
+
                     let previousDelta = new Delta(JSON.parse(JSON.stringify(callbackData.edits[0].content)));
 
-                    for (let i = 1; i < callbackData.edits.length; i++) {
+                    for (let i = 0; i < callbackData.edits.length; i++) {
 
-                        const currContent = callbackData.edits[i].content;
-                        const originalContent = JSON.parse(JSON.stringify(callbackData.edits[i].content));
+                        const currEdit = callbackData.edits[i];
 
-                        for (const op of currContent.ops) {
-                            if (op.hasOwnProperty("insert")) {
-                                op.attributes = {
-                                    ...op.attributes,
-                                    background: this.$vuetify.theme.success,
-                                    color: this.$vuetify.theme.secondary
-                                };
+                        if (i > 0) {
+                            const currContent = currEdit.content;
+                            const originalContent = new Delta(currEdit.content).slice();
+
+                            for (const op of currContent.ops) {
+                                if (op.hasOwnProperty("insert")) {
+                                    op.attributes = {
+                                        ...op.attributes,
+                                        background: this.$vuetify.theme.success,
+                                        color: this.$vuetify.theme.secondary
+                                    };
+                                }
+                                if (op.hasOwnProperty("delete")) {
+                                    op.retain = op.delete;
+                                    delete op.delete;
+                                    op.attributes = {
+                                        ...op.attributes,
+                                        background: this.$vuetify.theme.warning,
+                                        color: this.$vuetify.theme.secondary,
+                                        strike: true
+                                    };
+                                }
                             }
-                            if (op.hasOwnProperty("delete")) {
-                                op.retain = op.delete;
-                                delete op.delete;
-                                op.attributes = {
-                                    ...op.attributes,
-                                    background: this.$vuetify.theme.warning,
-                                    color: this.$vuetify.theme.secondary,
-                                    strike: true
-                                };
-                            }
+
+                            callbackData.edits[i].content = previousDelta.compose(currContent);
+                            previousDelta = previousDelta.compose(originalContent);
                         }
 
-                        callbackData.edits[i].content = previousDelta.compose(currContent);
-                        previousDelta = previousDelta.compose(originalContent);
+                        checkboxEdits.push({
+                            ...currEdit,
+                            squash: false,
+                            squashDisabled: false
+                        });
                     }
 
-                    this.edits = callbackData.edits;
+                    this.edits = checkboxEdits;
                 });
             } else {
                 this.showIndex = -1;
             }
+        }
+
+        private editsChanged() {
+
+            const edits = this.edits;
+
+            let currSquashIndexes = [];
+
+            for (let i = 0; i < edits.length; i++) {
+                if (edits[i].squash) {
+                    currSquashIndexes.push(i);
+                }
+            }
+
+            currSquashIndexes = currSquashIndexes.sort((a, b) => a - b);
+
+            if (currSquashIndexes.length > 0) {
+                const firstIndex = currSquashIndexes[0];
+                const minIndex = firstIndex !== 0 ? firstIndex - 1 : 0;
+
+                const lastIndex = currSquashIndexes[currSquashIndexes.length - 1];
+                const maxIndex = lastIndex !== edits.length - 1 ? lastIndex + 1 : edits.length - 1;
+
+                for (let i = 0; i < edits.length; i++) {
+                    edits[i].squashDisabled = !(i >= minIndex && i <= maxIndex);
+                    if (!(i >= minIndex && i <= maxIndex)) {
+                        edits[i].squash = false;
+                    }
+                }
+            } else {
+                edits.forEach((x) => x.squashDisabled = false);
+            }
+
+        }
+
+        private squashEdits() {
+
+            const squashIds = [];
+
+            for (const edit of this.edits) {
+                if (edit.squash) {
+                    squashIds.push(edit.id);
+                }
+            }
+
+            if (squashIds.length < 2) {
+                uiState.setNotificationDialogState({
+                    header: "Nope!",
+                    text: "You should squash at least 2 edits!",
+                    on: true
+                });
+            } else {
+                ApiWrapper.sendPostRequest(new SquashEdits(this.postHash, squashIds), (callback: SquashEditsCallback) => {
+                    this.dialogActive = {on: false, hash: -1};
+                });
+            }
+
         }
     }
 </script>

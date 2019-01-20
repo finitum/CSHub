@@ -1,5 +1,5 @@
 import {IApiRequest} from "../../models/index";
-import {NonAuthRequests} from "../NonAuthRequests";
+import {Requests} from "../Requests";
 import {IPost} from "../../models/index";
 
 export enum PostVersionTypes {
@@ -23,7 +23,7 @@ export class GetPostContentCallBack {
 
 export class GetPostContent implements IApiRequest {
 
-    public static getURL: string = NonAuthRequests.POSTCONTENT;
+    public static getURL: string = Requests.POSTCONTENT;
     public URL: string = GetPostContent.getURL;
 
     constructor(public postHash: number, public getHTMLOnNoUpdate: boolean, public postVersion: number) {}
