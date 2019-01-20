@@ -17,7 +17,7 @@ app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
     const reqURL = "/topic/" + topicPostsRequest.topicHash;
     tracker.pageview(reqURL).send();
 
-    console.log(reqURL);
+    logger.verbose(reqURL);
 
     const getChildHashes = (inputTopic: ITopic[]): number[] => {
 

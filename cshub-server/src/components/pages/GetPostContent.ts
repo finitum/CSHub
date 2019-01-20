@@ -22,6 +22,8 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
     const reqURL = "/post/" + postContentRequest.postHash;
     tracker.pageview(reqURL).send();
 
+    logger.verbose(reqURL);
+
     enum postState {
         ONLINE,
         FIRSTEDIT,
