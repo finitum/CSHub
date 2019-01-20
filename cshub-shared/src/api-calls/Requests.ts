@@ -16,6 +16,7 @@ export class Requests {
     public static readonly CHANGEAVATAR: string = "/changeavatar";
     public static readonly SUBMITPOST: string = "/submitpost";
     public static readonly EDITPOST: string = "/editpost";
+    public static readonly FORCEEDITPOST: string = "/forceeditpost";
     public static readonly EDITCONTENT: string = "/editcontent";
     public static readonly SUBMITTOPIC: string = "/createtopic";
     public static readonly GETALLUSERS: string = "/allusers";

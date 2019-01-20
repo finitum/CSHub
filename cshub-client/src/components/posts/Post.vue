@@ -44,6 +44,9 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                                        @click="editPost">
                                     <v-icon>fas fa-save</v-icon>
                                 </v-btn>
+                                <v-btn v-if="!editModeComputed && userAdminComputed" depressed small color="blue" @click="forceEditPost">
+                                    <v-icon>fas fa-gavel</v-icon>
+                                </v-btn>
                                 <v-btn depressed small color="primary" @click="viewEditDialog" v-if="!editModeComputed">
                                     <v-icon>fas fa-history</v-icon>
                                 </v-btn>
@@ -159,6 +162,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
     import userState from "../../store/user";
     import uiState from "../../store/ui";
     import Delta from "quill-delta/dist/Delta";
+    import {ForceEditPost} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
 
     interface IBreadCrumbType {
         name: string;
@@ -317,6 +321,16 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         /**
          * Methods
          */
+        private forceEditPost() {
+            ApiWrapper.sendPostRequest(new ForceEditPost(this.postHash), () => {
+                uiState.setNotificationDialogState({
+                    on: true,
+                    header: "Edited post",
+                    text: "Post was edited successfully"
+                });
+            });
+        }
+
         private highlightCode() {
             (CodeMirror as any).colorize(null, null);
         }

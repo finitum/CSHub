@@ -25,4 +25,3 @@ import "codemirror/mode/yaml/yaml";
 
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/neo.css";
-import "codemirror/theme/idea.css";

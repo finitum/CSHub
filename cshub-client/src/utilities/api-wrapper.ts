@@ -48,11 +48,11 @@ axiosApi.interceptors.response.use((value: AxiosResponse<any>) => {
             text: `You are not authorized to do this! ${!loggedOut ? " Click the button below to log in." : ""}`,
             button
         });
-    } else if (error.response.status.toString().startsWith("5")) {
+    } else if (error.response.status.toString().startsWith("5") || error.response.status === 404) {
         uiState.setNotificationDialogState({
             on: true,
             header: "Error!",
-            text: "The server experienced an error... If this error occurs again, please report it to us at github.com/RobbinBaauw/CSHub/issues :)"
+            text: "The server experienced an error... If this error occurs again, please report it to us at github.com/RobbinBaauw/CSHub/issues :) Please include console log thank you"
         });
     }
 });
