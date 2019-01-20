@@ -1,4 +1,6 @@
-traefik:
+version: '3'
+services:
+  traefik:
     image: traefik # The official Traefik docker image
     command: --api --docker
     networks:
