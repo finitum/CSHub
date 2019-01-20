@@ -19,14 +19,14 @@ export const hasAccessToPost = (postHash: number, jwt: string): Promise<postAcce
 
     const tokenResult = validateAccessToken(jwt);
 
-    if (tokenResult !== undefined) {
+    if (typeof tokenResult !== "undefined") {
         if (dayjs(tokenResult.expirydate * 1000).isBefore(dayjs())) {
             isLoggedIn = false;
+        } else {
+            isLoggedIn = !tokenResult.user.blocked && tokenResult.user.verified;
         }
-    }
-
-    if (isLoggedIn) {
-        isLoggedIn = !tokenResult.user.blocked && tokenResult.user.verified;
+    } else {
+        isLoggedIn = false;
     }
 
     return query(`
