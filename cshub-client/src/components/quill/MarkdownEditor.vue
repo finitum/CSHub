@@ -21,6 +21,7 @@
     import uiState from "../../store/ui";
     import {markdownDialogType} from "../../store/ui/state";
     import {getMarkdownParser} from "../../../../cshub-shared/src/utilities/MarkdownLatexQuill";
+    import {colorize} from "../../utilities/codemirror-colorize";
 
     @Component({
         name: "MarkdownEditor"
@@ -74,7 +75,7 @@
                         }
                     }
 
-                    (CodeMirror as any).colorize(pres, null);
+                    colorize(pres, CodeMirror);
                 });
             }
         }

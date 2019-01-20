@@ -7,8 +7,9 @@ import "./EditPost";
 import "./GetPostContent";
 import "./GetEditContent";
 import "./GetSearchPosts";
-import "./realtime-post";
 import "./SquashEdits";
+import "./ForceEditPost";
 
 import "./admin";
 import "./user";
+import "./realtime-post";
