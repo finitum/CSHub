@@ -21,7 +21,7 @@ app.post(GetSearchPosts.getURL, (req: Request, res: Response) => {
           FROM edits T1
                  INNER JOIN posts T2 ON T1.post = T2.id
           WHERE htmlContent LIKE ?
-            AND (T2.author = ? OR (T2.approved = 1 AND T1.approved = 1) OR (SELECT admin FROM users WHERE id = ?) = 1)
+            AND (T2.author = ? OR (T1.approved = 1) OR (SELECT admin FROM users WHERE id = ?) = 1)
           GROUP BY hash
           ORDER BY T2.upvotes DESC, T2.datetime DESC
           LIMIT 5
