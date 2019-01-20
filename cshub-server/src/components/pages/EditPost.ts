@@ -66,7 +66,6 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                             <!DOCTYPE html>
                             <head>
                                 <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.7.22/MutationObserver.js"></script>
-                                <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
                                 <script src="https://unpkg.com/quill@2.0.0-dev.3/dist/quill.min.js"></script>
                                 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
                             </head>
@@ -143,46 +142,27 @@ const getHTML = (quillEditor: any, document: Document, window: Window) => {
     const allNodes: any[] = [...node.getElementsByTagName("*")];
 
     let prevElement: {
-        isCodeBlock: boolean,
         isMarkdownBlock: boolean,
         lang?: string,
         containerNode?: HTMLElement,
         currString?: string
     } = {
-        isCodeBlock: false,
         isMarkdownBlock: false
-    };
-
-    const finalizeCodeBlock = () => {
-        if (prevElement.isCodeBlock) {
-            const newNode = document.createElement("pre");
-
-            const currStringEcaped = escapeHtml(prevElement.currString);
-
-            newNode.innerHTML = `<code class="${prevElement.lang} hljsBlock">${currStringEcaped}</code>`;
-
-            prevElement.containerNode.after(newNode);
-
-            prevElement = {
-                isCodeBlock: false,
-                isMarkdownBlock: false
-            };
-        }
     };
 
     const finalizeMarkdownBlock = (document: Document, window: Window) => {
         if (prevElement.isMarkdownBlock) {
             prevElement.currString = prevElement.currString.substr(0, prevElement.currString.length - 1);
+            prevElement.currString = escapeHtml(prevElement.currString);
             const newNode = document.createElement("div");
             // To not have a break at the end
             newNode.style.whiteSpace = "normal";
             newNode.classList.add("markdown-body");
-            newNode.innerHTML = getMarkdownParser(window).render(prevElement.currString);
+            newNode.innerHTML = getMarkdownParser().render(prevElement.currString);
 
             prevElement.containerNode.before(newNode);
 
             prevElement = {
-                isCodeBlock: false,
                 isMarkdownBlock: false
             };
         }
@@ -193,36 +173,10 @@ const getHTML = (quillEditor: any, document: Document, window: Window) => {
     for (const domNode of allNodes) {
         if (domNode.tagName === "DIV") {
             finalizeMarkdownBlock(document, window);
-            if (domNode.classList.contains("ql-code-block")) {
-                toBeDeletedNodes.push(domNode);
-
-                if (prevElement.containerNode === undefined || prevElement.containerNode === null) {
-                    prevElement.containerNode = domNode;
-                }
-
-                if (!prevElement.isCodeBlock) {
-                    const lang = domNode.attributes.getNamedItem("data-language") ? domNode.attributes.getNamedItem("data-language").value : "";
-                    prevElement = {
-                        ...prevElement,
-                        isCodeBlock: true,
-                        lang,
-                        currString: domNode.textContent
-                    };
-                } else {
-                    prevElement = {
-                        ...prevElement,
-                        currString: prevElement.currString + "\n" + domNode.textContent
-                    };
-                }
-            } else {
-                finalizeCodeBlock();
-            }
         } else if (domNode.tagName === "SELECT" || domNode.tagName === "OPTION") {
             finalizeMarkdownBlock(document, window);
-            finalizeCodeBlock();
             toBeDeletedNodes.push(domNode);
         } else if ((domNode.tagName === "PRE" && domNode.classList.contains(MarkdownLatexQuill.blotName))) {
-            finalizeCodeBlock();
             toBeDeletedNodes.push(domNode);
             if (prevElement.isMarkdownBlock) {
                 if (domNode.textContent !== "\n") {
@@ -232,7 +186,6 @@ const getHTML = (quillEditor: any, document: Document, window: Window) => {
             } else {
                 prevElement = {
                     isMarkdownBlock: true,
-                    isCodeBlock: false,
                     containerNode: domNode,
                     currString: `${domNode.textContent}\n`
                 };
@@ -244,12 +197,10 @@ const getHTML = (quillEditor: any, document: Document, window: Window) => {
             if (!domNode.classList.contains(MarkdownLatexQuill.blotName)) {
                 finalizeMarkdownBlock(document, window);
             }
-            finalizeCodeBlock();
         }
     }
 
     finalizeMarkdownBlock(document, window);
-    finalizeCodeBlock();
 
     toBeDeletedNodes.forEach((domNode: HTMLElement) => {
         domNode.remove();

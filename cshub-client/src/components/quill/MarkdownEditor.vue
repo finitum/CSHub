@@ -3,7 +3,7 @@
         <v-container style="max-width: inherit">
             <v-layout>
                 <v-flex xs12 style="padding-left: 20px">
-                    <p v-html="output" class="markdown-body"></p>
+                    <p v-html="output" class="markdown-body" id="htmlOutput"></p>
                 </v-flex>
             </v-layout>
         </v-container>
@@ -13,6 +13,8 @@
 <script lang='ts'>
     import Vue from "vue";
     import {Prop, Component, Watch} from "vue-property-decorator";
+
+    import CodeMirror from "codemirror";
 
     import "katex/dist/katex.min.css";
 
@@ -61,7 +63,19 @@
                         }
                     }
                 }
-                this.output = getMarkdownParser(window).render(input);
+                this.output = getMarkdownParser().render(input);
+                const node = document.getElementById("htmlOutput");
+                const pres: Node[] = [];
+
+                Vue.nextTick(() => {
+                    for (const child of node.childNodes) {
+                        if ((child as any).tagName === "PRE") {
+                            pres.push(child);
+                        }
+                    }
+
+                    (CodeMirror as any).colorize(pres, null);
+                });
             }
         }
     }

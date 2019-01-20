@@ -65,7 +65,6 @@
                 </span>
                 <span class="ql-formats">
                     <button class="ql-formula"></button>
-                    <button class="ql-code-block"></button>
                     <v-btn
                             slot="activator"
                             dark

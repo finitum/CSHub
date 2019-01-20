@@ -91,7 +91,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                             v-scroll:#post-scroll-target>
                         <v-card-text v-if="!loadingIcon" id="postCardText">
                             <div class="ql-editor">
-                                <div v-show="showContent" v-html="post.htmlContent"></div>
+                                <div v-show="showContent" v-html="post.htmlContent" id="htmlOutput"></div>
                             </div>
                         </v-card-text>
                     </v-layout>
@@ -131,6 +131,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
     import {Component, Prop, Watch} from "vue-property-decorator";
     import {Route} from "vue-router";
     import {AxiosError} from "axios";
+    import CodeMirror from "codemirror";
 
     import Quill from "../quill/Quill.vue";
     import PostEditsDialog from "./PostEditsDialog.vue";
@@ -317,13 +318,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
          * Methods
          */
         private highlightCode() {
-            const domElements = document.getElementsByClassName("hljsBlock");
-            if (domElements.length > 0) {
-                for (const domElement of domElements) {
-                    (window as any).hljs.highlightBlock(domElement);
-                }
-            }
-
+            (CodeMirror as any).colorize(null, null);
         }
 
         private getAvatarURL(dbImage: string) {

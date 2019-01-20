@@ -5,7 +5,7 @@ import dataState from "../store/data";
 import {Requests} from "../../../cshub-shared/src/api-calls";
 
 const axiosApi = axios.create({
-    baseURL: process.env.VUE_APP_API_URL || (window as any)["appConfig"].VUE_APP_API_URL,
+    baseURL: process.env.VUE_APP_API_URL || (window as any).appConfig.VUE_APP_API_URL,
     withCredentials: true,
     headers: {
         "Accept": "application/json",

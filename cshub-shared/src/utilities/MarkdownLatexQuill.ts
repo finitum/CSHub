@@ -32,18 +32,10 @@ export class MarkdownLatexQuill {
 
 }
 
-export const getMarkdownParser = (window: any) => {
+export const getMarkdownParser = () => {
     return new MarkdownIt({
         highlight: (str: string, lang: string) => {
-            if (lang && window.hljs.getLanguage(lang)) {
-                try {
-                    return window.hljs.highlight(lang, str).value;
-                } catch (__) {
-                    return "";
-                }
-            }
-
-            return ""; // use external default escaping
+            return `<pre data-lang=${lang}>${str}</pre>`; // use external default escaping
         }
     }).use(mk);
 };
