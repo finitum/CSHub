@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-for="(postHash, index) in postHashes" :key="postHash.index">
-            <Post :postHash="postHash" :isNewPost="isNewPost.length === postHashesProp.length ? isNewPost[index] : null" v-show="showCurrentPost(index, postHash)" :key="postHash"></Post>
+            <Post :postHash="postHash" :isNewPost="isNewPost.length === postHashesProp.length ? isNewPost[index] : null" v-if="showCurrentPost(index, postHash)" :key="postHash"></Post>
         </div>
         <PostPagination v-if="postHashes.length !== 0 && currentPostHash === -1" :elements="postHashesProp.length" :range="range"></PostPagination>
     </div>
