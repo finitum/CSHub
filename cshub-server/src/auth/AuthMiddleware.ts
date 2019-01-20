@@ -45,7 +45,7 @@ export const checkTokenValidity = (req: Request): {valid: boolean, tokenObj?: IJ
 
         const tokenObj: IJWTToken = validateAccessToken(req.cookies.token);
 
-        if (tokenObj !== undefined && dayjs(tokenObj.expirydate * 1000).isAfter(dayjs())) {
+        if (tokenObj !== undefined && dayjs(tokenObj.expirydate * 1000).isAfter(dayjs()) && tokenObj.user.verified && !tokenObj.user.blocked) {
             return {valid: true, tokenObj};
         } else {
             return {valid: false};

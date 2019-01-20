@@ -20,11 +20,9 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
 
     const inputsValidation = validateMultipleInputs({input: squashEditRequest.postHash}, {input: squashEditRequest.editIds});
 
-    if (inputsValidation.valid && userObj.valid && squashEditRequest.editIds.length > 1) {
+    if (inputsValidation.valid && squashEditRequest.editIds.length > 1) {
 
-        const userIsAdmin = userObj.tokenObj.user.admin;
-
-        if (userIsAdmin) {
+        if (userObj.valid && userObj.tokenObj.user.admin) {
             logger.info(`Executing squash for post id ${squashEditRequest.postHash}`);
             query(`
               SELECT content, datetime, T1.id, T2.user

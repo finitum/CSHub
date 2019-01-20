@@ -25,6 +25,10 @@ export const hasAccessToPost = (postHash: number, jwt: string): Promise<postAcce
         }
     }
 
+    if (isLoggedIn) {
+        isLoggedIn = !tokenResult.user.blocked && tokenResult.user.verified;
+    }
+
     return query(`
       SELECT deleted, author, editCount
       FROM posts

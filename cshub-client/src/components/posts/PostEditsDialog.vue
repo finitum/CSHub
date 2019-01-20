@@ -7,7 +7,7 @@
                 </v-btn>
                 <v-toolbar-title>Edits</v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-toolbar-items class="hidden-sm-and-down">
+                <v-toolbar-items>
                     <v-btn depressed small color="red" @click="squashEdits" v-if="userAdminComputed">Execute squash</v-btn>
                 </v-toolbar-items>
             </v-toolbar>
@@ -221,9 +221,18 @@
                 }
             }
 
-            ApiWrapper.sendPostRequest(new SquashEdits(this.postHash, squashIds), (callback: SquashEditsCallback) => {
-                this.dialogActive = {on: false, hash: -1};
-            });
+            if (squashIds.length < 2) {
+                uiState.setNotificationDialogState({
+                    header: "Nope!",
+                    text: "You should squash at least 2 edits!",
+                    on: true
+                });
+            } else {
+                ApiWrapper.sendPostRequest(new SquashEdits(this.postHash, squashIds), (callback: SquashEditsCallback) => {
+                    this.dialogActive = {on: false, hash: -1};
+                });
+            }
+
         }
     }
 </script>

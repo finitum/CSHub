@@ -16,7 +16,11 @@ export type markdownDialogType = {
 export type notificationDialogType = {
     on: boolean,
     header: string,
-    text: string
+    text: string,
+    button?: {
+        text: string,
+        jsAction: () => void
+    }
 };
 
 export interface IUIState {

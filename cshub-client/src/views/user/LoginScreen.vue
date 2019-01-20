@@ -81,6 +81,7 @@ import {ForgotPasswordMailResponseTypes} from "../../../../cshub-shared/src/api-
 
     import router from "../router/router";
     import {SocketWrapper} from "../../utilities/socket-wrapper";
+    import {Route} from "vue-router";
 
     @Component({
         name: "LoginScreen",
@@ -91,6 +92,8 @@ import {ForgotPasswordMailResponseTypes} from "../../../../cshub-shared/src/api-
         /**
          * Data
          */
+        public previousRoute = "";
+
         private userData = {
             email: "",
             emailerror: "",
@@ -128,6 +131,17 @@ import {ForgotPasswordMailResponseTypes} from "../../../../cshub-shared/src/api-
             this.userData.email = localStorage.getItem(LocalStorageData.EMAIL);
         }
 
+        private beforeRouteEnter(
+            to: Route,
+            from: Route,
+            next: (to?: ((vm: this) => any)) => void
+        ) {
+            next((vm: this) => {
+                vm.previousRoute = from.name;
+            });
+        }
+
+
         /**
          * Methods
          */
@@ -162,7 +176,11 @@ import {ForgotPasswordMailResponseTypes} from "../../../../cshub-shared/src/api-
                                 }
                                 SocketWrapper.reconnectSocket(this.$socket);
                                 userState.changeUserModel(callbackData.userModel);
-                                router.go(-1);
+                                if (this.previousRoute !== null) {
+                                    router.go(-1);
+                                } else {
+                                    router.push(Routes.INDEX);
+                                }
                             } else if (callbackData.response === LoginResponseTypes.NOEXISTINGACCOUNT) {
                                 logStringConsole("Account does not exist");
                                 this.userData.emailerror = "Account does not exist.";

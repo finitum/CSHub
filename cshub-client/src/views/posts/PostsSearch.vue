@@ -72,7 +72,9 @@
          */
         @Watch("searchQuery")
         private searchQueryChanged() {
-            this.getSearchResults();
+            if (this.searchQuery.length >= 3) {
+                this.getSearchResults();
+            }
         }
 
         /**
