@@ -1,6 +1,6 @@
 import {app} from "../../../";
 import {Request, Response} from "express";
-import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
+import {query} from "../../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
 import {HidePostCallBack, HidePost} from "../../../../../cshub-shared/src/api-calls";
 

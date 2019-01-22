@@ -1,4 +1,3 @@
-import winston, {format} from "winston";
 import {Settings} from "./settings";
 
 import http from "http";

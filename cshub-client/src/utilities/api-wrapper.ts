@@ -5,7 +5,6 @@ import dataState from "../store/data";
 import {Requests} from "../../../cshub-shared/src/api-calls";
 import uiState from "../store/ui";
 import userState from "../store/user";
-import router from "../views/router/router";
 import {Routes} from "../../../cshub-shared/src/Routes";
 
 const axiosApi = axios.create({

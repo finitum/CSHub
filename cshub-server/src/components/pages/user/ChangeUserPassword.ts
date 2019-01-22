@@ -3,7 +3,7 @@ import logger from "../../../utilities/Logger"
 import {
     ChangeUserPasswordCallback,
     ChangeUserPassword,
-    ChangeUserPasswordReponseTypes
+    ChangeUserPasswordResponseTypes
 } from "../../../../../cshub-shared/src/api-calls";
 import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
@@ -39,7 +39,7 @@ app.post(ChangeUserPassword.getURL, (req: Request, res: Response) => {
                 .then((result: DatabaseResultSet) => {
 
                     if (result.convertRowsToResultObjects().length !== 1) {
-                        res.json(new ChangeUserPasswordCallback(ChangeUserPasswordReponseTypes.INVALIDINPUT));
+                        res.json(new ChangeUserPasswordCallback(ChangeUserPasswordResponseTypes.INVALIDINPUT));
                     }
 
                     // If the input is actually valid, check if the password entered is equal. Depending on the output of the server, provide the correct error or login.
@@ -54,7 +54,7 @@ app.post(ChangeUserPassword.getURL, (req: Request, res: Response) => {
                                         WHERE id = ?
                                         `, newHashedValue, token.tokenObj.user.id)
                                             .then(() => {
-                                                res.json(new ChangeUserPasswordCallback(ChangeUserPasswordReponseTypes.SUCCESS));
+                                                res.json(new ChangeUserPasswordCallback(ChangeUserPasswordResponseTypes.SUCCESS));
                                             });
                                     })
                                     .catch((err) => {
@@ -63,7 +63,7 @@ app.post(ChangeUserPassword.getURL, (req: Request, res: Response) => {
                                         res.status(500).send();
                                     });
                             } else {
-                                res.json(new ChangeUserPasswordCallback(ChangeUserPasswordReponseTypes.WRONGPASSWORD));
+                                res.json(new ChangeUserPasswordCallback(ChangeUserPasswordResponseTypes.WRONGPASSWORD));
                             }
                         });
                 })
@@ -73,7 +73,7 @@ app.post(ChangeUserPassword.getURL, (req: Request, res: Response) => {
                     res.status(500).send();
                 });
         } else {
-            res.json(new ChangeUserPasswordCallback(ChangeUserPasswordReponseTypes.INVALIDINPUT));
+            res.json(new ChangeUserPasswordCallback(ChangeUserPasswordResponseTypes.INVALIDINPUT));
         }
 
     } else {

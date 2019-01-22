@@ -102,7 +102,6 @@
 
 <script lang="ts">
     import Vue from "vue";
-    import localForage from "localforage";
     import Delta from "quill-delta/dist/Delta";
     import {Component, Prop} from "vue-property-decorator";
     import {Blot} from "parchment/dist/src/blot/abstract/blot";

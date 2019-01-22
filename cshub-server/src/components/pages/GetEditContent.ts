@@ -5,7 +5,6 @@ import logger from "../../utilities/Logger"
 
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
-import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 
 import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/src/api-calls";

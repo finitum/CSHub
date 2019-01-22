@@ -11,7 +11,6 @@ import {
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 import {getPostData} from "./GetPost";
-import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import tracker from "../../utilities/Tracking";
 
 app.post(GetPostContent.getURL, (req: Request, res: Response) => {
