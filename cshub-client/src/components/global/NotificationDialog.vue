@@ -2,7 +2,7 @@
     <v-dialog v-model="notificationDialogComputed.on" persistent max-width="500">
         <v-card>
             <v-card-title class="headline">{{notificationDialogComputed.header}}</v-card-title>
-            <v-card-text class="cardText" v-for="text in notificationDialogText">{{text}}</v-card-text>
+            <v-card-text class="cardText" v-for="text in notificationDialogText" :key="text.index">{{text}}</v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="red darken-1" flat v-if="notificationButtonEnabled" @click.native="doButtonClick">{{notificationDialogComputed.button.text}}</v-btn>
