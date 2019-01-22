@@ -6,7 +6,7 @@
     "scripts": {
         "beautify-package.json": "beautify -o package.json package.json",
         "serve": "vue-cli-service serve",
-        "build": "vue-cli-service build",
+        "build": "vue-cli-service build --modern",
         "dev-build": "vue-cli-service build --mode development",
         "lint": "vue-cli-service lint"
     },
