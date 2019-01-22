@@ -31,20 +31,22 @@ export const getTopicTree = (): Promise<ITopic[] | null> => {
             // This will return an array of the children of a certain topic, through recursion as well.
             const getChildTopics = (id: number): ITopic[] => {
 
+                if (id === 0) id = null;
+
                 const childTopicsParsed: ITopic[] = [];
                 // Get all the topics which have this topic as their parent, then get the child topics of these as well to create the actual topic tree
                 // This topic tree has the first topics that don't have a parent as their topics, and then they all have their corresponding children
-                const childTopics = topics.getRows().filter(x => DatabaseResultSet.getNumberFromDB("parentid", x) === id);
+                const childTopics = topics.convertRowsToResultObjects().filter(x => x.getNumberFromDB("parentid") === id);
                 if (childTopics.length > 0) {
 
                     for (const topic of childTopics) {
 
-                        const children: ITopic[] = getChildTopics(DatabaseResultSet.getNumberFromDB("id", topic));
+                        const children: ITopic[] = getChildTopics(topic.getNumberFromDB("id"));
 
                         const currTopic: ITopic = {
-                            name: DatabaseResultSet.getStringFromDB("name", topic),
-                            id: DatabaseResultSet.getNumberFromDB("id", topic),
-                            hash: DatabaseResultSet.getNumberFromDB("hash", topic)
+                            name: topic.getStringFromDB("name"),
+                            id: topic.getNumberFromDB("id"),
+                            hash: topic.getNumberFromDB("hash")
                         };
 
                         // If this topic has children, add them to the object
@@ -64,12 +66,12 @@ export const getTopicTree = (): Promise<ITopic[] | null> => {
             // Get all the topics that don't have a parent, and get all their children to get our topic array
             for (const topic of topics.convertRowsToResultObjects().filter(x => x.getNumberFromDB("parentid") === null)) {
 
-                const children = getChildTopics(DatabaseResultSet.getNumberFromDB("id", topic));
+                const children = getChildTopics(topic.getNumberFromDB("id"));
 
                 const currTopic: ITopic = {
-                    name: DatabaseResultSet.getStringFromDB("name", topic),
-                    id: DatabaseResultSet.getNumberFromDB("id", topic),
-                    hash: DatabaseResultSet.getNumberFromDB("hash", topic)
+                    name: topic.getStringFromDB("name"),
+                    id: topic.getNumberFromDB("id"),
+                    hash: topic.getNumberFromDB("hash")
                 };
 
                 if (children !== null) {
