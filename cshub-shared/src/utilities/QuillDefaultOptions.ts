@@ -3,7 +3,6 @@ export default {
     placeholder: "Type here ...",
     modules: {
         cursors: true,
-        resize:  {},
-        table: true
+        resize:  {}
     }
 };

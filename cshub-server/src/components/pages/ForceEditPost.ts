@@ -28,7 +28,7 @@ app.post(ForceEditPost.getURL, (req: Request, res: Response) => {
 
         if (userIsAdmin) {
             return query(`
-              SELECT content, approved
+              SELECT content, approved, id
               FROM edits
               WHERE post = (
                 SELECT id
@@ -40,29 +40,26 @@ app.post(ForceEditPost.getURL, (req: Request, res: Response) => {
                 .then((edits: DatabaseResultSet) => {
                     const rows = edits.convertRowsToResultObjects();
                     let delta = new Delta(JSON.parse(rows[0].getStringFromDB("content")));
+                    let editId: number;
 
-                    for (let i = 1; i < rows.length - 1; i++) {
+                    for (let i = 1; i < rows.length; i++) {
                         const currRow = rows[i];
-                        delta = delta.compose(new Delta(JSON.parse(currRow.getStringFromDB("content"))));
+                        if (currRow.getNumberFromDB("approved") === 1) {
+                            delta = delta.compose(new Delta(JSON.parse(currRow.getStringFromDB("content"))));
+                            editId = currRow.getNumberFromDB("id");
+                        } else {
+                            break;
+                        }
                     }
 
                     getHTMLFromDelta(delta, (html) => {
                         query(`
                           UPDATE edits, posts
-                          SET edits.approved    = 1,
-                              edits.approvedBy  = ?,
-                              edits.htmlContent = ?,
+                          SET edits.htmlContent = ?,
                               posts.postVersion = posts.postVersion + 1
-                          WHERE edits.post = (
-                            SELECT id
-                            FROM posts
-                            WHERE hash = ?
-                          )
-                            AND edits.approved = 0
+                          WHERE edits.id = ?
                             AND posts.hash = ?
-                          ORDER BY edits.datetime DESC
-                          LIMIT 1
-                        `, userObj.tokenObj.user.id, html, editPostRequest.postHash, editPostRequest.postHash)
+                        `, html, editId, editPostRequest.postHash)
                             .then(() => {
                                 logger.info("Force edit post succesfully");
                                 res.json(new ForceEditPostCallback());

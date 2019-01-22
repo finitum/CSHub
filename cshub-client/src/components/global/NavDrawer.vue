@@ -55,11 +55,6 @@
                 <router-link v-if="userAdminComputed" :to="`${navigationLocations.ADMINDASHBOARD}/${adminRoutes.TOPICCREATE}`"><NavDrawerItem icon="fas fa-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
             </div>
         </v-list>
-        <div id="version">
-            <a :title="fullGitSHA" :href="githubLink">{{ shortVersionString }}</a>
-            <br>
-            {{ buildDate }}
-        </div>
     </v-navigation-drawer>
 </template>
 
@@ -101,12 +96,6 @@
         private topics: ITopic[] = [];
         private navigationLocations = Routes;
         private adminRoutes = AdminRoutes;
-
-        // Build information
-        private shortVersionString = "SHA: " + process.env.VUE_APP_VERSION.substr(0, 7);
-        private fullGitSHA = process.env.VUE_APP_VERSION;
-        private githubLink = "https://github.com/RobbinBaauw/CSHub/commit/" + this.fullGitSHA;
-        private buildDate = "Build Date: " + process.env.VUE_APP_BUILDDATE;
 
         /**
          * Computed properties
@@ -237,15 +226,5 @@
 
 .tree >>> .v-treeview-node__root, .v-treeview-node__children {
     padding-left: 16px;
-}
-
-#version {
-    font-size: 13px;
-    font-weight: 500;
-    color: rgba(0,0,0,.54);
-
-    position: absolute;
-    left: 5px;
-    bottom: 10px;
 }
 </style>

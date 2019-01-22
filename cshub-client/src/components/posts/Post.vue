@@ -7,6 +7,13 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                         @after-enter="afterAnimation">
                 <div v-if="fullPostComputed"></div>
             </transition>
+            <v-progress-circular
+                    v-if="showLoadingIcon"
+                    :size="100"
+                    color="primary"
+                    indeterminate
+                    class="loadingIcon"
+            ></v-progress-circular>
             <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}" :id="'post_' + domId">
                 <v-card-title primary-title :id="'postTitle_' + domId" class="pb-0 xl-0 pt-1"
                               @click.capture="navigateToPost">
@@ -190,7 +197,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         private previousTopicURL = "";
         private showTopMenu = true;
         private resizeInterval: number;
-
+        private showLoadingIcon = false;
         private activeTopicHash: number[] = [];
 
         /**
@@ -322,12 +329,18 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
          * Methods
          */
         private forceEditPost() {
+            this.showLoadingIcon = true;
+
             ApiWrapper.sendPostRequest(new ForceEditPost(this.postHash), () => {
+                this.showLoadingIcon = false;
                 uiState.setNotificationDialogState({
                     on: true,
                     header: "Edited post",
                     text: "Post was edited successfully"
                 });
+
+                this.$router.push(this.currentPostURLComputed);
+                this.getPostRequest();
             });
         }
 
@@ -526,12 +539,14 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         }
 
         private editPost() {
+            this.showLoadingIcon = true;
             logStringConsole("Editing post");
             ApiWrapper.sendPostRequest(new EditPost(
                 this.postHash,
                 this.post.title,
                 this.activeTopicHash[0]
             ), (callbackData: EditPostCallback) => {
+                this.showLoadingIcon = false;
                 if (callbackData.result === EditPostReturnTypes.SUCCESS) {
                     uiState.setNotificationDialogState({
                         on: true,
@@ -639,5 +654,15 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
     .ql-editor {
         border: none;
         font-family: 'SailecLight', sans-serif;
+    }
+
+    .loadingIcon {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: auto;
+        height: auto;
+        transform: translate(-50%,-50%);
+        z-index: 9999;
     }
 </style>

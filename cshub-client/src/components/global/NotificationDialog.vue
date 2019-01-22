@@ -2,7 +2,7 @@
     <v-dialog v-model="notificationDialogComputed.on" persistent max-width="500">
         <v-card>
             <v-card-title class="headline">{{notificationDialogComputed.header}}</v-card-title>
-            <v-card-text>{{notificationDialogComputed.text}}</v-card-text>
+            <v-card-text class="cardText" v-for="text in notificationDialogText">{{text}}</v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="red darken-1" flat v-if="notificationButtonEnabled" @click.native="doButtonClick">{{notificationDialogComputed.button.text}}</v-btn>
@@ -35,6 +35,10 @@
             uiState.setNotificationDialogState(value);
         }
 
+        get notificationDialogText(): string[] {
+            return this.notificationDialogComputed.text.split("\n");
+        }
+
         get notificationButtonEnabled(): boolean {
             return this.notificationDialogComputed.button !== null && typeof this.notificationDialogComputed.button !== "undefined";
         }
@@ -52,4 +56,8 @@
 
 <style scoped>
 
+    .cardText {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
 </style>
