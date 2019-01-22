@@ -2,7 +2,7 @@ import {getMarkdownParser, MarkdownLatexQuill} from "../../../cshub-shared/src/u
 import {JSDOM} from "jsdom";
 import QuillDefaultOptions from "../../../cshub-shared/src/utilities/QuillDefaultOptions";
 import Delta from "quill-delta/dist/Delta";
-import escapeHtml from "escape-html";
+import logger from "./Logger";
 
 export const getHTMLFromDelta = (delta: Delta, callback: (html: string) => void) => {
 
@@ -10,7 +10,7 @@ export const getHTMLFromDelta = (delta: Delta, callback: (html: string) => void)
                             <!DOCTYPE html>
                             <head>
                                 <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.7.22/MutationObserver.js"></script>
-                                <script src="https://unpkg.com/quill@2.0.0-dev.3/dist/quill.min.js"></script>
+                                <script src="https://unpkg.com/quill@1.3.6/dist/quill.min.js"></script>
                                 <script src="https://unpkg.com/katex@0.10.0/dist/katex.min.js"></script>
                             </head>
                             <body><div id="editor-container"></div></body>`, {
@@ -19,6 +19,10 @@ export const getHTMLFromDelta = (delta: Delta, callback: (html: string) => void)
     });
 
     const window = jsdom.window;
+
+    window.onerror = () => {
+        logger.error(arguments);
+    };
 
     window.onload = () => {
         const document = window.document;
@@ -67,7 +71,8 @@ const getHTML = (quillEditor: any, document: Document, window: Window) => {
     const finalizeMarkdownBlock = (document: Document, window: Window) => {
         if (prevElement.isMarkdownBlock) {
             prevElement.currString = prevElement.currString.substr(0, prevElement.currString.length - 1);
-            prevElement.currString = escapeHtml(prevElement.currString);
+            prevElement.currString = prevElement.currString.split("<").join("&lt;");
+            prevElement.currString = prevElement.currString.split(">").join("&gt;");
             const newNode = document.createElement("div");
             // To not have a break at the end
             newNode.style.whiteSpace = "normal";
@@ -85,12 +90,7 @@ const getHTML = (quillEditor: any, document: Document, window: Window) => {
     const toBeDeletedNodes: HTMLElement[] = [];
 
     for (const domNode of allNodes) {
-        if (domNode.tagName === "DIV") {
-            finalizeMarkdownBlock(document, window);
-        } else if (domNode.tagName === "SELECT" || domNode.tagName === "OPTION") {
-            finalizeMarkdownBlock(document, window);
-            toBeDeletedNodes.push(domNode);
-        } else if ((domNode.tagName === "PRE" && domNode.classList.contains(MarkdownLatexQuill.blotName))) {
+        if ((domNode.tagName === "PRE" && domNode.classList.contains(MarkdownLatexQuill.blotName))) {
             toBeDeletedNodes.push(domNode);
             if (prevElement.isMarkdownBlock) {
                 if (domNode.textContent !== "\n") {
@@ -111,6 +111,8 @@ const getHTML = (quillEditor: any, document: Document, window: Window) => {
             if (!domNode.classList.contains(MarkdownLatexQuill.blotName)) {
                 finalizeMarkdownBlock(document, window);
             }
+        } else {
+            finalizeMarkdownBlock(document, window);
         }
     }
 

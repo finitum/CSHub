@@ -16,6 +16,9 @@
                 prepend-inner-icon="fas fa-search"
         ></v-text-field>
         <v-spacer></v-spacer>
+        <v-toolbar-items>
+            <v-btn depressed small color="primary" @click="showVersionDialog"><v-icon color="white">fas fa-code-branch</v-icon></v-btn>
+        </v-toolbar-items>
     </v-toolbar>
 </template>
 
@@ -34,6 +37,17 @@
         name: "Toolbar"
     })
     export default class Toolbar extends Vue {
+
+        /**
+         * Data
+         */
+
+        // Build information
+        private shortVersionString = "SHA: " + process.env.VUE_APP_VERSION.substr(0, 7);
+        private fullGitSHA = process.env.VUE_APP_VERSION;
+        private githubLink = "https://github.com/RobbinBaauw/CSHub/commit/" + this.fullGitSHA;
+        private buildDate = "Build Date: " + process.env.VUE_APP_BUILDDATE;
+
 
         /**
          * Computed properties
@@ -59,6 +73,20 @@
          */
         private routeHome() {
             router.push(Routes.INDEX);
+        }
+
+        private showVersionDialog() {
+            uiState.setNotificationDialogState({
+                text: `${this.shortVersionString}\n${this.buildDate}`,
+                header: "Build version",
+                on: true,
+                button: {
+                    text: "Go to github",
+                    jsAction: () => {
+                        window.open(this.githubLink, "_blank");
+                    }
+                }
+            });
         }
 
         /**

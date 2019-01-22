@@ -77,68 +77,6 @@
                         <v-icon color="black tableIcon">fas fa-marker</v-icon>
                     </v-btn>
                 </span>
-                <span class="ql-formats">
-                    <v-menu
-                            v-model="tableMenuOpen"
-                            :close-on-content-click="false"
-                            :nudge-width="100"
-                            offset-x
-                    >
-                        <v-btn
-                                slot="activator"
-                                dark
-                                flat
-                                small
-                                class="tableButton"
-                        >
-                            <v-icon color="black tableIcon">fas fa-table</v-icon>
-                        </v-btn>
-                        <v-card>
-                            <v-card-title primary-title style="padding-bottom: 0">
-                                <h3>
-                                    Table options
-                                </h3>
-                            </v-card-title>
-                            <v-card-text style="padding-top: 0">
-                                <v-list>
-                                    <v-list-tile>
-                                        <button @click="performTableAction(tableActions.CREATETABLE)" class="mr-3">
-                                            <v-icon>fas fa-plus</v-icon>
-                                        </button>
-                                        <button @click="performTableAction(tableActions.REMOVETABLE)">
-                                            <v-icon>fas fa-minus</v-icon>
-                                        </button>
-                                    </v-list-tile>
-                                    <v-list-tile>
-                                        <button @click="performTableAction(tableActions.CREATENEWCOLUMNLEFT)"
-                                                class="mr-3">
-                                            <v-icon>fas fa-arrow-left</v-icon>
-                                        </button>
-                                        <button @click="performTableAction(tableActions.CREATENEWCOLUMNRIGHT)">
-                                            <v-icon>fas fa-arrow-right</v-icon>
-                                        </button>
-                                    </v-list-tile>
-                                    <v-list-tile>
-                                        <button @click="performTableAction(tableActions.CREATENEWROWUP)" class="mr-3">
-                                            <v-icon>fas fa-arrow-up</v-icon>
-                                        </button>
-                                        <button @click="performTableAction(tableActions.CREATENEWROWDOWN)">
-                                            <v-icon>fas fa-arrow-down</v-icon>
-                                        </button>
-                                    </v-list-tile>
-                                    <v-list-tile>
-                                        <button @click="performTableAction(tableActions.REMOVEROW)" class="mr-3">
-                                            <v-icon>fas fa-arrows-alt-v</v-icon>
-                                        </button>
-                                        <button @click="performTableAction(tableActions.REMOVECOLUMN)">
-                                            <v-icon>fas fa-arrows-alt-h</v-icon>
-                                        </button>
-                                    </v-list-tile>
-                                </v-list>
-                            </v-card-text>
-                        </v-card>
-                    </v-menu>
-                </span>
             </div>
             <div class="editor" style="overflow: hidden;">
             </div>
@@ -210,17 +148,6 @@
     (window as any).Quill.register("modules/resize", ImageResize);
     (window as any).Quill.register("modules/cursors", QuillCursors);
 
-    enum TableActions {
-        CREATETABLE,
-        CREATENEWROWUP,
-        CREATENEWROWDOWN,
-        CREATENEWCOLUMNLEFT,
-        CREATENEWCOLUMNRIGHT,
-        REMOVEROW,
-        REMOVECOLUMN,
-        REMOVETABLE
-    }
-
     @Component({
         name: "QuillEditor",
         components: {MarkdownEditor}
@@ -245,10 +172,6 @@
         private initialValue: Delta;
         private socketTypingTimeout: number = null;
         private currentEdits: Delta[] = [];
-
-        // Table related variables
-        private tableMenuOpen = false;
-        private tableActions = TableActions;
 
         // Realtime edit related variables
         private lastFewEdits: IRealtimeEdit[] = [];
@@ -395,38 +318,6 @@
 
         private getDelta() {
             return this.editor.getContents();
-        }
-
-        private performTableAction(type: TableActions) {
-            const table = this.editor.getModule("table");
-            if (typeof table !== "undefined") {
-                switch (type) {
-                    case TableActions.CREATETABLE:
-                        table.insertTable(2, 2);
-                        break;
-                    case TableActions.REMOVETABLE:
-                        table.deleteTable();
-                        break;
-                    case TableActions.CREATENEWCOLUMNLEFT:
-                        table.insertColumnLeft();
-                        break;
-                    case TableActions.CREATENEWCOLUMNRIGHT:
-                        table.insertColumnRight();
-                        break;
-                    case TableActions.CREATENEWROWUP:
-                        table.insertRowAbove();
-                        break;
-                    case TableActions.CREATENEWROWDOWN:
-                        table.insertRowBelow();
-                        break;
-                    case TableActions.REMOVECOLUMN:
-                        table.deleteColumn();
-                        break;
-                    case TableActions.REMOVEROW:
-                        table.deleteRow();
-                        break;
-                }
-            }
         }
 
         private initQuill(selects: IRealtimeSelect[]) {
@@ -583,7 +474,7 @@
 <style scoped>
     .editor {
         min-height: 100px;
-        height: 100%;
+        height: 90%;
         border: none;
     }
 
