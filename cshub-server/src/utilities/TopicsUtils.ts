@@ -62,7 +62,7 @@ export const getTopicTree = (): Promise<ITopic[] | null> => {
             };
 
             // Get all the topics that don't have a parent, and get all their children to get our topic array
-            for (const topic of topics.getRows().filter(x => DatabaseResultSet.getNumberFromDB("parentid", x) === 0)) {
+            for (const topic of topics.convertRowsToResultObjects().filter(x => x.getNumberFromDB("parentid") === null)) {
 
                 const children = getChildTopics(DatabaseResultSet.getNumberFromDB("id", topic));
 
