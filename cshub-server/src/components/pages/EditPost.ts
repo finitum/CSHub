@@ -1,5 +1,4 @@
 import {Request, Response} from "express";
-import escapeHtml from "escape-html";
 
 import {app} from "../../";
 import logger from "../../utilities/Logger"
@@ -8,10 +7,8 @@ import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import {EditPost, EditPostCallback, EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages/EditPost";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
-import {JSDOM} from "jsdom";
 import Delta from "quill-delta/dist/Delta";
 
-import QuillDefaultOptions from "../../../../cshub-shared/src/utilities/QuillDefaultOptions";
 import {DataUpdatedHandler} from "./realtime-post/DataUpdatedHandler";
 import {getHTMLFromDelta} from "../../utilities/EditsHandler";
 

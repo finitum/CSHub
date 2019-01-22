@@ -1,4 +1,4 @@
-import {app, server} from "../../../index";
+import {server} from "../../../index";
 import socket, {Socket} from "socket.io";
 import {
     ClientDataUpdated,
@@ -8,7 +8,7 @@ import {DataUpdatedHandler} from "./DataUpdatedHandler";
 import {TogglePostJoin} from "../../../../../cshub-shared/src/api-calls";
 import {IRealtimeEdit} from "../../../../../cshub-shared/src/api-calls";
 import cookieParser from "cookie-parser";
-import {customValidator, validateMultipleInputs} from "../../../utilities/StringUtils";
+import {customValidator} from "../../../utilities/StringUtils";
 import {hasAccessToPost, postAccessType} from "../../../auth/validateRights/PostAccess";
 import {CursorUpdatedHandler} from "./CursorUpdatedHandler";
 

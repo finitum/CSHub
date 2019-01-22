@@ -18,7 +18,7 @@ export class CursorUpdatedHandler {
 
         for (const room in currSocket.rooms) {
             const roomId = parseInt(currSocket.rooms[room].split("POST_")[1]);
-            if (roomId !== NaN) {
+            if (!isNaN(roomId)) {
                 const currSelects = CursorUpdatedHandler.cursorList.getSelectList(roomId);
                 const currUserIndex = currSelects.findIndex((x) => x.userId === userModel.user.id);
                 if (currUserIndex !== -1) {

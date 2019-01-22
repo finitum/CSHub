@@ -121,7 +121,7 @@
     import {
         ChangeUserPassword,
         ChangeUserPasswordCallback,
-        ChangeUserPasswordReponseTypes,
+        ChangeUserPasswordResponseTypes,
         GetUserPosts,
         GetUserPostsCallback
     } from "../../../../cshub-shared/src/api-calls/pages/user";
@@ -129,7 +129,7 @@
     import {
         ChangeUserAvatar,
         ChangeUserAvatarCallback,
-        ChangeUserAvatarReponseTypes
+        ChangeUserAvatarResponseTypes
     } from "../../../../cshub-shared/src/api-calls/pages/user/ChangeUserAvatar";
     import uiState from "../../store/ui";
 
@@ -200,7 +200,7 @@
 
         private changeAvatar() {
             ApiWrapper.sendPostRequest(new ChangeUserAvatar(this.imageBase64), (callback: ChangeUserAvatarCallback) => {
-                if (callback.response === ChangeUserAvatarReponseTypes.SUCCESS) {
+                if (callback.response === ChangeUserAvatarResponseTypes.SUCCESS) {
                     logStringConsole("User changed avatar");
                     localForage.keys()
                         .then((keys: string[]) => {
@@ -223,7 +223,7 @@
                                 text: "Your avatar has been changed, refresh the page to see your avatar update"
                             });
                         });
-                } else if (callback.response === ChangeUserAvatarReponseTypes.INVALIDIMAGE) {
+                } else if (callback.response === ChangeUserAvatarResponseTypes.INVALIDIMAGE) {
                     // Perhaps do something
                 }
             });
@@ -231,17 +231,17 @@
 
         private changePassword() {
             ApiWrapper.sendPostRequest(new ChangeUserPassword(this.userData.currentPassword, this.userData.newPassword), (callBack: ChangeUserPasswordCallback) => {
-                if (callBack.response === ChangeUserPasswordReponseTypes.SUCCESS) {
+                if (callBack.response === ChangeUserPasswordResponseTypes.SUCCESS) {
                     uiState.setNotificationDialogState({
                         on: true,
                         header: "Changed password",
                         text: "Your password has been changed successfully"
                     });
                     logStringConsole("User changed password");
-                } else if (callBack.response === ChangeUserPasswordReponseTypes.WRONGPASSWORD) {
+                } else if (callBack.response === ChangeUserPasswordResponseTypes.WRONGPASSWORD) {
                     logStringConsole("Wrong password was entered so password not changed");
                     this.userData.currentPasswordError = "Wrong password!";
-                } else if (callBack.response === ChangeUserPasswordReponseTypes.INVALIDINPUT) {
+                } else if (callBack.response === ChangeUserPasswordResponseTypes.INVALIDINPUT) {
                     logStringConsole("Invalid input at password change");
                     this.userData.currentPasswordError = "Wrong input!";
                 }
