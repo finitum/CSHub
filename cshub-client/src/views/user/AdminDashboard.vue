@@ -30,7 +30,7 @@
 
     import {
         GetUnverifiedPostsCallBack,
-        GetUnverifiedPosts, GetUnverifiedPostsType
+        GetUnverifiedPosts
     } from "../../../../cshub-shared/src/api-calls/admin/GetUnverifiedPosts";
 
     @Component({

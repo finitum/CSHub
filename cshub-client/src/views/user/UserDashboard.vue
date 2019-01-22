@@ -131,7 +131,6 @@
         ChangeUserAvatarCallback,
         ChangeUserAvatarReponseTypes
     } from "../../../../cshub-shared/src/api-calls/pages/user/ChangeUserAvatar";
-    import {Routes} from "../../../../cshub-shared/src/Routes";
     import uiState from "../../store/ui";
 
     @Component({
