@@ -13,7 +13,7 @@
             </v-toolbar>
             <v-card-text>
                 <v-timeline dense clipped>
-                    <div v-for="edit in edits" :key="edit.index">
+                    <div v-for="(edit, index) in edits" :key="index">
                         <transition name="editList" @before-leave="initQuill = false" @before-enter="initQuill = false" @after-leave="initQuill = true">
                             <v-timeline-item
                                     v-show="showIndex === -1 || showIndex === index"
@@ -24,12 +24,12 @@
                             >
                                 <v-layout justify-space-between>
                                         <v-flex xs7>
-                                            <span v-if="edit.index !== 0">Edited by </span>
-                                            <span v-if="edit.index === 0">Created by </span>
+                                            <span v-if="index !== 0">Edited by </span>
+                                            <span v-if="index === 0">Created by </span>
                                             <span v-if="edit.editedBy[0].id === null">unknown</span>
-                                            <span v-else v-for="(user, index) in edit.editedBy">{{user.firstname}} {{user.lastname}}{{index === edit.editedBy.length - 1 ? "" : ", "}}</span>
+                                            <span v-else v-for="(user, userindex) in edit.editedBy">{{user.firstname}} {{user.lastname}}{{userindex === edit.editedBy.length - 1 ? "" : ", "}}</span>
                                             <span> on {{edit.datetime | formatDate}}</span>
-                                            <v-btn depressed small color="primary" @click="showIndex = edit.index" v-if="showIndex === -1">View edit</v-btn>
+                                            <v-btn depressed small color="primary" @click="showIndex = index" v-if="showIndex === -1">View edit</v-btn>
                                             <v-btn depressed small color="primary" @click="showIndex = -1" v-if="showIndex !== -1">Close edit</v-btn>
                                             <v-checkbox
                                                 style="margin-top: 0"
