@@ -1,6 +1,7 @@
 {
     "name": "cshub-server",
     "version": "0.2.2",
+    "license": "MIT",
     "scripts": {
         "beautify-package.json": "beautify -o package.json package.json",
         "start": "yarn build:live",
@@ -47,5 +48,5 @@
         "ts-node": "^7.0.1",
         "typescript": "^3.1.3"
     },
-    "gitSHA": "fa3dd408ab7d1759a643a80a4b840ad1ff371a4c"
+    "gitSHA": "b9c33c1f4bc7a51bfe20d5f9ea358778ca58c818"
 }
