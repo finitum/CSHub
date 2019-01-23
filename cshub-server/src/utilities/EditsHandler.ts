@@ -19,13 +19,18 @@ export const getHTMLFromDelta = (delta: Delta, callback: (html: string) => void)
     });
 
     const window = jsdom.window;
+    const document = window.document;
+
+    // @ts-ignore (quill wants to execute but JSDom doesn't have it)
+    document.execCommand = () => {
+    };
 
     window.onerror = () => {
+        logger.error("JSDOM Save errors");
         logger.error(arguments);
     };
 
     window.onload = () => {
-        const document = window.document;
         const container = document.getElementById("editor-container");
 
         // @ts-ignore
@@ -46,9 +51,9 @@ export const getHTMLFromDelta = (delta: Delta, callback: (html: string) => void)
         const markdownParser = new MarkdownLatexQuill(quillWindow);
         markdownParser.registerQuill();
         quill.setContents(delta);
-
         const html = getHTML(quill, document, window);
         callback(html);
+
     }
 };
 
