@@ -48,8 +48,6 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                             delta = delta.compose(new Delta(JSON.parse(currRow.getStringFromDB("content"))));
                         }
 
-                        DataUpdatedHandler.postHistoryHandler.updateDbDelta(editPostRequest.postHash, delta);
-
                         getHTMLFromDelta(delta, (html) => {
                             query(`
                               UPDATE edits, posts
