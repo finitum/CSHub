@@ -13,6 +13,10 @@ app.post(GetAllUsers.getURL, (req: Request, res: Response) => {
     // Check if token is valid and user is admin
     if (token.valid && token.tokenObj.user.admin) {
 
+        if (getAllUsersRequest.rowsPerPage === -1) {
+            getAllUsersRequest.rowsPerPage = 4242424242;
+        }
+
         query(`
         SELECT id, email, firstname, lastname, blocked, verified, admin
         FROM users

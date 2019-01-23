@@ -5,6 +5,7 @@ import Delta = require("quill-delta/dist/Delta");
 import {transformFromArray} from "../../../../../cshub-shared/src/utilities/DeltaHandler";
 import async from "async";
 import {DataUpdatedHandler} from "./DataUpdatedHandler";
+import Op from "quill-delta/dist/Op";
 
 type queueType = {
     toAdd: IRealtimeEdit[],
@@ -84,18 +85,36 @@ export class DataList {
         new Promise(resolve => resolve())
             .then(() => {
 
+                let op: Op;
+                let diff: Delta;
+
                 try {
-                    const op = queue.currComposedDelta.ops[queue.currComposedDelta.ops.length - 1];
-                    const diff = queue.currComposedDelta.diff(queue.dbComposedDelta);
+                    op = queue.currComposedDelta.ops[queue.currComposedDelta.ops.length - 1];
+                    diff = queue.currComposedDelta.diff(queue.dbComposedDelta);
+                } catch (e) {
+                    logger.error(`Error with saving realtime edit (diff document?), postHash: ${queue.toAdd[0].postHash}, delta: ${JSON.stringify(queue.toAdd[0].delta)}, queue:`);
+                    logger.error(JSON.stringify(queue));
+                    logger.error(e);
+                    return null; // NOOP
+                }
 
-                    if (typeof op !== "undefined" && !(op.insert === "\n" || op.insert.toString().endsWith("\n"))) {
-                        queue.currComposedDelta.ops.push({insert: "\n"});
-                    }
+                if (typeof op !== "undefined" && !(op.insert === "\n" || op.insert.toString().endsWith("\n"))) {
+                    queue.currComposedDelta.ops.push({insert: "\n"});
+                }
 
-                    queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(currRecord.delta));
+                queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(currRecord.delta));
 
-                    const toBeSavedEdit = queue.dbComposedDelta.diff(queue.currComposedDelta);
+                let toBeSavedEdit: Delta;
+                try {
+                    toBeSavedEdit = queue.dbComposedDelta.diff(queue.currComposedDelta);
+                } catch (e) {
+                    logger.error(`Error with saving realtime edit (diff), postHash: ${queue.toAdd[0].postHash}, delta: ${JSON.stringify(queue.toAdd[0].delta)}, queue:`);
+                    logger.error(JSON.stringify(queue));
+                    logger.error(e);
+                    return null; // NOOP
+                }
 
+                try {
                     if (diff.ops.length === 0) {
                         return query(`
                           INSERT INTO edits
@@ -125,7 +144,8 @@ export class DataList {
                             })
                     }
                 } catch (e) {
-                    logger.error("Error with saving realtime edit");
+                    logger.error(`Error with saving realtime edit (inserting), postHash: ${queue.toAdd[0].postHash}, delta: ${JSON.stringify(queue.toAdd[0].delta)}, queue:`);
+                    logger.error(JSON.stringify(queue));
                     logger.error(e);
                     return null; // NOOP
                 }
