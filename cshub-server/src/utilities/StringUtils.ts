@@ -58,6 +58,8 @@ export const customValidator = (input: ICustomValidatorInput): ICustomValidatorR
         const regex = new RegExp("^[a-zA-Z.]*$");
         if (!regex.test(inputString) || !inputString.includes(".") || inputString[inputString.length - 1] === ".") {
             return {valid: false, error: CustomValidatorReponseTypes.TUEMAIL, value: input.input};
+        } else {
+            return {valid: true};
         }
     } else {
         return {valid: true};

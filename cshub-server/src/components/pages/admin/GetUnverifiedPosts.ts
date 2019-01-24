@@ -16,18 +16,17 @@ app.post(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
           SELECT hash, editCount
           FROM posts T1
                  LEFT JOIN (
-            SELECT *
-            FROM edits
-            ORDER BY datetime DESC
-            LIMIT 1
-          ) T2 ON T1.id = T2.post
-                 LEFT JOIN (
-            SELECT COUNT(*) AS editCount, post
+            SELECT COUNT(*) AS editCount, post, MAX(datetime) AS datetime
             FROM edits
             GROUP BY post
-          ) T3 on T1.id = T3.post
-          WHERE (T2.approved = 0 OR editCount = 0 OR editCount IS NULL)
-            AND T1.deleted = 0
+          ) T2 ON T1.id = T2.post
+          WHERE ((
+                   SELECT approved
+                   FROM edits X1
+                   WHERE X1.post = T1.id
+                   ORDER BY DATETIME DESC
+                   LIMIT 1
+                 ) = 0 OR editCount = 0 OR editCount IS NULL) AND T1.deleted = 0
           GROUP BY T2.post
           ORDER BY T2.datetime DESC
         `)

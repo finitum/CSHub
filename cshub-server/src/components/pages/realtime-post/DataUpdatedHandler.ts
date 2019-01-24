@@ -24,18 +24,17 @@ export class DataUpdatedHandler {
     public static postHistoryHandler = new DataList();
 
     public static async applyNewEdit(edit: IRealtimeEdit, currSocket: Socket): Promise<void> {
-        let previousServerId: number;
 
-        await this.postHistoryHandler.getPreviousServerID(edit.postHash).then((id) => previousServerId = id);
+        const previousServerId = this.postHistoryHandler.getPreviousServerID(edit.postHash);
 
         if (typeof edit.prevServerGeneratedId === "undefined") {
-            await this.postHistoryHandler.getPreviousServerIDOfUser(edit.postHash, edit.userId).then((id) => edit.prevServerGeneratedId = id);
+            edit.prevServerGeneratedId = this.postHistoryHandler.getPreviousServerIDOfUser(edit.postHash, edit.userId);
         }
 
         if (edit.prevServerGeneratedId !== previousServerId && previousServerId != -1) {
             logger.info("Performing operational transform");
             logger.info(`Current server id: ${edit.serverGeneratedId}, previous: ${edit.prevServerGeneratedId} last few edits server id ${previousServerId}`);
-            await this.postHistoryHandler.transformArray(edit, false).then((delta) => edit.delta = delta);
+            edit.delta = this.postHistoryHandler.transformArray(edit, false);
             logger.info(`Done transforming: ${JSON.stringify(edit.delta)}`);
         }
 
@@ -139,9 +138,8 @@ export class DataUpdatedHandler {
     public static async getCurrentPostData(postHash: number): Promise<IRealtimeEdit> {
 
         return this.getOldAndNewDeltas(postHash)
-            .then(async (deltas: deltaReturnType) => {
-                let prevEdit: number;
-                await this.postHistoryHandler.getPreviousServerID(postHash).then((id) => prevEdit = id);
+            .then((deltas: deltaReturnType) => {
+                const prevEdit = this.postHistoryHandler.getPreviousServerID(postHash);
 
                 const returnedValue: IRealtimeEdit = {
                     postHash,
