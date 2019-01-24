@@ -24,34 +24,33 @@ export class DataList {
         };
     }
 
-    public async addPostEdit(newEdit: IRealtimeEdit) {
+    public addPostEdit(newEdit: IRealtimeEdit) {
 
-        this.getTodoQueue(newEdit.postHash)
-            .then(async (queue) => {
-                if (queue === null) {
-                    await this.addPost(newEdit.postHash);
-                    this.addPostEdit(newEdit);
-                } else {
-                    queue.toAdd.push(newEdit);
-                    queue.fullList.push(newEdit);
+        const queue = this.getTodoQueue(newEdit.postHash);
 
-                    if (!queue.isAsyncRunning) {
-                        queue.isAsyncRunning = true;
+        if (queue === null) {
+            this.addPost(newEdit.postHash);
+            this.addPostEdit(newEdit);
+        } else {
+            queue.toAdd.push(newEdit);
+            queue.fullList.push(newEdit);
 
-                        async.whilst(
-                            () => queue.toAdd.length !== 0,
-                            (next) => {
-                                this.handleSave(next, queue);
-                            }, () => {
-                                queue.isAsyncRunning = false;
-                            });
-                    }
+            if (!queue.isAsyncRunning) {
+                queue.isAsyncRunning = true;
 
-                    if (queue.fullList.length > 10) {
-                        queue.fullList.splice(0, queue.fullList.length - 11);
-                    }
-                }
-            });
+                async.whilst(
+                    () => queue.toAdd.length !== 0,
+                    (next) => {
+                        this.handleSave(next, queue);
+                    }, () => {
+                        queue.isAsyncRunning = false;
+                    });
+            }
+
+            if (queue.fullList.length > 10) {
+                queue.fullList.splice(0, queue.fullList.length - 11);
+            }
+        }
     }
 
     private handleSave(next: () => void, queue: queueType): void {
@@ -74,7 +73,7 @@ export class DataList {
             })
             .then((lastEdit: DatabaseResultSet) => {
 
-                const isApproved = lastEdit.getNumberFromDB("approved") === 1;
+                const isApproved = lastEdit.getLength() === 0 || lastEdit.getNumberFromDB("approved") === 1;
 
                 try {
                     if (isApproved) {
@@ -146,61 +145,53 @@ export class DataList {
             });
     }
 
-    public transformArray(newEdit: IRealtimeEdit, newEditHasPriority: boolean): Promise<Delta> {
-        return this.getEditQueue(newEdit.postHash)
-            .then((editQueue) => {
-                if (editQueue.length > 0) {
-                    return transformFromArray(editQueue, newEdit, newEditHasPriority);
-                } else {
-                    return new Delta();
-                }
-            });
+    public transformArray(newEdit: IRealtimeEdit, newEditHasPriority: boolean): Delta {
+        const editQueue =  this.getEditQueue(newEdit.postHash);
+        if (editQueue.length > 0) {
+            return transformFromArray(editQueue, newEdit, newEditHasPriority);
+        } else {
+            return new Delta();
+        }
+    }
+
+    public getPreviousServerID(postHash: number): number {
+        const currQueue = this.getEditQueue(postHash);
+        if (currQueue.length === 0) {
+            return -1;
+        } else {
+            return currQueue[currQueue.length - 1].serverGeneratedId;
+        }
 
     }
 
-    public getPreviousServerID(postHash: number): Promise<number> {
-        return this.getEditQueue(postHash)
-            .then((currQueue) => {
-                if (currQueue.length === 0) {
-                    return -1;
-                } else {
-                    return currQueue[currQueue.length - 1].serverGeneratedId;
+    public getPreviousServerIDOfUser(postHash: number, userId: number): number {
+        const currQueue = this.getEditQueue(postHash);
+        if (currQueue.length === 0) {
+            return -1;
+        } else {
+            for (let i = currQueue.length - 1; i >= 0; i--) {
+                if (currQueue[i].userId === userId) {
+                    return currQueue[i].serverGeneratedId;
                 }
-            });
-
+            }
+            return this.getPreviousServerID(postHash);
+        }
     }
 
-    public getPreviousServerIDOfUser(postHash: number, userId: number): Promise<number> {
-        return this.getEditQueue(postHash)
-            .then((currQueue) => {
-                if (currQueue.length === 0) {
-                    return -1;
-                } else {
-                    for (let i = currQueue.length - 1; i >= 0; i--) {
-                        if (currQueue[i].userId === userId) {
-                            return currQueue[i].serverGeneratedId;
-                        }
-                    }
-                    return this.getPreviousServerID(postHash);
-                }
-            });
-
-    }
-
-    private async getEditQueue(postHash: number): Promise<IRealtimeEdit[]> {
+    private getEditQueue(postHash: number): IRealtimeEdit[] {
         if (this.editQueues.hasOwnProperty(postHash)) {
             return this.editQueues[postHash].fullList;
         } else {
-            await this.addPost(postHash);
+            this.addPost(postHash);
             return this.getEditQueue(postHash);
         }
     }
 
-    private async getTodoQueue(postHash: number): Promise<queueType> {
+    private getTodoQueue(postHash: number): queueType {
         if (this.editQueues.hasOwnProperty(postHash)) {
             return this.editQueues[postHash];
         } else {
-            await this.addPost(postHash);
+            this.addPost(postHash);
             return this.getTodoQueue(postHash);
         }
     }
