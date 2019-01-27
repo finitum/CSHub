@@ -11,7 +11,9 @@ services:
     volumes:
       - ./traefik.toml:/etc/traefik/traefik.toml
       - /var/run/docker.sock:/var/run/docker.sock
-
+      - /opt/logs/access.log:/access.log
+      - /opt/logs/traefik.log:/traefik.log
+      - ../logging/.htpasswd:/kibanapass
 networks:
   web:
     external: true

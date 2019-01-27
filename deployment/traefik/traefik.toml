@@ -1,0 +1,7 @@
+[traefikLog]
+  filePath = "/traefik.log"
+  format   = "json"
+
+[accessLog]
+  filePath = "/access.log"
+  format = "json"

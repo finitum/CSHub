@@ -18,7 +18,7 @@ services:
       - web
     labels:
       - traefik.frontend.rule=Host:api-dev.cshub.nl
-      - treafik.frontend.port=3001
+      - traefik.frontend.port=3001
     ports:
       - "3001:3001"
 
