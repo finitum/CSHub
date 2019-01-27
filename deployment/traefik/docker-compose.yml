@@ -2,18 +2,24 @@ version: '3'
 services:
   traefik:
     image: traefik # The official Traefik docker image
+    container_name: cshub-traefik
     command: --api --docker
     networks:
       - web
     ports:
       - "80:80"     # The HTTP port
       - "8484:8080" # The Web UI (enabled by --api)
+    labels:
+      traefik.enable: true
+      traefik.frontend.rule: "Host:traefik.cshub.nl"
+      traefik.frontend.auth.basic.usersFile: "/kibanapass"
+      traefik.port: 8484
     volumes:
       - ./traefik.toml:/etc/traefik/traefik.toml
       - /var/run/docker.sock:/var/run/docker.sock
-      - /opt/logs/access.log:/access.log
       - /opt/logs/traefik.log:/traefik.log
       - ../logging/.htpasswd:/kibanapass
+      - ./.htpasswd:/traefikpass
 networks:
   web:
     external: true

@@ -1,7 +1,7 @@
 [traefikLog]
-  filePath = "/traefik.log"
+  filePath = "/dev/stdout"
   format   = "json"
 
 [accessLog]
-  filePath = "/access.log"
+  filePath = "/dev/stdout"
   format = "json"

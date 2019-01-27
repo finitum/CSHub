@@ -2,6 +2,7 @@
 version: '3'
 services:
   frontend:
+    container_name: cshub-prod-client
     image: cshubnl/client:master
     networks:
       - web
@@ -12,10 +13,13 @@ services:
     ports:
       - "8181:80"
   backend:
+    container_name: cshub-prod-server
     networks:
       - web
     image: cshubnl/server:master
     env_file: ./settings.env
+    logging:
+      driver: "json-file"
     labels:
       - traefik.frontend.rule=Host:api.cshub.nl
       - treafik.frontend.port=3000

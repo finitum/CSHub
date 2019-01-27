@@ -2,6 +2,7 @@
 version: '3'
 services:
   frontend:
+    container_name: cshub-dev-client
     image: cshubnl/client:dev
     networks:
       - web
@@ -12,6 +13,7 @@ services:
     ports:
       - "8080:80"
   backend:
+    container_name: cshub-dev-server
     image: cshubnl/server:dev
     env_file: ./settings.env
     networks:

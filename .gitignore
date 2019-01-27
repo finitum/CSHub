@@ -9,4 +9,4 @@ cshub-server/src/**/*.map
 cshub-shared/**/*.js
 cshub-shared/**/*.map
 
-deployment/logging/.htpasswd
+.htpasswd
