@@ -29,7 +29,12 @@ export const transformFromArray = (inputEdits: IRealtimeEdit[], newEdit: IRealti
         }
     }
 
-    const transformed = editDelta.transform(newEdit.delta, !newEditHasPriority); // Quill priority works the other way around
+    if (editDelta !== null && typeof editDelta !== "undefined") {
+        const transformed = editDelta.transform(newEdit.delta, !newEditHasPriority); // Quill priority works the other way around
 
-    return transformed;
+        return transformed;
+    } else {
+        return newEdit.delta;
+    }
+
 };

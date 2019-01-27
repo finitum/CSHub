@@ -5,12 +5,9 @@ import logger from "../../utilities/Logger"
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
-import {EditPost, EditPostCallback, EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages/EditPost";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
-import {JSDOM} from "jsdom";
 import Delta from "quill-delta/dist/Delta";
 
-import {DataUpdatedHandler} from "./realtime-post/DataUpdatedHandler";
 import {getHTMLFromDelta} from "../../utilities/EditsHandler";
 import {ForceEditPost, ForceEditPostCallback} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
 

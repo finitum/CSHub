@@ -24,7 +24,7 @@ app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
         const currentTopicHashes: number[] = [];
 
         for (const topic of inputTopic) {
-            if (typeof topic.children !== "undefined") {
+            if (typeof topic.children !== "undefined" && topic.children !== null) {
                 currentTopicHashes.push(...getChildHashes(topic.children));
             }
             currentTopicHashes.push(topic.hash);
@@ -36,7 +36,7 @@ app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
     const topics = getTopicTree();
     topics
         .then((topicsResult) => {
-            if (topicsResult === null) {
+            if (topicsResult === null || typeof topicsResult === "undefined") {
                 logger.error(`No topics found, so can't get posts`);
                 res.status(500).send();
             } else {

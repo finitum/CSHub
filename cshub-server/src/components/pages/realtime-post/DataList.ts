@@ -1,17 +1,14 @@
 import {IRealtimeEdit} from "../../../../../cshub-shared/src/api-calls/realtime-edit";
-import {query} from "../../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import logger from "../../../utilities/Logger"
 import Delta = require("quill-delta/dist/Delta");
 import {transformFromArray} from "../../../../../cshub-shared/src/utilities/DeltaHandler";
 import async from "async";
-import {DataUpdatedHandler} from "./DataUpdatedHandler";
 
 type queueType = {
     toAdd: IRealtimeEdit[],
     fullList: IRealtimeEdit[],
-    isAsyncRunning: boolean,
-    currComposedDelta: Delta,
-    dbComposedDelta: Delta
+    isAsyncRunning: boolean
 }
 
 export class DataList {
@@ -20,61 +17,40 @@ export class DataList {
 
     public addPost(postHash: number) {
 
-        return Promise.resolve(DataUpdatedHandler.getOldAndNewDeltas(postHash)
-            .then((deltas) => {
-                this.editQueues[postHash] = {
-                    toAdd: [],
-                    fullList: [],
-                    isAsyncRunning: false,
-                    currComposedDelta: null,
-                    dbComposedDelta: null
-                };
-
-                this.editQueues[postHash].currComposedDelta = deltas.fullDelta;
-                this.editQueues[postHash].dbComposedDelta = deltas.oldDelta;
-            }));
+        this.editQueues[postHash] = {
+            toAdd: [],
+            fullList: [],
+            isAsyncRunning: false
+        };
     }
 
-    public async addPostEdit(newEdit: IRealtimeEdit) {
+    public addPostEdit(newEdit: IRealtimeEdit) {
 
-        this.getTodoQueue(newEdit.postHash)
-            .then(async (queue) => {
-                if (queue === null) {
-                    await this.addPost(newEdit.postHash);
-                    this.addPostEdit(newEdit);
-                } else {
-                    queue.toAdd.push(newEdit);
-                    queue.fullList.push(newEdit);
+        const queue = this.getTodoQueue(newEdit.postHash);
 
-                    if (!queue.isAsyncRunning) {
-                        queue.isAsyncRunning = true;
+        if (queue === null) {
+            this.addPost(newEdit.postHash);
+            this.addPostEdit(newEdit);
+        } else {
+            queue.toAdd.push(newEdit);
+            queue.fullList.push(newEdit);
 
-                        async.whilst(
-                            () => queue.toAdd.length !== 0,
-                            (next) => {
+            if (!queue.isAsyncRunning) {
+                queue.isAsyncRunning = true;
 
-                                const currRecord = queue.toAdd[0];
+                async.whilst(
+                    () => queue.toAdd.length !== 0,
+                    (next) => {
+                        this.handleSave(next, queue);
+                    }, () => {
+                        queue.isAsyncRunning = false;
+                    });
+            }
 
-                                if (queue.currComposedDelta === null) {
-                                    DataUpdatedHandler.getOldAndNewDeltas(currRecord.postHash)
-                                        .then((deltas) => {
-                                            queue.currComposedDelta = deltas.fullDelta;
-                                            queue.dbComposedDelta = deltas.oldDelta;
-                                            this.handleSave(next, queue);
-                                        });
-                                } else {
-                                    this.handleSave(next, queue);
-                                }
-                            }, () => {
-                                queue.isAsyncRunning = false;
-                            });
-                    }
-
-                    if (queue.fullList.length > 10) {
-                        queue.fullList.splice(0, queue.fullList.length - 11);
-                    }
-                }
-            });
+            if (queue.fullList.length > 10) {
+                queue.fullList.splice(0, queue.fullList.length - 11);
+            }
+        }
     }
 
     private handleSave(next: () => void, queue: queueType): void {
@@ -83,20 +59,24 @@ export class DataList {
 
         new Promise(resolve => resolve())
             .then(() => {
+                return query(`
+                  SELECT content, approved
+                  FROM edits
+                  WHERE post = (
+                    SELECT id
+                    FROM posts
+                    WHERE hash = ?
+                  )
+                  ORDER BY datetime DESC
+                  LIMIT 1
+                `, currRecord.postHash)
+            })
+            .then((lastEdit: DatabaseResultSet) => {
+
+                const isApproved = lastEdit.getLength() === 0 || lastEdit.getNumberFromDB("approved") === 1;
 
                 try {
-                    const op = queue.currComposedDelta.ops[queue.currComposedDelta.ops.length - 1];
-                    const diff = queue.currComposedDelta.diff(queue.dbComposedDelta);
-
-                    if (typeof op !== "undefined" && !(op.insert === "\n" || op.insert.toString().endsWith("\n"))) {
-                        queue.currComposedDelta.ops.push({insert: "\n"});
-                    }
-
-                    queue.currComposedDelta = queue.currComposedDelta.compose(new Delta(currRecord.delta));
-
-                    const toBeSavedEdit = queue.dbComposedDelta.diff(queue.currComposedDelta);
-
-                    if (diff.ops.length === 0) {
+                    if (isApproved) {
                         return query(`
                           INSERT INTO edits
                           SET post     = (
@@ -106,11 +86,15 @@ export class DataList {
                           ),
                               content  = ?,
                               datetime = NOW()
-                        `, currRecord.postHash, JSON.stringify(toBeSavedEdit))
+                        `, currRecord.postHash, JSON.stringify(currRecord.delta))
                             .then(() => {
                                 return this.insertUserIntoEdit(currRecord.postHash, currRecord.userId);
                             })
                     } else {
+
+                        const lastEditDelta = new Delta(JSON.parse(lastEdit.getStringFromDB("content")));
+                        const toBeSavedEdit = lastEditDelta.compose(currRecord.delta);
+
                         return query(`
                           UPDATE edits
                             INNER JOIN posts ON edits.post = posts.id
@@ -125,7 +109,8 @@ export class DataList {
                             })
                     }
                 } catch (e) {
-                    logger.error("Error with saving realtime edit");
+                    logger.error(`Error with saving realtime edit (inserting), postHash: ${queue.toAdd[0].postHash}, delta: ${JSON.stringify(queue.toAdd[0].delta)}, queue:`);
+                    logger.error(JSON.stringify(queue));
                     logger.error(e);
                     return null; // NOOP
                 }
@@ -156,71 +141,57 @@ export class DataList {
             .catch((e) => {
                 logger.error("Inserting into edituser failed");
                 logger.error(e);
+                return;
             });
     }
 
-    public updateDbDelta(postHash: number, newDelta: Delta) {
-        this.getTodoQueue(postHash)
-            .then((queue) => {
-                queue.dbComposedDelta = newDelta;
-            })
+    public transformArray(newEdit: IRealtimeEdit, newEditHasPriority: boolean): Delta {
+        const editQueue =  this.getEditQueue(newEdit.postHash);
+        if (editQueue.length > 0) {
+            return transformFromArray(editQueue, newEdit, newEditHasPriority);
+        } else {
+            return new Delta();
+        }
     }
 
-    public transformArray(newEdit: IRealtimeEdit, newEditHasPriority: boolean): Promise<Delta> {
-        return this.getEditQueue(newEdit.postHash)
-            .then((editQueue) => {
-                if (editQueue.length > 0) {
-                    return transformFromArray(editQueue, newEdit, newEditHasPriority);
-                } else {
-                    return new Delta();
+    public getPreviousServerID(postHash: number): number {
+        const currQueue = this.getEditQueue(postHash);
+        if (currQueue.length === 0) {
+            return -1;
+        } else {
+            return currQueue[currQueue.length - 1].serverGeneratedId;
+        }
+
+    }
+
+    public getPreviousServerIDOfUser(postHash: number, userId: number): number {
+        const currQueue = this.getEditQueue(postHash);
+        if (currQueue.length === 0) {
+            return -1;
+        } else {
+            for (let i = currQueue.length - 1; i >= 0; i--) {
+                if (currQueue[i].userId === userId) {
+                    return currQueue[i].serverGeneratedId;
                 }
-            });
-
+            }
+            return this.getPreviousServerID(postHash);
+        }
     }
 
-    public getPreviousServerID(postHash: number): Promise<number> {
-        return this.getEditQueue(postHash)
-            .then((currQueue) => {
-                if (currQueue.length === 0) {
-                    return -1;
-                } else {
-                    return currQueue[currQueue.length - 1].serverGeneratedId;
-                }
-            });
-
-    }
-
-    public getPreviousServerIDOfUser(postHash: number, userId: number): Promise<number> {
-        return this.getEditQueue(postHash)
-            .then((currQueue) => {
-                if (currQueue.length === 0) {
-                    return -1;
-                } else {
-                    for (let i = currQueue.length - 1; i >= 0; i--) {
-                        if (currQueue[i].userId === userId) {
-                            return currQueue[i].serverGeneratedId;
-                        }
-                    }
-                    return this.getPreviousServerID(postHash);
-                }
-            });
-
-    }
-
-    private async getEditQueue(postHash: number): Promise<IRealtimeEdit[]> {
+    private getEditQueue(postHash: number): IRealtimeEdit[] {
         if (this.editQueues.hasOwnProperty(postHash)) {
             return this.editQueues[postHash].fullList;
         } else {
-            await this.addPost(postHash);
+            this.addPost(postHash);
             return this.getEditQueue(postHash);
         }
     }
 
-    private async getTodoQueue(postHash: number): Promise<queueType> {
+    private getTodoQueue(postHash: number): queueType {
         if (this.editQueues.hasOwnProperty(postHash)) {
             return this.editQueues[postHash];
         } else {
-            await this.addPost(postHash);
+            this.addPost(postHash);
             return this.getTodoQueue(postHash);
         }
     }

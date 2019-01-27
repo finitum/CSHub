@@ -99,7 +99,6 @@
         SubmitPostResponse
     } from "../../../../cshub-shared/src/api-calls/pages";
     import {ITopic} from "../../../../cshub-shared/src/models";
-    import {Routes} from "../../../../cshub-shared/src/Routes";
 
     @Component({
         name: "PostCreate",

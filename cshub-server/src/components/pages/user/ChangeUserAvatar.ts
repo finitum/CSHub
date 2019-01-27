@@ -2,7 +2,7 @@ import {app} from "../../../";
 import {
     ChangeUserAvatar,
     ChangeUserAvatarCallback,
-    ChangeUserAvatarReponseTypes
+    ChangeUserAvatarResponseTypes
 } from "../../../../../cshub-shared/src/api-calls";
 import {Request, Response} from "express";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
@@ -40,10 +40,10 @@ app.post(ChangeUserAvatar.getURL, (req: Request, res: Response) => {
                 `, bufferData, token.tokenObj.user.id)
             })
             .then(() => {
-                res.json(new ChangeUserAvatarCallback(ChangeUserAvatarReponseTypes.SUCCESS, Buffer.from(bufferData).toString("base64")));
+                res.json(new ChangeUserAvatarCallback(ChangeUserAvatarResponseTypes.SUCCESS, Buffer.from(bufferData).toString("base64")));
             })
             .catch(() => {
-                res.json(new ChangeUserAvatarCallback(ChangeUserAvatarReponseTypes.INVALIDIMAGE));
+                res.json(new ChangeUserAvatarCallback(ChangeUserAvatarResponseTypes.INVALIDIMAGE));
             });
     } else {
         res.status(401).send();

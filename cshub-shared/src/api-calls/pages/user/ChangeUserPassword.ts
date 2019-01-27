@@ -2,7 +2,7 @@ import {IApiRequest} from "../../../models/IApiRequest";
 
 import {Requests} from "../../Requests";
 
-export enum ChangeUserPasswordReponseTypes {
+export enum ChangeUserPasswordResponseTypes {
     INVALIDINPUT,
     SUCCESS,
     WRONGPASSWORD
@@ -11,7 +11,7 @@ export enum ChangeUserPasswordReponseTypes {
 export class ChangeUserPasswordCallback {
 
     constructor(
-        public response: ChangeUserPasswordReponseTypes
+        public response: ChangeUserPasswordResponseTypes
     ) {}
 }
 

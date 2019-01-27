@@ -18,7 +18,6 @@
     import PostPagination from "./PostPagination.vue";
 
     import uiState from "../../store/ui";
-    import {GetUnverifiedPostsType} from "../../../../cshub-shared/src/api-calls/admin";
 
     @Component({
         name: "PostList",

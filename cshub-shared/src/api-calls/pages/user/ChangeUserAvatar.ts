@@ -2,7 +2,7 @@ import {IApiRequest} from "../../../models/IApiRequest";
 
 import {Requests} from "../../Requests";
 
-export enum ChangeUserAvatarReponseTypes {
+export enum ChangeUserAvatarResponseTypes {
     SUCCESS,
     INVALIDIMAGE
 }
@@ -10,7 +10,7 @@ export enum ChangeUserAvatarReponseTypes {
 export class ChangeUserAvatarCallback {
 
     constructor(
-        public response: ChangeUserAvatarReponseTypes,
+        public response: ChangeUserAvatarResponseTypes,
         public newAvatar?: string
     ) {}
 }

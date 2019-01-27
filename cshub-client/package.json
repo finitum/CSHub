@@ -1,12 +1,12 @@
 {
     "name": "cshub-client",
-    "version": "0.2.2",
-    "license": "MIT",
+    "version": "0.3.0",
     "private": true,
+    "license": "MIT",
     "scripts": {
         "beautify-package.json": "beautify -o package.json package.json",
         "serve": "vue-cli-service serve",
-        "build": "vue-cli-service build",
+        "build": "vue-cli-service build --modern",
         "dev-build": "vue-cli-service build --mode development",
         "lint": "vue-cli-service lint"
     },
@@ -54,5 +54,5 @@
         "vue-cli-plugin-vuetify": "^0.2.1",
         "vue-template-compiler": "^2.5.22"
     },
-    "gitSHA": "b9c33c1f4bc7a51bfe20d5f9ea358778ca58c818"
+    "gitSHA": "a28155c13fcb9b682c9ef64318233d1b93b9b234"
 }

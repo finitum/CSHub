@@ -1,6 +1,6 @@
 {
     "name": "cshub-shared",
-    "version": "0.2.2",
+    "version": "0.3.0",
     "license": "MIT",
     "scripts": {
         "beautify-package.json": "beautify -o package.json package.json"
@@ -20,5 +20,5 @@
     "resolutions": {
         "markdown-it-katex/katex": "0.10.0"
     },
-    "gitSHA": "b9c33c1f4bc7a51bfe20d5f9ea358778ca58c818"
+    "gitSHA": "a28155c13fcb9b682c9ef64318233d1b93b9b234"
 }

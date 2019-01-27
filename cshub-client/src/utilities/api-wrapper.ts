@@ -5,7 +5,6 @@ import dataState from "../store/data";
 import {Requests} from "../../../cshub-shared/src/api-calls";
 import uiState from "../store/ui";
 import userState from "../store/user";
-import router from "../views/router/router";
 import {Routes} from "../../../cshub-shared/src/Routes";
 
 const axiosApi = axios.create({
@@ -44,15 +43,30 @@ axiosApi.interceptors.response.use((value: AxiosResponse<any>) => {
 
         uiState.setNotificationDialogState({
             on: true,
-            header: "Unauthorized!",
+            header: `Unauthorized! ${error.response.status}`,
             text: `You are not authorized to do this! ${!loggedOut ? " Click the button below to log in." : ""}`,
             button
         });
     } else if (error.response.status.toString().startsWith("5") || error.response.status === 404) {
         uiState.setNotificationDialogState({
             on: true,
-            header: "Error!",
-            text: "The server experienced an error... If this error occurs again, please report it to us at github.com/RobbinBaauw/CSHub/issues :) Please include console log thank you"
+            header: `Error! ${error.response.status}`,
+            text: "The server experienced an error... If this error occurs again (try refresh, force refresh, clear cache), please report it to us at github.com/RobbinBaauw/CSHub/issues :) Please include console log thank you",
+            button: {
+                text: "Force refresh",
+                jsAction: () => {
+                    const promiseChain = caches.keys()
+                        .then((cacheNames) => {
+                            // Step through each cache name and delete it
+                            return Promise.all(
+                                cacheNames.map((cacheName) => caches.delete(cacheName))
+                            );
+                        })
+                        .then(() => {
+                            window.location.reload(true);
+                        });
+                }
+            }
         });
     }
 });
