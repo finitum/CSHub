@@ -57,7 +57,7 @@ export const customValidator = (input: ICustomValidatorInput): ICustomValidatorR
     } else if (input.validationObject.maxlength && input.validationObject.maxlength > 0 && inputString.length > input.validationObject.maxlength) {
         return {valid: false, error: CustomValidatorReponseTypes.MAXLENGTH, value: input.input};
     } else if (input.validationObject.tuemail) {
-        if (isValidEmail(input.input.toString())) {
+        if (!isValidEmail(input.input.toString())) {
             return {valid: false, error: CustomValidatorReponseTypes.TUEMAIL, value: input.input};
         } else {
             return {valid: true};
