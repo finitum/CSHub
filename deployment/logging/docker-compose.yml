@@ -1,0 +1,52 @@
+version: '3'
+services:
+  elasticsearch: 
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:6.5.4'
+    container_name: cshub-elasticsearch
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.5.4
+    container_name: cshub-kibana
+    networks:
+      - web
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - 5601:5601
+    labels:
+      - traefik.frontend.rule=Host:kibana.cshub.nl
+      - traefik.frontend.auth.basic.usersFile=/kibanapass
+      - traefik.frontend.port=5601
+    environment:
+      - ELASTICSEARCH_URL=http://cshub:9200
+      - SERVER_HOST=0.0.0.0
+      - SERVER_NAME=kibana.cshub.nl
+  fluentd:
+    image: cshubnl/fluentd-elastic 
+    container_name: cshub-fluentd
+    logging:
+      driver: "json-file"
+    ports:
+     - 24224:24224
+     - 24224:24224/udp
+    volumes:
+     - ./fluentd/conf:/fluentd/etc
+volumes:
+  esdata1:
+
+networks:
+  web:
+    external: true
+

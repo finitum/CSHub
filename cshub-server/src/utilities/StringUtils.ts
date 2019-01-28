@@ -1,3 +1,5 @@
+import {isValidEmail} from "../../../cshub-shared/src/utilities/TUEmail";
+
 export interface ICustomValidatorResponse {
     valid: boolean;
     value?: string | number | object;
@@ -55,8 +57,7 @@ export const customValidator = (input: ICustomValidatorInput): ICustomValidatorR
     } else if (input.validationObject.maxlength && input.validationObject.maxlength > 0 && inputString.length > input.validationObject.maxlength) {
         return {valid: false, error: CustomValidatorReponseTypes.MAXLENGTH, value: input.input};
     } else if (input.validationObject.tuemail) {
-        const regex = new RegExp("^[a-zA-Z.]*$");
-        if (!regex.test(inputString) || !inputString.includes(".") || inputString[inputString.length - 1] === ".") {
+        if (isValidEmail(input.input.toString())) {
             return {valid: false, error: CustomValidatorReponseTypes.TUEMAIL, value: input.input};
         } else {
             return {valid: true};

@@ -39,7 +39,9 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                                         :disabled="false">
                                     <router-link :to="item.url">{{item.name}}</router-link>
                                 </v-breadcrumbs-item>
-                                <v-breadcrumbs-item :disabled="true"> {{post.title}} </v-breadcrumbs-item>
+                                <v-breadcrumbs-item :disabled="!editModeComputed" @click="disableEdit">
+                                    {{post.title}}
+                                </v-breadcrumbs-item>
                                 <v-btn color="red" depressed small @click="hidePost()" v-if="!editModeComputed && userAdminComputed">
                                     <v-icon>fas fa-trash</v-icon>
                                 </v-btn>
@@ -65,8 +67,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                         <v-list two-line style="width: 100%">
                             <v-list-tile avatar class="mb-1 postTile">
                                 <v-list-tile-avatar>
-                                    <img :src="getAvatarURL(post.author.avatar)"
-                                         :class="{adminBorder: post.author.admin, leekBorder: !post.author.admin}"/>
+                                    <img :src="getAvatarURL(post.author.avatar)" class="profileBorder"/>
                                 </v-list-tile-avatar>
                                 <v-list-tile-content class="pt-2 d-inline">
                                     <v-list-tile-sub-title class="whitespaceInit black--text post-title">
@@ -133,6 +134,41 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                     style="width: 100%; margin: 10% auto;"/>
         </div>
         <PostEditsDialog :key="postHash" :postHash="postHash"></PostEditsDialog>
+
+        <v-dialog
+                v-model="dialogOpen"
+                max-width="400"
+                persistent
+        >
+            <v-card>
+                <v-card-title class="headline">Editing</v-card-title>
+
+                <v-card-text>
+                    We've recently added realtime editing, though operational transform doesn't completely work yet, meaning that if 2 people type decently fast on the same post, some letters might be shifted.
+                    <br><br>
+                    So if you see a person editing, don't do anything...
+                </v-card-text>
+
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                            color="green darken-1"
+                            flat="flat"
+                            @click="dialogOpen = false"
+                    >
+                        Close
+                    </v-btn>
+                    <v-btn
+                            color="primary darken-1"
+                            flat="flat"
+                            @click="closeDialog"
+                    >
+                        Close and hide from now on
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 <script lang="ts">
@@ -170,6 +206,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
     import uiState from "../../store/ui";
     import {ForceEditPost} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
     import {colorize} from "../../utilities/codemirror-colorize";
+    import {LocalStorageData} from "../../store/localStorageData";
 
     interface IBreadCrumbType {
         name: string;
@@ -187,6 +224,8 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
          */
         @Prop(Number) private postHash: number;
         @Prop(Boolean) private isNewPost: boolean;
+
+        private dialogOpen = false;
 
         private domId: string = idGenerator();
         private post: IPost = null;
@@ -264,6 +303,15 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
             }
         }
 
+        @Watch("editModeComputed")
+        private editModeComputedChanged(to: boolean) {
+            if (to) {
+                if (localStorage.getItem(LocalStorageData.DIALOGOPENED) !== "true") {
+                    this.dialogOpen = true;
+                }
+            }
+        }
+
         /**
          * Lifecycle hooks
          */
@@ -328,6 +376,11 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         /**
          * Methods
          */
+        private closeDialog() {
+            this.dialogOpen = false;
+            localStorage.setItem(LocalStorageData.DIALOGOPENED, "true");
+        }
+
         private forceEditPost() {
             this.showLoadingIcon = true;
 
@@ -415,6 +468,13 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
 
         private enableEdit() {
             this.$router.push(`${this.currentPostURLComputed}/edit`);
+            if (localStorage.getItem(LocalStorageData.DIALOGOPENED) !== "true") {
+                this.dialogOpen = true;
+            }
+        }
+
+        private disableEdit() {
+            this.$router.push(`${this.currentPostURLComputed}`);
         }
 
         private getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
@@ -570,12 +630,8 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
 
 <style scoped>
 
-    .adminBorder {
-        box-shadow: 0 0 2pt 3pt #ad073b;
-    }
-
-    .leekBorder {
-        box-shadow: 0 0 2pt 3pt #727272;
+    .profileBorder {
+        border-radius: 0;
     }
 
     .previewCard {

@@ -1,0 +1,7 @@
+[traefikLog]
+  filePath = "/dev/stdout"
+  format   = "json"
+
+[accessLog]
+  filePath = "/dev/stdout"
+  format = "json"
