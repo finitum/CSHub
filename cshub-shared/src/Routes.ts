@@ -1,7 +1,6 @@
 export class Routes {
     public static readonly INDEX: string = "/";
     public static readonly LOGIN = "/login";
-    public static readonly EDITOR = "/editor";
     public static readonly CREATEACCOUNT = "/createaccount";
     public static readonly POST = "/post";
     public static readonly POSTCREATE = "/post/create";

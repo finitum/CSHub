@@ -8,10 +8,8 @@ const logger = winston.createLogger({
         format.json()
     ),
     transports: [
-        new winston.transports.File({ filename: "logs/verbose.log", level: "verbose" })
+        new winston.transports.Console({ format: winston.format.json() })
     ]
 });
-
-logger.add(new winston.transports.Console({ format: winston.format.simple() }));
 
 export default logger
