@@ -14,8 +14,8 @@ services:
     volumes:
       - esdata1:/usr/share/elasticsearch/data
     ports:
-      - ${ELASTIC_PORT_INTERNAL_API}:${ELASTIC_PORT_EXTERNAL_API}
-      - ${ELASTIC_PORT_INTERNAL_CLUSTER}:${ELASTIC_PORT_EXTERNAL_CLUSTER}
+      - ${ELASTIC_PORT_EXTERNAL_API}:${ELASTIC_PORT_INTERNAL_API}
+      - ${ELASTIC_PORT_EXTERNAL_CLUSTER}:${ELASTIC_PORT_INTERNAL_CLUSTER}
   kibana:
     image: docker.elastic.co/kibana/kibana:6.5.4
     container_name: ${KIBANA_CONTAINER_NAME}
@@ -30,7 +30,7 @@ services:
       - traefik.frontend.auth.basic.usersFile=/kibanapass
       - traefik.frontend.port=${KIBANA_PORT_INTERNAL}
     environment:
-      - ELASTICSEARCH_URL=http://${ELASTIC_CONTAINER_NAME}:9200
+      - ELASTICSEARCH_URL=http://${KIBANA_ELASTIC_HOST}:${ELASTIC_PORT_EXTERNAL_API}
       - SERVER_HOST=0.0.0.0
       - SERVER_NAME=${KIBANA_HOSTNAME}
   fluentd:
