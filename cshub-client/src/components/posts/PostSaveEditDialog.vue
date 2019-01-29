@@ -137,7 +137,9 @@
          * Lifecycle hooks
          */
         private mounted() {
-            this.getEdit();
+            if (this.thisDialogActive) {
+                this.getEdit();
+            }
         }
 
         /**
