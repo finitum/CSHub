@@ -46,52 +46,63 @@ axiosApi.interceptors.response.use((value: AxiosResponse<any>) => {
         }
     };
 
-    if (error.response.status === 401) {
-        const isLoggedIn = userState.isLoggedIn;
-        const tokenVal = getCookie("token");
+    if (typeof error.response !== "undefined") {
+        if (error.response.status === 401) {
+            const isLoggedIn = userState.isLoggedIn;
+            const tokenVal = getCookie("token");
 
-        const loggedOut = !isLoggedIn || tokenVal.length === 0;
-        const button = loggedOut ? {
-            text: "Log in",
-            jsAction: () => {
-                window.open(Routes.LOGIN, "_self");
-            }
-        } : null;
-
-        uiState.setNotificationDialogState({
-            on: true,
-            header: `Unauthorized! ${error.response.status}`,
-            text: `You are not authorized to do this! ${!loggedOut ? " Click the button below to log in." : ""}`,
-            button
-        });
-    } else if (error.response.status === 404) {
-        uiState.setNotificationDialogState({
-            on: true,
-            header: `404!`,
-            text: "A 404 was 'caught' that you got on the server, we think the server might be restarting (okay we should cluster it so we can update better, but so far we didn't), so wait a sec or try force refresh!",
-            button: forceRefreshButton
-        });
-    } else {
-        const response = (error.response.data as ServerError);
-        if (response.message !== null && typeof response.message !== "undefined") {
-
-            const button = error.response.data.showRefresh ?  forceRefreshButton : null;
+            const loggedOut = !isLoggedIn || tokenVal.length === 0;
+            const button = loggedOut ? {
+                text: "Log in",
+                jsAction: () => {
+                    window.open(Routes.LOGIN, "_self");
+                }
+            } : null;
 
             uiState.setNotificationDialogState({
                 on: true,
-                header: `Error! ${error.response.status}`,
-                text: response.message,
+                header: `Unauthorized! ${error.response.status}`,
+                text: `You are not authorized to do this! ${!loggedOut ? " Click the button below to log in." : ""}`,
                 button
             });
         } else {
+            const response = (error.response.data as ServerError);
+            if (response.message !== null && typeof response.message !== "undefined") {
+
+                const button = error.response.data.showRefresh ?  forceRefreshButton : null;
+
+                uiState.setNotificationDialogState({
+                    on: true,
+                    header: `Error! ${error.response.status}`,
+                    text: response.message,
+                    button
+                });
+            } else {
+                uiState.setNotificationDialogState({
+                    on: true,
+                    header: `Error! ${error.response.status}`,
+                    text: `The server experienced an error, but didn't provide an error message :(`
+                });
+            }
+
+        }
+    } else if (error.message === "Network Error") {
+        uiState.setNotificationDialogState({
+            on: true,
+            header: `Network error`,
+            text: "A network error was caught, this is most probably a 404. If so, the server might be restarting (okay we should cluster it so we can update better, but so far we didn't), so wait a sec or try force refresh!",
+            button: forceRefreshButton
+        });
+    } else {
+        if (!uiState.notificationDialogState.on) {
             uiState.setNotificationDialogState({
                 on: true,
-                header: `Error! ${error.response.status}`,
-                text: `The server experienced an error, but didn't provide an error message :(`
+                header: `Error!`,
+                text: `There was an error, but no idea what it could be`
             });
         }
-
     }
+
 });
 
 export const getCookie = (name: string) => {
