@@ -753,6 +753,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
 
         .container {
             padding: 0 !important;
+            max-height: none !important;
         }
         
         .titleCard {
@@ -761,6 +762,10 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
 
         .secondaryTitle {
             display: inline;
+        }
+
+        .fullCard {
+            position: relative !important;
         }
     }
 </style>
