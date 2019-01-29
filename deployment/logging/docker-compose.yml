@@ -24,11 +24,11 @@ services:
     volumes:
       - ./kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
-      - ${ELASTIC_PORT_INTERNAL}:${ELASTIC_PORT_INTERNAL}
+      - ${KIBANA_PORT_EXTERNAL}:${KIBANA_PORT_INTERNAL}
     labels:
       - traefik.frontend.rule=Host:${KIBANA_HOSTNAME}
       - traefik.frontend.auth.basic.usersFile=/kibanapass
-      - traefik.frontend.port=${ELASTIC_PORT_INTERNAL}
+      - traefik.frontend.port=${KIBANA_PORT_INTERNAL}
     environment:
       - ELASTICSEARCH_URL=http://${ELASTIC_CONTAINER_NAME}:9200
       - SERVER_HOST=0.0.0.0
