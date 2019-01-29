@@ -45,9 +45,6 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                                 <v-btn color="red" depressed small @click="hidePost()" v-if="!editModeComputed && userAdminComputed">
                                     <v-icon>fas fa-trash</v-icon>
                                 </v-btn>
-                                <v-btn color="lime" depressed small @click="printPost()" v-if="!editModeComputed">
-                                    <v-icon>fas fa-print</v-icon>
-                                </v-btn>
                                 <v-btn color="orange" depressed small @click="enableEdit"
                                        v-if="!editModeComputed && userIsLoggedIn">
                                     <v-icon>fas fa-edit</v-icon>
@@ -403,10 +400,6 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         /**
          * Methods
          */
-        private printPost() {
-            window.print();
-        }
-
         private socketError() {
             if (this.editModeComputed) {
                 uiState.setNotificationDialogState({

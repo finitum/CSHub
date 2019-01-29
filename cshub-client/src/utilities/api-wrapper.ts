@@ -90,7 +90,7 @@ axiosApi.interceptors.response.use((value: AxiosResponse<any>) => {
         uiState.setNotificationDialogState({
             on: true,
             header: `Network error`,
-            text: "A network error was caught, this is most probably a 404. If so, the server might be restarting (okay we should cluster it so we can update better, but so far we didn't), so wait a sec or try force refresh!",
+            text: "A network error was caught, this is most probably a 404. If so, the server might be restarting (okay we should cluster it so we can update better, but so far we haven't), so wait a sec or try force refresh!",
             button: forceRefreshButton
         });
     } else {

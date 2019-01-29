@@ -10,6 +10,7 @@ import {Settings} from "../settings";
 export const sign = (obj: IUser): string => {
 
     let newObj: IUser = JSON.parse(JSON.stringify(obj));
+    newObj.avatar = "";
 
     const jwtobj: IJWTToken = {
         user: newObj,

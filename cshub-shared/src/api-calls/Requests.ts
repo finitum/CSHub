@@ -22,4 +22,5 @@ export class Requests {
     public static readonly GETALLUSERS: string = "/allusers";
     public static readonly GETUNVERIFIEDPOSTS: string = "/unverifiedposts";
     public static readonly VERIFYPOST: string = "/verifypost";
+    public static readonly PROFILE = "/profile";
 }

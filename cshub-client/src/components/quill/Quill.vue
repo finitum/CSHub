@@ -98,7 +98,7 @@
                               <v-list>
                                   <v-list-tile avatar :key="user[1].id" v-for="user in Array.from(otherPeoples)">
                                     <v-list-tile-avatar>
-                                        <img :src="getAvatarURL(user[1].avatar)">
+                                        <img :src="getAvatarURL(user[1].id)">
                                     </v-list-tile-avatar>
 
                                     <v-list-tile-content>
@@ -176,6 +176,7 @@
     import {transformFromArray} from "../../../../cshub-shared/src/utilities/DeltaHandler";
     import {CustomTooltip} from "./CustomTooltip";
     import {IUserCensored} from "../../../../cshub-shared/src/models";
+    import {Requests} from "../../../../cshub-shared/src/api-calls";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -299,12 +300,8 @@
             }
         }
 
-        private getAvatarURL(dbImage: string) {
-            if (dbImage !== null) {
-                return `data:image/jpg;base64,${dbImage}`;
-            } else {
-                return "/assets/defaultAvatar.png";
-            }
+        private getAvatarURL(id: number) {
+            return `${process.env.VUE_APP_API_URL}${Requests.PROFILE}/${id}`;
         }
 
         private setupQuill(delta: Delta, selects: IRealtimeSelect[]) {

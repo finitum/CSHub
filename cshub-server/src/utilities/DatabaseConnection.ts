@@ -98,8 +98,7 @@ export class DatabaseResultSet implements Iterable<DatabaseResultRow> {
 
     constructor(private rows: any[], private insertId: number) {}
 
-    public static getStringFromDB(name: string, obj: any): string {
-
+    private static getAnyFromDB(name: string, obj: any): any {
         if (Array.isArray(obj)) {
             obj = obj[0];
         }
@@ -107,25 +106,25 @@ export class DatabaseResultSet implements Iterable<DatabaseResultRow> {
         const currObj = obj[name.trim()];
 
         try {
-            return currObj as string;
+            return currObj;
         } catch (err) {
             return null;
         }
     }
 
+    public static getStringFromDB(name: string, obj: any): string {
+
+        return this.getAnyFromDB(name, obj) as string;
+    }
+
+    public static getBlobFromDB(name: string, obj: any): Buffer {
+
+        return this.getAnyFromDB(name, obj) as Buffer;
+    }
+
     public static getNumberFromDB(name: string, obj: any): number {
 
-        if (Array.isArray(obj)) {
-            obj = obj[0];
-        }
-
-        const currObj = obj[name.trim()];
-
-        try {
-            return currObj as number;
-        } catch (err) {
-            return null;
-        }
+        return this.getAnyFromDB(name, obj) as number;
     }
 
     public getInsertId(): number {
@@ -138,6 +137,10 @@ export class DatabaseResultSet implements Iterable<DatabaseResultRow> {
 
     public getStringFromDB(name: string, index: number = 0): string {
         return DatabaseResultSet.getStringFromDB(name, this.rows[index]);
+    }
+
+    public getBlobFromDB(name: string, index: number = 0): Buffer {
+        return DatabaseResultSet.getBlobFromDB(name, this.rows[index]);
     }
 
     public getNumberFromDB(name: string, index: number = 0): number {

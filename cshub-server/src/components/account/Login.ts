@@ -47,12 +47,8 @@ app.post(Login.getURL, (req: Request, res: Response) => {
                                     verified: result.getNumberFromDB("verified") === 1,
                                     firstname: result.getStringFromDB("firstname"),
                                     lastname: result.getStringFromDB("lastname"),
-                                    avatar: result.getStringFromDB("avatar")
+                                    avatar: ""
                                 };
-
-                                if (userModel.avatar !== null) {
-                                    userModel.avatar = Buffer.from(userModel.avatar).toString("base64");
-                                }
 
                                 const jwt = sign(userModel);
 

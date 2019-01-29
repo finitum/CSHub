@@ -4,3 +4,4 @@ import "./VerifyUserToken";
 import "./VerifyEmail";
 import "./ForgotPasswordMail";
 import "./ForgotPassword";
+import "./ProfilePicture";
