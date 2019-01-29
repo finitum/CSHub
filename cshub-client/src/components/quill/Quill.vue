@@ -77,6 +77,39 @@
                         <v-icon color="black tableIcon">fas fa-marker</v-icon>
                     </v-btn>
                 </span>
+                <span class="ql-formats">
+                    <v-menu
+                            v-model="otherPeoplesMenu"
+                            :close-on-content-click="false"
+                            :nudge-width="200"
+                            offset-x
+                    >
+                        <v-btn
+                            slot="activator"
+                            dark
+                            flat
+                            small
+                            class="tableButton"
+                            style="margin: 0"
+                        >
+                            <v-icon color="black tableIcon">fas fa-users</v-icon>
+                        </v-btn>
+                          <v-card>
+                              <v-list>
+                                  <v-list-tile avatar :key="user[1].id" v-for="user in Array.from(otherPeoples)">
+                                    <v-list-tile-avatar>
+                                        <img :src="getAvatarURL(user[1].avatar)">
+                                    </v-list-tile-avatar>
+
+                                    <v-list-tile-content>
+                                      <v-list-tile-title>{{user[1].firstname}} {{user[1].lastname}}</v-list-tile-title>
+                                    </v-list-tile-content>
+                                  </v-list-tile>
+                                  <v-list-tile v-if="otherPeoples.size === 0">You are alone here :(</v-list-tile>
+                                </v-list>
+                          </v-card>
+                        </v-menu>
+                </span>
             </div>
             <div class="editor" style="overflow: hidden;">
             </div>
@@ -103,7 +136,7 @@
 <script lang="ts">
     import Vue from "vue";
     import Delta from "quill-delta/dist/Delta";
-    import {Component, Prop} from "vue-property-decorator";
+    import {Component, Prop, Watch} from "vue-property-decorator";
     import {Blot} from "parchment/dist/src/blot/abstract/blot";
     import dayjs from "dayjs";
     import katex from "katex";
@@ -142,6 +175,7 @@
     import {getRandomNumberLarge} from "../../../../cshub-shared/src/utilities/Random";
     import {transformFromArray} from "../../../../cshub-shared/src/utilities/DeltaHandler";
     import {CustomTooltip} from "./CustomTooltip";
+    import {IUserCensored} from "../../../../cshub-shared/src/models";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -175,6 +209,8 @@
         // Realtime edit related variables
         private lastFewEdits: IRealtimeEdit[] = [];
         private myCursor: IRealtimeSelect;
+        private otherPeoples: Map<number, IUserCensored> = new Map();
+        private otherPeoplesMenu = false;
 
         // Markdown editor related variables
         private markdownTooltip: any;
@@ -187,6 +223,7 @@
         private mounted() {
 
             if (this.editorSetup.allowEdit) {
+
                 this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
 
                     if (userState.userModel.id !== data.edit.userId) {
@@ -217,14 +254,24 @@
 
                 this.sockets.subscribe(ServerCursorUpdated.getURL, (data: ServerCursorUpdated) => {
 
-                    if (userState.userModel.id !== data.select.userId) {
-                        this.editor.getModule("cursors").setCursor(data.select.userId, data.select.selection, data.select.userName, data.select.color);
+                    if (userState.userModel.id !== data.select.user.id) {
+                        if (!data.select.active) {
+                            this.otherPeoples.delete(data.select.user.id);
+                            this.$forceUpdate();
+                            this.editor.getModule("cursors").removeCursor(data.select.user.id);
+                        } else {
+                            if (!this.otherPeoples.has(data.select.user.id)) {
+                                this.otherPeoples.set(data.select.user.id, data.select.user);
+                                this.$forceUpdate();
+                            }
+                            this.editor.getModule("cursors").setCursor(data.select.user.id, data.select.selection, data.select.userName, data.select.color);
+                        }
                     }
                 });
 
                 this.myCursor = {
                     color: null,
-                    userId: null,
+                    user: userState.userModel,
                     userName: null,
                     postHash: this.editorSetup.postHash,
                     selection: null,
@@ -249,6 +296,14 @@
                     }), this.$socket);
             } else {
                 this.setupQuill(this.initialValueProp, null);
+            }
+        }
+
+        private getAvatarURL(dbImage: string) {
+            if (dbImage !== null) {
+                return `data:image/jpg;base64,${dbImage}`;
+            } else {
+                return "/assets/defaultAvatar.png";
             }
         }
 
@@ -280,6 +335,13 @@
             SocketWrapper.emitSocket(new ClientCursorUpdated({...this.myCursor, active: false}), this.$socket);
             this.sockets.unsubscribe(ServerDataUpdated.getURL);
             this.sockets.unsubscribe(ServerCursorUpdated.getURL);
+        }
+
+        @Watch("initialValueProp")
+        private checkForContentUpdate(newValue: Delta) {
+            if (!this.editorSetup.allowEdit) {
+                this.editor.setContents(newValue);
+            }
         }
 
         /**
@@ -347,8 +409,13 @@
 
             if (selects !== null) {
                 for (const select of selects) {
-                    if (select.userId !== userState.userModel.id) {
-                        this.editor.getModule("cursors").setCursor(select.userId, select.selection, select.userName, select.color);
+                    if (select.user.id !== userState.userModel.id) {
+
+                        if (!this.otherPeoples.has(select.user.id)) {
+                            this.otherPeoples.set(select.user.id, select.user);
+                            this.$forceUpdate();
+                        }
+                        this.editor.getModule("cursors").setCursor(select.user.id, select.selection, select.userName, select.color);
                     }
                 }
             }

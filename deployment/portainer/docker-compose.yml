@@ -2,14 +2,14 @@ version: '3'
 services:
   portainer:
     image: portainer/portainer
-    container_name: cshub-portainer
+    container_name: ${CONTAINER_NAME}
     labels:
-      - traefik.frontend.rule=Host:portainer.cshub.nl
-      - treafik.frontend.port=9000
+      - traefik.frontend.rule=Host:${HOSTNAME}
+      - treafik.frontend.port=${PORT_INTERNAL_API}
     networks:
       - web
     ports:
-      - "9000:9000"
+      - ${PORT_EXTERNAL_API}:${PORT_INTERNAL_API}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data portainer/portainer

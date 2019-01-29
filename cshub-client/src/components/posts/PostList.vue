@@ -32,7 +32,7 @@
         @Prop({default: (): boolean[] => []}) private isNewPost: boolean[];
 
         private currentPostHash = -1;
-        private range = 5; // Just the default value
+        private range = 10; // Just the default value
         private postHashes: number[] = [];
 
         /**
@@ -86,9 +86,9 @@
          * Methods
          */
         private windowHeightChanged() {
-            // For smaller screens, show 5
+            // For smaller screens, show 10
             if (window.innerHeight < 1000) {
-                this.range = 5;
+                this.range = 10;
             } else {
                 // Getting the window height, subtracting 350 pixels. Then dividing by 90 for a very wild guess of amount of possible cards on this screen
                 let range = Math.ceil((window.innerHeight - 350) / 90);

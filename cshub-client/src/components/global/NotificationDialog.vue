@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="notificationDialogComputed.on" persistent max-width="500">
+    <v-dialog v-model="notificationDialogComputed.on" persistent max-width="500" style="z-index:99999">
         <v-card>
             <v-card-title class="headline">{{notificationDialogComputed.header}}</v-card-title>
             <v-card-text class="cardText" v-for="text in notificationDialogText" :key="text.index">{{text}}</v-card-text>

@@ -14,6 +14,7 @@ export class GetEditContent implements IApiRequest {
     public URL: string = GetEditContent.getURL;
 
     constructor(
-        public postHash: number
+        public postHash: number,
+        public includeLastEdit: boolean
     ) {}
 }

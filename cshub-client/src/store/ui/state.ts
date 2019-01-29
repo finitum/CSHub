@@ -5,7 +5,8 @@ import {Route} from "vue-router";
 
 export type editDialogType = {
     on: boolean,
-    hash: number
+    hash: number,
+    hasJustSaved?: boolean
 };
 
 export type markdownDialogType = {
@@ -28,6 +29,7 @@ export interface IUIState {
         open: boolean
     };
     editDialogState: editDialogType;
+    currentEditDialogState: editDialogType;
     paginationPageState: number;
     notificationDialog: notificationDialogType;
     markdownDialog: markdownDialogType;
@@ -39,6 +41,10 @@ export const UIState: IUIState = {
         open: null
     },
     editDialogState: {
+        on: false,
+        hash: -1
+    },
+    currentEditDialogState: {
         on: false,
         hash: -1
     },

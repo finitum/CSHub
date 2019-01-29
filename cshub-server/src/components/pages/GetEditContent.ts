@@ -38,33 +38,36 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                              INNER JOIN posts T2 ON T1.post = T2.id
                              LEFT JOIN editusers T4 on T1.id = T4.edit
                              LEFT JOIN users T3 ON T4.user = T3.id
-                      WHERE T2.hash = ? AND T1.approved = 1
+                      WHERE T2.hash = ?
                     `, getEditContent.postHash)
                         .then((edits: DatabaseResultSet) => {
 
                             const editArray: IEdit[] = [];
 
                             for (const edit of edits.convertRowsToResultObjects()) {
-                                const editObj = editArray.find(x => x.id === edit.getNumberFromDB("id"));
+                                if (edit.getNumberFromDB("approved") === 1 || getEditContent.includeLastEdit) {
+                                    const editObj = editArray.find(x => x.id === edit.getNumberFromDB("id"));
 
-                                const currUser: IUserCensored = {
-                                    id: edit.getNumberFromDB("authorId"),
-                                    admin: edit.getNumberFromDB("authorAdmin") === 1,
-                                    firstname: edit.getStringFromDB("authorFirstName"),
-                                    avatar: edit.getStringFromDB("authorAvatar"),
-                                    lastname: edit.getStringFromDB("authorLastName")
-                                };
+                                    const currUser: IUserCensored = {
+                                        id: edit.getNumberFromDB("authorId"),
+                                        admin: edit.getNumberFromDB("authorAdmin") === 1,
+                                        firstname: edit.getStringFromDB("authorFirstName"),
+                                        avatar: edit.getStringFromDB("authorAvatar"),
+                                        lastname: edit.getStringFromDB("authorLastName")
+                                    };
 
-                                if (editObj === null || typeof editObj === "undefined") {
-                                    editArray.push({
-                                        parentPostId: edit.getNumberFromDB("post"),
-                                        content: JSON.parse(edit.getStringFromDB("content")),
-                                        datetime: dayjs(edit.getStringFromDB("datetime")),
-                                        editedBy: [currUser],
-                                        id: edit.getNumberFromDB("id")
-                                    });
-                                } else {
-                                    editObj.editedBy.push(currUser);
+                                    if (editObj === null || typeof editObj === "undefined") {
+                                        editArray.push({
+                                            parentPostId: edit.getNumberFromDB("post"),
+                                            content: JSON.parse(edit.getStringFromDB("content")),
+                                            datetime: dayjs(edit.getStringFromDB("datetime")),
+                                            editedBy: [currUser],
+                                            id: edit.getNumberFromDB("id"),
+                                            approved: edit.getNumberFromDB("approved") === 1
+                                        });
+                                    } else {
+                                        editObj.editedBy.push(currUser);
+                                    }
                                 }
                             }
 

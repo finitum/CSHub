@@ -1,5 +1,6 @@
 import {uiStateGetter, uiStoreBuilder} from "./state";
 import {
+    currentEditDialogState,
     drawerState,
     editDialogState,
     markdownDialog,
@@ -8,6 +9,7 @@ import {
     previousRoute
 } from "./getters";
 import {
+    setCurrentEditDialogState,
     setDrawerState,
     setEditDialogState,
     setMarkdownDialogState,
@@ -20,6 +22,7 @@ const uiState = {
 
     get drawerState() { return drawerState(); },
     get editDialogState() { return editDialogState(); },
+    get currentEditDialogState() { return currentEditDialogState(); },
     get paginationPageState() { return paginationPageState(); },
     get notificationDialogState() { return notificationDialog(); },
     get mardownDialogState() { return markdownDialog(); },
@@ -27,6 +30,7 @@ const uiState = {
 
     setDrawerState: uiStoreBuilder.commit(setDrawerState, "setDrawerState"),
     setEditDialogState: uiStoreBuilder.commit(setEditDialogState, "setEditDialogState"),
+    setCurrentEditDialogState: uiStoreBuilder.commit(setCurrentEditDialogState, "setCurrentEditDialogState"),
     setPaginationPageState: uiStoreBuilder.commit(setPaginationPageState, "setPaginationPageState"),
     setNotificationDialogState: uiStoreBuilder.commit(setNotificationDialogState, "setNotificationDialogState"),
     setMarkdownDialogState: uiStoreBuilder.commit(setMarkdownDialogState, "setMarkdownDialogState"),

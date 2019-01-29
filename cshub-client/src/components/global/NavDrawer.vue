@@ -4,6 +4,7 @@
             fixed
             clipped
             class="grey lighten-4"
+            id="cshub-nav"
             app>
         <v-list
                 dense
@@ -226,5 +227,11 @@
 
 .tree >>> .v-treeview-node__root, .v-treeview-node__children {
     padding-left: 16px;
+}
+
+@media print {
+    #cshub-nav {
+        display: none;
+    }
 }
 </style>

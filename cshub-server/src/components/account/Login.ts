@@ -23,7 +23,7 @@ app.post(Login.getURL, (req: Request, res: Response) => {
         hashPassword(loginRequest.password)
             .then((hashedValue: string) => {
                 query(`
-                SELECT email, id, firstname, lastname, admin, blocked, verified, password
+                SELECT email, id, firstname, lastname, admin, blocked, verified, password, avatar
                 FROM users
                 WHERE email = ?
                 `, loginRequest.email)
@@ -47,8 +47,12 @@ app.post(Login.getURL, (req: Request, res: Response) => {
                                     verified: result.getNumberFromDB("verified") === 1,
                                     firstname: result.getStringFromDB("firstname"),
                                     lastname: result.getStringFromDB("lastname"),
-                                    avatar: ""
+                                    avatar: result.getStringFromDB("avatar")
                                 };
+
+                                if (userModel.avatar !== null) {
+                                    userModel.avatar = Buffer.from(userModel.avatar).toString("base64");
+                                }
 
                                 const jwt = sign(userModel);
 

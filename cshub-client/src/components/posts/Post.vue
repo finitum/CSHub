@@ -14,8 +14,8 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                     indeterminate
                     class="loadingIcon"
             ></v-progress-circular>
-            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}" :id="'post_' + domId">
-                <v-card-title primary-title :id="'postTitle_' + domId" class="pb-0 xl-0 pt-1"
+            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}" :id="'post_' + domId" style="box-shadow: none">
+                <v-card-title primary-title :id="'postTitle_' + domId" class="pb-0 xl-0 pt-1 titleCard"
                               @click.capture="navigateToPost">
                     <transition name="topMenuShow">
                         <div v-if="!showTopMenu && fullPostComputed">
@@ -27,7 +27,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                             </v-btn>
                         </div>
                     </transition>
-                    <span v-if="showTopMenu || !fullPostComputed" style="display: contents">
+                    <span v-if="(showTopMenu || !fullPostComputed)" style="display: contents">
                         <transition name="breadcrumb">
                             <v-breadcrumbs divider="/" style="width: 100%" v-if="fullPostComputed">
                                 <v-btn color="primary" depressed small dark @click="returnToPostMenu">
@@ -45,12 +45,14 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                                 <v-btn color="red" depressed small @click="hidePost()" v-if="!editModeComputed && userAdminComputed">
                                     <v-icon>fas fa-trash</v-icon>
                                 </v-btn>
+                                <v-btn color="lime" depressed small @click="printPost()" v-if="!editModeComputed">
+                                    <v-icon>fas fa-print</v-icon>
+                                </v-btn>
                                 <v-btn color="orange" depressed small @click="enableEdit"
                                        v-if="!editModeComputed && userIsLoggedIn">
                                     <v-icon>fas fa-edit</v-icon>
                                 </v-btn>
-                                <v-btn v-if="editModeComputed && userAdminComputed" depressed small color="orange"
-                                       @click="editPost">
+                                <v-btn v-if="!editModeComputed && userAdminComputed" depressed small color="green" @click="savePostDialog">
                                     <v-icon>fas fa-save</v-icon>
                                 </v-btn>
                                 <v-btn v-if="!editModeComputed && userAdminComputed" depressed small color="blue" @click="forceEditPost">
@@ -71,19 +73,9 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                                 </v-list-tile-avatar>
                                 <v-list-tile-content class="pt-2 d-inline">
                                     <v-list-tile-sub-title class="whitespaceInit black--text post-title">
-                                        <span v-if="!editModeComputed || !userAdminComputed">{{post.title}}{{isNewPost !== null ? (isNewPost ? " - new post" : " - new edits") : ""}}</span>
-                                        <input v-else style="width: 100%" v-model="post.title"/>
+                                        <span>{{post.title}}{{isNewPost !== null ? (isNewPost ? " - new post" : " - new edits") : ""}}</span>
                                     </v-list-tile-sub-title>
                                     <v-list-tile-sub-title class="whitespaceInit">{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</v-list-tile-sub-title>
-                                    <v-treeview
-                                            v-if="topics !== null && editModeComputed && userAdminComputed"
-                                            :active.sync="activeTopicHash"
-                                            :items="topics"
-                                            item-key="hash"
-                                            activatable
-                                            active-class="primary--text"
-                                            transition>
-                                    </v-treeview>
                                 </v-list-tile-content>
                             </v-list-tile>
                         </v-list>
@@ -96,11 +88,15 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                         :class="'postScrollWindow_' + domId"
                         style="margin: 0; padding-top: 0; max-width: none; overflow-wrap: break-word">
                     <v-layout
+                            id="htmlContentContainer"
                             column
                             align-center
                             justify-center
                             v-scroll:#post-scroll-target>
                         <v-card-text v-if="!loadingIcon" id="postCardText">
+                            <v-list-tile-sub-title class="whitespaceInit black--text post-title secondaryTitle">
+                                <span>{{post.title}}</span>
+                            </v-list-tile-sub-title>
                             <div class="ql-editor">
                                 <div v-show="showContent" v-html="post.htmlContent" id="htmlOutput"></div>
                             </div>
@@ -134,6 +130,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                     style="width: 100%; margin: 10% auto;"/>
         </div>
         <PostEditsDialog :key="postHash" :postHash="postHash"></PostEditsDialog>
+        <PostSaveEditDialog v-if="post !== null" :key="postHash - 1" :post="post"></PostSaveEditDialog>
 
         <v-dialog
                 v-model="dialogOpen"
@@ -183,8 +180,6 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
     import PostEditsDialog from "./PostEditsDialog.vue";
 
     import {
-        EditPost,
-        EditPostCallback, EditPostReturnTypes,
         GetPost,
         GetPostCallBack,
         GetPostContent,
@@ -207,6 +202,8 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
     import {ForceEditPost} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
     import {colorize} from "../../utilities/codemirror-colorize";
     import {LocalStorageData} from "../../store/localStorageData";
+    import PostSaveEditDialog from "./PostSaveEditDialog.vue";
+    import {editDialogType} from "../../store/ui/state";
 
     interface IBreadCrumbType {
         name: string;
@@ -215,7 +212,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
 
     @Component({
         name: "Post",
-        components: {Quill, PostEditsDialog},
+        components: {Quill, PostEditsDialog, PostSaveEditDialog},
     })
     export default class Post extends Vue {
 
@@ -237,7 +234,6 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         private showTopMenu = true;
         private resizeInterval: number;
         private showLoadingIcon = false;
-        private activeTopicHash: number[] = [];
 
         /**
          * Computed properties
@@ -274,6 +270,10 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
             return this.$route.fullPath === `${this.currentPostURLComputed}/edits`;
         }
 
+        get saveDialogComputed(): boolean {
+            return this.$route.fullPath === `${this.currentPostURLComputed}/save`;
+        }
+
         get topics(): ITopic[] {
             return dataState.topics;
         }
@@ -289,6 +289,8 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                     this.previousTopicURL = from.fullPath;
                 } else if (this.editsListComputed) {
                     this.viewEditDialog();
+                } else if (this.saveDialogComputed) {
+                    this.savePostDialog();
                 } else if (!this.editModeComputed) {
                     this.previousTopicURL = Routes.INDEX;
                 }
@@ -312,10 +314,30 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
             }
         }
 
+        @Watch("saveDialogComputed")
+        private saveDialogComputedChanged(to: boolean) {
+            const notificationDialogState = uiState.currentEditDialogState;
+            if (!to && !notificationDialogState.on && notificationDialogState.hasJustSaved) {
+                this.getPostRequest();
+                uiState.setCurrentEditDialogState({
+                    ...notificationDialogState,
+                    hasJustSaved: false
+                });
+            }
+        }
+
         /**
          * Lifecycle hooks
          */
         private mounted() {
+
+            this.$socket.on("connect_error", () => {
+                this.socketError();
+            });
+
+            this.$socket.on("connect_failed", () => {
+                this.socketError();
+            });
 
             if (this.$vuetify.breakpoint.xsOnly) {
                 this.showTopMenu = false;
@@ -338,6 +360,11 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                 this.enableEdit();
             } else if (this.editsListComputed) {
                 uiState.setEditDialogState({
+                    on: true,
+                    hash: this.postHash
+                });
+            } else if (this.saveDialogComputed) {
+                uiState.setCurrentEditDialogState({
                     on: true,
                     hash: this.postHash
                 });
@@ -376,6 +403,20 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         /**
          * Methods
          */
+        private printPost() {
+            window.print();
+        }
+
+        private socketError() {
+            if (this.editModeComputed) {
+                uiState.setNotificationDialogState({
+                    header: "Connection failed",
+                    text: "The connection with the server failed :( perhaps try refreshing or hope that it's been fixed in a few minutes (your edits won't be saved!)",
+                    on: true
+                });
+            }
+        }
+
         private closeDialog() {
             this.dialogOpen = false;
             localStorage.setItem(LocalStorageData.DIALOGOPENED, "true");
@@ -500,7 +541,6 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                         ApiWrapper.sendPostRequest(new GetPost(this.postHash), (callbackData: GetPostCallBack) => {
                             if (callbackData.post !== null) {
                                 this.post = callbackData.post;
-                                this.activeTopicHash = [callbackData.post.topicHash];
 
                                 logObjectConsole(callbackData.post, "getPostRequest");
 
@@ -520,7 +560,6 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                             this.getContentRequest(cachedValue);
                         } else {
                             this.post = cachedValue;
-                            this.activeTopicHash = [cachedValue.topicHash];
                         }
                     }
                 });
@@ -542,17 +581,14 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                     this.$router.push(Routes.INDEX);
                 } else if (callbackContent.postVersionType === PostVersionTypes.UPDATEDPOST) {
                     this.post = callbackContent.postUpdated;
-                    this.activeTopicHash = [callbackContent.postUpdated.topicHash];
                     this.post.htmlContent = callbackContent.content.html;
                     hasBeenUpdated = true;
                 } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
                     this.post = cachedValue;
-                    this.activeTopicHash = [cachedValue.topicHash];
                     this.post.htmlContent = callbackContent.content.html;
                     hasBeenUpdated = true;
                 } else if (callbackContent.postVersionType === PostVersionTypes.NOCHANGE) {
                     this.post = cachedValue;
-                    this.activeTopicHash = [cachedValue.topicHash];
                 }
 
                 this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
@@ -598,31 +634,15 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
             }
         }
 
-        private editPost() {
-            this.showLoadingIcon = true;
-            logStringConsole("Editing post");
-            ApiWrapper.sendPostRequest(new EditPost(
-                this.postHash,
-                this.post.title,
-                this.activeTopicHash[0]
-            ), (callbackData: EditPostCallback) => {
-                this.showLoadingIcon = false;
-                if (callbackData.result === EditPostReturnTypes.SUCCESS) {
-                    uiState.setNotificationDialogState({
-                        on: true,
-                        header: "Edited post",
-                        text: "Post was edited successfully"
-                    });
-                } else {
-                    uiState.setNotificationDialogState({
-                        on: true,
-                        header: "Didn't edit post",
-                        text: "There was nothing to update!"
-                    });
-                }
+        private savePostDialog() {
 
-                this.$router.push(this.currentPostURLComputed);
-                this.getPostRequest();
+            if (this.$route.fullPath !== `${this.currentPostURLComputed}/save`) {
+                this.$router.push(`${this.currentPostURLComputed}/save`);
+            }
+
+            uiState.setCurrentEditDialogState({
+                on: true,
+                hash: this.postHash
             });
         }
     }
@@ -720,5 +740,27 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         height: auto;
         transform: translate(-50%,-50%);
         z-index: 9999;
+    }
+
+    .secondaryTitle {
+        display: none;
+    }
+
+    @media print {
+        #postCardText {
+            padding: 0 !important;
+        }
+
+        .container {
+            padding: 0 !important;
+        }
+        
+        .titleCard {
+            display: none;
+        }
+
+        .secondaryTitle {
+            display: inline;
+        }
     }
 </style>

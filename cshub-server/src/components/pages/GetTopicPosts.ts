@@ -62,7 +62,7 @@ app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
                         AND T3.approved = 1
                         AND T2.hash IN (?)
                       GROUP BY T3.post
-                      ORDER BY T3.datetime DESC
+                      ORDER BY T1.datetime DESC
                     `, topicHashes)
                         .then((posts: DatabaseResultSet) => {
 
