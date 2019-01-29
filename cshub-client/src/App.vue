@@ -3,7 +3,7 @@
         <NavDrawer></NavDrawer>
         <NotificationDialog></NotificationDialog>
         <Toolbar></Toolbar>
-        <v-content class="grey lighten-4">
+        <v-content class="grey lighten-4" id="cshub-content">
             <transition
                     name="componentChange"
                     :enter-active-class="activeclass"
@@ -150,5 +150,11 @@
 
     strong {
         font-weight: 800 !important;
+    }
+
+    @media print {
+        #cshub-content {
+            padding: 0 !important;
+        }
     }
 </style>

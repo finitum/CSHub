@@ -1,5 +1,5 @@
 <template>
-    <v-toolbar color="primary" app fixed clipped-left>
+    <v-toolbar color="primary" app fixed clipped-left id="cshub-toolbar">
         <v-toolbar-side-icon @click.native="drawerComputed = !drawerComputed"></v-toolbar-side-icon>
         <router-link to="/" style="color: inherit">
             <div class="title ml-3 mr-5">
@@ -106,4 +106,9 @@
 
 <style scoped>
 
+    @media print {
+        #cshub-toolbar {
+            display: none;
+        }
+    }
 </style>

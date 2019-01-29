@@ -61,7 +61,7 @@
 
     import Quill from "../quill/Quill.vue";
 
-    import {IEdit, IPost, ITopic, IUserCensored} from "../../../../cshub-shared/src/models";
+    import {IPost, ITopic} from "../../../../cshub-shared/src/models";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
     import uiState from "../../store/ui";
@@ -106,8 +106,8 @@
 
         set dialogActive(value: editDialogType) {
             if (!value.on) {
-                this.$router.push(`${Routes.POST}/${this.post.hash}`);
                 uiState.setCurrentEditDialogState(value);
+                this.$router.push(`${Routes.POST}/${this.post.hash}`);
             }
         }
 
@@ -229,7 +229,8 @@
 
                 this.dialogActive = {
                     on: false,
-                    hash: -1
+                    hash: -1,
+                    hasJustSaved: true
                 };
             });
         }

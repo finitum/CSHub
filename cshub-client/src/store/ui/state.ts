@@ -5,7 +5,8 @@ import {Route} from "vue-router";
 
 export type editDialogType = {
     on: boolean,
-    hash: number
+    hash: number,
+    hasJustSaved?: boolean
 };
 
 export type markdownDialogType = {

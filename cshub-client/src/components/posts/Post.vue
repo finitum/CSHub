@@ -14,8 +14,8 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                     indeterminate
                     class="loadingIcon"
             ></v-progress-circular>
-            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}" :id="'post_' + domId">
-                <v-card-title primary-title :id="'postTitle_' + domId" class="pb-0 xl-0 pt-1"
+            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}" :id="'post_' + domId" style="box-shadow: none">
+                <v-card-title primary-title :id="'postTitle_' + domId" class="pb-0 xl-0 pt-1 titleCard"
                               @click.capture="navigateToPost">
                     <transition name="topMenuShow">
                         <div v-if="!showTopMenu && fullPostComputed">
@@ -27,7 +27,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                             </v-btn>
                         </div>
                     </transition>
-                    <span v-if="showTopMenu || !fullPostComputed" style="display: contents">
+                    <span v-if="(showTopMenu || !fullPostComputed)" style="display: contents">
                         <transition name="breadcrumb">
                             <v-breadcrumbs divider="/" style="width: 100%" v-if="fullPostComputed">
                                 <v-btn color="primary" depressed small dark @click="returnToPostMenu">
@@ -44,6 +44,9 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                                 </v-breadcrumbs-item>
                                 <v-btn color="red" depressed small @click="hidePost()" v-if="!editModeComputed && userAdminComputed">
                                     <v-icon>fas fa-trash</v-icon>
+                                </v-btn>
+                                <v-btn color="lime" depressed small @click="printPost()" v-if="!editModeComputed">
+                                    <v-icon>fas fa-print</v-icon>
                                 </v-btn>
                                 <v-btn color="orange" depressed small @click="enableEdit"
                                        v-if="!editModeComputed && userIsLoggedIn">
@@ -85,11 +88,15 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                         :class="'postScrollWindow_' + domId"
                         style="margin: 0; padding-top: 0; max-width: none; overflow-wrap: break-word">
                     <v-layout
+                            id="htmlContentContainer"
                             column
                             align-center
                             justify-center
                             v-scroll:#post-scroll-target>
                         <v-card-text v-if="!loadingIcon" id="postCardText">
+                            <v-list-tile-sub-title class="whitespaceInit black--text post-title secondaryTitle">
+                                <span>{{post.title}}</span>
+                            </v-list-tile-sub-title>
                             <div class="ql-editor">
                                 <div v-show="showContent" v-html="post.htmlContent" id="htmlOutput"></div>
                             </div>
@@ -196,6 +203,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
     import {colorize} from "../../utilities/codemirror-colorize";
     import {LocalStorageData} from "../../store/localStorageData";
     import PostSaveEditDialog from "./PostSaveEditDialog.vue";
+    import {editDialogType} from "../../store/ui/state";
 
     interface IBreadCrumbType {
         name: string;
@@ -306,6 +314,18 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
             }
         }
 
+        @Watch("saveDialogComputed")
+        private saveDialogComputedChanged(to: boolean) {
+            const notificationDialogState = uiState.currentEditDialogState;
+            if (!to && !notificationDialogState.on && notificationDialogState.hasJustSaved) {
+                this.getPostRequest();
+                uiState.setCurrentEditDialogState({
+                    ...notificationDialogState,
+                    hasJustSaved: false
+                });
+            }
+        }
+
         /**
          * Lifecycle hooks
          */
@@ -383,6 +403,9 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         /**
          * Methods
          */
+        private printPost() {
+            window.print();
+        }
 
         private socketError() {
             if (this.editModeComputed) {
@@ -717,5 +740,27 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         height: auto;
         transform: translate(-50%,-50%);
         z-index: 9999;
+    }
+
+    .secondaryTitle {
+        display: none;
+    }
+
+    @media print {
+        #postCardText {
+            padding: 0 !important;
+        }
+
+        .container {
+            padding: 0 !important;
+        }
+        
+        .titleCard {
+            display: none;
+        }
+
+        .secondaryTitle {
+            display: inline;
+        }
     }
 </style>
