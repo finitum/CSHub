@@ -1,0 +1,30 @@
+# Development containers
+version: '3'
+services:
+  client:
+    container_name: ${CLIENT_CONTAINER_NAME}
+    image: cshubnl/client:dev
+    networks:
+      - web
+    labels:
+      - traefik.frontend.rule=Host:${CLIENT_HOSTNAME}
+      - traefik.frontend.port=${CLIENT_PORT_INTERNAL}
+    environment:
+      - VUE_APP_API_URL=${CLIENT_ENV_API_URL}
+    ports:
+      - "${CLIENT_PORT_EXTERNAL}:${CLIENT_PORT_INTERNAL}"
+  server:
+    container_name: ${SERVER_CONTAINER_NAME}
+    image: cshubnl/server:dev
+    env_file: ${SERVER_ENV_PATH}
+    networks:
+      - web
+    labels:
+      - traefik.frontend.rule=Host:${SERVER_HOSTNAME}
+      - traefik.frontend.port=${SERVER_PORT_INTERNAL}
+    ports:
+      - "${SERVER_PORT_EXTERNAL}:${SERVER_PORT_INTERNAL}"
+
+networks:
+  web:
+    external: true

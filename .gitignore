@@ -2,6 +2,7 @@
 .idea
 *.iml
 settings.env
+.env
 
 cshub-server/src/**/*.js
 cshub-server/src/**/*.map
