@@ -103,7 +103,7 @@
 <script lang="ts">
     import Vue from "vue";
     import Delta from "quill-delta/dist/Delta";
-    import {Component, Prop} from "vue-property-decorator";
+    import {Component, Prop, Watch} from "vue-property-decorator";
     import {Blot} from "parchment/dist/src/blot/abstract/blot";
     import dayjs from "dayjs";
     import katex from "katex";
@@ -280,6 +280,13 @@
             SocketWrapper.emitSocket(new ClientCursorUpdated({...this.myCursor, active: false}), this.$socket);
             this.sockets.unsubscribe(ServerDataUpdated.getURL);
             this.sockets.unsubscribe(ServerCursorUpdated.getURL);
+        }
+
+        @Watch("initialValueProp")
+        private checkForContentUpdate(newValue: Delta) {
+            if (!this.editorSetup.allowEdit) {
+                this.editor.setContents(newValue);
+            }
         }
 
         /**

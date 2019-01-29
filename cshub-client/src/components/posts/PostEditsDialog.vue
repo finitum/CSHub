@@ -126,7 +126,7 @@
         @Watch("dialogActive")
         private dialogActiveChanged(newVal: editDialogType) {
             if (this.thisDialogActive) {
-                ApiWrapper.sendPostRequest(new GetEditContent(this.postHash), (callbackData: GetEditContentCallback) => {
+                ApiWrapper.sendPostRequest(new GetEditContent(this.postHash, false), (callbackData: GetEditContentCallback) => {
 
                     const checkboxEdits: EditCheckbox[] = [];
 

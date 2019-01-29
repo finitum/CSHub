@@ -72,6 +72,11 @@ const router = new Router({
             component: PostView
         },
         {
+            path: `${Routes.POST}/:hash/save`,
+            name: "postEdits",
+            component: PostView
+        },
+        {
             path: `${Routes.TOPIC}/:hash`,
             name: "topic",
             component: PostView
@@ -98,6 +103,11 @@ const router = new Router({
             component: AdminDashboard,
             beforeEnter: adminBeforeEnter,
             children: adminChildrenRoutes
+        },
+        {
+            path: "*",
+            name: "wildcard",
+            component: PostView
         }
     ],
 });

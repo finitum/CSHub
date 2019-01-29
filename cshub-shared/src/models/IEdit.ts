@@ -9,4 +9,5 @@ export interface IEdit {
     editedBy: IUserCensored[];
     id: number;
     datetime: Dayjs;
+    approved: boolean;
 }

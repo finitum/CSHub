@@ -9,6 +9,10 @@ export const setEditDialogState = (state: IUIState, payload: editDialogType) => 
     state.editDialogState = payload;
 };
 
+export const setCurrentEditDialogState = (state: IUIState, payload: editDialogType) => {
+    state.currentEditDialogState = payload;
+};
+
 export const setPaginationPageState = (state: IUIState, payload: number) => {
     state.paginationPageState = payload;
 };
