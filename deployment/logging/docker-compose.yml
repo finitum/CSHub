@@ -2,7 +2,7 @@ version: '3'
 services:
   elasticsearch: 
     image: 'docker.elastic.co/elasticsearch/elasticsearch:6.5.4'
-    container_name: cshub-elasticsearch
+    container_name: ${ELASTIC_CONTAINER_NAME}
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -14,33 +14,33 @@ services:
     volumes:
       - esdata1:/usr/share/elasticsearch/data
     ports:
-      - 9200:9200
-      - 9300:9300
+      - ${ELASTIC_PORT_INTERNAL_API}:${ELASTIC_PORT_EXTERNAL_API}
+      - ${ELASTIC_PORT_INTERNAL_CLUSTER}:${ELASTIC_PORT_EXTERNAL_CLUSTER}
   kibana:
     image: docker.elastic.co/kibana/kibana:6.5.4
-    container_name: cshub-kibana
+    container_name: ${KIBANA_CONTAINER_NAME}
     networks:
       - web
     volumes:
       - ./kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
-      - 5601:5601
+      - ${ELASTIC_PORT_INTERNAL}:${ELASTIC_PORT_INTERNAL}
     labels:
-      - traefik.frontend.rule=Host:kibana.cshub.nl
+      - traefik.frontend.rule=Host:${KIBANA_HOSTNAME}
       - traefik.frontend.auth.basic.usersFile=/kibanapass
-      - traefik.frontend.port=5601
+      - traefik.frontend.port=${ELASTIC_PORT_INTERNAL}
     environment:
-      - ELASTICSEARCH_URL=http://cshub:9200
+      - ELASTICSEARCH_URL=http://${ELASTIC_CONTAINER_NAME}:9200
       - SERVER_HOST=0.0.0.0
-      - SERVER_NAME=kibana.cshub.nl
+      - SERVER_NAME=${KIBANA_HOSTNAME}
   fluentd:
     image: cshubnl/fluentd-elastic 
-    container_name: cshub-fluentd
+    container_name: ${FLUENTD_CONTAINER_NAME}
     logging:
       driver: "json-file"
     ports:
-     - 24224:24224
-     - 24224:24224/udp
+     - ${FLUENTD_PORT_EXTERNAL}:${FLUENTD_PORT_INTERNAL}
+     - ${FLUENTD_PORT_EXTERNAL}:${FLUENTD_PORT_INTERNAL}/udp
     volumes:
      - ./fluentd/conf:/fluentd/etc
 volumes:
