@@ -2,7 +2,7 @@ import {server} from "../../../index";
 import socket, {Socket} from "socket.io";
 import {
     ClientDataUpdated,
-    ClientCursorUpdated, IRealtimeSelect
+    ClientCursorUpdated, IRealtimeSelect, ServerCursorUpdated
 } from "../../../../../cshub-shared/src/api-calls";
 import {DataUpdatedHandler} from "./DataUpdatedHandler";
 import {TogglePostJoin} from "../../../../../cshub-shared/src/api-calls";
@@ -11,6 +11,7 @@ import cookieParser from "cookie-parser";
 import {customValidator} from "../../../utilities/StringUtils";
 import {hasAccessToPost, postAccessType} from "../../../auth/validateRights/PostAccess";
 import {CursorUpdatedHandler} from "./CursorUpdatedHandler";
+import {validateAccessToken} from "../../../auth/JWTHandler";
 
 export const io = socket(server);
 
@@ -58,6 +59,9 @@ io.on("connection", (socketConn: Socket) => {
                                 .then((data) => {
                                     edit = data;
                                     const select = CursorUpdatedHandler.getCurrentPostData(togglePost.postHash);
+
+                                    CursorUpdatedHandler.addUser(socketConn, togglePost.postHash);
+
                                     fn(edit, select);
                                 })
                         } else {

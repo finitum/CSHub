@@ -193,8 +193,6 @@
 
                     }
 
-                    console.log(content)
-
                     this.hasBeenEdited = true;
                     this.content = content;
                 }

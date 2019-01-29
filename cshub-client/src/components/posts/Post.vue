@@ -311,6 +311,14 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
          */
         private mounted() {
 
+            this.$socket.on("connect_error", () => {
+                this.socketError();
+            });
+
+            this.$socket.on("connect_failed", () => {
+                this.socketError();
+            });
+
             if (this.$vuetify.breakpoint.xsOnly) {
                 this.showTopMenu = false;
             }
@@ -375,6 +383,17 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         /**
          * Methods
          */
+
+        private socketError() {
+            if (this.editModeComputed) {
+                uiState.setNotificationDialogState({
+                    header: "Connection failed",
+                    text: "The connection with the server failed :( perhaps try refreshing or hope that it's been fixed in a few minutes (your edits won't be saved!)",
+                    on: true
+                });
+            }
+        }
+
         private closeDialog() {
             this.dialogOpen = false;
             localStorage.setItem(LocalStorageData.DIALOGOPENED, "true");

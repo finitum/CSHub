@@ -73,7 +73,7 @@ const router = new Router({
         },
         {
             path: `${Routes.POST}/:hash/save`,
-            name: "postEdits",
+            name: "postSave",
             component: PostView
         },
         {
