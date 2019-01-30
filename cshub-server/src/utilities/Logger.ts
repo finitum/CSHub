@@ -7,9 +7,13 @@ const logger = winston.createLogger({
         format.timestamp(),
         format.json()
     ),
+    exitOnError: false,
     transports: [
-        new winston.transports.Console({ format: winston.format.json() })
+        new winston.transports.Console({
+            format: winston.format.json(),
+            handleExceptions: true
+        })
     ]
 });
 
-export default logger
+export default logger;

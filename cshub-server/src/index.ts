@@ -7,8 +7,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 
-import logger from "./utilities/Logger"
-
+import logger from "./utilities/Logger";
 
 export const app: express.Application = express();
 
