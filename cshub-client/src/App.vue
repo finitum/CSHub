@@ -62,6 +62,7 @@
                 (to.fullPath === Routes.INDEX && from.name === "post") ||
                 (from.name === "user" && to.name === "post") ||
                 (from.name === "admin" && to.name === "post") ||
+                (from.name === "favorites" && to.name === "post") ||
                 (to.fullPath === Routes.SEARCH) ||
                 (from.fullPath === Routes.SEARCH);
 

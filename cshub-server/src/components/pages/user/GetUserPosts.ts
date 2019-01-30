@@ -11,12 +11,28 @@ app.post(GetUserPosts.getURL, (req: Request, res: Response) => {
     const token = checkTokenValidity(req);
 
     if (token.valid) {
-        query(`
-        SELECT hash
-        FROM posts
-        WHERE author = ? AND deleted = 0  
-        ORDER BY datetime DESC
-        `, token.tokenObj.user.id)
+
+        let queryResult: Promise<DatabaseResultSet>;
+        if (userDashboardRequest.getFavorites) {
+            queryResult = query(`
+              SELECT hash
+              FROM posts T1
+                     INNER JOIN favorites T2 ON T1.id = T2.post
+              WHERE T2.user = ?
+                AND deleted = 0
+              ORDER BY datetime DESC
+            `, token.tokenObj.user.id);
+        } else {
+            queryResult = query(`
+              SELECT hash
+              FROM posts
+              WHERE author = ?
+                AND deleted = 0
+              ORDER BY datetime DESC
+            `, token.tokenObj.user.id);
+        }
+
+        queryResult
             .then((result: DatabaseResultSet) => {
 
                 const hashes: number[] = [];
@@ -27,6 +43,7 @@ app.post(GetUserPosts.getURL, (req: Request, res: Response) => {
 
                 res.json(new GetUserPostsCallback(hashes));
             });
+
     } else {
         res.status(401).send();
     }

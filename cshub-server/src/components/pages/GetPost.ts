@@ -1,5 +1,5 @@
 import {app} from "../../";
-import logger from "../../utilities/Logger"
+import logger from "../../utilities/Logger";
 import {Request, Response} from "express";
 import {
     GetPostCallBack,
@@ -47,10 +47,12 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
              T3.name,
              T3.hash      AS topicHash,
              T1.id,
-             T1.postVersion
+             T1.postVersion,
+             T4.id        AS favorited
       FROM posts T1
              INNER JOIN users T2 ON T1.author = T2.id
              INNER JOIN topics T3 ON T1.topic = T3.id
+             LEFT JOIN favorites T4 ON T1.id = T4.post AND T2.id = T4.user
       WHERE T1.hash = ?
       ORDER BY datetime DESC
     `, postHash)
@@ -75,7 +77,8 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
                     avatar: post.getStringFromDB("authorAvatar"),
                     admin: post.getNumberFromDB("authorAdmin") === 1
                 },
-                postVersion: post.getNumberFromDB("postVersion")
+                postVersion: post.getNumberFromDB("postVersion"),
+                isMyFavorite: post.getNumberFromDB("favorited") !== null
             };
 
             if (postBase.author.avatar !== null) {

@@ -8,5 +8,6 @@ export class Routes {
     public static readonly USERDASHBOARD = "/user";
     public static readonly ADMINDASHBOARD = "/admin";
     public static readonly SEARCH = "/search";
+    public static readonly FAVORITES = "/favorites";
     public static readonly FORGOTPASSWORD = "/forgotpassword";
 }

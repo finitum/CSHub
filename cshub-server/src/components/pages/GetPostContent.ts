@@ -1,5 +1,5 @@
 import {app} from "../../.";
-import logger from "../../utilities/Logger"
+import logger from "../../utilities/Logger";
 import {Request, Response} from "express";
 import {
     GetPostCallBack,
@@ -12,6 +12,7 @@ import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 import {getPostData} from "./GetPost";
 import tracker from "../../utilities/Tracking";
+import {checkTokenValidity} from "../../auth/AuthMiddleware";
 
 app.post(GetPostContent.getURL, (req: Request, res: Response) => {
 
@@ -41,27 +42,33 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
                 res.status(401).send();
             }
 
+            const userObj = checkTokenValidity(req);
+
             query(`
-              SELECT T2.postVersion
-              FROM posts T2
-              WHERE T2.hash = ?
-            `,  postContentRequest.postHash)
+              SELECT T1.postVersion, T2.id AS favorited
+              FROM posts T1
+                     LEFT JOIN favorites T2 on T1.id = T2.post AND T2.user = ?
+              WHERE T1.hash = ?
+            `, userObj.tokenObj.user.id, postContentRequest.postHash)
                 .then((post: DatabaseResultSet) => {
 
                     if (post.convertRowsToResultObjects().length === 0) {
-                        res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
+                        res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED, post.getNumberFromDB("favorited") !== null));
                     } else if (post.getNumberFromDB("postVersion") !== postContentRequest.postVersion) {
                         getContent(approved)
                             .then((returnContent: contentReturn) => {
                                 getPostData(postContentRequest.postHash)
                                     .then((data: GetPostCallBack) => {
                                         if (data !== null && returnContent.state !== postState.DELETED) {
-                                            res.json(new GetPostContentCallBack(PostVersionTypes.UPDATEDPOST, {
-                                                html: returnContent.content,
-                                                approved: returnContent.state === postState.ONLINE
-                                            }, data.post));
+                                            res.json(new GetPostContentCallBack(PostVersionTypes.UPDATEDPOST,
+                                                post.getNumberFromDB("favorited") !== null,
+                                                {
+                                                    html: returnContent.content,
+                                                    approved: returnContent.state === postState.ONLINE
+                                                }, data.post));
                                         } else {
-                                            res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
+                                            res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED,
+                                                post.getNumberFromDB("favorited") !== null));
                                         }
                                     });
                             });
@@ -69,16 +76,18 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
                         getContent(approved)
                             .then((returnContent: contentReturn) => {
                                 if (returnContent.state === postState.DELETED) {
-                                    res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
+                                    res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED,
+                                        post.getNumberFromDB("favorited") !== null));
                                 } else {
-                                    res.json(new GetPostContentCallBack(PostVersionTypes.RETRIEVEDCONTENT, {
-                                        html: returnContent.content,
-                                        approved: returnContent.state === postState.ONLINE
-                                    }));
+                                    res.json(new GetPostContentCallBack(PostVersionTypes.RETRIEVEDCONTENT,
+                                        post.getNumberFromDB("favorited") !== null, {
+                                            html: returnContent.content,
+                                            approved: returnContent.state === postState.ONLINE
+                                        }));
                                 }
-                            })
+                            });
                     } else {
-                        res.json(new GetPostContentCallBack(PostVersionTypes.NOCHANGE));
+                        res.json(new GetPostContentCallBack(PostVersionTypes.NOCHANGE, post.getNumberFromDB("favorited") !== null));
                     }
 
                 })
@@ -92,13 +101,14 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
     const getContent = (approved: postAccessType) => {
 
         return query(`
-              SELECT T2.htmlContent, T2.approved, T1.deleted
-              FROM posts T1
-                     LEFT JOIN edits T2 ON T1.id = T2.post AND T2.approved = 1
-              WHERE T1.hash = ? AND deleted = 0
-              ORDER BY T2.datetime DESC
-              LIMIT 1
-            `,  postContentRequest.postHash)
+          SELECT T2.htmlContent, T2.approved, T1.deleted
+          FROM posts T1
+                 LEFT JOIN edits T2 ON T1.id = T2.post AND T2.approved = 1
+          WHERE T1.hash = ?
+            AND deleted = 0
+          ORDER BY T2.datetime DESC
+          LIMIT 1
+        `, postContentRequest.postHash)
             .then((content: DatabaseResultSet) => {
                 if (content.convertRowsToResultObjects().length > 0) {
                     if (content.getStringFromDB("htmlContent") === null && approved.isOwner) {
@@ -125,7 +135,7 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
                 return {
                     content: "Error",
                     state: postState.DELETED
-                }
+                };
             });
     };
 });
