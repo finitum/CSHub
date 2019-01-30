@@ -10,11 +10,15 @@ app.post(PostSettings.getURL, (req: Request, res: Response) => {
 
     const token = checkTokenValidity(req);
 
-    if (token.valid && token.tokenObj.user.admin) {
+    if (token.valid) {
 
         switch (postSettingsRequest.editType) {
             case PostSettingsEditType.HIDE:
-                deletePost(res, postSettingsRequest.postHash);
+                if (token.tokenObj.user.admin) {
+                    deletePost(res, postSettingsRequest.postHash);
+                } else {
+                    res.status(403).send();
+                }
                 break;
             case PostSettingsEditType.FAVORITE:
                 favoritePost(res, postSettingsRequest.postHash, token.tokenObj.user.id, postSettingsRequest.favorite);
@@ -22,7 +26,7 @@ app.post(PostSettings.getURL, (req: Request, res: Response) => {
         }
 
     } else {
-        res.status(401).send();
+        res.status(403).send();
     }
 });
 
