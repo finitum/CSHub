@@ -700,7 +700,7 @@
         cursor: pointer;
     }
 
-    .previewCard:not(.isIndex):hover {
+    .previewCard:hover {
         transform: scale(1.05);
         border: HSL(194, 100%, 42%) 1px solid;
     }

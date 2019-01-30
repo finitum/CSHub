@@ -56,7 +56,7 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
                             }
                         })
                         .then((isIndexResult) => {
-                            if (typeof isIndexResult === "undefined" || isIndexResult.getLength() > 0) {
+                            if (typeof isIndexResult === "undefined" || (isIndexResult.getLength() > 0 && submitPostRequest.isIndex)) {
                                 res.json(new CreatePostCallback(SubmitPostResponse.ALREADYHASINDEX));
                             } else {
                                 return generateRandomTopicHash();
