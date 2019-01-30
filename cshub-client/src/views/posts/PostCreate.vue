@@ -134,6 +134,15 @@
         }
 
         /**
+         * Lifecycle hooks
+         */
+        public metaInfo(): any {
+            return {
+                title: "Create post - CSHub"
+            };
+        }
+
+        /**
          * Methods
          */
         private submitPost() {

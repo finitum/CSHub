@@ -168,6 +168,12 @@
             this.getHashes();
         }
 
+        public metaInfo(): any {
+            return {
+                title: "User - CSHub"
+            };
+        }
+
         /**
          * Methods
          */

@@ -121,6 +121,12 @@
             this.$validator.extend("checkTUEmail", emailValidator);
         }
 
+        public metaInfo(): any {
+            return {
+                title: "Create account - CSHub"
+            };
+        }
+
         /**
          * Methods
          */

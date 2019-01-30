@@ -141,6 +141,12 @@ import {ForgotPasswordMailResponseTypes} from "../../../../cshub-shared/src/api-
             });
         }
 
+        public metaInfo(): any {
+            return {
+                title: "Login - CSHub"
+            };
+        }
+
 
         /**
          * Methods

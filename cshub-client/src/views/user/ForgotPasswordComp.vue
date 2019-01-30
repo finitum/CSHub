@@ -84,6 +84,12 @@
             this.requestHash = +this.$route.query.hash;
         }
 
+        public metaInfo(): any {
+            return {
+                title: "Forgot password - CSHub"
+            };
+        }
+
         /**
          * Methods
          */

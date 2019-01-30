@@ -52,6 +52,12 @@
             this.getHashes();
         }
 
+        public metaInfo(): any {
+            return {
+                title: "Admin - CSHub"
+            };
+        }
+
         /**
          * Methods
          */

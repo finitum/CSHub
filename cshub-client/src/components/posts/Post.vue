@@ -1,4 +1,3 @@
-import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages";
 <template>
     <div>
         <div v-if="post !== null">
@@ -200,7 +199,6 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
     import {colorize} from "../../utilities/codemirror-colorize";
     import {LocalStorageData} from "../../store/localStorageData";
     import PostSaveEditDialog from "./PostSaveEditDialog.vue";
-    import {editDialogType} from "../../store/ui/state";
 
     interface IBreadCrumbType {
         name: string;
@@ -209,7 +207,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
 
     @Component({
         name: "Post",
-        components: {Quill, PostEditsDialog, PostSaveEditDialog},
+        components: {Quill, PostEditsDialog, PostSaveEditDialog}
     })
     export default class Post extends Vue {
 
@@ -326,6 +324,19 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         /**
          * Lifecycle hooks
          */
+        public metaInfo(): any {
+            if (this.fullPostComputed && this.post !== null) {
+                return {
+                    title: `${this.post.title} - CSHub`,
+                    meta: [
+                        {name: "description", content: `A post by ${this.post.author.firstname} ${this.post.author.lastname}. Join now and start writing!`}
+                    ]
+                };
+            } else {
+                return {};
+            }
+        }
+
         private mounted() {
 
             this.$socket.on("connect_error", () => {
@@ -439,7 +450,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
             if (dbImage !== null) {
                 return `data:image/jpg;base64,${dbImage}`;
             } else {
-                return "/assets/defaultAvatar.png";
+                return "/img/defaultAvatar.png";
             }
         }
 

@@ -87,6 +87,15 @@
         }
 
         /**
+         * Lifecycle hooks
+         */
+        public metaInfo(): any {
+            return {
+                title: "Create topic - CSHub"
+            };
+        }
+
+        /**
          * Methods
          */
         private submitTopic() {

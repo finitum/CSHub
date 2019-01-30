@@ -67,6 +67,12 @@
             this.searchQuery = "";
         }
 
+        public metaInfo(): any {
+            return {
+                title: "Search - CSHub"
+            };
+        }
+
         /**
          * Watchers
          */

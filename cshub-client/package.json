@@ -31,6 +31,7 @@
         "vee-validate": "^2.1.2",
         "vue": "^2.5.17",
         "vue-class-component": "^6.3.2",
+        "vue-meta": "^1.5.8",
         "vue-property-decorator": "^7.2.0",
         "vue-router": "^3.0.1",
         "vue-socket.io": "^3.0.4",
