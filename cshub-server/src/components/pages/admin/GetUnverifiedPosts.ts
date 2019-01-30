@@ -28,7 +28,7 @@ app.post(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
                    LIMIT 1
                  ) = 0 OR editCount = 0 OR editCount IS NULL) AND T1.deleted = 0
           GROUP BY T2.post
-          ORDER BY T2.datetime DESC
+          ORDER BY T1.datetime DESC
         `)
             .then((result: DatabaseResultSet) => {
 
@@ -36,8 +36,7 @@ app.post(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
 
                 result.convertRowsToResultObjects().forEach((x) => {
                     hashes.push({
-                        hash: x.getNumberFromDB("hash"),
-                        isNewPost: x.getNumberFromDB("editCount") === null || x.getNumberFromDB("editCount") === 0
+                        hash: x.getNumberFromDB("hash")
                     });
                 });
 

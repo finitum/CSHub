@@ -1,3 +1,4 @@
+import {SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
 <template>
     <v-container fluid fill-height>
         <v-layout justify-center align-center>
@@ -23,7 +24,7 @@
                     </v-card-title>
                     <v-card-text>
                         <v-layout row>
-                            <v-flex xs12>
+                            <v-flex xs10>
                                 <v-text-field
                                         style="font-weight:bold; font-size: 22px"
                                         label="Title"
@@ -36,7 +37,14 @@
                                         required
                                 ></v-text-field>
                             </v-flex>
-                            <v-flex class="text-xs-right">
+                            <v-flex xs2>
+                                <v-checkbox
+                                    class="ml-3"
+                                    label="Is index"
+                                    v-model="isIndex"
+                                ></v-checkbox>
+                            </v-flex>
+                            <v-flex xs1 class="text-xs-right">
                                 <v-menu
                                         v-model="topicViewOpen"
                                         :close-on-content-click="false"
@@ -93,11 +101,7 @@
 
     import {ApiWrapper} from "../../utilities";
 
-    import {
-        CreatePostCallback,
-        CreatePost,
-        SubmitPostResponse
-    } from "../../../../cshub-shared/src/api-calls/pages";
+    import {CreatePost, CreatePostCallback, SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
     import {ITopic} from "../../../../cshub-shared/src/models";
 
     @Component({
@@ -114,6 +118,7 @@
         private topicViewOpen = false;
         private postTitle = "";
         private postTitleError = "";
+        private isIndex = false;
         private showTopicWrongIcon = false;
         private showTopicFilledIcon = false;
         private showLoadingIcon = false;
@@ -150,12 +155,16 @@
                 this.$validator.validateAll()
                     .then((allValid: boolean) => {
                         if (allValid) {
-                            ApiWrapper.sendPostRequest(new CreatePost(this.postTitle, this.activeTopicHash[0]), (response: CreatePostCallback) => {
+                            ApiWrapper.sendPostRequest(new CreatePost(this.postTitle, this.activeTopicHash[0], this.isIndex), (response: CreatePostCallback) => {
                                 this.showLoadingIcon = false;
                                 if (response.response === SubmitPostResponse.SUCCESS) {
                                     this.$router.push(`/post/${response.postHash}/edit`);
                                 } else if (response.response === SubmitPostResponse.TITLEALREADYINUSE) {
                                     this.postTitleError = "Title is already in use!";
+                                } else if (response.response === SubmitPostResponse.ALREADYHASINDEX) {
+                                    this.postTitleError = "This topic already has an index!";
+                                } else {
+                                    this.postTitleError = "There has been some error with this input";
                                 }
                             });
                         }

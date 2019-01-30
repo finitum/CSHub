@@ -1,21 +1,19 @@
 <template>
     <div>
-        <div v-if="post !== null">
+        <div v-if="post !== null" @click.capture="navigateToPost">
             <!-- The following transition is just a trick so I get an event on the change from preview to full post (performance of the animation when the viewer is on is terrible) -->
-            <transition :duration="300" @before-leave="showContent = false" @before-enter="showContent = false"
-                        @after-enter="afterAnimation">
+            <transition :duration="300" @before-leave="showContent = isIndexComputed" @before-enter="showContent = false" @after-enter="afterAnimation">
                 <div v-if="fullPostComputed"></div>
             </transition>
             <v-progress-circular
-                    v-if="showLoadingIcon"
-                    :size="100"
-                    color="primary"
-                    indeterminate
-                    class="loadingIcon"
+                v-if="showLoadingIcon"
+                :size="100"
+                color="primary"
+                indeterminate
+                class="loadingIcon"
             ></v-progress-circular>
-            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed}" :id="'post_' + domId" style="box-shadow: none">
-                <v-card-title primary-title :id="'postTitle_' + domId" class="pb-0 xl-0 pt-1 titleCard"
-                              @click.capture="navigateToPost">
+            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed, isIndex: isIndexComputed}" :id="'post_' + domId" style="box-shadow: none">
+                <v-card-title primary-title :id="'postTitle_' + domId" class="pb-0 xl-0 pt-1 titleCard">
                     <transition name="topMenuShow">
                         <div v-if="!showTopMenu && fullPostComputed">
                             <v-btn color="primary" depressed small dark @click="returnToPostMenu">
@@ -44,7 +42,7 @@
                                 <v-btn color="red" depressed small @click="hidePost()" v-if="!editModeComputed && userAdminComputed">
                                     <v-icon>fas fa-trash</v-icon>
                                 </v-btn>
-                                <v-btn color="lime" depressed small @click="toggleFavorite()" v-if="!editModeComputed && userIsLoggedIn">
+                                <v-btn color="lime" depressed small @click="toggleFavorite()" v-if="!editModeComputed && userIsLoggedIn && !isIndexComputed">
                                     <v-icon v-if="post.isMyFavorite">fas fa-star</v-icon>
                                     <v-icon v-else>far fa-star</v-icon>
                                 </v-btn>
@@ -67,22 +65,22 @@
                             </v-breadcrumbs>
                         </transition>
                         <v-list two-line style="width: 100%">
-                            <v-list-tile avatar class="mb-1 postTile">
+                            <v-list-tile :avatar="!isIndexComputed || fullPostComputed" class="mb-1 postTile">
                                 <v-list-tile-avatar>
                                     <img :src="getAvatarURL(post.author.avatar)" class="profileBorder"/>
                                 </v-list-tile-avatar>
                                 <v-list-tile-content class="pt-2 d-inline">
                                     <v-list-tile-sub-title class="whitespaceInit post-title">
-                                        <span>{{post.title}}{{isNewPost !== null ? (isNewPost ? " - new post" : " - new edits") : ""}}</span>
+                                        <span>{{post.title}} {{post.isIndex && (fullPostComputed || !isIndexComputed) ? "(index page)" : ""}}</span>
                                     </v-list-tile-sub-title>
-                                    <v-list-tile-sub-title class="whitespaceInit">{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</v-list-tile-sub-title>
+                                    <v-list-tile-sub-title class="whitespaceInit" v-if="!isIndexComputed || fullPostComputed">{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</v-list-tile-sub-title>
                                 </v-list-tile-content>
                             </v-list-tile>
                         </v-list>
                     </span>
                 </v-card-title>
                 <v-container
-                        v-if="fullPostComputed && !editModeComputed"
+                        v-if="(fullPostComputed && !editModeComputed) || (!fullPostComputed && isIndexComputed)"
                         position="relative"
                         class="scroll-y"
                         :class="'postScrollWindow_' + domId"
@@ -93,7 +91,7 @@
                             align-center
                             justify-center
                             v-scroll:#post-scroll-target>
-                        <v-card-text v-if="!loadingIcon" id="postCardText">
+                        <v-card-text v-if="!loadingIcon" id="postCardText" :class="{indexPostCardText: isIndexComputed}">
                             <v-list-tile-sub-title class="whitespaceInit post-title secondaryTitle">
                                 <span>{{post.title}}</span>
                             </v-list-tile-sub-title>
@@ -220,7 +218,6 @@
          * Data
          */
         @Prop(Number) private postHash: number;
-        @Prop(Boolean) private isNewPost: boolean;
 
         private dialogOpen = false;
 
@@ -247,7 +244,7 @@
         }
 
         get userAdminComputed(): boolean {
-            return userState.isAdmin;
+            return this.userIsLoggedIn && userState.isAdmin;
         }
 
         get userIsLoggedIn(): boolean {
@@ -276,6 +273,18 @@
 
         get topics(): ITopic[] {
             return dataState.topics;
+        }
+
+        get isOnAdminDashboard(): boolean {
+            return this.$route.fullPath === Routes.ADMINDASHBOARD;
+        }
+
+        get isOnUserDashboard(): boolean {
+            return this.$route.fullPath === Routes.USERDASHBOARD;
+        }
+
+        get isIndexComputed(): boolean {
+            return this.post !== null && this.post.isIndex && !this.isOnAdminDashboard && !this.isOnUserDashboard;
         }
 
         /**
@@ -691,7 +700,7 @@
         cursor: pointer;
     }
 
-    .previewCard:hover {
+    .previewCard:not(.isIndex):hover {
         transform: scale(1.05);
         border: HSL(194, 100%, 42%) 1px solid;
     }
@@ -802,5 +811,17 @@
 
     .theme--dark .angleLighten3Dark {
         background-color: #8b8b8b !important;
+    }
+
+    .indexPostCardText .ql-editor {
+        padding-top: 0;
+    }
+
+    .indexPostCardText {
+        padding: 0;
+    }
+
+    .indexPostCardText #htmlOutput {
+        cursor: pointer;
     }
 </style>

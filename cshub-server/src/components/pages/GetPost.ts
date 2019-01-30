@@ -44,6 +44,7 @@ export const getPostData = (postHash: number, userObj: ValidationType): Promise<
              T1.title,
              T1.hash,
              T1.upvotes,
+             T1.isIndex,
              T2.id        AS authorId,
              T2.firstname AS authorFirstName,
              T2.lastname  AS authorLastName,
@@ -74,6 +75,7 @@ export const getPostData = (postHash: number, userObj: ValidationType): Promise<
                 title: post.getStringFromDB("title"),
                 upvotes: post.getNumberFromDB("upvotes"),
                 hash: post.getNumberFromDB("hash"),
+                isIndex: post.getNumberFromDB("isIndex") === 1,
                 id: post.getNumberFromDB("id"),
                 author: {
                     id: post.getNumberFromDB("authorId"),

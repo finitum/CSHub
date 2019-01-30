@@ -1,12 +1,12 @@
 import {IApiRequest} from "../../models/IApiRequest";
 
 import {Requests} from "../Requests";
-import Delta from "quill-delta/dist/Delta";
 
 export enum SubmitPostResponse {
     SUCCESS,
     TITLEALREADYINUSE,
-    INVALIDINPUT
+    INVALIDINPUT,
+    ALREADYHASINDEX
 }
 
 export class CreatePostCallback {
@@ -24,6 +24,7 @@ export class CreatePost implements IApiRequest {
 
     constructor(
         public postTitle: string,
-        public postTopicHash: number
+        public postTopicHash: number,
+        public isIndex: boolean
     ) {}
 }
