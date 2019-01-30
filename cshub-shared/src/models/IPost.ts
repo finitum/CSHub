@@ -8,6 +8,7 @@ export interface IPost {
     title: string;
     upvotes: number;
     id: number;
+    isIndex: boolean;
     postVersion: number;
     htmlContent?: string;
     isMyFavorite?: boolean;

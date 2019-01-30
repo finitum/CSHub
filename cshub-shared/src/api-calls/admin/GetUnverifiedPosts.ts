@@ -2,8 +2,7 @@ import {IApiRequest, IUser} from "../../models";
 import {Requests} from "../Requests";
 
 export type GetUnverifiedPostsType = {
-    hash: number,
-    isNewPost: boolean
+    hash: number
 };
 
 export class GetUnverifiedPostsCallBack {
