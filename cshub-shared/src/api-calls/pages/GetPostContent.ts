@@ -13,6 +13,7 @@ export class GetPostContentCallBack {
 
     constructor(
         public postVersionType: PostVersionTypes,
+        public isMyFavorite: boolean,
         public content?: {
             html: string,
             approved: boolean

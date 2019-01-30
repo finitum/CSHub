@@ -1,23 +1,28 @@
 <template>
     <v-toolbar color="primary" app fixed clipped-left id="cshub-toolbar">
         <v-toolbar-side-icon @click.native="drawerComputed = !drawerComputed"></v-toolbar-side-icon>
-        <router-link to="/" style="color: inherit">
-            <div class="title ml-3 mr-5">
-                CS&nbsp;<span class="font-weight-light">Hub</span>
-            </div>
-        </router-link>
+        <v-toolbar-title>
+            <router-link to="/" style="color: inherit">
+                <div class="title ml-0" :class="{'mr-5': $vuetify.breakpoint.mdAndUp}">
+                    CS&nbsp;<span class="font-weight-light">Hub</span>
+                </div>
+            </router-link>
+        </v-toolbar-title>
 
         <v-text-field
-                v-model="searchQuery"
-                solo-inverted
-                flat
-                hide-details
-                label="Search"
-                prepend-inner-icon="fas fa-search"
+            v-model="searchQuery"
+            v-if="$vuetify.breakpoint.mdAndUp"
+            solo-inverted
+            flat
+            hide-details
+            label="Search"
+            prepend-inner-icon="fas fa-search"
         ></v-text-field>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-            <v-btn depressed small color="primary" @click="showVersionDialog"><v-icon color="white">fas fa-code-branch</v-icon></v-btn>
+            <v-btn icon v-if="!$vuetify.breakpoint.mdAndUp" depressed small color="primary" @click="goToSearch"><v-icon color="white">fas fa-search</v-icon></v-btn>
+            <v-btn icon depressed small color="primary" @click="showVersionDialog"><v-icon color="white">fas fa-code-branch</v-icon></v-btn>
+            <v-btn icon depressed small color="primary" @click="darkMode = !darkMode"><v-icon color="white">{{darkMode ? "fas fa-sun" : "fas fa-moon"}}</v-icon></v-btn>
         </v-toolbar-items>
     </v-toolbar>
 </template>
@@ -68,6 +73,14 @@
             dataState.setSearchQuery(newValue);
         }
 
+        get darkMode(): boolean {
+            return uiState.darkMode;
+        }
+
+        set darkMode(newValue: boolean) {
+            uiState.setDarkModeState(newValue);
+        }
+
         /**
          * Methods
          */
@@ -89,6 +102,10 @@
             });
         }
 
+        private goToSearch() {
+            router.push(Routes.SEARCH);
+        }
+
         /**
          * Watchers
          */
@@ -105,6 +122,15 @@
 </script>
 
 <style scoped>
+
+    .darkModeSwitch i {
+        color: white !important;
+    }
+
+    .theme--dark .primary {
+        background-color: #0072a1 !important;
+        border-color: #0072a1 !important;
+    }
 
     @media print {
         #cshub-toolbar {

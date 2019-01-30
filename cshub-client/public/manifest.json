@@ -3,13 +3,28 @@
   "short_name": "CSHub",
   "icons": [
     {
-      "src": "/favicon.ico",
+      "src": "/img/icons/favicon-16x16.png",
       "sizes": "16x16",
-      "type": "image/x-icon"
+      "type": "image/png"
+    },
+    {
+      "src": "/img/icons/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/icons/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/icons/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ],
-  "start_url": "/index.html",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
+  "background_color": "#196c86",
   "theme_color": "#00A6D8"
 }

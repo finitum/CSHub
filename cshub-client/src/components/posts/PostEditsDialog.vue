@@ -19,7 +19,6 @@
                                     v-show="showIndex === -1 || showIndex === index"
                                     class="mb-3"
                                     color="grey"
-                                    icon-color="grey lighten-2"
                                     small
                             >
                                 <v-layout justify-space-between>

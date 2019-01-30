@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid fill-height class="grey lighten-4">
+    <v-container fluid fill-height>
         <v-layout justify-center align-center>
             <v-flex>
                 <v-card>
@@ -84,6 +84,15 @@
          */
         get topics(): ITopic[] {
             return dataState.topics;
+        }
+
+        /**
+         * Lifecycle hooks
+         */
+        public metaInfo(): any {
+            return {
+                title: "Create topic - CSHub"
+            };
         }
 
         /**

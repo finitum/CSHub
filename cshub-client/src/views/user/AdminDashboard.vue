@@ -4,7 +4,7 @@
         <v-subheader>
             Your profile
         </v-subheader>
-        <v-container fluid fill-height class="grey lighten-4">
+        <v-container fluid fill-height>
             <v-layout justify-center align-center>
                 <v-flex>
                     <UserTable></UserTable>
@@ -50,6 +50,12 @@
          */
         private mounted() {
             this.getHashes();
+        }
+
+        public metaInfo(): any {
+            return {
+                title: "Admin - CSHub"
+            };
         }
 
         /**

@@ -55,6 +55,7 @@
             }
         }
 
+
         /**
          * Watchers
          */
@@ -66,6 +67,19 @@
         /**
          * Lifecycle hooks
          */
+        public metaInfo(): any {
+            if (!this.isFullPost) {
+                return {
+                    title: `${this.currentTopicNameComputed} - CSHub`,
+                    meta: [
+                        {name: "description", content: `A topic on ${this.currentTopicNameComputed}. Click to see all the related posts!`}
+                    ]
+                };
+            } else {
+                return {};
+            }
+        }
+
         private mounted() {
             this.doOnRouteChange();
         }

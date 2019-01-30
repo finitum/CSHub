@@ -1,4 +1,3 @@
-import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages";
 <template>
     <div>
         <div v-if="post !== null">
@@ -22,7 +21,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                             <v-btn color="primary" depressed small dark @click="returnToPostMenu">
                                 <v-icon>fas fa-chevron-left</v-icon>
                             </v-btn>
-                            <v-btn color="secondary" depressed small @click="showTopMenu = true">
+                            <v-btn color="secondary" depressed small @click="showTopMenu = true" class="angleLighten3Dark">
                                 <v-icon>fas fa-angle-down</v-icon>
                             </v-btn>
                         </div>
@@ -45,6 +44,10 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                                 <v-btn color="red" depressed small @click="hidePost()" v-if="!editModeComputed && userAdminComputed">
                                     <v-icon>fas fa-trash</v-icon>
                                 </v-btn>
+                                <v-btn color="lime" depressed small @click="toggleFavorite()" v-if="!editModeComputed">
+                                    <v-icon v-if="post.isMyFavorite">fas fa-star</v-icon>
+                                    <v-icon v-else>far fa-star</v-icon>
+                                </v-btn>
                                 <v-btn color="orange" depressed small @click="enableEdit"
                                        v-if="!editModeComputed && userIsLoggedIn">
                                     <v-icon>fas fa-edit</v-icon>
@@ -58,7 +61,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                                 <v-btn depressed small color="primary" @click="viewEditDialog" v-if="!editModeComputed">
                                     <v-icon>fas fa-history</v-icon>
                                 </v-btn>
-                                <v-btn depressed small color="secondary" @click="showTopMenu = false">
+                                <v-btn depressed small color="secondary" @click="showTopMenu = false" class="angleLighten3Dark">
                                     <v-icon>fas fa-angle-up</v-icon>
                                 </v-btn>
                             </v-breadcrumbs>
@@ -69,7 +72,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                                     <img :src="getAvatarURL(post.author.avatar)" class="profileBorder"/>
                                 </v-list-tile-avatar>
                                 <v-list-tile-content class="pt-2 d-inline">
-                                    <v-list-tile-sub-title class="whitespaceInit black--text post-title">
+                                    <v-list-tile-sub-title class="whitespaceInit post-title">
                                         <span>{{post.title}}{{isNewPost !== null ? (isNewPost ? " - new post" : " - new edits") : ""}}</span>
                                     </v-list-tile-sub-title>
                                     <v-list-tile-sub-title class="whitespaceInit">{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</v-list-tile-sub-title>
@@ -91,7 +94,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                             justify-center
                             v-scroll:#post-scroll-target>
                         <v-card-text v-if="!loadingIcon" id="postCardText">
-                            <v-list-tile-sub-title class="whitespaceInit black--text post-title secondaryTitle">
+                            <v-list-tile-sub-title class="whitespaceInit post-title secondaryTitle">
                                 <span>{{post.title}}</span>
                             </v-list-tile-sub-title>
                             <div class="ql-editor">
@@ -126,13 +129,14 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                     indeterminate
                     style="width: 100%; margin: 10% auto;"/>
         </div>
-        <PostEditsDialog :key="postHash" :postHash="postHash"></PostEditsDialog>
-        <PostSaveEditDialog v-if="post !== null" :key="postHash - 1" :post="post"></PostSaveEditDialog>
+        <PostEditsDialog v-if="fullPostComputed" :key="postHash" :postHash="postHash"></PostEditsDialog>
+        <PostSaveEditDialog v-if="post !== null && fullPostComputed" :key="postHash - 1" :post="post"></PostSaveEditDialog>
 
         <v-dialog
-                v-model="dialogOpen"
-                max-width="400"
-                persistent
+            v-if="fullPostComputed"
+            v-model="dialogOpen"
+            max-width="400"
+            persistent
         >
             <v-card>
                 <v-card-title class="headline">Editing</v-card-title>
@@ -181,8 +185,8 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         GetPostCallBack,
         GetPostContent,
         GetPostContentCallBack,
-        HidePost,
         HidePostCallBack,
+        PostSettings, PostSettingsEditType,
         PostVersionTypes
     } from "../../../../cshub-shared/src/api-calls";
     import {IPost, ITopic} from "../../../../cshub-shared/src/models";
@@ -200,7 +204,6 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
     import {colorize} from "../../utilities/codemirror-colorize";
     import {LocalStorageData} from "../../store/localStorageData";
     import PostSaveEditDialog from "./PostSaveEditDialog.vue";
-    import {editDialogType} from "../../store/ui/state";
 
     interface IBreadCrumbType {
         name: string;
@@ -209,7 +212,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
 
     @Component({
         name: "Post",
-        components: {Quill, PostEditsDialog, PostSaveEditDialog},
+        components: {Quill, PostEditsDialog, PostSaveEditDialog}
     })
     export default class Post extends Vue {
 
@@ -326,6 +329,19 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         /**
          * Lifecycle hooks
          */
+        public metaInfo(): any {
+            if (this.fullPostComputed && this.post !== null) {
+                return {
+                    title: `${this.post.title} - CSHub`,
+                    meta: [
+                        {name: "description", content: `A post by ${this.post.author.firstname} ${this.post.author.lastname}. Join now and start writing!`}
+                    ]
+                };
+            } else {
+                return {};
+            }
+        }
+
         private mounted() {
 
             this.$socket.on("connect_error", () => {
@@ -347,6 +363,8 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                 this.previousTopicURL = Routes.USERDASHBOARD;
             } else if (uiState.previousRoute.fullPath === Routes.ADMINDASHBOARD) {
                 this.previousTopicURL = Routes.ADMINDASHBOARD;
+            } else if (uiState.previousRoute.fullPath === Routes.FAVORITES) {
+                this.previousTopicURL = Routes.FAVORITES;
             }
 
             if (this.previousTopicURL === "") {
@@ -439,7 +457,7 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
             if (dbImage !== null) {
                 return `data:image/jpg;base64,${dbImage}`;
             } else {
-                return "/assets/defaultAvatar.png";
+                return "/img/defaultAvatar.png";
             }
         }
 
@@ -475,9 +493,16 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
             }
         }
 
+        private toggleFavorite() {
+            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.FAVORITE, !this.post.isMyFavorite), (callback: HidePostCallBack) => {
+                logStringConsole("Toggled favorite");
+                this.post.isMyFavorite = !this.post.isMyFavorite;
+            });
+        }
+
         private hidePost() {
-            ApiWrapper.sendPostRequest(new HidePost(this.postHash), (callback: HidePostCallBack) => {
-                logStringConsole("Verified post");
+            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.HIDE), (callback: HidePostCallBack) => {
+                logStringConsole("Removed post");
                 this.$router.push(Routes.INDEX);
             });
         }
@@ -573,15 +598,24 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
                 if (callbackContent.postVersionType === PostVersionTypes.POSTDELETED) {
                     this.$router.push(Routes.INDEX);
                 } else if (callbackContent.postVersionType === PostVersionTypes.UPDATEDPOST) {
-                    this.post = callbackContent.postUpdated;
+                    this.post = {
+                        ...callbackContent.postUpdated,
+                        isMyFavorite: callbackContent.isMyFavorite
+                    };
                     this.post.htmlContent = callbackContent.content.html;
                     hasBeenUpdated = true;
                 } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
-                    this.post = cachedValue;
+                    this.post = {
+                        ...cachedValue,
+                        isMyFavorite: callbackContent.isMyFavorite
+                    };
                     this.post.htmlContent = callbackContent.content.html;
                     hasBeenUpdated = true;
                 } else if (callbackContent.postVersionType === PostVersionTypes.NOCHANGE) {
-                    this.post = cachedValue;
+                    this.post = {
+                        ...cachedValue,
+                        isMyFavorite: callbackContent.isMyFavorite
+                    };
                 }
 
                 this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
@@ -760,5 +794,13 @@ import {EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages"
         .fullCard {
             position: relative !important;
         }
+    }
+
+    .theme--light.v-list .v-list__tile__sub-title {
+        color: black;
+    }
+
+    .theme--dark .angleLighten3Dark {
+        background-color: #8b8b8b !important;
     }
 </style>

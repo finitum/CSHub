@@ -13,4 +13,6 @@ export class GetUserPosts implements IApiRequest {
 
     public static getURL: string = Requests.DASHBOARD;
     public URL: string = GetUserPosts.getURL;
+
+    constructor(public getFavorites = false) {}
 }

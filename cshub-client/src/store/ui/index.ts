@@ -1,6 +1,6 @@
 import {uiStateGetter, uiStoreBuilder} from "./state";
 import {
-    currentEditDialogState,
+    currentEditDialogState, darkMode,
     drawerState,
     editDialogState,
     markdownDialog,
@@ -9,7 +9,7 @@ import {
     previousRoute
 } from "./getters";
 import {
-    setCurrentEditDialogState,
+    setCurrentEditDialogState, setDarkModeState,
     setDrawerState,
     setEditDialogState,
     setMarkdownDialogState,
@@ -27,6 +27,7 @@ const uiState = {
     get notificationDialogState() { return notificationDialog(); },
     get mardownDialogState() { return markdownDialog(); },
     get previousRoute() { return previousRoute(); },
+    get darkMode() { return darkMode(); },
 
     setDrawerState: uiStoreBuilder.commit(setDrawerState, "setDrawerState"),
     setEditDialogState: uiStoreBuilder.commit(setEditDialogState, "setEditDialogState"),
@@ -34,7 +35,8 @@ const uiState = {
     setPaginationPageState: uiStoreBuilder.commit(setPaginationPageState, "setPaginationPageState"),
     setNotificationDialogState: uiStoreBuilder.commit(setNotificationDialogState, "setNotificationDialogState"),
     setMarkdownDialogState: uiStoreBuilder.commit(setMarkdownDialogState, "setMarkdownDialogState"),
-    setPreviousRouteState: uiStoreBuilder.commit(setPreviousRouteState, "setPreviousRouteState")
+    setPreviousRouteState: uiStoreBuilder.commit(setPreviousRouteState, "setPreviousRouteState"),
+    setDarkModeState: uiStoreBuilder.commit(setDarkModeState, "setDarkModeState")
 };
 
 export default uiState;

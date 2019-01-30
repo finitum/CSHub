@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid fill-height class="grey lighten-4">
+    <v-container fluid fill-height>
         <v-layout justify-center align-center>
             <v-flex shrink>
                 <v-card>
@@ -82,6 +82,12 @@
         private mounted() {
             this.accountId = +this.$route.query.accId;
             this.requestHash = +this.$route.query.hash;
+        }
+
+        public metaInfo(): any {
+            return {
+                title: "Forgot password - CSHub"
+            };
         }
 
         /**

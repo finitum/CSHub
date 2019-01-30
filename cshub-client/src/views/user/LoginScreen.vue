@@ -1,6 +1,5 @@
-import {ForgotPasswordMailResponseTypes} from "../../../../cshub-shared/src/api-calls/account";
 <template>
-    <v-container fluid fill-height class="grey lighten-4">
+    <v-container fluid fill-height>
         <v-layout justify-center align-center>
             <v-flex shrink>
                 <v-card>
@@ -139,6 +138,12 @@ import {ForgotPasswordMailResponseTypes} from "../../../../cshub-shared/src/api-
             next((vm: this) => {
                 vm.previousRoute = from.name;
             });
+        }
+
+        public metaInfo(): any {
+            return {
+                title: "Login - CSHub"
+            };
         }
 
 

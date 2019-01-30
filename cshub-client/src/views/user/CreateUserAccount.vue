@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid fill-height class="grey lighten-4">
+    <v-container fluid fill-height>
         <v-layout justify-center align-center>
             <v-flex shrink>
                 <v-card>
@@ -119,6 +119,12 @@
          */
         private mounted() {
             this.$validator.extend("checkTUEmail", emailValidator);
+        }
+
+        public metaInfo(): any {
+            return {
+                title: "Create account - CSHub"
+            };
         }
 
         /**

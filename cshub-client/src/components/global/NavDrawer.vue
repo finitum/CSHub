@@ -3,13 +3,10 @@
             v-model="drawerComputed"
             fixed
             clipped
-            class="grey lighten-4"
             id="cshub-nav"
             app>
         <v-list
-                dense
-                class="grey lighten-4">
-
+                dense>
             <v-layout
                     row
                     align-center>
@@ -20,6 +17,7 @@
                 </v-flex>
             </v-layout>
             <router-link :to="navigationLocations.USERDASHBOARD" v-if="userLoggedInComputed"><NavDrawerItem icon="fas fa-user" text="User dashboard"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.FAVORITES" v-if="userLoggedInComputed"><NavDrawerItem icon="fas fa-star" text="My favorites"></NavDrawerItem></router-link>
             <router-link :to="navigationLocations.ADMINDASHBOARD" v-if="userLoggedInComputed && userAdminComputed"><NavDrawerItem icon="fas fa-users" text="Admin dashboard"></NavDrawerItem></router-link>
             <router-link :to="navigationLocations.LOGIN" v-if="!userLoggedInComputed"><NavDrawerItem icon="fas fa-sign-in-alt" text="Login"></NavDrawerItem></router-link>
             <a @click="logout"><NavDrawerItem v-if="userLoggedInComputed" icon="fas fa-sign-out-alt" text="Logout"></NavDrawerItem></a>
@@ -233,5 +231,9 @@
     #cshub-nav {
         display: none;
     }
+}
+
+.theme--light.v-navigation-drawer {
+    background-color: #f5f5f5;
 }
 </style>

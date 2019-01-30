@@ -6,11 +6,20 @@
                     <v-icon>fas fa-chevron-left</v-icon>
                 </v-btn>
 
-                <v-subheader>
-                    Your search results on the query '{{searchQuery}}'
-                </v-subheader>
+                <v-subheader v-if="searchQuery.length >= 3">Your search results on the query '{{searchQuery}}'</v-subheader>
+                <v-subheader v-else>Your query was not long enough, type more characters</v-subheader>
             </v-layout>
         </v-container>
+
+        <v-text-field
+                v-model="searchQuery"
+                v-if="!$vuetify.breakpoint.mdAndUp"
+                solo-inverted
+                flat
+                hide-details
+                label="Search"
+                prepend-inner-icon="fas fa-search"
+        ></v-text-field>
 
         <PostList :postHashesProp="postHashes" v-if="postHashes.length > 0"></PostList>
         <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
@@ -56,15 +65,19 @@
          * Lifecycle hooks
          */
         private mounted() {
-            if (this.searchQuery.length < 3) {
-                this.$router.push(Routes.INDEX);
-            } else {
+            if (this.searchQuery.length >= 3) {
                 this.getSearchResults();
             }
         }
 
         private beforeDestroy() {
             this.searchQuery = "";
+        }
+
+        public metaInfo(): any {
+            return {
+                title: "Search - CSHub"
+            };
         }
 
         /**
