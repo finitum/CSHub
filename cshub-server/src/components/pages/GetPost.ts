@@ -18,7 +18,7 @@ app.post(GetPost.getURL, (req: Request, res: Response) => {
     hasAccessToPost(postRequest.postHash, req.cookies["token"])
         .then((approved: postAccessType) => {
             if (!approved.access) {
-                res.status(401).send();
+                res.status(403).send();
             } else {
                 // Get all the post data from database
                 getPostData(postRequest.postHash)

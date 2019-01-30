@@ -2,6 +2,7 @@ import {getStoreBuilder} from "vuex-typex";
 import {IRootState} from "../";
 import {Blot} from "parchment/dist/src/blot/abstract/blot";
 import {Route} from "vue-router";
+import {LocalStorageData} from "../localStorageData";
 
 export type editDialogType = {
     on: boolean,
@@ -34,6 +35,7 @@ export interface IUIState {
     notificationDialog: notificationDialogType;
     markdownDialog: markdownDialogType;
     previousRoute: Route;
+    darkMode: boolean;
 }
 
 export const UIState: IUIState = {
@@ -58,7 +60,8 @@ export const UIState: IUIState = {
         open: false,
         blots: []
     },
-    previousRoute: null
+    previousRoute: null,
+    darkMode: localStorage.getItem(LocalStorageData.DARK) === "true"
 };
 
 export const uiStoreBuilder = getStoreBuilder<IRootState>().module("ui", UIState);

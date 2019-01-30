@@ -3,13 +3,10 @@
             v-model="drawerComputed"
             fixed
             clipped
-            class="grey lighten-4"
             id="cshub-nav"
             app>
         <v-list
-                dense
-                class="grey lighten-4">
-
+                dense>
             <v-layout
                     row
                     align-center>
@@ -233,5 +230,9 @@
     #cshub-nav {
         display: none;
     }
+}
+
+.theme--light.v-navigation-drawer {
+    background-color: #f5f5f5;
 }
 </style>

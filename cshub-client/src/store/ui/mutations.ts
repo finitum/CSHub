@@ -1,5 +1,6 @@
 import {editDialogType, IUIState, markdownDialogType, notificationDialogType} from "./state";
 import {Route} from "vue-router";
+import {LocalStorageData} from "../localStorageData";
 
 export const setDrawerState = (state: IUIState, payload: boolean) => {
     state.navbar.open = payload;
@@ -27,4 +28,9 @@ export const setMarkdownDialogState = (state: IUIState, payload: markdownDialogT
 
 export const setPreviousRouteState = (state: IUIState, payload: Route) => {
     state.previousRoute = payload;
+};
+
+export const setDarkModeState = (state: IUIState, payload: boolean) => {
+    localStorage.setItem(LocalStorageData.DARK, payload.toString());
+    state.darkMode = payload;
 };

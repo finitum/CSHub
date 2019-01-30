@@ -68,7 +68,7 @@
                                     <img :src="getAvatarURL(post.author.avatar)" class="profileBorder"/>
                                 </v-list-tile-avatar>
                                 <v-list-tile-content class="pt-2 d-inline">
-                                    <v-list-tile-sub-title class="whitespaceInit black--text post-title">
+                                    <v-list-tile-sub-title class="whitespaceInit post-title">
                                         <span>{{post.title}}{{isNewPost !== null ? (isNewPost ? " - new post" : " - new edits") : ""}}</span>
                                     </v-list-tile-sub-title>
                                     <v-list-tile-sub-title class="whitespaceInit">{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</v-list-tile-sub-title>
@@ -90,7 +90,7 @@
                             justify-center
                             v-scroll:#post-scroll-target>
                         <v-card-text v-if="!loadingIcon" id="postCardText">
-                            <v-list-tile-sub-title class="whitespaceInit black--text post-title secondaryTitle">
+                            <v-list-tile-sub-title class="whitespaceInit post-title secondaryTitle">
                                 <span>{{post.title}}</span>
                             </v-list-tile-sub-title>
                             <div class="ql-editor">
@@ -125,13 +125,14 @@
                     indeterminate
                     style="width: 100%; margin: 10% auto;"/>
         </div>
-        <PostEditsDialog :key="postHash" :postHash="postHash"></PostEditsDialog>
-        <PostSaveEditDialog v-if="post !== null" :key="postHash - 1" :post="post"></PostSaveEditDialog>
+        <PostEditsDialog v-if="fullPostComputed" :key="postHash" :postHash="postHash"></PostEditsDialog>
+        <PostSaveEditDialog v-if="post !== null && fullPostComputed" :key="postHash - 1" :post="post"></PostSaveEditDialog>
 
         <v-dialog
-                v-model="dialogOpen"
-                max-width="400"
-                persistent
+            v-if="fullPostComputed"
+            v-model="dialogOpen"
+            max-width="400"
+            persistent
         >
             <v-card>
                 <v-card-title class="headline">Editing</v-card-title>
@@ -771,5 +772,9 @@
         .fullCard {
             position: relative !important;
         }
+    }
+
+    .theme--light.v-list .v-list__tile__sub-title {
+        color: black;
     }
 </style>

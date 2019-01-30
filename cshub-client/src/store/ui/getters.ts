@@ -14,3 +14,4 @@ export const markdownDialog = uiStoreBuilder.read((state) => state.markdownDialo
 
 export const previousRoute = uiStoreBuilder.read((state) => state.previousRoute, "previousRoute");
 
+export const darkMode = uiStoreBuilder.read((state) => state.darkMode, "darkMode");

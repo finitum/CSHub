@@ -1,9 +1,9 @@
 <template>
-    <v-app id="app">
+    <v-app id="app" :dark="darkMode">
         <NavDrawer></NavDrawer>
         <NotificationDialog></NotificationDialog>
         <Toolbar></Toolbar>
-        <v-content class="grey lighten-4" id="cshub-content">
+        <v-content id="cshub-content">
             <transition
                     name="componentChange"
                     :enter-active-class="activeclass"
@@ -49,6 +49,10 @@
             uiState.setDrawerState(newValue);
         }
 
+        get darkMode(): boolean {
+            return uiState.darkMode;
+        }
+
         /**
          * Watchers
          */
@@ -74,16 +78,16 @@
         outline: none;
     }
 
-    #app {
-        background: white;
-    }
-
     .postTile .v-list__tile {
         height: auto !important;
     }
 
     .v-icon {
         font-size: 17px !important;
+    }
+
+    .theme--light.application {
+        background: #f5f5f5;
     }
 
     a {
