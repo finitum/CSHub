@@ -12,6 +12,7 @@ services:
       - VUE_APP_API_URL=${CLIENT_ENV_API_URL}
     ports:
       - ${CLIENT_PORT_EXTERNAL}:${CLIENT_PORT_INTERNAL}
+    restart: unless-stopped
   server:
     container_name: ${SERVER_CONTAINER_NAME}
     image: cshubnl/server:dev
@@ -23,6 +24,7 @@ services:
       - traefik.frontend.port=${SERVER_PORT_INTERNAL}
     ports:
       - ${SERVER_PORT_EXTERNAL}:${SERVER_PORT_INTERNAL}
+    restart: unless-stopped
 
 networks:
   web:
