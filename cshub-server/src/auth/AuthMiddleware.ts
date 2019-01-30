@@ -36,7 +36,8 @@ app.use((req: Request, res: Response, next: Function) => {
     next();
 });
 
-export const checkTokenValidity = (req: Request): {valid: boolean, tokenObj?: IJWTToken} => {
+export type ValidationType = { valid: boolean, tokenObj?: IJWTToken };
+export const checkTokenValidity = (req: Request): ValidationType => {
 
     // This checks the incoming JWT token, validates it, checks if it's still valid.
     // If valid, create a new one (so no cookie stealing)

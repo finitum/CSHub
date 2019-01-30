@@ -5,10 +5,11 @@ import {
     GetPostCallBack,
     GetPost
 } from "../../../../cshub-shared/src/api-calls";
-import {IPost} from "../../../../cshub-shared/src/models";
+import {IJWTToken, IPost} from "../../../../cshub-shared/src/models";
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
+import {checkTokenValidity, ValidationType} from "../../auth/AuthMiddleware";
 
 app.post(GetPost.getURL, (req: Request, res: Response) => {
 
@@ -20,8 +21,10 @@ app.post(GetPost.getURL, (req: Request, res: Response) => {
             if (!approved.access) {
                 res.status(403).send();
             } else {
+                const userObj = checkTokenValidity(req);
+
                 // Get all the post data from database
-                getPostData(postRequest.postHash)
+                getPostData(postRequest.postHash, userObj)
                     .then((data: GetPostCallBack) => {
                         if (data === null) {
                             res.status(500).send();
@@ -33,7 +36,9 @@ app.post(GetPost.getURL, (req: Request, res: Response) => {
         });
 });
 
-export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
+export const getPostData = (postHash: number, userObj: ValidationType): Promise<GetPostCallBack> => {
+    const userId = userObj.valid ? userObj.tokenObj.user.id : -1;
+
     return query(`
       SELECT T1.datetime,
              T1.title,
@@ -52,10 +57,10 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
       FROM posts T1
              INNER JOIN users T2 ON T1.author = T2.id
              INNER JOIN topics T3 ON T1.topic = T3.id
-             LEFT JOIN favorites T4 ON T1.id = T4.post AND T2.id = T4.user
+             LEFT JOIN favorites T4 ON T1.id = T4.post AND T2.id = ?
       WHERE T1.hash = ?
       ORDER BY datetime DESC
-    `, postHash)
+    `, userId, postHash)
         .then((post: DatabaseResultSet) => {
 
             if (post.convertRowsToResultObjects().length === 0) {

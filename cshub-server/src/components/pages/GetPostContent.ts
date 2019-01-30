@@ -44,12 +44,14 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
 
             const userObj = checkTokenValidity(req);
 
+            const userId = userObj.valid ? userObj.tokenObj.user.id : -1;
+
             query(`
               SELECT T1.postVersion, T2.id AS favorited
               FROM posts T1
                      LEFT JOIN favorites T2 on T1.id = T2.post AND T2.user = ?
               WHERE T1.hash = ?
-            `, userObj.tokenObj.user.id, postContentRequest.postHash)
+            `, userId, postContentRequest.postHash)
                 .then((post: DatabaseResultSet) => {
 
                     if (post.convertRowsToResultObjects().length === 0) {
@@ -57,7 +59,7 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
                     } else if (post.getNumberFromDB("postVersion") !== postContentRequest.postVersion) {
                         getContent(approved)
                             .then((returnContent: contentReturn) => {
-                                getPostData(postContentRequest.postHash)
+                                getPostData(postContentRequest.postHash, userObj)
                                     .then((data: GetPostCallBack) => {
                                         if (data !== null && returnContent.state !== postState.DELETED) {
                                             res.json(new GetPostContentCallBack(PostVersionTypes.UPDATEDPOST,

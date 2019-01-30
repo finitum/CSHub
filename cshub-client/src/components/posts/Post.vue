@@ -44,7 +44,7 @@
                                 <v-btn color="red" depressed small @click="hidePost()" v-if="!editModeComputed && userAdminComputed">
                                     <v-icon>fas fa-trash</v-icon>
                                 </v-btn>
-                                <v-btn color="lime" depressed small @click="toggleFavorite()" v-if="!editModeComputed">
+                                <v-btn color="lime" depressed small @click="toggleFavorite()" v-if="!editModeComputed && userIsLoggedIn">
                                     <v-icon v-if="post.isMyFavorite">fas fa-star</v-icon>
                                     <v-icon v-else>far fa-star</v-icon>
                                 </v-btn>
