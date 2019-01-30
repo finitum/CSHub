@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
   server:
     container_name: ${SERVER_CONTAINER_NAME}
-    image: cshubnl/server:dev
+    image: cshubnl/server:${BRANCH}
     env_file: ${SERVER_ENV_PATH}
     networks:
       - web
