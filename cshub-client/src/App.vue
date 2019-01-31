@@ -74,7 +74,15 @@
         }
     }
 </script>
-<style>
+<style lang="scss">
+    @import "./styling/vars";
+
+    .v-treeview {
+        color: $grey !important;
+        font-weight: 500;
+        font-size: 14px !important;
+    }
+
     *:focus {
         outline: none;
     }
