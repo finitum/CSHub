@@ -1,4 +1,4 @@
-// Copy this file to settings.ts, remove the interface from the file and export the Settings instead of creating a local const
+import logger from "./utilities/Logger";
 
 export interface ISettings {
     LIVE: boolean;
@@ -74,3 +74,11 @@ export const Settings: ISettings = {
     },
     LOGLEVEL: process.env.LOGLEVEL ? process.env.LOGLEVEL : "info"
 };
+
+// Remove if VERIFYMAILADDRESSPREFIX != undefined
+logger.info(`VERIFYMAILADDRESSPREFIX env is ${process.env.MAIL_VERIFYMAILADDRESSPREFIX}`);
+logger.info(`VERIFYMAILADDRESSPREFIX settings is ${Settings.MAIL.VERIFYMAILADDRESSPREFIX}`);
+
+logger.info(`DEBUGMAILADDRESS env is ${process.env.MAIL_DEBUGMAILADDRESS}`);
+logger.info(`DEBUGMAILADDRESS settings is ${Settings.MAIL.DEBUGMAILADDRESS}`);
+

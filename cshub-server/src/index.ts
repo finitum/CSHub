@@ -33,7 +33,8 @@ export const server = http.createServer(app).listen(Settings.PORT);
 import "./components";
 import {query} from "./utilities/DatabaseConnection";
 
-logger.info("Express server started");
+logger.info("Express server started with settings:");
+logger.info(JSON.stringify(Settings));
 
 setInterval(() => {
     query("SELECT 1");
