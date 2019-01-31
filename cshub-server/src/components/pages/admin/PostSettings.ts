@@ -56,7 +56,7 @@ const favoritePost = (res: Response, postHash: number, userId: number, favorite:
                       INSERT IGNORE INTO favorites
                       SET user = ?,
                           post = (SELECT id FROM posts WHERE hash = ?)
-                    `, userId, postHash, postHash)
+                    `, userId, postHash)
                         .then(() => {
                             res.json(new HidePostCallBack());
                         });

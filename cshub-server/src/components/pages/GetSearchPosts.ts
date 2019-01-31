@@ -15,6 +15,7 @@ app.post(GetSearchPosts.getURL, (req: Request, res: Response) => {
     if (searchPostRequest.query.length >= 3) {
         const user = checkTokenValidity(req);
         const userId = user.valid ? user.tokenObj.user.id : -1;
+        const adminNum = user.valid && user.tokenObj.user.admin ? 1 : 0;
 
         query(`
           SELECT DISTINCT hash
@@ -23,7 +24,7 @@ app.post(GetSearchPosts.getURL, (req: Request, res: Response) => {
                   FROM edits T1
                          INNER JOIN posts T2 ON T1.post = T2.id
                   WHERE title LIKE ?
-                    AND (T2.author = ? OR (T1.approved = 1) OR (SELECT admin FROM users WHERE id = ?) = 1) AND T2.deleted = 0 AND T2.isIndex = 0
+                    AND (T2.author = ? OR (T1.approved = 1) OR ? = 1) AND T2.deleted = 0 AND T2.isIndex = 0
                   GROUP BY hash
                   ORDER BY T2.upvotes DESC, T2.datetime DESC
                   LIMIT 5)
@@ -34,13 +35,13 @@ app.post(GetSearchPosts.getURL, (req: Request, res: Response) => {
                   FROM edits T1
                          INNER JOIN posts T2 ON T1.post = T2.id
                   WHERE htmlContent LIKE ?
-                    AND (T2.author = ? OR (T1.approved = 1) OR (SELECT admin FROM users WHERE id = ?) = 1) AND T2.deleted = 0 AND T2.isIndex = 0
+                    AND (T2.author = ? OR (T1.approved = 1) OR ? = 1) AND T2.deleted = 0 AND T2.isIndex = 0
                   GROUP BY hash
                   ORDER BY T2.upvotes DESC, T2.datetime DESC
                   LIMIT 5)
                ) AS a
           LIMIT 5
-        `, `%${searchPostRequest.query}%`, userId, userId, `%${searchPostRequest.query}%`, userId, userId)
+        `, `%${searchPostRequest.query}%`, userId, adminNum, `%${searchPostRequest.query}%`, userId, adminNum)
             .then((hashes: DatabaseResultSet) => {
 
                 const hashesArray: number[] = [];
