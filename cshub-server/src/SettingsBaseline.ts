@@ -1,5 +1,3 @@
-import logger from "./utilities/Logger";
-
 export interface ISettings {
     LIVE: boolean;
     PORT: number;
@@ -74,11 +72,3 @@ export const Settings: ISettings = {
     },
     LOGLEVEL: process.env.LOGLEVEL ? process.env.LOGLEVEL : "info"
 };
-
-// Remove if VERIFYMAILADDRESSPREFIX != undefined
-logger.info(`VERIFYMAILADDRESSPREFIX env is ${process.env.MAIL_VERIFYMAILADDRESSPREFIX}`);
-logger.info(`VERIFYMAILADDRESSPREFIX settings is ${Settings.MAIL.VERIFYMAILADDRESSPREFIX}`);
-
-logger.info(`DEBUGMAILADDRESS env is ${process.env.MAIL_DEBUGMAILADDRESS}`);
-logger.info(`DEBUGMAILADDRESS settings is ${Settings.MAIL.DEBUGMAILADDRESS}`);
-
