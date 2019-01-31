@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c98fd21d9a2d437aa85601b81c0b48a2)](https://app.codacy.com/app/NULLx76/CSHub?utm_source=github.com&utm_medium=referral&utm_content=RobbinBaauw/CSHub&utm_campaign=Badge_Grade_Dashboard)
 # CSHub [![Build Status](https://travis-ci.com/RobbinBaauw/CSHub.svg?branch=dev)](https://travis-ci.com/RobbinBaauw/CSHub)
 This is a project made for the TU Delft CSE studies, where everyone can post information, summaries and more, for everyone to see and read.
 ## Running the project
