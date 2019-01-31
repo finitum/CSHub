@@ -77,7 +77,9 @@ const toExecuteQueries: {
 export const query = (query: string, ...args: any[]) => {
     return new Promise<DatabaseResultSet>((resolve, reject) => {
 
-        if (connection == null && Settings.USESSH) {
+        if ((query.match(/\?/g) || []).length !== args.length) {
+            reject("Amount of arguments mismatch");
+        } else if (connection == null && Settings.USESSH) {
             toExecuteQueries.push({
                 query,
                 resolve,

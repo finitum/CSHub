@@ -1,5 +1,5 @@
 import {app} from "../../.";
-import logger from "../../utilities/Logger"
+import logger from "../../utilities/Logger";
 import {Request, Response} from "express";
 import {
     GetSearchPosts, GetSearchPostsCallback
@@ -7,6 +7,7 @@ import {
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import {ServerError} from "../../../../cshub-shared/src/models/ServerError";
 
 app.post(GetSearchPosts.getURL, (req: Request, res: Response) => {
 
@@ -18,30 +19,43 @@ app.post(GetSearchPosts.getURL, (req: Request, res: Response) => {
         const adminNum = user.valid && user.tokenObj.user.admin ? 1 : 0;
 
         query(`
-          SELECT DISTINCT hash
-          FROM (
-                 (SELECT hash
-                  FROM edits T1
-                         INNER JOIN posts T2 ON T1.post = T2.id
+            WITH possibleHashes AS (
+                SELECT hash, title, indexWords
+                FROM edits T1
+                INNER JOIN posts T2 ON T1.post = T2.id
+                WHERE T1.id IN (
+                    SELECT edits.id
+                    FROM edits
+                    INNER JOIN (
+                        SELECT id, post, MAX(datetime) AS datetime
+                        FROM edits
+                        WHERE approved = 1
+                        GROUP BY post
+                    ) editsDate ON edits.datetime = editsDate.datetime
+                    ORDER BY edits.id DESC
+                )
+                AND (T2.author = ? OR (T1.approved = 1) OR ? = 1)
+                AND T2.deleted = 0
+                AND T2.isIndex = 0
+                ORDER BY T2.upvotes DESC, T2.datetime DESC
+            )
+
+            SELECT DISTINCT hash
+            FROM (
+                (SELECT hash
+                  FROM possibleHashes
                   WHERE title LIKE ?
-                    AND (T2.author = ? OR (T1.approved = 1) OR ? = 1) AND T2.deleted = 0 AND T2.isIndex = 0
-                  GROUP BY hash
-                  ORDER BY T2.upvotes DESC, T2.datetime DESC
                   LIMIT 5)
 
-                 UNION ALL
+                UNION ALL
 
-                 (SELECT hash
-                  FROM edits T1
-                         INNER JOIN posts T2 ON T1.post = T2.id
+                (SELECT hash
+                  FROM possibleHashes
                   WHERE indexWords LIKE ?
-                    AND (T2.author = ? OR (T1.approved = 1) OR ? = 1) AND T2.deleted = 0 AND T2.isIndex = 0
-                  GROUP BY hash
-                  ORDER BY T2.upvotes DESC, T2.datetime DESC
                   LIMIT 5)
-               ) AS a
-          LIMIT 5
-        `, `%${searchPostRequest.query}%`, userId, adminNum, `%${searchPostRequest.query}%`, userId, adminNum)
+            ) AS a
+            LIMIT 5
+        `, userId, adminNum, `%${searchPostRequest.query}%`, `%${searchPostRequest.query}%`)
             .then((hashes: DatabaseResultSet) => {
 
                 const hashesArray: number[] = [];
@@ -55,10 +69,11 @@ app.post(GetSearchPosts.getURL, (req: Request, res: Response) => {
             .catch((err) => {
                 logger.error("Error at GetSearchPosts");
                 logger.error(err);
-            })
+                res.status(500).send(new ServerError("The query failed... Please open an issue if this keeps persisting (but first try again in a few minutes)"));
+            });
     } else {
         logger.error("Invalid search query");
-        res.status(500).send();
+        res.status(400).send(new ServerError("Your query is not long enough"));
     }
 
 });
