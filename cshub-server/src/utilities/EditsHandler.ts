@@ -1,42 +1,30 @@
 import {getMarkdownParser, MarkdownLatexQuill} from "../../../cshub-shared/src/utilities/MarkdownLatexQuill";
-import {JSDOM} from "jsdom";
+import {DOMWindow, JSDOM, ResourceLoader, VirtualConsole} from "jsdom";
 import QuillDefaultOptions from "../../../cshub-shared/src/utilities/QuillDefaultOptions";
 import Delta from "quill-delta/dist/Delta";
 import logger from "./Logger";
 
 export const getHTMLFromDelta = (delta: Delta, callback: (html: string, indexWords: string) => void) => {
 
-    const jsdom = new JSDOM(`
-                            <!DOCTYPE html>
-                            <head>
-                                <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.7.22/MutationObserver.js"></script>
-                                <script src="https://unpkg.com/quill@1.3.6/dist/quill.min.js"></script>
-                                <script src="https://unpkg.com/katex@0.10.0/dist/katex.min.js"></script>
-                            </head>
-                            <body><div id="editor-container"></div></body>`, {
-        runScripts: "dangerously",
-        resources: "usable"
-    });
-
-    const window = jsdom.window;
+    const window = initJSDOM();
     const document = window.document;
 
     // @ts-ignore (quill wants to execute but JSDom doesn't have it)
     document.execCommand = () => {
     };
 
-    window.onerror = () => {
-        logger.error("JSDOM Save errors");
-        logger.error(arguments);
+    window.onerror = (err) => {
+        logger.info("JSDOM Save errors");
+        logger.info(err.toString());
     };
 
     window.onload = () => {
         const container = document.getElementById("editor-container");
 
         // @ts-ignore
-        document.getSelection = function () {
+        document.getSelection = function() {
             return {
-                getRangeAt: function () {
+                getRangeAt: function() {
                 }
             };
         };
@@ -53,14 +41,48 @@ export const getHTMLFromDelta = (delta: Delta, callback: (html: string, indexWor
         quill.setContents(delta);
         const html = getHTML(quill, document, window);
 
-        // TODO make list that will be great for searching
-        const indexWords = "";
+        const filteredArr: string[] =
+            html
+                .replace(/<(.+?)>/g, " ") // Remove all HTML tags
+                .replace(/[^a-zA-Z -]/g, " ") // Remove all non letters (but keep streepjes)
+                .replace(/\b[a-zA-Z]{1,3}\b/g, " ") // Remove all words smaller than 3 chars
+                .replace(/\s+/g, "\n") // Replace all whitespace by newlines
+                .split("\n");
 
-        callback(html, indexWords);
+        const unique = [...new Set(filteredArr)];
+        const htmlFiltered = unique.join("");
 
+        callback(html, htmlFiltered);
     };
 };
 
+const initJSDOM = (): DOMWindow => {
+
+    const virtualConsole = new VirtualConsole();
+    virtualConsole.on("error", (err) => {
+        logger.info(err);
+    });
+
+    virtualConsole.on("warn", (warn) => {
+        logger.info(warn);
+    });
+
+    const jsdom = new JSDOM(`
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <script src="file://${__dirname}/assets/quill.min.js"></script>
+            <script src="file://${__dirname}/assets/katex.min.js"></script>
+        </head>
+        <body><div id="editor-container"></div></body>
+    </html>`, {
+        runScripts: "dangerously",
+        resources: "usable",
+        virtualConsole
+    });
+
+    return jsdom.window;
+};
 
 const getHTML = (quillEditor: any, document: Document, window: Window) => {
     const node = quillEditor.container.firstChild;

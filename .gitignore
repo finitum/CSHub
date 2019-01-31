@@ -3,11 +3,4 @@
 *.iml
 settings.env
 .env
-
-cshub-server/src/**/*.js
-cshub-server/src/**/*.map
-
-cshub-shared/**/*.js
-cshub-shared/**/*.map
-
 .htpasswd
