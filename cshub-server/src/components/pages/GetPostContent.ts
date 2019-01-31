@@ -11,18 +11,11 @@ import {
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 import {getPostData} from "./GetPost";
-import tracker from "../../utilities/Tracking";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 
 app.post(GetPostContent.getURL, (req: Request, res: Response) => {
 
     const postContentRequest = req.body as GetPostContent;
-
-    // Analytics
-    const reqURL = "/post/" + postContentRequest.postHash;
-    tracker.pageview(reqURL).send();
-
-    logger.verbose(reqURL);
 
     enum postState {
         ONLINE,

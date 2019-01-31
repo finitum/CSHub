@@ -13,10 +13,9 @@ app.use((req: Request, res: Response, next: Function) => {
     const msg = versionMatch ? "Versions match" : "Version mismatch";
 
     if (!versionMatch) {
-        logger.error(msg);
+        logger.info(msg);
         res.status(500).send(new ServerError("There was a version mismatch between the server and client, this could mean you run an outdated version, which can be fixed by refreshing / force refreshing", true));
     } else {
-        logger.verbose(msg);
         next();
     }
 

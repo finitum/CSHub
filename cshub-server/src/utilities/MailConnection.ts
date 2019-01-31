@@ -13,7 +13,7 @@ import {getRandomNumberLarge} from "../../../cshub-shared/src/utilities/Random";
 
 sgMail.setApiKey(Settings.MAIL.APIKEY);
 const nodeMailer = nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
         user: Settings.MAIL.GMAILSETTINGS.MAILADDRESS,
         pass: Settings.MAIL.GMAILSETTINGS.PASSWORD
@@ -31,11 +31,10 @@ export const sendMail = (subject: string, html: string, to: string) => {
     if (Settings.MAIL.USEGMAIL) {
         emailObj["from"] = Settings.MAIL.GMAILSETTINGS.MAILADDRESS;
         nodeMailer.sendMail(emailObj, function (err, info) {
-            if (err){
+            if (err) {
                 logger.error(`Mail sending failed`);
                 logger.error(err);
-            }
-            else {
+            } else {
                 logger.info("Mail sent: ");
                 logger.info(info);
             }
@@ -69,6 +68,10 @@ export const sendVerificationEmail = (to: string, name: string, insertId: number
     `, hash, insertId)
         .then(() => {
             fs.readFile(`${__dirname}/mailTemplate.html`, "utf8", (err, html: string) => {
+                if (typeof Settings.MAIL.VERIFYMAILADDRESSPREFIX === "undefined") {
+                    logger.error("Undefined mail address! Settings obj:");
+                    logger.error(JSON.stringify(Settings));
+                }
                 const replaceToAddress = `${Settings.MAIL.VERIFYMAILADDRESSPREFIX + Requests.VERIFYMAIL}?hash=${hash}&accId=${insertId}`;
                 const newHTML = html
                     .replace("{0}", `Dear ${name}, please verify your email address`)
