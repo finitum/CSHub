@@ -68,10 +68,6 @@ export const sendVerificationEmail = (to: string, name: string, insertId: number
     `, hash, insertId)
         .then(() => {
             fs.readFile(`${__dirname}/mailTemplate.html`, "utf8", (err, html: string) => {
-                if (typeof Settings.MAIL.VERIFYMAILADDRESSPREFIX === "undefined") {
-                    logger.error("Undefined mail address! Settings obj:");
-                    logger.error(JSON.stringify(Settings));
-                }
                 const replaceToAddress = `${Settings.MAIL.VERIFYMAILADDRESSPREFIX + Requests.VERIFYMAIL}?hash=${hash}&accId=${insertId}`;
                 const newHTML = html
                     .replace("{0}", `Dear ${name}, please verify your email address`)

@@ -67,8 +67,8 @@ export const Settings: ISettings = {
         APIKEY: process.env.MAIL_APIKEY ? process.env.MAIL_APIKEY : "xxxx",
         NOREPLYADDRESS: process.env.MAIL_APIKEY ? process.env.MAIL_APIKEY : "no-reply@xxx.nl",
         SUFFIX: process.env.MAIL_SUFFIX ? process.env.MAIL_SUFFIX : "@xxxxx",
-        DEBUGMAILADDRESS: process.env.MAIL_DEBUGMAILADDRESS ? process.env.DEBUGMAILADDRESS : "xxxx",
-        VERIFYMAILADDRESSPREFIX: process.env.MAIL_VERIFYMAILADDRESSPREFIX ? process.env.VERIFYMAILADDRESSPREFIX : "xxxx"
+        DEBUGMAILADDRESS: process.env.MAIL_DEBUGMAILADDRESS ? process.env.MAIL_DEBUGMAILADDRESS : "xxxx",
+        VERIFYMAILADDRESSPREFIX: process.env.MAIL_VERIFYMAILADDRESSPREFIX ? process.env.MAIL_VERIFYMAILADDRESSPREFIX : "xxxx"
     },
     LOGLEVEL: process.env.LOGLEVEL ? process.env.LOGLEVEL : "info"
 };

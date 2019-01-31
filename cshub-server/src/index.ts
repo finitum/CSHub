@@ -2,13 +2,6 @@ import logger from "./utilities/Logger";
 
 import {Settings} from "./settings";
 
-// Remove if VERIFYMAILADDRESSPREFIX != undefined
-logger.info(`VERIFYMAILADDRESSPREFIX env is ${process.env.MAIL_VERIFYMAILADDRESSPREFIX}`);
-logger.info(`VERIFYMAILADDRESSPREFIX settings is ${Settings.MAIL.VERIFYMAILADDRESSPREFIX}`);
-
-logger.info(`DEBUGMAILADDRESS env is ${process.env.MAIL_DEBUGMAILADDRESS}`);
-logger.info(`DEBUGMAILADDRESS settings is ${Settings.MAIL.DEBUGMAILADDRESS}`);
-
 import http from "http";
 import express from "express";
 
