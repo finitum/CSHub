@@ -135,6 +135,10 @@
         content: initial;
     }
 
+    .theme--dark .cm-s-darcula {
+        background-color: rgb(75, 75, 75) !important;
+    }
+
     code {
         color: inherit;
         font-weight: inherit;

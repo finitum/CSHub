@@ -1,6 +1,8 @@
 import {editDialogType, IUIState, markdownDialogType, notificationDialogType} from "./state";
 import {Route} from "vue-router";
 import {LocalStorageData} from "../localStorageData";
+import {colorize} from "../../utilities/codemirror-colorize";
+import CodeMirror from "codemirror";
 
 export const setDrawerState = (state: IUIState, payload: boolean) => {
     state.navbar.open = payload;
@@ -31,6 +33,7 @@ export const setPreviousRouteState = (state: IUIState, payload: Route) => {
 };
 
 export const setDarkModeState = (state: IUIState, payload: boolean) => {
-    localStorage.setItem(LocalStorageData.DARK, payload.toString());
     state.darkMode = payload;
+    localStorage.setItem(LocalStorageData.DARK, payload.toString());
+    colorize(null, CodeMirror);
 };
