@@ -43,6 +43,7 @@ export const getHTMLFromDelta = (delta: Delta, callback: (html: string, indexWor
 
         const filteredArr: string[] =
             html
+                .toLowerCase()
                 .replace(/<(.+?)>/g, " ") // Remove all HTML tags
                 .replace(/[^a-zA-Z -]/g, " ") // Remove all non letters (but keep streepjes)
                 .replace(/\b[a-zA-Z]{1,3}\b/g, " ") // Remove all words smaller than 3 chars

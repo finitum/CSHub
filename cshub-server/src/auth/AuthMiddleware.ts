@@ -6,6 +6,7 @@ import {IJWTToken} from "../../../cshub-shared/src/models/IJWTToken";
 import {app} from "../index";
 import {sign, validateAccessToken} from "./JWTHandler";
 import {Settings} from "../settings";
+import {logMiddleware} from "../utilities/LoggingMiddleware";
 
 app.use((req: Request, res: Response, next: Function) => {
 
@@ -21,9 +22,14 @@ app.use((req: Request, res: Response, next: Function) => {
                 maxAge: Settings.TOKENAGEMILLISECONDS,
                 domain: Settings.DOMAIN
             });
+
+            logMiddleware(req, tokenValidity.tokenObj);
+        } else {
+            logMiddleware(req, null);
         }
 
     } else {
+        logMiddleware(req, null);
         res.clearCookie("token");
     }
 
