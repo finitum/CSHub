@@ -67,11 +67,11 @@
                             dark
                             flat
                             small
-                            class="tableButton"
+                            class="quillIcon"
                             @click="setMarkDown"
                             style="margin: 0"
                     >
-                        <v-icon color="black tableIcon">fas fa-marker</v-icon>
+                        <v-icon :color="darkMode ? 'white' : 'black'">fas fa-marker</v-icon>
                     </v-btn>
                 </span>
                 <span class="ql-formats">
@@ -86,10 +86,9 @@
                             dark
                             flat
                             small
-                            class="tableButton"
-                            style="margin: 0"
-                        >
-                            <v-icon color="black tableIcon">fas fa-users</v-icon>
+                            class="quillIcon"
+                            style="margin: 0">
+                            <v-icon :color="darkMode ? 'white' : 'black'">fas fa-users</v-icon>
                         </v-btn>
                           <v-card>
                               <v-list>
@@ -349,8 +348,12 @@
             uiState.setMarkdownDialogState(state);
         }
 
-        get userId() {
+        get userId(): number {
             return userState.userModel.id;
+        }
+
+        get darkMode(): boolean {
+            return uiState.darkMode;
         }
 
         /**
@@ -531,34 +534,43 @@
     }
 </script>
 
-<style scoped>
+<style lang="scss">
+    @import "../../styling/vars";
+
+    .theme--dark  {
+        svg > {
+            .ql-fill {
+                fill: $fg-dark;
+            }
+            .ql-stroke {
+                stroke: $fg-dark;
+            }
+        }
+        .ql-picker-label {
+            color: $fg-dark;
+        }
+        .ql-picker-options {
+            background: $bg-dark;
+        }
+        .ql-picker-item {
+            color: $fg-dark;
+        }
+    }
+
     .editor {
         min-height: 100px;
         height: 90%;
-        border: none;
+        border: none !important;
     }
 
-    .tableButton {
+    .quillIcon {
         min-width: 10px;
+        padding: 0;
     }
 
-    .tableButton:focus,
-    .tableButton:hover {
-        color: white;
-    }
-
-    .tableIcon:hover {
-        caret-color: #00A6D8 !important;
-        color: #00A6D8 !important;
-    }
-
-    .editor >>> .ql-code-block-container {
-        background-color: #b3b3b3;
-    }
 
     .editor >>> .mklqx {
         white-space: pre-wrap;
-        color: black;
         background-color: rgba(182, 182, 182, 0.13);
     }
 </style>
