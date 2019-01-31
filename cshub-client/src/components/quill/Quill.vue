@@ -16,6 +16,7 @@
                     <button class="ql-underline"></button>
                     <button class="ql-clean"></button>
                     <select class="ql-color">
+                        <option value="inherit"/>
                         <option value="rgb(230, 0, 0)"/>
                         <option value="rgb(255, 153, 0)"/>
                         <option value="rgb(255, 255, 0)"/>
