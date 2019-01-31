@@ -1,8 +1,9 @@
 import {app} from "../../../";
 import {Request, Response} from "express";
-import {query} from "../../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
 import {HidePostCallBack, PostSettings, PostSettingsEditType} from "../../../../../cshub-shared/src/api-calls";
+import {ServerError} from "../../../../../cshub-shared/src/models/ServerError";
 
 app.post(PostSettings.getURL, (req: Request, res: Response) => {
 
@@ -45,12 +46,23 @@ const deletePost = (res: Response, postHash: number) => {
 const favoritePost = (res: Response, postHash: number, userId: number, favorite: boolean) => {
     if (favorite) {
         query(`
-          INSERT IGNORE INTO favorites
-          SET user = ?,
-              post = (SELECT id FROM posts WHERE hash = ?)
-        `, userId, postHash)
-            .then(() => {
-                res.json(new HidePostCallBack());
+          SELECT isIndex
+          FROM posts
+          WHERE hash = ?
+        `, postHash)
+            .then((result: DatabaseResultSet) => {
+                if (result.getNumberFromDB("isIndex") === 0) {
+                    query(`
+                      INSERT IGNORE INTO favorites
+                      SET user = ?,
+                          post = (SELECT id FROM posts WHERE hash = ?)
+                    `, userId, postHash, postHash)
+                        .then(() => {
+                            res.json(new HidePostCallBack());
+                        });
+                } else {
+                    res.status(400).send(new ServerError("You can't favorite an index post (and in the client you shouldn't be able to...)"));
+                }
             });
     } else {
         query(`

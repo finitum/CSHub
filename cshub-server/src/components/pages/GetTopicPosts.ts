@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 
 import {app} from "../../";
-import logger from "../../utilities/Logger"
+import logger from "../../utilities/Logger";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 
 import {GetTopicPostsCallBack, GetTopicPosts} from "../../../../cshub-shared/src/api-calls";
@@ -61,9 +61,10 @@ app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
                       WHERE deleted = 0
                         AND T3.approved = 1
                         AND T2.hash IN (?)
+                        AND (T1.isIndex = 0 OR T1.topic = (SELECT id FROM topics WHERE hash = ?))
                       GROUP BY T3.post
-                      ORDER BY T1.datetime DESC
-                    `, topicHashes)
+                      ORDER BY T1.isIndex DESC, T1.datetime DESC
+                    `, topicHashes, topicPostsRequest.topicHash)
                         .then((posts: DatabaseResultSet) => {
 
                             const postHashes: number[] = [];

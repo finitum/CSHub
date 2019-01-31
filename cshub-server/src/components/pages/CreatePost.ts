@@ -1,9 +1,9 @@
 import {Request, Response} from "express";
 
 import {app} from "../../";
-import logger from "../../utilities/Logger"
+import logger from "../../utilities/Logger";
 
-import {CreatePostCallback, CreatePost, SubmitPostResponse} from "../../../../cshub-shared/src/api-calls";
+import {CreatePost, CreatePostCallback, SubmitPostResponse} from "../../../../cshub-shared/src/api-calls";
 import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
 
 import {validateMultipleInputs} from "../../utilities/StringUtils";
@@ -23,7 +23,7 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
             minlength: 4,
             maxlength: 50
         }
-    }, {input: submitPostRequest.postTopicHash});
+    }, {input: submitPostRequest.postTopicHash}, {input: submitPostRequest.isIndex});
 
     if (inputsValidation.valid && userObj.valid) {
         const topics = getTopicTree();
@@ -39,10 +39,27 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
                       WHERE title = ?
                     `, submitPostRequest.postTitle)
                         .then((result: DatabaseResultSet) => {
-                            if (result.convertRowsToResultObjects().length === 0) {
-                                return generateRandomTopicHash();
-                            } else {
+                            if (result.getLength() > 0) {
                                 res.json(new CreatePostCallback(SubmitPostResponse.TITLEALREADYINUSE));
+                            } else {
+                                return true;
+                            }
+                        })
+                        .then((canContinue: boolean) => {
+                            if (canContinue) {
+                                return query(`
+                                  SELECT id
+                                  FROM posts
+                                  WHERE isIndex = 1
+                                    AND topic = (SELECT id FROM topics WHERE hash = ?)
+                                `, submitPostRequest.postTopicHash);
+                            }
+                        })
+                        .then((isIndexResult) => {
+                            if (typeof isIndexResult === "undefined" || (isIndexResult.getLength() > 0 && submitPostRequest.isIndex)) {
+                                res.json(new CreatePostCallback(SubmitPostResponse.ALREADYHASINDEX));
+                            } else {
+                                return generateRandomTopicHash();
                             }
                         })
                         .then((topicHash) => {
@@ -51,11 +68,12 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
 
                                 query(`
                                   INSERT INTO posts
-                                  SET topic  = ?,
-                                      author = ?,
-                                      title  = ?,
-                                      hash   = ?
-                                `, requestTopic.id, userObj.tokenObj.user.id, submitPostRequest.postTitle, topicHash)
+                                  SET topic   = ?,
+                                      author  = ?,
+                                      title   = ?,
+                                      hash    = ?,
+                                      isIndex = ?
+                                `, requestTopic.id, userObj.tokenObj.user.id, submitPostRequest.postTitle, topicHash, submitPostRequest.isIndex ? 1 : 0)
                                     .then((insertEdit: DatabaseResultSet) => {
                                         res.json(new CreatePostCallback(SubmitPostResponse.SUCCESS, topicHash));
                                     })

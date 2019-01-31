@@ -2,12 +2,12 @@ import {isValidEmail} from "../../../cshub-shared/src/utilities/TUEmail";
 
 export interface ICustomValidatorResponse {
     valid: boolean;
-    value?: string | number | object;
+    value?: string | number | object | boolean;
     error?: CustomValidatorReponseTypes;
 }
 
 export interface ICustomValidatorInput {
-    input: string | number | object;
+    input: string | number | object | boolean;
     validationObject?: ICustomValidatorInputObject;
 }
 
