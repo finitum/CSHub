@@ -4,7 +4,7 @@ import QuillDefaultOptions from "../../../cshub-shared/src/utilities/QuillDefaul
 import Delta from "quill-delta/dist/Delta";
 import logger from "./Logger";
 
-export const getHTMLFromDelta = (delta: Delta, callback: (html: string) => void) => {
+export const getHTMLFromDelta = (delta: Delta, callback: (html: string, indexWords: string) => void) => {
 
     const jsdom = new JSDOM(`
                             <!DOCTYPE html>
@@ -52,9 +52,13 @@ export const getHTMLFromDelta = (delta: Delta, callback: (html: string) => void)
         markdownParser.registerQuill();
         quill.setContents(delta);
         const html = getHTML(quill, document, window);
-        callback(html);
 
-    }
+        // TODO make list that will be great for searching
+        const indexWords = "";
+
+        callback(html, indexWords);
+
+    };
 };
 
 

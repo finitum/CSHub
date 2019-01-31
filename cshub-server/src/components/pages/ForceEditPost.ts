@@ -49,14 +49,15 @@ app.post(ForceEditPost.getURL, (req: Request, res: Response) => {
                         }
                     }
 
-                    getHTMLFromDelta(delta, (html) => {
+                    getHTMLFromDelta(delta, (html, indexWords) => {
                         query(`
                           UPDATE edits, posts
                           SET edits.htmlContent = ?,
+                              edits.indexWords  = ?,
                               posts.postVersion = posts.postVersion + 1
                           WHERE edits.id = ?
                             AND posts.hash = ?
-                        `, html, editId, editPostRequest.postHash)
+                        `, html, indexWords, editId, editPostRequest.postHash)
                             .then(() => {
                                 logger.info("Force edit post succesfully");
                                 res.json(new ForceEditPostCallback());

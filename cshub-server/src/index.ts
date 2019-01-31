@@ -1,3 +1,5 @@
+import logger from "./utilities/Logger";
+
 import {Settings} from "./settings";
 
 import http from "http";
@@ -6,8 +8,6 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-
-import logger from "./utilities/Logger";
 
 export const app: express.Application = express();
 

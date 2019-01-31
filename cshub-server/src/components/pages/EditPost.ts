@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 
 import {app} from "../../";
-import logger from "../../utilities/Logger"
+import logger from "../../utilities/Logger";
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
@@ -48,12 +48,13 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                             delta = delta.compose(new Delta(JSON.parse(currRow.getStringFromDB("content"))));
                         }
 
-                        getHTMLFromDelta(delta, (html) => {
+                        getHTMLFromDelta(delta, (html, indexWords) => {
                             query(`
                               UPDATE edits, posts
                               SET edits.approved    = 1,
                                   edits.approvedBy  = ?,
                                   edits.htmlContent = ?,
+                                  edits.indexWords  = ?,
                                   posts.postVersion = posts.postVersion + 1,
                                   posts.title       = ?,
                                   posts.topic       = (SELECT id
@@ -68,7 +69,7 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                                 AND posts.hash = ?
                               ORDER BY edits.datetime DESC
                               LIMIT 1
-                            `, userObj.tokenObj.user.id, html, editPostRequest.postTitle, editPostRequest.postTopicHash, editPostRequest.postHash, editPostRequest.postHash)
+                            `, userObj.tokenObj.user.id, html, indexWords, editPostRequest.postTitle, editPostRequest.postTopicHash, editPostRequest.postHash, editPostRequest.postHash)
                                 .then(() => {
                                     logger.info("Edited post succesfully");
                                     res.json(new EditPostCallback(EditPostReturnTypes.SUCCESS));
