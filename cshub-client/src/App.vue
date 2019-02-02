@@ -131,7 +131,7 @@
         font-family: 'SailecLight', sans-serif;
     }
 
-    .ql-editor pre {
+    .theme--dark .ql-editor pre {
         background-color: $lightergrey !important;
     }
 

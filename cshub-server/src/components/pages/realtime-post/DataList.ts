@@ -9,7 +9,7 @@ type queueType = {
     toAdd: IRealtimeEdit[],
     fullList: IRealtimeEdit[],
     isAsyncRunning: boolean
-}
+};
 
 export class DataList {
 
@@ -164,17 +164,19 @@ export class DataList {
 
     }
 
-    public getPreviousServerIDOfUser(postHash: number, userId: number): number {
-        const currQueue = this.getEditQueue(postHash);
+    public getPreviousServerIDOfUser(edit: IRealtimeEdit): number {
+        const currQueue = this.getEditQueue(edit.postHash);
         if (currQueue.length === 0) {
             return -1;
         } else {
             for (let i = currQueue.length - 1; i >= 0; i--) {
-                if (currQueue[i].userId === userId) {
+                if (currQueue[i].userId === edit.userId && currQueue[i].userGeneratedId === edit.prevUserGeneratedId) {
                     return currQueue[i].serverGeneratedId;
                 }
             }
-            return this.getPreviousServerID(postHash);
+            // Not possible
+            logger.error("Edit has no valid parent");
+            throw new TypeError("Impossible!");
         }
     }
 
