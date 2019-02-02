@@ -22,7 +22,7 @@ app.get(Requests.VERIFYMAIL, (req: Request, res: Response) => {
         WHERE verifyhash = ? AND id = ?
         `, hash, userID)
             .then(() => {
-                res.redirect(Settings.SITEADDRESS);
+                res.redirect(`${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}`);
             })
             .catch(err => {
                 logger.error("Error while verifying email");

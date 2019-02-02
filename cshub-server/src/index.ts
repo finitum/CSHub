@@ -13,7 +13,7 @@ export const app: express.Application = express();
 
 // Use some middleware to allow all CORS and to parse the incoming body and cookies
 app.use(cors({
-    origin: Settings.SITEADDRESS,
+    origin: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}`,
     credentials: true
 }));
 

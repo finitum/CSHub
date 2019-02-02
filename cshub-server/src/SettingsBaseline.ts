@@ -16,6 +16,7 @@ export interface ISettings {
     };
     DOMAIN: string;
     SITEADDRESS: string;
+    SITEPROTOCOL: string;
     TOKENAGEMILLISECONDS: number;
     PASSWORDITERATIONS: number;
     JWTHASH: string;
@@ -53,7 +54,8 @@ export const Settings: ISettings = {
         PRIVATEKEYLOCATION: process.env.SSH_PRIVATEKEYLOCATION ? process.env.SSH_PRIVATEKEYLOCATION : "xxx",
     },
     DOMAIN: process.env.DOMAIN ? process.env.DOMAIN : "192.168.x.x",
-    SITEADDRESS: process.env.SITEADDRESS ? process.env.SITEADDRESS : "http://192.168.xxx",
+    SITEADDRESS: process.env.SITEADDRESS ? process.env.SITEADDRESS : "192.168.xxx",
+    SITEPROTOCOL: process.env.SITEPROTOCOL ? process.env.SITEPROTOCOL : "https",
     TOKENAGEMILLISECONDS: process.env.TOKENAGEMILLISECONDS ? Number(process.env.TOKENAGEMILLISECONDS) : 7200000,
     PASSWORDITERATIONS: process.env.PASSWORDITERATIONS ? Number(process.env.PASSWORDITERATIONS) : 42424,
     JWTHASH: process.env.JWTHASH ? process.env.JWTHASH : "xxxxx",

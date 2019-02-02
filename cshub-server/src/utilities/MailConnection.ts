@@ -101,7 +101,7 @@ export const sendPasswordResetMail = (to: string, name: string, userId: number) 
     `, hash, userId)
         .then(() => {
             fs.readFile(`${__dirname}/mailTemplate.html`, "utf8", (err, html: string) => {
-                const replaceToAddress = `${Settings.SITEADDRESS + Routes.FORGOTPASSWORD}?hash=${hash}&accId=${userId}`;
+                const replaceToAddress = `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}${Routes.FORGOTPASSWORD}?hash=${hash}&accId=${userId}`;
                 const newHTML = html
                     .replace("{0}", `Dear ${name}, you have requested to change your password`)
                     .replace("{1}", "Click the following button and enter your new credentials")
