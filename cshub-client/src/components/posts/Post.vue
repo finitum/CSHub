@@ -64,27 +64,27 @@
                                 </v-btn>
                             </v-breadcrumbs>
                         </transition>
-                        <v-list two-line style="width: 100%">
-                            <v-list-tile :avatar="!isIndexComputed || fullPostComputed" class="mb-1 postTile">
+                        <v-list two-line style="width: 100%" v-if="!isIndexComputed || fullPostComputed">
+                            <v-list-tile avatar class="mb-1 postTile">
                                 <v-list-tile-avatar>
                                     <img :src="getAvatarURL(post.author.avatar)" class="profileBorder"/>
                                 </v-list-tile-avatar>
                                 <v-list-tile-content class="pt-2 d-inline">
                                     <v-list-tile-sub-title class="whitespaceInit post-title">
-                                        <span>{{post.title}} {{post.isIndex && (fullPostComputed || !isIndexComputed) ? "(index page)" : ""}}</span>
+                                        <span>{{post.title}} {{post.isIndex ? "(index page)" : ""}}</span>
                                     </v-list-tile-sub-title>
-                                    <v-list-tile-sub-title class="whitespaceInit" v-if="!isIndexComputed || fullPostComputed">{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</v-list-tile-sub-title>
+                                    <v-list-tile-sub-title class="whitespaceInit">{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</v-list-tile-sub-title>
                                 </v-list-tile-content>
                             </v-list-tile>
                         </v-list>
                     </span>
                 </v-card-title>
                 <v-container
-                        v-if="(fullPostComputed && !editModeComputed) || (!fullPostComputed && isIndexComputed)"
+                        v-if="(fullPostComputed && !editModeComputed) || (isIndexComputed)"
                         position="relative"
                         class="scroll-y"
-                        :class="'postScrollWindow_' + domId"
-                        style="margin: 0; padding-top: 0; max-width: none; overflow-wrap: break-word">
+                        :class="[{noPaddingTop: fullPostComputed, fixedPadding: isIndexComputed}, 'postScrollWindow_' + domId]"
+                        style="margin: 0; max-width: none; overflow-wrap: break-word">
                     <v-layout
                             id="htmlContentContainer"
                             column
@@ -571,7 +571,7 @@
 
                                 logObjectConsole(callbackData.post, "getPostRequest");
 
-                                if (this.fullPostComputed) {
+                                if (this.fullPostComputed || this.post.isIndex) {
                                     this.getContentRequest(callbackData.post);
                                 } else {
                                     localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, callbackData.post);
@@ -586,7 +586,11 @@
                         if (this.fullPostComputed) {
                             this.getContentRequest(cachedValue);
                         } else {
-                            this.post = cachedValue;
+                            if (cachedValue.isIndex) {
+                                this.getContentRequest(cachedValue);
+                            } else {
+                                this.post = cachedValue;
+                            }
                         }
                     }
                 });
@@ -684,7 +688,9 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+
+    @import "../../styling/vars";
 
     .profileBorder {
         border-radius: 0;
@@ -782,10 +788,11 @@
         display: none;
     }
 
+    #postCardText {
+        padding: 0 !important;
+    }
+
     @media print {
-        #postCardText {
-            padding: 0 !important;
-        }
 
         .container {
             padding: 0 !important;
@@ -814,7 +821,7 @@
     }
 
     .indexPostCardText .ql-editor {
-        padding-top: 0;
+        padding: 0;
     }
 
     .indexPostCardText {
@@ -823,5 +830,13 @@
 
     .indexPostCardText #htmlOutput {
         cursor: pointer;
+    }
+
+    .noPaddingTop {
+        padding-top: 0;
+    }
+
+    .fixedPadding {
+        padding: 10px 10px 10px 30px;
     }
 </style>
