@@ -67,6 +67,7 @@
                             slot="activator"
                             dark
                             flat
+                            :ripple="false"
                             small
                             class="quillIcon"
                             @click="setMarkDown"
@@ -86,6 +87,7 @@
                             slot="activator"
                             dark
                             flat
+                            :ripple="false"
                             small
                             class="quillIcon"
                             style="margin: 0">
@@ -201,7 +203,6 @@
         private editorOptions: any = defaultOptions;
         private editorId = "";
         private initialValue: Delta;
-        private currentEdits: Delta[] = [];
 
         // Realtime edit related variables
         private lastFewEdits: IRealtimeEdit[] = [];
@@ -302,7 +303,7 @@
         }
 
         private getAvatarURL(id: number) {
-            return `${process.env.VUE_APP_API_URL}${Requests.PROFILE}/${id}`;
+            return `${process.env.VUE_APP_API_URL || (window as any).appConfig.VUE_APP_API_URL}${Requests.PROFILE}/${id}`;
         }
 
         private setupQuill(delta: Delta, selects: IRealtimeSelect[]) {
@@ -432,42 +433,29 @@
         }
 
         private textChanged(delta: Delta, oldContents: Delta, source: Sources) {
-            if (source === "user") {
-                this.currentEdits.push(delta);
-            }
+            if (source === "user" && this.editor !== null) {
 
-            if (this.editor !== null) {
-                if (source === "user") {
-
-                    let edit = new Delta();
-                    for (const currentEdit of this.currentEdits) {
-                        edit = edit.compose(currentEdit);
-                    }
-
-                    const lastEdit = this.lastFewEdits[this.lastFewEdits.length - 1];
-                    let prevServerId: number = -1;
-                    let prevUserId: number = -1;
-                    if (lastEdit) {
-                        prevServerId = lastEdit.serverGeneratedId;
-                        prevUserId = lastEdit.userGeneratedId;
-                    }
-
-                    const userEdit: IRealtimeEdit = {
-                        postHash: this.editorSetup.postHash,
-                        delta: edit,
-                        timestamp: dayjs(),
-                        userId: this.userId,
-                        prevServerGeneratedId: prevServerId,
-                        userGeneratedId: getRandomNumberLarge(),
-                        prevUserGeneratedId: prevUserId
-                    };
-
-                    this.lastFewEdits.push(userEdit);
-                    this.currentEdits = [];
-                    SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
+                const lastEdit = this.lastFewEdits[this.lastFewEdits.length - 1];
+                let prevServerId: number = -1;
+                let prevUserId: number = -1;
+                if (lastEdit) {
+                    prevServerId = lastEdit.serverGeneratedId;
+                    prevUserId = lastEdit.userGeneratedId;
                 }
-            }
 
+                const userEdit: IRealtimeEdit = {
+                    postHash: this.editorSetup.postHash,
+                    delta,
+                    timestamp: dayjs(),
+                    userId: this.userId,
+                    prevServerGeneratedId: prevServerId,
+                    userGeneratedId: getRandomNumberLarge(),
+                    prevUserGeneratedId: prevUserId
+                };
+
+                this.lastFewEdits.push(userEdit);
+                SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
+            }
         }
 
         private openMarkdownDialog() {

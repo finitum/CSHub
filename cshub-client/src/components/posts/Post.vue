@@ -80,7 +80,7 @@
                     </span>
                 </v-card-title>
                 <v-container
-                        v-if="(fullPostComputed && !editModeComputed) || (isIndexComputed)"
+                        v-if="(fullPostComputed && !editModeComputed) || (!fullPostComputed && isIndexComputed)"
                         position="relative"
                         class="scroll-y"
                         :class="[{noPaddingTop: fullPostComputed, fixedPadding: isIndexComputed}, 'postScrollWindow_' + domId]"
