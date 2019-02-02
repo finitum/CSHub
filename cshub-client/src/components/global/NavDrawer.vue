@@ -211,7 +211,7 @@
 <style scoped>
 /* Fixes the treeview leaf alignment (it was too much at 50px) */
 .tree >>> .v-treeview-node--leaf {
-    margin-left: 38px;
+    margin-left: 20px;
 }
 
 .tree >>> .v-treeview-node__toggle {
