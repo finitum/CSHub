@@ -131,6 +131,10 @@
         font-family: 'SailecLight', sans-serif;
     }
 
+    .ql-editor pre {
+        background-color: $lightergrey !important;
+    }
+
     .mord.accent {
         background-color: inherit !important;
     }
@@ -144,7 +148,7 @@
     }
 
     .theme--dark .cm-s-darcula {
-        background-color: rgb(75, 75, 75) !important;
+        background-color: $lightergrey !important;
     }
 
     code {
@@ -173,5 +177,13 @@
         #cshub-content {
             padding: 0 !important;
         }
+    }
+
+    .quillIcon .v-btn--active:before, .v-btn:focus:before, .v-btn:hover:before {
+        background-color: inherit;
+    }
+
+    .quillIcon .v-icon:hover {
+        color: #06c !important;
     }
 </style>
