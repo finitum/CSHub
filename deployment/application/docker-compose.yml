@@ -7,6 +7,7 @@ services:
       - web
     labels:
       - traefik.frontend.rule=Host:${CLIENT_HOSTNAME}
+      - traefik.frontend.rule=Host:www.${CLIENT_HOSTNAME}
       - traefik.frontend.port=${CLIENT_PORT_INTERNAL}
     environment:
       - VUE_APP_API_URL=${CLIENT_ENV_API_URL}
