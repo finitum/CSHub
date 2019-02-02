@@ -58,7 +58,7 @@
                 </span>
                 <span class="ql-formats">
                 <button class="ql-link"></button>
-                <button class="ql-image"></button>
+                <button class="ql-image" style="display: none"></button>
                 <button class="ql-video"></button>
                 </span>
                 <span class="ql-formats">
@@ -152,7 +152,7 @@
     import defaultOptions from "../../../../cshub-shared/src/utilities/QuillDefaultOptions";
     import {IQuillEditSetup} from "./IQuillEditSetup";
 
-    import {logStringConsole} from "../../utilities";
+    import {logObjectConsole, logStringConsole} from "../../utilities";
     import {idGenerator} from "../../utilities/id-generator";
 
     import {MarkdownLatexQuill} from "../../../../cshub-shared/src/utilities/MarkdownLatexQuill";
@@ -201,7 +201,6 @@
         private editorOptions: any = defaultOptions;
         private editorId = "";
         private initialValue: Delta;
-        private socketTypingTimeout: number = null;
         private currentEdits: Delta[] = [];
 
         // Realtime edit related variables
@@ -224,30 +223,35 @@
 
                 this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
 
-                    if (userState.userModel.id !== data.edit.userId) {
-                        if (this.lastFewEdits.length === 1 || this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId === data.edit.prevServerGeneratedId) {
-                            this.lastFewEdits.push(data.edit);
-                            this.editor.updateContents(data.edit.delta);
-                        } else {
-                            logStringConsole("Doing operational transform");
-                            const delta = transformFromArray(this.lastFewEdits, data.edit, true);
-                            data.edit.delta = delta;
-                            this.lastFewEdits.push(data.edit);
-
-                            this.editor.updateContents(delta);
-                        }
-
+                    if (data.error) {
+                        this.$router.push(Routes.INDEX);
+                        uiState.setNotificationDialogState({
+                            header: "Edit error!",
+                            text: data.error,
+                            on: true
+                        });
                     } else {
-                        for (let i = this.lastFewEdits.length - 1; i >= 0; i--) {
-                            if (this.lastFewEdits[i].userGeneratedId === data.edit.userGeneratedId) {
-                                logStringConsole("Overwriting right edit");
-                                this.lastFewEdits[i] = data.edit;
+                        const lastEdit = this.lastFewEdits[this.lastFewEdits.length - 1];
+
+                        if (lastEdit && userState.userModel.id !== data.edit.userId) {
+                            if (lastEdit.serverGeneratedId === data.edit.prevServerGeneratedId) {
+                                this.lastFewEdits.push(data.edit);
+                                this.editor.updateContents(data.edit.delta);
+                            } else {
+                                const delta = transformFromArray(this.lastFewEdits, data.edit, true);
+                                data.edit.delta = delta;
+                                this.lastFewEdits.push(data.edit);
+
+                                this.editor.updateContents(delta);
+                            }
+                        } else {
+                            const index = this.lastFewEdits.findIndex((x) => x.userGeneratedId === data.edit.userGeneratedId);
+                            if (index !== -1) {
+                                this.lastFewEdits.splice(index, 1);
+                                this.lastFewEdits.push(data.edit);
                             }
                         }
                     }
-
-                    logStringConsole(`Delta ${JSON.stringify(data.edit.delta)}, current server id: ${data.edit.serverGeneratedId}, previous: ${data.edit.prevServerGeneratedId} last few edits server id ${this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId}`, "Quill socket subscribe");
-
                 });
 
                 this.sockets.subscribe(ServerCursorUpdated.getURL, (data: ServerCursorUpdated) => {
@@ -432,33 +436,37 @@
                 this.currentEdits.push(delta);
             }
 
-            clearTimeout(this.socketTypingTimeout);
-            this.socketTypingTimeout = setTimeout(() => {
-                if (this.editor !== null) {
-                    if (source === "user") {
+            if (this.editor !== null) {
+                if (source === "user") {
 
-                        let edit = new Delta();
-                        for (const currentEdit of this.currentEdits) {
-                            edit = edit.compose(currentEdit);
-                        }
-
-                        const userEdit: IRealtimeEdit = {
-                            postHash: this.editorSetup.postHash,
-                            delta: edit,
-                            timestamp: dayjs(),
-                            userId: this.userId,
-                            prevServerGeneratedId: this.lastFewEdits[this.lastFewEdits.length - 1].serverGeneratedId,
-                            userGeneratedId: getRandomNumberLarge()
-                        };
-
-                        this.lastFewEdits.push(userEdit);
-                        this.currentEdits = [];
-                        logStringConsole(`SENDING edit from ${userEdit.timestamp} with id ${userEdit.userGeneratedId} and delta ${JSON.stringify(userEdit.delta)}`);
-                        SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
+                    let edit = new Delta();
+                    for (const currentEdit of this.currentEdits) {
+                        edit = edit.compose(currentEdit);
                     }
-                }
-            }, 50);
 
+                    const lastEdit = this.lastFewEdits[this.lastFewEdits.length - 1];
+                    let prevServerId: number = -1;
+                    let prevUserId: number = -1;
+                    if (lastEdit) {
+                        prevServerId = lastEdit.serverGeneratedId;
+                        prevUserId = lastEdit.userGeneratedId;
+                    }
+
+                    const userEdit: IRealtimeEdit = {
+                        postHash: this.editorSetup.postHash,
+                        delta: edit,
+                        timestamp: dayjs(),
+                        userId: this.userId,
+                        prevServerGeneratedId: prevServerId,
+                        userGeneratedId: getRandomNumberLarge(),
+                        prevUserGeneratedId: prevUserId
+                    };
+
+                    this.lastFewEdits.push(userEdit);
+                    this.currentEdits = [];
+                    SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
+                }
+            }
 
         }
 

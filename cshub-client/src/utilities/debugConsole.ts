@@ -15,8 +15,7 @@ export const logStringConsole = (input: string, location?: string) => {
 export const logObjectConsole = (input: any, location?: string) => {
     if (showDebugConsole()) {
         if (!location) { location = "unknown"; }
-        console.log(`%c (${dayjs().format()}) Object log: at ${location}`, "font: 1em Verdana; color: blue");
-        console.log(input);
+        console.log(`%c (${dayjs().format()}) Object log: at ${location}, ${JSON.stringify(input)}`, "font: 1em Verdana; color: blue");
     }
 };
 
@@ -30,8 +29,7 @@ export const errorLogStringConsole = (input: string, location: string) => {
 export const errorLogObjectConsole = (input: any, location?: string) => {
     if (showDebugConsole()) {
         if (!location) { location = "unknown"; }
-        console.error(`%c (${dayjs().format()}) Object error: at ${location}`, "font: 1.3em Verdana bold; color: red");
-        console.error(input);
+        console.error(`%c (${dayjs().format()}) Object error: at ${location}, ${JSON.stringify(input)}`, "font: 1.3em Verdana bold; color: red");
     }
 };
 

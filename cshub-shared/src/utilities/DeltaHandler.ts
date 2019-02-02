@@ -7,17 +7,20 @@ import Delta from "quill-delta/dist/Delta";
  *
  * @param inputEdits the array where the last few edits are stored
  * @param newEdit the new edit
- * @param newEditHasPriority whether the new edit has priority over the previous ones or it is less important (ie if the edit came earlier or later than edits in the array)
+ * @param countUserDeltas whether to include the user's edits in the edit
  */
-export const transformFromArray = (inputEdits: IRealtimeEdit[], newEdit: IRealtimeEdit, newEditHasPriority: boolean): Delta => {
+export const transformFromArray = (inputEdits: IRealtimeEdit[], newEdit: IRealtimeEdit, countUserDeltas: boolean): Delta => {
     const toBeTransformed: IRealtimeEdit[] = [];
     for (let i = inputEdits.length - 1; i >= 0; i--) {
-        if (inputEdits[i].serverGeneratedId === newEdit.prevServerGeneratedId) {
+        const iRealtimeEdit = inputEdits[i];
+        if (iRealtimeEdit.serverGeneratedId === newEdit.prevServerGeneratedId) {
             break;
-        } else {
-            toBeTransformed.push(inputEdits[i]);
+        } else if (countUserDeltas || iRealtimeEdit.userId !== newEdit.userId) {
+            toBeTransformed.push(iRealtimeEdit);
         }
     }
+
+    toBeTransformed.reverse();
 
     let editDelta: Delta = null;
 
@@ -30,7 +33,7 @@ export const transformFromArray = (inputEdits: IRealtimeEdit[], newEdit: IRealti
     }
 
     if (editDelta !== null && typeof editDelta !== "undefined") {
-        const transformed = editDelta.transform(newEdit.delta, !newEditHasPriority); // Quill priority works the other way around
+        const transformed = editDelta.transform(newEdit.delta, true); // Quill priority works the other way around
 
         return transformed;
     } else {

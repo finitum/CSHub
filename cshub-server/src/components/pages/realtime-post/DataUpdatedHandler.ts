@@ -8,59 +8,95 @@ import dayjs, {Dayjs} from "dayjs";
 // @ts-ignore
 import Delta from "quill-delta/dist/Delta";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
-import logger from "../../../utilities/Logger"
+import logger from "../../../utilities/Logger";
 import {getRandomNumberLarge} from "../../../../../cshub-shared/src/utilities/Random";
 import {io} from "./socket-receiver";
 import {validateAccessToken} from "../../../auth/JWTHandler";
+import async from "async";
 
 type deltaReturnType = {
     fullDelta: Delta,
     oldDelta: Delta,
     latestTime: Dayjs
-}
+};
 
 export class DataUpdatedHandler {
 
     public static postHistoryHandler = new DataList();
 
-    public static async applyNewEdit(edit: IRealtimeEdit, currSocket: Socket): Promise<void> {
+    private static isUpdatingPost = false;
+    private static editQueue: IRealtimeEdit[] = [];
 
-        const previousServerId = this.postHistoryHandler.getPreviousServerID(edit.postHash);
+    public static async applyNewEdit(currEdit: IRealtimeEdit, currSocket: Socket): Promise<void> {
 
-        if (typeof edit.prevServerGeneratedId === "undefined") {
-            edit.prevServerGeneratedId = this.postHistoryHandler.getPreviousServerIDOfUser(edit.postHash, edit.userId);
+        DataUpdatedHandler.editQueue.push(currEdit);
+
+        if (!DataUpdatedHandler.isUpdatingPost) {
+            DataUpdatedHandler.isUpdatingPost = true;
+
+            async.whilst(
+                () => DataUpdatedHandler.editQueue.length !== 0,
+                (next) => {
+
+                    const edit = this.editQueue.shift();
+
+                    const previousServerId = this.postHistoryHandler.getPreviousServerID(edit.postHash);
+
+                    if (typeof edit.prevServerGeneratedId === "undefined") {
+                        try {
+                            edit.prevServerGeneratedId = this.postHistoryHandler.getPreviousServerIDOfUser(edit);
+                        } catch {
+                            const response = new ServerDataUpdated(null, "Wrong previous state!");
+                            currSocket.emit(response.URL, response);
+                            return;
+                        }
+                    }
+
+                    if (edit.prevServerGeneratedId !== previousServerId && previousServerId !== -1) {
+                        logger.info("Performing operational transform");
+                        logger.info(`Current server id: ${edit.serverGeneratedId}, previous: ${edit.prevServerGeneratedId} last few edits server id ${previousServerId}`);
+                        try {
+                            edit.delta = this.postHistoryHandler.transformArray(edit, false);
+                        } catch {
+                            logger.error("Invalid transform");
+                            const response = new ServerDataUpdated(null, "Invalid transform!");
+                            currSocket.emit(response.URL, response);
+                            return;
+                        }
+
+                        logger.info(`Done transforming: ${JSON.stringify(edit.delta)}`);
+                    }
+
+                    const serverGeneratedIdentifier = getRandomNumberLarge();
+                    DataUpdatedHandler.postHistoryHandler.addPostEdit({
+                        ...edit,
+                        serverGeneratedId: serverGeneratedIdentifier,
+                        prevServerGeneratedId: previousServerId
+                    });
+
+                    const userModel = validateAccessToken(currSocket.request.cookies["token"]);
+
+                    const serverEdit: IRealtimeEdit = {
+                        postHash: edit.postHash,
+                        delta: edit.delta,
+                        timestamp: dayjs(),
+                        serverGeneratedId: serverGeneratedIdentifier,
+                        prevServerGeneratedId: previousServerId,
+                        userId: userModel.user.id,
+                        userGeneratedId: edit.userGeneratedId,
+                        prevUserGeneratedId: edit.prevUserGeneratedId
+                    };
+
+                    const roomId = `POST_${edit.postHash}`;
+
+                    const response = new ServerDataUpdated(serverEdit);
+                    io.to(roomId).emit(response.URL, response);
+
+                    next();
+                }, () => {
+                    DataUpdatedHandler.isUpdatingPost = false;
+                });
         }
-
-        if (edit.prevServerGeneratedId !== previousServerId && previousServerId != -1) {
-            logger.info("Performing operational transform");
-            logger.info(`Current server id: ${edit.serverGeneratedId}, previous: ${edit.prevServerGeneratedId} last few edits server id ${previousServerId}`);
-            edit.delta = this.postHistoryHandler.transformArray(edit, false);
-            logger.info(`Done transforming: ${JSON.stringify(edit.delta)}`);
-        }
-
-        const serverGeneratedIdentifier = getRandomNumberLarge();
-        DataUpdatedHandler.postHistoryHandler.addPostEdit({
-            ...edit,
-            serverGeneratedId: serverGeneratedIdentifier,
-            prevServerGeneratedId: previousServerId
-        });
-
-        const userModel = validateAccessToken(currSocket.request.cookies["token"]);
-
-        let serverEdit: IRealtimeEdit = {
-            postHash: edit.postHash,
-            delta: edit.delta,
-            timestamp: dayjs(),
-            serverGeneratedId: serverGeneratedIdentifier,
-            prevServerGeneratedId: previousServerId,
-            userId: userModel.user.id,
-            userGeneratedId: edit.userGeneratedId
-        };
-
-        const roomId = `POST_${edit.postHash}`;
-
-        const response = new ServerDataUpdated(serverEdit);
-        io.to(roomId).emit(response.URL, response);
     }
 
     public static getOldAndNewDeltas(postHash: number): Promise<deltaReturnType> {
@@ -151,7 +187,7 @@ export class DataUpdatedHandler {
                 };
 
                 return returnedValue;
-            })
+            });
 
     }
 }

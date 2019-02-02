@@ -21,7 +21,7 @@ const cookieparser = () => {
 
     return (socket, next) => {
         parser(socket.request, null, next);
-    }
+    };
 };
 
 io.use(cookieparser());
