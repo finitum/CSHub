@@ -1,26 +1,21 @@
 import logger from "./utilities/Logger";
-
 import {Settings} from "./settings";
 
+import {CORSMiddleware} from "./utilities/CORSMiddleware";
 import http from "http";
 import express from "express";
 
-import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 
 export const app: express.Application = express();
 
-// Use some middleware to allow all CORS and to parse the incoming body and cookies
-app.use(cors({
-    credentials: true
-}));
-
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(bodyParser.json({limit: "1mb"}));
-
 app.use(cookieParser());
+app.use(CORSMiddleware);
+
+app.options("*", CORSMiddleware);
 
 import "./auth/AuthMiddleware";
 import "./utilities/VersionMiddleware";
