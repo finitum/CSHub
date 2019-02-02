@@ -129,42 +129,6 @@
         </div>
         <PostEditsDialog v-if="fullPostComputed" :key="postHash" :postHash="postHash"></PostEditsDialog>
         <PostSaveEditDialog v-if="post !== null && fullPostComputed" :key="postHash - 1" :post="post"></PostSaveEditDialog>
-
-        <v-dialog
-            v-if="fullPostComputed"
-            v-model="dialogOpen"
-            max-width="400"
-            persistent
-        >
-            <v-card>
-                <v-card-title class="headline">Editing</v-card-title>
-
-                <v-card-text>
-                    We've recently added realtime editing, though operational transform doesn't completely work yet, meaning that if 2 people type decently fast on the same post, some letters might be shifted.
-                    <br><br>
-                    So if you see a person editing, don't do anything...
-                </v-card-text>
-
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-
-                    <v-btn
-                            color="green darken-1"
-                            flat="flat"
-                            @click="dialogOpen = false"
-                    >
-                        Close
-                    </v-btn>
-                    <v-btn
-                            color="primary darken-1"
-                            flat="flat"
-                            @click="closeDialog"
-                    >
-                        Close and hide from now on
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
     </div>
 </template>
 <script lang="ts">
@@ -314,15 +278,6 @@
             }
         }
 
-        @Watch("editModeComputed")
-        private editModeComputedChanged(to: boolean) {
-            if (to) {
-                if (localStorage.getItem(LocalStorageData.DIALOGOPENED) !== "true") {
-                    this.dialogOpen = true;
-                }
-            }
-        }
-
         @Watch("saveDialogComputed")
         private saveDialogComputedChanged(to: boolean) {
             const notificationDialogState = uiState.currentEditDialogState;
@@ -437,11 +392,6 @@
             }
         }
 
-        private closeDialog() {
-            this.dialogOpen = false;
-            localStorage.setItem(LocalStorageData.DIALOGOPENED, "true");
-        }
-
         private forceEditPost() {
             this.showLoadingIcon = true;
 
@@ -536,9 +486,6 @@
 
         private enableEdit() {
             this.$router.push(`${this.currentPostURLComputed}/edit`);
-            if (localStorage.getItem(LocalStorageData.DIALOGOPENED) !== "true") {
-                this.dialogOpen = true;
-            }
         }
 
         private disableEdit() {
@@ -798,7 +745,7 @@
             padding: 0 !important;
             max-height: none !important;
         }
-        
+
         .titleCard {
             display: none;
         }
