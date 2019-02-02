@@ -19,16 +19,12 @@ export const colorize = (collection: any, codemirror: any) => {
         collection = document.body.getElementsByTagName("pre");
     }
 
-    let theme = uiState.darkMode ? "darcula" : "default";
+    const theme = uiState.darkMode ? "darcula" : "default";
 
     for (const node of collection) {
         const mode = node.getAttribute("data-lang");
         if (!mode) {
             continue;
-        }
-
-        if (mode === "cypher") {
-            theme = "neo";
         }
 
         const text: string[] = [];

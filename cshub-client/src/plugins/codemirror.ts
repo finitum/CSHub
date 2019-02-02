@@ -24,5 +24,4 @@ import "codemirror/mode/python/python";
 import "codemirror/mode/yaml/yaml";
 
 import "codemirror/lib/codemirror.css";
-import "codemirror/theme/neo.css";
 import "codemirror/theme/darcula.css";
