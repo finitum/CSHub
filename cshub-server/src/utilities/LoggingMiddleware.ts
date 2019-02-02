@@ -6,5 +6,5 @@ import logger from "./Logger";
 export const logMiddleware = (req: Request, userObj: IJWTToken = null) => {
 
     const userData = userObj !== null ? `, uid: ${userObj.user.id}` : "";
-    logger.info(`[${req.ip}${userData}] - ${req.path}`);
+    logger.info(`[${req.headers["x-forwarded-for"] || req.connection.remoteAddress}${userData}] - ${req.path}`);
 };
