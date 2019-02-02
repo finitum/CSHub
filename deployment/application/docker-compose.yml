@@ -7,6 +7,9 @@ services:
       - web
     labels:
       - traefik.frontend.rule=Host:${CLIENT_HOSTNAME},www.${CLIENT_HOSTNAME}
+      - traefik.frontend.redirect.regex=http(s*):\/\/www(.+)
+      - traefik.frontend.redirect.replacement=http$1://$2
+      - traefik.frontend.redirect.permanent=true
       - traefik.frontend.port=${CLIENT_PORT_INTERNAL}
     environment:
       - VUE_APP_API_URL=${CLIENT_ENV_API_URL}
