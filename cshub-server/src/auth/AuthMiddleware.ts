@@ -35,7 +35,7 @@ app.use((req: Request, res: Response, next: Function) => {
 
     // Add some headers so we don't have to deal with CORS problems
     res.header("Access-Control-Allow-Credentials", "true");
-    if (req.hostname === `www.${Settings.SITEADDRESS}`) {
+    if (req.url.startsWith("www")) {
         res.header("Access-Control-Allow-Origin", `www.${Settings.SITEADDRESS}`);
     } else {
         res.header("Access-Control-Allow-Origin", Settings.SITEADDRESS);
