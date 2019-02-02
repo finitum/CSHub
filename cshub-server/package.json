@@ -12,7 +12,6 @@
         "async": "^2.6.1",
         "body-parser": "^1.18.3",
         "cookie-parser": "^1.4.3",
-        "cors": "^2.8.4",
         "dayjs": "^1.7.7",
         "escape-html": "^1.0.3",
         "express": "^4.16.2",
