@@ -1,4 +1,4 @@
-# CSHub [![Build Status](https://travis-ci.com/RobbinBaauw/CSHub.svg?branch=dev)](https://travis-ci.com/RobbinBaauw/CSHub) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/eb2c6d17eb6e43fa9e4a9b21668c92cf)](https://www.codacy.com/app/NULLx76/CSHub?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RobbinBaauw/CSHub&amp;utm_campaign=Badge_Grade)
+# CSHub [![Build Status](https://travis-ci.com/RobbinBaauw/CSHub.svg?branch=dev)](https://travis-ci.com/RobbinBaauw/CSHub)
 This is a project made for the TU Delft CSE studies, where everyone can post information, summaries and more, for everyone to see and read.
 ## Running the project
 * Install [NodeJS](https://nodejs.org/en/), and install the dependencies of the server and client projects (`npm install` in the correct directories)
