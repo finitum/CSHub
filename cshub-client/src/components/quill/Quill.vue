@@ -210,6 +210,10 @@
         private otherPeoples: Map<number, IUserCensored> = new Map();
         private otherPeoplesMenu = false;
 
+        private checkingInterval: number = -1;
+        private awaitingIds: Set<number> = new Set();
+        private previousAwaitingIds: Set<number> = new Set();
+
         // Markdown editor related variables
         private markdownTooltip: any;
         private markdownTextString = "";
@@ -221,6 +225,21 @@
         private mounted() {
 
             if (this.editorSetup.allowEdit) {
+
+                // Check every 10 seconds if the edits are arriving
+                this.checkingInterval = setInterval(() => {
+                    const oldNewIntersect = new Set([...this.awaitingIds].filter((x) => this.previousAwaitingIds.has(x)));
+                    if (oldNewIntersect.size !== 0 && this.awaitingIds.size !== 0) {
+                        this.$router.push(Routes.INDEX);
+                        uiState.setNotificationDialogState({
+                            header: "Edit error!",
+                            text: "It seems like the server is not receiving our edits... Try again but refresh often to check whether the edits actually arrive at the server side",
+                            on: true
+                        });
+                    } else {
+                        this.previousAwaitingIds = new Set(this.awaitingIds);
+                    }
+                }, 10000);
 
                 this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
 
@@ -247,9 +266,14 @@
                             }
                         } else {
                             const index = this.lastFewEdits.findIndex((x) => x.userGeneratedId === data.edit.userGeneratedId);
+
                             if (index !== -1) {
                                 this.lastFewEdits.splice(index, 1);
                                 this.lastFewEdits.push(data.edit);
+                            }
+
+                            if (this.awaitingIds.has(data.edit.userGeneratedId)) {
+                                this.awaitingIds.delete(data.edit.userGeneratedId);
                             }
                         }
                     }
@@ -331,6 +355,7 @@
         private beforeDestroy() {
             // Remove the editor on destroy
             this.editor = null;
+            clearInterval(this.checkingInterval);
             SocketWrapper.emitSocket(new ClientCursorUpdated({...this.myCursor, active: false}), this.$socket);
             this.sockets.unsubscribe(ServerDataUpdated.getURL);
             this.sockets.unsubscribe(ServerCursorUpdated.getURL);
@@ -443,17 +468,23 @@
                     prevUserId = lastEdit.userGeneratedId;
                 }
 
+                const randomNumberLarge = getRandomNumberLarge();
                 const userEdit: IRealtimeEdit = {
                     postHash: this.editorSetup.postHash,
                     delta,
                     timestamp: dayjs(),
                     userId: this.userId,
                     prevServerGeneratedId: prevServerId,
-                    userGeneratedId: getRandomNumberLarge(),
+                    userGeneratedId: randomNumberLarge,
                     prevUserGeneratedId: prevUserId
                 };
 
                 this.lastFewEdits.push(userEdit);
+                if (this.lastFewEdits.length > 20) {
+                    this.lastFewEdits.splice(0, this.lastFewEdits.length - 21);
+                }
+
+                this.awaitingIds.add(randomNumberLarge);
                 SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
             }
         }

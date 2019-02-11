@@ -41,6 +41,7 @@ export class DataList {
                 async.whilst(
                     () => queue.toAdd.length !== 0,
                     (next) => {
+                        logger.verbose("Handling edit");
                         this.handleSave(next, queue);
                     }, () => {
                         queue.isAsyncRunning = false;
@@ -69,7 +70,7 @@ export class DataList {
                   )
                   ORDER BY datetime DESC
                   LIMIT 1
-                `, currRecord.postHash)
+                `, currRecord.postHash);
             })
             .then((lastEdit: DatabaseResultSet) => {
 
@@ -89,7 +90,7 @@ export class DataList {
                         `, currRecord.postHash, JSON.stringify(currRecord.delta))
                             .then(() => {
                                 return this.insertUserIntoEdit(currRecord.postHash, currRecord.userId);
-                            })
+                            });
                     } else {
 
                         const lastEditDelta = new Delta(JSON.parse(lastEdit.getStringFromDB("content")));
@@ -106,7 +107,7 @@ export class DataList {
                         `, JSON.stringify(toBeSavedEdit), currRecord.postHash)
                             .then(() => {
                                 return this.insertUserIntoEdit(currRecord.postHash, currRecord.userId);
-                            })
+                            });
                     }
                 } catch (e) {
                     logger.error(`Error with saving realtime edit (inserting), postHash: ${queue.toAdd[0].postHash}, delta: ${JSON.stringify(queue.toAdd[0].delta)}, queue:`);

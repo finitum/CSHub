@@ -48,23 +48,23 @@ export class DataUpdatedHandler {
                         } catch {
                             const response = new ServerDataUpdated(null, "Wrong previous state!");
                             currSocket.emit(response.URL, response);
-                            return;
+                            next();
                         }
                     }
 
                     if (edit.prevServerGeneratedId !== previousServerId && previousServerId !== -1) {
-                        logger.info("Performing operational transform");
-                        logger.info(`Current server id: ${edit.serverGeneratedId}, previous: ${edit.prevServerGeneratedId} last few edits server id ${previousServerId}`);
+                        logger.verbose("Performing operational transform");
+                        logger.verbose(`Current server id: ${edit.serverGeneratedId}, previous: ${edit.prevServerGeneratedId} last few edits server id ${previousServerId}`);
                         try {
                             edit.delta = this.postHistoryHandler.transformArray(edit, false);
                         } catch {
                             logger.error("Invalid transform");
                             const response = new ServerDataUpdated(null, "Invalid transform!");
                             currSocket.emit(response.URL, response);
-                            return;
+                            next();
                         }
 
-                        logger.info(`Done transforming: ${JSON.stringify(edit.delta)}`);
+                        logger.verbose(`Done transforming: ${JSON.stringify(edit.delta)}`);
                     }
 
                     const serverGeneratedIdentifier = getRandomNumberLarge();
