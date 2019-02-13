@@ -151,9 +151,9 @@
                 if (callbackData.edits[callbackData.edits.length - 1].approved) {
                     this.hasBeenEdited = false;
                 } else {
-                    let content = new Delta(JSON.parse(JSON.stringify(callbackData.edits[0].content)));
+                    let content = new Delta();
 
-                    for (let i = 1; i < callbackData.edits.length; i++) {
+                    for (let i = 0; i < callbackData.edits.length; i++) {
 
                         const currEdit = callbackData.edits[i];
 

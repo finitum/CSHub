@@ -49,6 +49,7 @@ export class DataUpdatedHandler {
                             const response = new ServerDataUpdated(null, "Wrong previous state!");
                             currSocket.emit(response.URL, response);
                             next();
+                            return;
                         }
                     }
 
@@ -62,6 +63,7 @@ export class DataUpdatedHandler {
                             const response = new ServerDataUpdated(null, "Invalid transform!");
                             currSocket.emit(response.URL, response);
                             next();
+                            return;
                         }
 
                         logger.verbose(`Done transforming: ${JSON.stringify(edit.delta)}`);
