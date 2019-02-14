@@ -129,39 +129,35 @@
 
                     const checkboxEdits: EditCheckbox[] = [];
 
-                    let previousDelta = new Delta(JSON.parse(JSON.stringify(callbackData.edits[0].content)));
+                    let previousDelta = new Delta();
 
-                    for (let i = 0; i < callbackData.edits.length; i++) {
+                    for (const currEdit of callbackData.edits) {
 
-                        const currEdit = callbackData.edits[i];
+                        const currContent = currEdit.content;
+                        const originalContent = new Delta(currEdit.content).slice();
 
-                        if (i > 0) {
-                            const currContent = currEdit.content;
-                            const originalContent = new Delta(currEdit.content).slice();
-
-                            for (const op of currContent.ops) {
-                                if (op.hasOwnProperty("insert")) {
-                                    op.attributes = {
-                                        ...op.attributes,
-                                        background: this.$vuetify.theme.success,
-                                        color: this.$vuetify.theme.secondary
-                                    };
-                                }
-                                if (op.hasOwnProperty("delete")) {
-                                    op.retain = op.delete;
-                                    delete op.delete;
-                                    op.attributes = {
-                                        ...op.attributes,
-                                        background: this.$vuetify.theme.warning,
-                                        color: this.$vuetify.theme.secondary,
-                                        strike: true
-                                    };
-                                }
+                        for (const op of currContent.ops) {
+                            if (op.hasOwnProperty("insert")) {
+                                op.attributes = {
+                                    ...op.attributes,
+                                    background: this.$vuetify.theme.success,
+                                    color: this.$vuetify.theme.secondary
+                                };
                             }
-
-                            callbackData.edits[i].content = previousDelta.compose(currContent);
-                            previousDelta = previousDelta.compose(originalContent);
+                            if (op.hasOwnProperty("delete")) {
+                                op.retain = op.delete;
+                                delete op.delete;
+                                op.attributes = {
+                                    ...op.attributes,
+                                    background: this.$vuetify.theme.warning,
+                                    color: this.$vuetify.theme.secondary,
+                                    strike: true
+                                };
+                            }
                         }
+
+                        currEdit.content = previousDelta.compose(currContent);
+                        previousDelta = previousDelta.compose(originalContent);
 
                         checkboxEdits.push({
                             ...currEdit,
