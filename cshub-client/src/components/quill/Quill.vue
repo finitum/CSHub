@@ -113,7 +113,7 @@
             <div class="editor" style="overflow: hidden;">
             </div>
         </div>
-        <v-btn fab small depressed color="primary" class="ql-tooltip" id="markdownTooltip" @click="openMarkdownDialog">
+        <v-btn fab small depressed color="primary" class="ql-tooltip" id="markdownTooltip" @click="openMarkdownDialog" v-show="markdownTooltip !== null">
             <v-icon>fas fa-edit</v-icon>
         </v-btn>
 
@@ -215,7 +215,7 @@
         private previousAwaitingIds: Set<number> = new Set();
 
         // Markdown editor related variables
-        private markdownTooltip: any;
+        private markdownTooltip: any = null;
         private markdownTextString = "";
         private currentlySelectedDomNodes: object[] = [];
 
@@ -433,28 +433,28 @@
             // Show the editor again
             if (this.editorSetup.allowEdit) {
                 this.editor.enable(true);
-            }
 
-            if (selects !== null) {
-                for (const select of selects) {
-                    if (select.user.id !== userState.userModel.id) {
+                if (selects !== null) {
+                    for (const select of selects) {
+                        if (select.user.id !== userState.userModel.id) {
 
-                        if (!this.otherPeoples.has(select.user.id)) {
-                            this.otherPeoples.set(select.user.id, select.user);
-                            this.$forceUpdate();
+                            if (!this.otherPeoples.has(select.user.id)) {
+                                this.otherPeoples.set(select.user.id, select.user);
+                                this.$forceUpdate();
+                            }
+                            this.editor.getModule("cursors").setCursor(select.user.id, select.selection, select.userName, select.color);
                         }
-                        this.editor.getModule("cursors").setCursor(select.user.id, select.selection, select.userName, select.color);
                     }
                 }
+
+                this.markdownTooltip = new CustomTooltip(this.editor, null, document.getElementById("markdownTooltip")) as any;
+
+                // Specify function to be called on change
+                this.editor.on("text-change", this.textChanged);
+                this.editor.on("selection-change", this.selectionChanged);
+
+                this.editor.focus();
             }
-
-            this.editor.focus();
-
-            this.markdownTooltip = new CustomTooltip(this.editor, null, document.getElementById("markdownTooltip")) as any;
-
-            // Specify function to be called on change
-            this.editor.on("text-change", this.textChanged);
-            this.editor.on("selection-change", this.selectionChanged);
         }
 
         private textChanged(delta: Delta, oldContents: Delta, source: Sources) {
