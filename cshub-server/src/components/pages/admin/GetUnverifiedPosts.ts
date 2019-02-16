@@ -11,7 +11,7 @@ app.post(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
 
     const token = checkTokenValidity(req);
 
-    if (token.valid && token.tokenObj.user.admin) {
+    if (token.valid) {
         query(`
           SELECT hash, editCount
           FROM posts T1

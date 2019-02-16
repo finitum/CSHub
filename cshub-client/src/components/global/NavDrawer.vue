@@ -18,6 +18,7 @@
             </v-layout>
             <router-link :to="navigationLocations.USERDASHBOARD" v-if="userLoggedInComputed"><NavDrawerItem icon="fas fa-user" text="User dashboard"></NavDrawerItem></router-link>
             <router-link :to="navigationLocations.FAVORITES" v-if="userLoggedInComputed"><NavDrawerItem icon="fas fa-star" text="My favorites"></NavDrawerItem></router-link>
+            <router-link :to="navigationLocations.UNSAVEDPOSTS" v-if="userLoggedInComputed"><NavDrawerItem icon="fas fa-pen" text="Unsaved posts"></NavDrawerItem></router-link>
             <router-link :to="navigationLocations.ADMINDASHBOARD" v-if="userLoggedInComputed && userAdminComputed"><NavDrawerItem icon="fas fa-users" text="Admin dashboard"></NavDrawerItem></router-link>
             <router-link :to="navigationLocations.LOGIN" v-if="!userLoggedInComputed"><NavDrawerItem icon="fas fa-sign-in-alt" text="Login"></NavDrawerItem></router-link>
             <a @click="logout"><NavDrawerItem v-if="userLoggedInComputed" icon="fas fa-sign-out-alt" text="Logout"></NavDrawerItem></a>

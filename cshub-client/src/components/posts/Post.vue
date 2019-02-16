@@ -243,12 +243,16 @@
             return this.$route.fullPath === Routes.ADMINDASHBOARD;
         }
 
+        get isOnUnsavedPosts(): boolean {
+            return this.$route.fullPath === Routes.UNSAVEDPOSTS;
+        }
+
         get isOnUserDashboard(): boolean {
             return this.$route.fullPath === Routes.USERDASHBOARD;
         }
 
         get isIndexComputed(): boolean {
-            return this.post !== null && this.post.isIndex && !this.isOnAdminDashboard && !this.isOnUserDashboard;
+            return this.post !== null && this.post.isIndex && !this.isOnAdminDashboard && !this.isOnUserDashboard && !this.isOnUnsavedPosts;
         }
 
         /**
@@ -329,6 +333,8 @@
                 this.previousTopicURL = Routes.ADMINDASHBOARD;
             } else if (uiState.previousRoute.fullPath === Routes.FAVORITES) {
                 this.previousTopicURL = Routes.FAVORITES;
+            } else if (uiState.previousRoute.fullPath === Routes.UNSAVEDPOSTS) {
+                this.previousTopicURL = Routes.UNSAVEDPOSTS;
             }
 
             if (this.previousTopicURL === "") {

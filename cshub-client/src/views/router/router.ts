@@ -8,6 +8,7 @@ const LoginScreen = () => import("../user/LoginScreen.vue");
 const CreateAccount = () => import("../user/CreateUserAccount.vue");
 const AdminDashboard = () => import("../user/AdminDashboard.vue");
 const UserDashboard = () => import("../user/UserDashboard.vue");
+const UnsavedPosts = () => import("../user/UnsavedPosts.vue");
 const ForgotPasswordComp = () => import("../user/ForgotPasswordComp.vue");
 const Favorites = () => import("../user/Favorites.vue");
 
@@ -91,6 +92,12 @@ const router = new Router({
             path: Routes.USERDASHBOARD,
             name: "user",
             component: UserDashboard,
+            beforeEnter: userBeforeEnter
+        },
+        {
+            path: Routes.UNSAVEDPOSTS,
+            name: "unsavedposts",
+            component: UnsavedPosts,
             beforeEnter: userBeforeEnter
         },
         {
