@@ -28,7 +28,7 @@ io.use(cookieparser());
 
 io.on("connection", (socketConn: Socket) => {
 
-    socketConn.on("disconnect", () => {
+    socketConn.on("disconnecting", () => {
         CursorUpdatedHandler.removeCursor(socketConn);
     });
 
@@ -63,7 +63,7 @@ io.on("connection", (socketConn: Socket) => {
                                     CursorUpdatedHandler.addUser(socketConn, togglePost.postHash);
 
                                     fn(edit, select);
-                                })
+                                });
                         } else {
                             socketConn.leave(roomName);
                             fn(null, null);

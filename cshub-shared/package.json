@@ -12,13 +12,13 @@
         "quill-delta": "^4.1.0"
     },
     "dependencies": {
-        "katex": "^0.10.0",
+        "katex": "^0.10.1",
         "markdown-it": "latest",
         "markdown-it-katex": "latest",
         "parchment": "^1.1.4"
     },
     "resolutions": {
-        "markdown-it-katex/katex": "0.10.0"
+        "**/katex": "0.10.1"
     },
     "gitSHA": "a28155c13fcb9b682c9ef64318233d1b93b9b234"
 }

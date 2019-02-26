@@ -141,8 +141,8 @@
     import katex from "katex";
     import "katex/dist/katex.min.css";
 
-    import QuillCursors from "../../plugins/cursor/cursors.min.js";
-    import "../../plugins/cursor/cursors.min.css";
+    // @ts-ignore
+    import QuillCursors from "../../plugins/cursor/quill-cursors";
 
     import Quill, {RangeStatic, Sources} from "quill";
     import "quill/dist/quill.core.css";
@@ -290,8 +290,11 @@
                             if (!this.otherPeoples.has(data.select.user.id)) {
                                 this.otherPeoples.set(data.select.user.id, data.select.user);
                                 this.$forceUpdate();
+                                const cursor = this.editor.getModule("cursors").createCursor(data.select.user.id, data.select.userName, data.select.color);
+                                cursor.range = data.select.selection;
+                            } else {
+                                this.editor.getModule("cursors").moveCursor(data.select.user.id, data.select.selection);
                             }
-                            this.editor.getModule("cursors").setCursor(data.select.user.id, data.select.selection, data.select.userName, data.select.color);
                         }
                     }
                 });
@@ -413,6 +416,7 @@
             // Create the editor
             this.editorOptions.bounds = `#${this.editorId} .editor`;
             this.editorOptions.modules.toolbar = `#${this.editorId} .toolbar`;
+            this.editorOptions.scrollingContainer = ".editor";
 
             if (!this.editorSetup.allowEdit) {
                 this.editorOptions.placeholder = "";
@@ -442,7 +446,8 @@
                                 this.otherPeoples.set(select.user.id, select.user);
                                 this.$forceUpdate();
                             }
-                            this.editor.getModule("cursors").setCursor(select.user.id, select.selection, select.userName, select.color);
+                            const cursor = this.editor.getModule("cursors").createCursor(select.user.id, select.userName, select.color);
+                            cursor.range = select.selection;
                         }
                     }
                 }

@@ -18,9 +18,24 @@ export class CursorUpdatedHandler {
         const userModel = validateAccessToken(currSocket.request.cookies["token"]);
 
         for (const room in currSocket.rooms) {
-            const roomId = parseInt(currSocket.rooms[room].split("POST_")[1]);
-            if (!isNaN(roomId)) {
-                const currSelects = CursorUpdatedHandler.cursorList.getSelectList(roomId);
+            const postHash = parseInt(currSocket.rooms[room].split("POST_")[1], 10);
+            if (!isNaN(postHash)) {
+                const select: IRealtimeSelect = {
+                    postHash,
+                    color: null,
+                    userName: userModel.user.firstname,
+                    user: userModel.user,
+                    active: false,
+                    selection: {
+                        index: 0,
+                        length: 0
+                    }
+                };
+
+                const response = new ServerCursorUpdated(select, () => {});
+                io.to(room).emit(response.URL, response);
+
+                const currSelects = CursorUpdatedHandler.cursorList.getSelectList(postHash);
                 const currUserIndex = currSelects.findIndex((x) => x.user.id === userModel.user.id);
                 if (currUserIndex !== -1) {
                     currSelects.splice(currUserIndex, 1);
