@@ -15,9 +15,9 @@
     "@types/linkify-it" "*"
 
 "@types/quill@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@types/quill/-/quill-2.0.1.tgz#3e4ad82279022f413763643bb39cf66ef90be060"
-  integrity sha512-OdJd74V1NqiL0MBELBsqItT+xAwRrARU+SYshydxmmUwH4Twr9G9No6/NVODYIgx6F5LcFnAJwpATzzE1PABkQ==
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@types/quill/-/quill-2.0.2.tgz#38c8b03157ec95d83f557890039ecd650548d1a7"
+  integrity sha512-Jkv4xYj9Y+1juXTEh2FV5L1XaEHXBaSLZweGBtzqDvTbFNh0kWPxH2JHogGNC3pyOLY02HydZ5A6AA5BS0LCaQ==
   dependencies:
     parchment "^1.1.2"
     quill-delta "^4.0.1"
@@ -29,15 +29,15 @@ argparse@^1.0.7:
   dependencies:
     sprintf-js "~1.0.2"
 
-commander@^2.16.0:
+commander@^2.16.0, commander@^2.19.0:
   version "2.19.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
   integrity sha512-6tvAOO+D6OENvRAh524Dh9jcfKTYDQAqvqezbCW82xj5X0pSrcpxtvRKHLG0yBY6SD7PSDrJaj+0AiOcKVd1Xg==
 
 dayjs@^1.7.7:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.8.0.tgz#507963ac3023f4b1f9f399a278356946fc4c9ae9"
-  integrity sha512-2ofInmfMKLLR5R02q3WEUuDt86UK33VQQTaEeJudF+C04ZUaekCP3VpB0NJPiyPDCGJWq9XYhHX2AemdxA8+dg==
+  version "1.8.8"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.8.8.tgz#81c81a8bb2488ef859f6c9bead9b62d649072bfd"
+  integrity sha512-qBY3kVAVJMxzS4e7DAwZZ/SSiO/DBXbvc/qqbyf1FbsZrxBq81QPdUEWhiPu8Fragf5RfHsLwtH8kCGwKL4qLQ==
 
 deep-equal@^1.0.1:
   version "1.0.1"
@@ -59,12 +59,19 @@ fast-diff@1.2.0:
   resolved "https://registry.yarnpkg.com/fast-diff/-/fast-diff-1.2.0.tgz#73ee11982d86caaf7959828d519cfe927fac5f03"
   integrity sha512-xJuoT5+L99XlZ8twedaRf6Ax2TgQVxvgZOYoPKqZufmJib0tL2tegPBOZb1pVNgIhlqDlA0eO0c3wBvQcmzx4w==
 
-katex@0.10.0, katex@^0.10.0, katex@^0.6.0:
+katex@0.10.0, katex@^0.6.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/katex/-/katex-0.10.0.tgz#da562e5d0d5cc3aa602e27af8a9b8710bfbce765"
   integrity sha512-/WRvx+L1eVBrLwX7QzKU1dQuaGnE7E8hDvx3VWfZh9HbMiCfsKWJNnYZ0S8ZMDAfAyDSofdyXIrH/hujF1fYXg==
   dependencies:
     commander "^2.16.0"
+
+katex@^0.10.0:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.10.1.tgz#5bb0b72bf19cecfc1fa217a9261760e5d301efff"
+  integrity sha512-iZXZ2L8pEP7HXBLAaeWkdLxnoRQ8Fdks8IuIVt01tYb+D8e0em5JYgfe6J48wXsuEr512IRCN5Kvwb9FjZH6kg==
+  dependencies:
+    commander "^2.19.0"
 
 linkify-it@^2.0.0:
   version "2.1.0"
@@ -102,9 +109,9 @@ parchment@^1.1.2, parchment@^1.1.4:
   integrity sha512-J5FBQt/pM2inLzg4hEWmzQx/8h8D0CiDxaG3vyp9rKrQRSDgBlhjdP5jQGgosEajXPSQouXGHOmVdgo7QmJuOg==
 
 quill-delta@^4.0.1, quill-delta@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/quill-delta/-/quill-delta-4.1.0.tgz#f250bfc86eafb70aa07835c7e03777ef5a75da5d"
-  integrity sha512-GQi04cJRnGcUR3fN8ChjfJGdnCF297BVTb4kEgnlewiyu/PRnWZDchmiJoc9Whq+ZwHgbUbcVgrbGU/dQgOVFw==
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/quill-delta/-/quill-delta-4.2.0.tgz#3972689b1077d05065730bb036aff79937e5632b"
+  integrity sha512-spgbiBY2f3mItJRelya5ZoJB7MvYewsXkTU8UikrYqdeMFJ03caIOEE6ahc1B3AZsKgPYI8G/diuFMTVN19X5g==
   dependencies:
     deep-equal "^1.0.1"
     extend "^3.0.2"
@@ -116,6 +123,6 @@ sprintf-js@~1.0.2:
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
 uc.micro@^1.0.1, uc.micro@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/uc.micro/-/uc.micro-1.0.5.tgz#0c65f15f815aa08b560a61ce8b4db7ffc3f45376"
-  integrity sha512-JoLI4g5zv5qNyT09f4YAvEZIIV1oOjqnewYg5D38dkQljIzpPT296dbIGvKro3digYI1bkb7W6EP1y4uDlmzLg==
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/uc.micro/-/uc.micro-1.0.6.tgz#9c411a802a409a91fc6cf74081baba34b24499ac"
+  integrity sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==
