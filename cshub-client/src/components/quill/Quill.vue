@@ -416,7 +416,6 @@
             // Create the editor
             this.editorOptions.bounds = `#${this.editorId} .editor`;
             this.editorOptions.modules.toolbar = `#${this.editorId} .toolbar`;
-            this.editorOptions.scrollingContainer = ".editor";
 
             if (!this.editorSetup.allowEdit) {
                 this.editorOptions.placeholder = "";
