@@ -142,7 +142,7 @@
     import "katex/dist/katex.min.css";
 
     // @ts-ignore
-    import QuillCursors from "../../plugins/cursor/quill-cursors";
+    import QuillCursors from "quill-cursors";
 
     import Quill, {RangeStatic, Sources} from "quill";
     import "quill/dist/quill.core.css";

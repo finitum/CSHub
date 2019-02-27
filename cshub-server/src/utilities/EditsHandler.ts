@@ -1,5 +1,5 @@
 import {getMarkdownParser, MarkdownLatexQuill} from "../../../cshub-shared/src/utilities/MarkdownLatexQuill";
-import {DOMWindow, JSDOM, ResourceLoader, VirtualConsole} from "jsdom";
+import {DOMWindow, JSDOM, VirtualConsole} from "jsdom";
 import QuillDefaultOptions from "../../../cshub-shared/src/utilities/QuillDefaultOptions";
 import Delta from "quill-delta/dist/Delta";
 import logger from "./Logger";
@@ -154,5 +154,8 @@ const getHTML = (quillEditor: any, document: Document, window: Window) => {
         domNode.remove();
     });
 
-    return node.innerHTML; // Doesn't have images replaced
+    // fixes the not equal latex
+    return node.innerHTML
+        .split("\u0338") // Gets the unusable unicode character
+        .join("\uE020"); // And replaces it by the correct one
 };
