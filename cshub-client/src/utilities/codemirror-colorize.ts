@@ -22,9 +22,13 @@ export const colorize = (collection: any, codemirror: any) => {
     const theme = uiState.darkMode ? "darcula" : "default";
 
     for (const node of collection) {
-        const mode = node.getAttribute("data-lang");
+        let mode = node.getAttribute("data-lang");
         if (!mode) {
-            continue;
+            if (node.children.length > 0 && node.children[0].tagName === "CODE") {
+                mode = "null";
+            } else {
+                continue;
+            }
         }
 
         const text: string[] = [];

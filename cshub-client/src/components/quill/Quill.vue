@@ -573,6 +573,10 @@
 <style lang="scss">
     @import "../../styling/vars";
 
+    #markdownTooltip.ql-tooltip::before {
+        content: none;
+    }
+
     .theme--dark  {
         svg > {
             .ql-fill {
