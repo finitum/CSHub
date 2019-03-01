@@ -35,6 +35,7 @@ export class MarkdownLatexQuill {
 export const getMarkdownParser = () => {
     return new MarkdownIt({
         highlight: (str: string, lang: string) => {
+            if (lang.length === 0) { lang = "null"; }
             return `<pre data-lang=${lang}>${str}</pre>`; // use external default escaping
         }
     }).use(mk);

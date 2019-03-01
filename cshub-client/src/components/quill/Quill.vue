@@ -360,8 +360,12 @@
             this.editor = null;
             clearInterval(this.checkingInterval);
             SocketWrapper.emitSocket(new ClientCursorUpdated({...this.myCursor, active: false}), this.$socket);
-            this.sockets.unsubscribe(ServerDataUpdated.getURL);
-            this.sockets.unsubscribe(ServerCursorUpdated.getURL);
+            SocketWrapper.emitSocket(new TogglePostJoin(this.editorSetup.postHash,
+                false,
+                () => {
+                    this.sockets.unsubscribe(ServerDataUpdated.getURL);
+                    this.sockets.unsubscribe(ServerCursorUpdated.getURL);
+                }), this.$socket);
         }
 
         @Watch("initialValueProp")

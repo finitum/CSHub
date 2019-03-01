@@ -71,7 +71,7 @@ io.on("connection", (socketConn: Socket) => {
                     } else {
                         fn(null, null);
                     }
-                })
+                });
         } else {
             fn(null, null);
         }

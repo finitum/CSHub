@@ -3,6 +3,13 @@ export default {
     placeholder: "Type here ...",
     modules: {
         cursors: true,
-        resize:  {}
+        resize:  {},
+        keyboard: {
+            bindings: {
+                "list autofill": {
+                    prefix: /^\s*?(\d+\.|-|\[ ?]|\[x])$/
+                }
+            }
+        }
     }
 };
