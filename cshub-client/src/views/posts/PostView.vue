@@ -28,6 +28,7 @@
 
     import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities/index";
     import {CacheTypes} from "../../utilities/cache-types";
+    import {getTitleSitenameImage} from "../../utilities/metainfo";
 
     @Component({
         name: "PostView",
@@ -69,10 +70,16 @@
          */
         public metaInfo(): any {
             if (!this.isFullPost) {
+                let topic = this.currentTopicNameComputed;
+                if (topic === "Index") {
+                    topic = "CSHub";
+                }
+
                 return {
                     title: `${this.currentTopicNameComputed} - CSHub`,
                     meta: [
-                        {property: "og:description", content: `A topic on ${this.currentTopicNameComputed}. Click to see all the related posts!`}
+                        {property: "og:description", content: `A topic on ${topic}. Click to see all the related posts!`},
+                        ...getTitleSitenameImage()
                     ]
                 };
             } else {

@@ -81,6 +81,7 @@
     import router from "../router/router";
     import {SocketWrapper} from "../../utilities/socket-wrapper";
     import {Route} from "vue-router";
+    import {getTitleSitenameImage, getTitleSitenameImageDescription} from "../../utilities/metainfo";
 
     @Component({
         name: "LoginScreen",
@@ -142,7 +143,8 @@
 
         public metaInfo(): any {
             return {
-                title: "Login - CSHub"
+                title: "Login - CSHub",
+                meta: getTitleSitenameImageDescription()
             };
         }
 

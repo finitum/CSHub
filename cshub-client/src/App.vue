@@ -53,16 +53,6 @@
             return uiState.darkMode;
         }
 
-        public metaInfo(): any {
-            return {
-                meta: [
-                    {property: "og:title", content: document.title},
-                    {property: "og:image", content: `${window.location.origin}/img/icons/favicon-192x192.png`},
-                    {property: "og:site_name", content: "CSHub"},
-                ]
-            };
-        }
-
         /**
          * Watchers
          */

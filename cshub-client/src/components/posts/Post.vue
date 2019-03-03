@@ -166,6 +166,7 @@
     import {colorize} from "../../utilities/codemirror-colorize";
     import {LocalStorageData} from "../../store/localStorageData";
     import PostSaveEditDialog from "./PostSaveEditDialog.vue";
+    import {getTitleSitename} from "../../utilities/metainfo";
 
     interface IBreadCrumbType {
         name: string;
@@ -303,7 +304,8 @@
                     title: `${this.post.title} - CSHub`,
                     meta: [
                         {property: "og:description", content: `A post by ${this.post.author.firstname} ${this.post.author.lastname}. Join now and start writing!`},
-                        {property: "og:image", content: this.getAvatarURLApi(this.post.author.id)}
+                        {property: "og:image", content: this.getAvatarURLApi(this.post.author.id)},
+                        ...getTitleSitename()
                     ]
                 };
             } else {
