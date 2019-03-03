@@ -8,8 +8,6 @@ import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import {EditPost, EditPostCallback, EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages/EditPost";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import Delta from "quill-delta/dist/Delta";
-
-import {DataUpdatedHandler} from "./realtime-post/DataUpdatedHandler";
 import {getHTMLFromDelta} from "../../utilities/EditsHandler";
 
 app.post(EditPost.getURL, (req: Request, res: Response) => {
@@ -55,6 +53,7 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                                   edits.approvedBy  = ?,
                                   edits.htmlContent = ?,
                                   edits.indexWords  = ?,
+                                  edits.datetime    = NOW(),
                                   posts.postVersion = posts.postVersion + 1,
                                   posts.title       = ?,
                                   posts.topic       = (SELECT id

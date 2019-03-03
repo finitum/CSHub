@@ -1,0 +1,6 @@
+[submodule "deployment/prerender"]
+	path = deployment/prerender
+	url = https://gitlab.xirion.net/cshub/prerender
+[submodule "deployment/fluentd"]
+	path = deployment/fluentd
+	url = https://gitlab.xirion.net/cshub/fluentd
