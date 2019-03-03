@@ -72,7 +72,7 @@
                 return {
                     title: `${this.currentTopicNameComputed} - CSHub`,
                     meta: [
-                        {name: "description", content: `A topic on ${this.currentTopicNameComputed}. Click to see all the related posts!`}
+                        {property: "og:description", content: `A topic on ${this.currentTopicNameComputed}. Click to see all the related posts!`}
                     ]
                 };
             } else {

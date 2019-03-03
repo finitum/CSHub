@@ -149,7 +149,7 @@
         GetPostContentCallBack,
         HidePostCallBack,
         PostSettings, PostSettingsEditType,
-        PostVersionTypes
+        PostVersionTypes, Requests
     } from "../../../../cshub-shared/src/api-calls";
     import {IPost, ITopic} from "../../../../cshub-shared/src/models";
     import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
@@ -302,7 +302,8 @@
                 return {
                     title: `${this.post.title} - CSHub`,
                     meta: [
-                        {name: "description", content: `A post by ${this.post.author.firstname} ${this.post.author.lastname}. Join now and start writing!`}
+                        {property: "og:description", content: `A post by ${this.post.author.firstname} ${this.post.author.lastname}. Join now and start writing!`},
+                        {property: "og:image", content: this.getAvatarURLApi(this.post.author.id)}
                     ]
                 };
             } else {
@@ -416,6 +417,10 @@
 
         private highlightCode() {
             colorize(null, CodeMirror);
+        }
+
+        private getAvatarURLApi(id: number) {
+            return `${process.env.VUE_APP_API_URL || (window as any).appConfig.VUE_APP_API_URL}${Requests.PROFILE}/${id}`;
         }
 
         private getAvatarURL(dbImage: string) {
