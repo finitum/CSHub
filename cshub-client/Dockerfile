@@ -30,7 +30,6 @@ RUN apk add curl --no-cache
 WORKDIR /usr/share/nginx/html
 COPY --from=build-client /app/cshub-client/dist .
 COPY --from=build-client /app/cshub-client/src/config.sh .
-COPY --from=build-client /app/cshub-client/nginx.conf /etc/nginx/nginx.conf
 
 # Make the config.js from env generator executable
 RUN ["chmod", "+x", "./config.sh"]

@@ -4,3 +4,4 @@
 settings.env
 .env
 .htpasswd
+nginx.conf
