@@ -21,7 +21,6 @@
         GetUnverifiedPostsCallBack,
         GetUnverifiedPosts
     } from "../../../../cshub-shared/src/api-calls/admin/GetUnverifiedPosts";
-    import {getTitleSitenameImage, getTitleSitenameImageDescription} from "../../utilities/metainfo";
 
     @Component({
         name: "UnsavedPosts",
@@ -43,8 +42,7 @@
 
         public metaInfo(): any {
             return {
-                title: "Unsaved posts - CSHub",
-                meta: getTitleSitenameImageDescription()
+                title: "Unsaved posts - CSHub"
             };
         }
 

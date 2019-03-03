@@ -38,7 +38,6 @@
     import dataState from "../../store/data";
 
     import {ApiWrapper} from "../../utilities";
-    import {getTitleSitenameImage, getTitleSitenameImageDescription} from "../../utilities/metainfo";
 
     @Component({
         name: "PostsSearch",
@@ -77,8 +76,7 @@
 
         public metaInfo(): any {
             return {
-                title: "Search - CSHub",
-                meta: getTitleSitenameImageDescription()
+                title: "Search - CSHub"
             };
         }
 

@@ -28,7 +28,6 @@
 
     import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities/index";
     import {CacheTypes} from "../../utilities/cache-types";
-    import {getTitleSitenameImage} from "../../utilities/metainfo";
 
     @Component({
         name: "PostView",
@@ -76,11 +75,7 @@
                 }
 
                 return {
-                    title: `${this.currentTopicNameComputed} - CSHub`,
-                    meta: [
-                        {property: "og:description", content: `A topic on ${topic}. Click to see all the related posts!`},
-                        ...getTitleSitenameImage()
-                    ]
+                    title: `${this.currentTopicNameComputed} - CSHub`
                 };
             } else {
                 return {};

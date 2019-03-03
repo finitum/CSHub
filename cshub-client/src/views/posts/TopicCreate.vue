@@ -65,7 +65,6 @@
     } from "../../../../cshub-shared/src/api-calls";
     import {ITopic} from "../../../../cshub-shared/src/models";
     import {Routes} from "../../../../cshub-shared/src/Routes";
-    import {getTitleSitenameImage, getTitleSitenameImageDescription} from "../../utilities/metainfo";
 
     @Component({
         name: "TopicCreate",
@@ -92,8 +91,7 @@
          */
         public metaInfo(): any {
             return {
-                title: "Create topic - CSHub",
-                meta: getTitleSitenameImageDescription()
+                title: "Create topic - CSHub"
             };
         }
 

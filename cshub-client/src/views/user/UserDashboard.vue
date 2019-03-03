@@ -132,7 +132,6 @@
         ChangeUserAvatarResponseTypes
     } from "../../../../cshub-shared/src/api-calls/pages/user/ChangeUserAvatar";
     import uiState from "../../store/ui";
-    import {getTitleSitenameImage, getTitleSitenameImageDescription} from "../../utilities/metainfo";
 
     @Component({
         name: "UserDashboard",
@@ -171,8 +170,7 @@
 
         public metaInfo(): any {
             return {
-                title: "User - CSHub",
-                meta: getTitleSitenameImageDescription()
+                title: "User - CSHub"
             };
         }
 

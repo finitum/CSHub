@@ -94,7 +94,6 @@
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
     import router from "../router/router";
-    import {getTitleSitenameImage, getTitleSitenameImageDescription} from "../../utilities/metainfo";
 
     @Component({
         name: "CreateUserAccount",
@@ -124,8 +123,7 @@
 
         public metaInfo(): any {
             return {
-                title: "Create account - CSHub",
-                meta: getTitleSitenameImageDescription()
+                title: "Create account - CSHub"
             };
         }
 

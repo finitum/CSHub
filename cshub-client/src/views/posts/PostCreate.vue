@@ -103,7 +103,6 @@ import {SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
 
     import {CreatePost, CreatePostCallback, SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
     import {ITopic} from "../../../../cshub-shared/src/models";
-    import {getTitleSitenameImage, getTitleSitenameImageDescription} from "../../utilities/metainfo";
 
     @Component({
         name: "PostCreate",
@@ -144,8 +143,7 @@ import {SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
          */
         public metaInfo(): any {
             return {
-                title: "Create post - CSHub",
-                meta: getTitleSitenameImageDescription()
+                title: "Create post - CSHub"
             };
         }
 

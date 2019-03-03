@@ -62,7 +62,6 @@
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
     import uiState from "../../store/ui";
-    import {getTitleSitenameImage, getTitleSitenameImageDescription} from "../../utilities/metainfo";
 
     @Component({
         name: "ForgotPasswordComp",
@@ -87,8 +86,7 @@
 
         public metaInfo(): any {
             return {
-                title: "Forgot password - CSHub",
-                meta: getTitleSitenameImageDescription()
+                title: "Forgot password - CSHub"
             };
         }
 

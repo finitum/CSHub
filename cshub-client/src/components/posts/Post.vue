@@ -164,9 +164,7 @@
     import uiState from "../../store/ui";
     import {ForceEditPost} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
     import {colorize} from "../../utilities/codemirror-colorize";
-    import {LocalStorageData} from "../../store/localStorageData";
     import PostSaveEditDialog from "./PostSaveEditDialog.vue";
-    import {getTitleSitename} from "../../utilities/metainfo";
 
     interface IBreadCrumbType {
         name: string;
@@ -301,12 +299,7 @@
         public metaInfo(): any {
             if (this.fullPostComputed && this.post !== null) {
                 return {
-                    title: `${this.post.title} - CSHub`,
-                    meta: [
-                        {property: "og:description", content: `A post by ${this.post.author.firstname} ${this.post.author.lastname}. Join now and start writing!`},
-                        {property: "og:image", content: this.getAvatarURLApi(this.post.author.id)},
-                        ...getTitleSitename()
-                    ]
+                    title: `${this.post.title} - CSHub`
                 };
             } else {
                 return {};

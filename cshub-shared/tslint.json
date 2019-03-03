@@ -21,6 +21,7 @@
     "semicolon": true,
     "trailing-comma": false,
     "no-console": false,
-    "variable-name": false
+    "variable-name": false,
+    "interface-over-type-literal": false
   }
 }

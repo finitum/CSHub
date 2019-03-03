@@ -19,7 +19,6 @@
         GetUserPostsCallback
     } from "../../../../cshub-shared/src/api-calls/pages/user";
     import {IUser} from "../../../../cshub-shared/src/models";
-    import {getTitleSitenameImageDescription} from "../../utilities/metainfo";
 
     @Component({
         name: "Favorites",
@@ -49,8 +48,7 @@
 
         public metaInfo(): any {
             return {
-                title: "Favorites - CSHub",
-                meta: getTitleSitenameImageDescription()
+                title: "Favorites - CSHub"
             };
         }
 

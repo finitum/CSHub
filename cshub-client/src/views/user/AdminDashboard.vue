@@ -19,7 +19,6 @@
     import {Component} from "vue-property-decorator";
 
     import UserTable from "../../components/admin/UserTable.vue";
-    import {getTitleSitenameImageDescription} from "../../utilities/metainfo";
 
     @Component({
         name: "AdminDashboard",
@@ -33,8 +32,7 @@
 
         public metaInfo(): any {
             return {
-                title: "Admin - CSHub",
-                meta: getTitleSitenameImageDescription()
+                title: "Admin - CSHub"
             };
         }
     }
