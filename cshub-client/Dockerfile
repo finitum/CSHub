@@ -38,7 +38,7 @@ RUN ["chmod", "+x", "./config.sh"]
 EXPOSE 80
 
 # Curl localhost to check if healthy
-HEALTHCHECK CMD curl --fail http://localhost:80/ || exit 1
+HEALTHCHECK CMD curl --fail http://localhost:80/ -A "dontgothroughprerenderplease" || exit 1
 
 # Runs nginx and generates config from env vars
 CMD ["/usr/share/nginx/html/config.sh"]
