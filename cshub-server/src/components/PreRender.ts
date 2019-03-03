@@ -43,10 +43,12 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
                             content: `${Settings.APIADDRESS}/profile/${userId}`
                         };
                         const titleMeta: metaType = {property: "og:title", content: `${title} - CSHub`};
+                        const titleActualMeta: metaType = {name: "title", content: `${title} - CSHub`};
 
                         const metas = [
                             ...getSitename(param),
                             descriptionMeta,
+                            titleActualMeta,
                             imageMeta,
                             titleMeta
                         ];
@@ -70,11 +72,13 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
                         content: `A topic on ${name}. Click to see all the related posts!`
                     };
                     const titleMeta: metaType = {property: "og:title", content: `${name} - CSHub`};
+                    const titleActualMeta: metaType = {name: "title", content: `${name} - CSHub`};
 
                     const metas = [
                         ...getSitenameImage(param),
                         descriptionMeta,
-                        titleMeta
+                        titleMeta,
+                        titleActualMeta
                     ];
 
                     res.send(createHTML(metas));
@@ -137,7 +141,14 @@ const getSitenameImage = (param: string): metaType[] => [
 const joinNowAndHelpCreateThem = "CSHub is a place where everyone can create, view and edit summaries. Join now and help create them!";
 const getSitenameImageDescription = (param: string, title: string): metaType[] => [
     ...getSitenameImage(param),
-    {property: "og:title", content: title},
+    {
+        property: "og:title",
+        content: title
+    },
+    {
+        name: "title",
+        content: title
+    },
     {
         property: "og:description",
         content: joinNowAndHelpCreateThem
@@ -151,6 +162,7 @@ const getSitenameImageDescription = (param: string, title: string): metaType[] =
 const createHTML = (metas: metaType[]) => {
 
     let metaTags = "";
+    let titleTag = "";
     for (const meta of metas) {
         let namePropertyString = "";
 
@@ -159,11 +171,14 @@ const createHTML = (metas: metaType[]) => {
         }
 
         if (meta.name !== undefined && meta.name.length > 0) {
+            if (meta.name === "title") {
+                titleTag = `<title>${meta.content}</title>`;
+            }
             namePropertyString += `name="${meta.name}"`;
         }
 
         metaTags += `<meta ${namePropertyString} content="${meta.content}"/>`;
     }
 
-    return `<!DOCTYPE HTML><html lang="en"><head> <meta charset="UTF-8"/>${metaTags}</head><body></body></html>`;
+    return `<!DOCTYPE HTML><html lang="en"><head>${titleTag}<meta charset="UTF-8"/>${metaTags}</head><body></body></html>`;
 };
