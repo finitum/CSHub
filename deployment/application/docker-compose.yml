@@ -16,7 +16,7 @@ services:
     ports:
       - ${CLIENT_PORT_EXTERNAL}:${CLIENT_PORT_INTERNAL}
     volumes:
-      - ../application/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf
   server:
     container_name: ${SERVER_CONTAINER_NAME}
     image: cshubnl/server:${BRANCH}

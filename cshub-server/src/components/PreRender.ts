@@ -118,7 +118,8 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
 });
 
 type metaType = {
-    property: string;
+    property?: string;
+    name?: string;
     content: string;
 };
 
@@ -133,20 +134,35 @@ const getSitenameImage = (param: string): metaType[] => [
     {property: "og:image", content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}/img/icons/favicon-192x192.png`},
 ];
 
+const joinNowAndHelpCreateThem = "CSHub is a place where everyone can create, view and edit summaries. Join now and help create them!";
 const getSitenameImageDescription = (param: string, title: string): metaType[] => [
     ...getSitenameImage(param),
     {property: "og:title", content: title},
     {
         property: "og:description",
-        content: "CSHub is a place where everyone can create, view and edit summaries. Join now and help create them!"
+        content: joinNowAndHelpCreateThem
     },
+    {
+        name: "description",
+        content: joinNowAndHelpCreateThem
+    }
 ];
 
 const createHTML = (metas: metaType[]) => {
 
     let metaTags = "";
     for (const meta of metas) {
-        metaTags += `<meta property="${meta.property}" content="${meta.content}"/>`;
+        let namePropertyString = "";
+
+        if (meta.property !== undefined && meta.property.length > 0) {
+            namePropertyString += `property="${meta.property}"`;
+        }
+
+        if (meta.name !== undefined && meta.name.length > 0) {
+            namePropertyString += `name="${meta.name}"`;
+        }
+
+        metaTags += `<meta ${namePropertyString} content="${meta.content}"/>`;
     }
 
     return `<!DOCTYPE HTML><html lang="en"><head> <meta charset="UTF-8"/>${metaTags}</head><body></body></html>`;
