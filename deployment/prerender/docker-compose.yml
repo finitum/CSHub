@@ -1,0 +1,7 @@
+version: '3'
+services:
+  prerender:
+    image: registry.xirion.net/cshub/prerender:latest
+    container_name: ${CONTAINER_NAME}
+    ports:
+      - ${EXTERNAL_PORT}:3000
