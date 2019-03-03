@@ -1,5 +1,7 @@
 export const getTitleSitename = () => [
     {property: "og:title", content: document.title},
+    {property: "og:type", content: "website"},
+    {property: "og:url", content: window.location.href},
     {property: "og:site_name", content: "CSHub"},
 ];
 
