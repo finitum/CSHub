@@ -124,13 +124,13 @@ type metaType = {
 
 const getSitename = (param: string): metaType[] => [
     {property: "og:type", content: "website"},
-    {property: "og:url", content: `${Settings.SITEADDRESS}${param}`},
+    {property: "og:url", content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}${param}`},
     {property: "og:site_name", content: "CSHub"}
 ];
 
 const getSitenameImage = (param: string): metaType[] => [
     ...getSitename(param),
-    {property: "og:image", content: `${Settings.SITEADDRESS}/img/icons/favicon-192x192.png`},
+    {property: "og:image", content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}/img/icons/favicon-192x192.png`},
 ];
 
 const getSitenameImageDescription = (param: string, title: string): metaType[] => [
