@@ -109,7 +109,12 @@ const getHTML = (quillEditor: any, document: Document, window: Window) => {
             // To not have a break at the end
             newNode.style.whiteSpace = "normal";
             newNode.classList.add("markdown-body");
-            newNode.innerHTML = getMarkdownParser().render(prevElement.currString);
+            newNode.innerHTML = getMarkdownParser()
+                .render(prevElement.currString)
+                .split("&amp;lt;") // unescape ampersand
+                .join("&lt;")
+                .split("&amp;gt;")
+                .join("&gt;");
 
             prevElement.containerNode.before(newNode);
 
