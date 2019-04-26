@@ -109,7 +109,7 @@
          */
         get passwordErrors(): string {
             let validationErrors = "";
-            if (this.errors) { validationErrors = this.errors.collect("password"); }
+            if (this.errors) { validationErrors = this.errors.collect("password")[0].msg; }
 
             const customErrors = this.userData.passworderror;
             return `${validationErrors.toString()}${customErrors}`;
@@ -117,7 +117,7 @@
 
         get emailErrors(): string {
             let validationErrors = "";
-            if (this.errors) { validationErrors = this.errors.collect("email"); }
+            if (this.errors) { validationErrors = this.errors.collect("email")[0].msg; }
 
             const customErrors = this.userData.emailerror;
             return `${validationErrors.toString()}${customErrors}`;

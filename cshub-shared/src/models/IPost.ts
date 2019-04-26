@@ -10,7 +10,7 @@ export interface IPost {
     id: number;
     isIndex: boolean;
     postVersion: number;
+    isWIP: boolean;
     htmlContent?: string;
     isMyFavorite?: boolean;
-    isWIP: boolean;
 }

@@ -42,9 +42,9 @@
                                 <v-btn color="red" depressed small @click="hidePost()" v-if="!editModeComputed && userAdminComputed">
                                     <v-icon>fas fa-trash</v-icon>
                                 </v-btn>
-                                <v-btn color="lime" depressed small @click="wipPost(!post.isWip)" v-if="!editModeComputed && userIsLoggedIn && userAdminComputed">
-                                    <v-icon v-if="post.isWIP">fas fa-wrench</v-icon>
-                                    <v-icon v-else>far fa-wrench</v-icon>
+                                <v-btn color="purple" depressed small @click="wipPost()" v-if="!editModeComputed && userIsLoggedIn && userAdminComputed">
+                                    <v-icon v-if="post.isWIP">fas fa-comments</v-icon>
+                                    <v-icon v-else>far fa-comments</v-icon>
                                 </v-btn>
                                 <v-btn color="lime" depressed small @click="toggleFavorite()" v-if="!editModeComputed && userIsLoggedIn && !isIndexComputed">
                                     <v-icon v-if="post.isMyFavorite">fas fa-star</v-icon>
@@ -476,8 +476,8 @@
             });
         }
 
-        private wipPost(wip: boolean) {
-            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.WIP, wip), (callback: PostSettingsCallback) => {
+        private wipPost() {
+            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.WIP, !this.post.isWIP), (callback: PostSettingsCallback) => {
                 logStringConsole("WIPPED post");
                 this.$router.push(Routes.WIPPOSTS);
             });
