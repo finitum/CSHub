@@ -51,12 +51,10 @@ app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
                       SELECT T1.hash
                       FROM posts T1
                              INNER JOIN topics T2 ON T1.topic = T2.id
-                             INNER JOIN edits T3 ON T1.id = T3.post
                       WHERE deleted = 0
-                        AND T3.approved = 1
+                        AND T1.wip = 0
                         AND T2.hash IN (?)
                         AND (T1.isIndex = 0 OR T1.topic = (SELECT id FROM topics WHERE hash = ?))
-                      GROUP BY T3.post
                       ORDER BY T1.isIndex DESC, T1.datetime DESC
                     `, topicHashes, topicPostsRequest.topicHash)
                         .then((posts: DatabaseResultSet) => {

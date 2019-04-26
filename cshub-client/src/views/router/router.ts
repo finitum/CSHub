@@ -11,6 +11,7 @@ const UserDashboard = () => import("../user/UserDashboard.vue");
 const UnsavedPosts = () => import("../user/UnsavedPosts.vue");
 const ForgotPasswordComp = () => import("../user/ForgotPasswordComp.vue");
 const Favorites = () => import("../user/Favorites.vue");
+const WIPPosts = () => import("../user/WIPPosts.vue");
 
 const PostView = () => import("../posts/PostView.vue");
 const PostCreate = () => import("../posts/PostCreate.vue");
@@ -87,6 +88,11 @@ const router = new Router({
             path: Routes.SEARCH,
             name: "search",
             component: PostsSearch
+        },
+        {
+            path: Routes.WIPPOSTS,
+            name: "wip",
+            component: WIPPosts
         },
         {
             path: Routes.USERDASHBOARD,

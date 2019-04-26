@@ -1,37 +1,25 @@
 import {app} from "../../";
 import logger from "../../utilities/Logger";
 import {Request, Response} from "express";
-import {
-    GetPostCallBack,
-    GetPost
-} from "../../../../cshub-shared/src/api-calls";
-import {IJWTToken, IPost} from "../../../../cshub-shared/src/models";
+import {GetPost, GetPostCallBack} from "../../../../cshub-shared/src/api-calls";
+import {IPost} from "../../../../cshub-shared/src/models";
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
-import {hasAccessToPost, postAccessType} from "../../auth/validateRights/PostAccess";
 import {checkTokenValidity, ValidationType} from "../../auth/AuthMiddleware";
 
 app.post(GetPost.getURL, (req: Request, res: Response) => {
 
     const postRequest = req.body as GetPost;
 
-    // Check if the user actually has access to the post
-    hasAccessToPost(postRequest.postHash, req.cookies["token"])
-        .then((approved: postAccessType) => {
-            if (!approved.access) {
-                res.status(403).send();
-            } else {
-                const userObj = checkTokenValidity(req);
+    const userObj = checkTokenValidity(req);
 
-                // Get all the post data from database
-                getPostData(postRequest.postHash, userObj)
-                    .then((data: GetPostCallBack) => {
-                        if (data === null) {
-                            res.status(500).send();
-                        } else {
-                            res.json(data);
-                        }
-                    });
+    // Get all the post data from database
+    getPostData(postRequest.postHash, userObj)
+        .then((data: GetPostCallBack) => {
+            if (data === null) {
+                res.status(500).send();
+            } else {
+                res.json(data);
             }
         });
 });
@@ -40,27 +28,28 @@ export const getPostData = (postHash: number, userObj: ValidationType): Promise<
     const userId = userObj.valid ? userObj.tokenObj.user.id : -1;
 
     return query(`
-      SELECT T1.datetime,
-             T1.title,
-             T1.hash,
-             T1.upvotes,
-             T1.isIndex,
-             T2.id        AS authorId,
-             T2.firstname AS authorFirstName,
-             T2.lastname  AS authorLastName,
-             T2.avatar    AS authorAvatar,
-             T2.admin     AS authorAdmin,
-             T3.name,
-             T3.hash      AS topicHash,
-             T1.id,
-             T1.postVersion,
-             T4.id        AS favorited
-      FROM posts T1
-             INNER JOIN users T2 ON T1.author = T2.id
-             INNER JOIN topics T3 ON T1.topic = T3.id
-             LEFT JOIN favorites T4 ON T1.id = T4.post AND T2.id = ?
-      WHERE T1.hash = ?
-      ORDER BY datetime DESC
+        SELECT T1.datetime,
+               T1.title,
+               T1.hash,
+               T1.upvotes,
+               T1.isIndex,
+               T2.id        AS authorId,
+               T2.firstname AS authorFirstName,
+               T2.lastname  AS authorLastName,
+               T2.avatar    AS authorAvatar,
+               T2.admin     AS authorAdmin,
+               T3.name,
+               T3.hash      AS topicHash,
+               T1.id,
+               T1.postVersion,
+               T4.id        AS favorited,
+               T1.wip
+        FROM posts T1
+                 INNER JOIN users T2 ON T1.author = T2.id
+                 INNER JOIN topics T3 ON T1.topic = T3.id
+                 LEFT JOIN favorites T4 ON T1.id = T4.post AND T2.id = ?
+        WHERE T1.hash = ?
+        ORDER BY datetime DESC
     `, userId, postHash)
         .then((post: DatabaseResultSet) => {
 
@@ -85,7 +74,8 @@ export const getPostData = (postHash: number, userObj: ValidationType): Promise<
                     admin: post.getNumberFromDB("authorAdmin") === 1
                 },
                 postVersion: post.getNumberFromDB("postVersion"),
-                isMyFavorite: post.getNumberFromDB("favorited") !== null
+                isMyFavorite: post.getNumberFromDB("favorited") !== null,
+                isWIP: post.getNumberFromDB("wip") === 1
             };
 
             if (postBase.author.avatar !== null) {

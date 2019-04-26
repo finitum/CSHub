@@ -12,4 +12,5 @@ export interface IPost {
     postVersion: number;
     htmlContent?: string;
     isMyFavorite?: boolean;
+    isWIP: boolean;
 }

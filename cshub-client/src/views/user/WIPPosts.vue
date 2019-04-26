@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-subheader>
-            Unsaved posts
+            WIP posts
         </v-subheader>
         <PostList :postHashesProp="postHashes" v-if="postHashes.length > 0"></PostList>
         <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
@@ -16,16 +16,13 @@
 
     import {ApiWrapper, logObjectConsole} from "../../utilities";
 
-    import {
-        GetUnverifiedPostsCallBack,
-        GetUnverifiedPosts
-    } from "../../../../cshub-shared/src/api-calls/admin";
+    import {GetWIPPosts, GetWIPPostsCallBack} from "../../../../cshub-shared/src/api-calls/pages/GetWIPPosts";
 
     @Component({
-        name: "UnsavedPosts",
+        name: "WIPPosts",
         components: {PostList},
     })
-    export default class UnsavedPosts extends Vue {
+    export default class WIPPosts extends Vue {
 
         /**
          * Data
@@ -41,7 +38,7 @@
 
         public metaInfo(): any {
             return {
-                title: "Unsaved posts - CSHub"
+                title: "WIP posts - CSHub"
             };
         }
 
@@ -49,11 +46,11 @@
          * Methods
          */
         private getHashes() {
-            ApiWrapper.sendPostRequest(new GetUnverifiedPosts(), (callbackData: GetUnverifiedPostsCallBack) => {
+            ApiWrapper.sendPostRequest(new GetWIPPosts(), (callbackData: GetWIPPostsCallBack) => {
                 for (const post of callbackData.postHashes) {
                     this.postHashes.push(post);
                 }
-                logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
+                logObjectConsole(callbackData.postHashes, "WIP dashboard posthashes");
             });
         }
     }
