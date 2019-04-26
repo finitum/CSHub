@@ -7,6 +7,7 @@ import "./EditPost";
 import "./GetPostContent";
 import "./GetEditContent";
 import "./GetSearchPosts";
+import "./GetWIPPosts";
 import "./SquashEdits";
 import "./ForceEditPost";
 

@@ -21,6 +21,7 @@ export class Requests {
     public static readonly SUBMITTOPIC: string = "/createtopic";
     public static readonly GETALLUSERS: string = "/allusers";
     public static readonly GETUNVERIFIEDPOSTS: string = "/unverifiedposts";
+    public static readonly WIPPOSTS: string = "/wipposts";
     public static readonly POSTSETTINGS: string = "/postsettings";
     public static readonly PROFILE = "/profile";
 }

@@ -1,6 +1,5 @@
-import {IApiRequest} from "../../models/IApiRequest";
-import {IPost} from "../../models/IPost";
-import {ITopic} from "../../models/ITopic";
+import {IApiRequest} from "../../models";
+import {ITopic} from "../../models";
 
 import {Requests} from "../Requests";
 

@@ -1,5 +1,5 @@
-import {IApiRequest} from "../../models/IApiRequest";
-import {IPost} from "../../models/IPost";
+import {IApiRequest} from "../../models";
+import {IPost} from "../../models";
 
 import {Requests} from "../Requests";
 

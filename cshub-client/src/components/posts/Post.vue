@@ -42,6 +42,10 @@
                                 <v-btn color="red" depressed small @click="hidePost()" v-if="!editModeComputed && userAdminComputed">
                                     <v-icon>fas fa-trash</v-icon>
                                 </v-btn>
+                                <v-btn color="lime" depressed small @click="wipPost(!post.isWip)" v-if="!editModeComputed && userIsLoggedIn && userAdminComputed">
+                                    <v-icon v-if="post.isWIP">fas fa-wrench</v-icon>
+                                    <v-icon v-else>far fa-wrench</v-icon>
+                                </v-btn>
                                 <v-btn color="lime" depressed small @click="toggleFavorite()" v-if="!editModeComputed && userIsLoggedIn && !isIndexComputed">
                                     <v-icon v-if="post.isMyFavorite">fas fa-star</v-icon>
                                     <v-icon v-else>far fa-star</v-icon>
@@ -147,7 +151,7 @@
         GetPostCallBack,
         GetPostContent,
         GetPostContentCallBack,
-        HidePostCallBack,
+        PostSettingsCallback,
         PostSettings, PostSettingsEditType,
         PostVersionTypes, Requests
     } from "../../../../cshub-shared/src/api-calls";
@@ -459,16 +463,23 @@
         }
 
         private toggleFavorite() {
-            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.FAVORITE, !this.post.isMyFavorite), (callback: HidePostCallBack) => {
+            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.FAVORITE, !this.post.isMyFavorite), (callback: PostSettingsCallback) => {
                 logStringConsole("Toggled favorite");
                 this.post.isMyFavorite = !this.post.isMyFavorite;
             });
         }
 
         private hidePost() {
-            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.HIDE), (callback: HidePostCallBack) => {
+            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.HIDE), (callback: PostSettingsCallback) => {
                 logStringConsole("Removed post");
                 this.$router.push(Routes.INDEX);
+            });
+        }
+
+        private wipPost(wip: boolean) {
+            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.WIP, wip), (callback: PostSettingsCallback) => {
+                logStringConsole("WIPPED post");
+                this.$router.push(Routes.WIPPOSTS);
             });
         }
 

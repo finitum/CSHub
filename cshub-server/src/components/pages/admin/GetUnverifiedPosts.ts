@@ -1,10 +1,9 @@
 import {app} from "../../../";
 import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
-import {checkTokenValidity} from "../../../auth/AuthMiddleware";
 import {
     GetUnverifiedPostsCallBack,
-    GetUnverifiedPosts, GetUnverifiedPostsType
+    GetUnverifiedPosts
 } from "../../../../../cshub-shared/src/api-calls";
 
 app.post(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
@@ -29,12 +28,10 @@ app.post(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
     `)
         .then((result: DatabaseResultSet) => {
 
-            const hashes: GetUnverifiedPostsType[] = [];
+            const hashes: number[] = [];
 
             result.convertRowsToResultObjects().forEach((x) => {
-                hashes.push({
-                    hash: x.getNumberFromDB("hash")
-                });
+                hashes.push(x.getNumberFromDB("hash"));
             });
 
             res.json(new GetUnverifiedPostsCallBack(hashes));
