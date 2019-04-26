@@ -25,10 +25,13 @@ app.post(PostSettings.getURL, (req: Request, res: Response) => {
                 favoritePost(res, postSettingsRequest.postHash, token.tokenObj.user.id, postSettingsRequest.favorite);
                 break;
             case PostSettingsEditType.WIP:
-                wipPost(res, postSettingsRequest.postHash, postSettingsRequest.favorite);
+                if (token.tokenObj.user.admin) {
+                    wipPost(res, postSettingsRequest.postHash, postSettingsRequest.favorite);
+                } else {
+                    res.status(403).send();
+                }
                 break;
         }
-
     } else {
         res.status(403).send();
     }
