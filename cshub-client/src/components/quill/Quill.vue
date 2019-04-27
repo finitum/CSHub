@@ -7,6 +7,7 @@
                     <select class="ql-header" title="Header">
                         <option value="1">Heading</option>
                         <option value="2">Subheading</option>
+                        <option value="3">Subsubheading</option>
                         <option selected>Normal</option>
                     </select>
                 </span>
@@ -428,6 +429,24 @@
 
             (this.editor as any).enableMathQuillFormulaAuthoring(); // Enable mathquill4quillMin
             this.editor.enable(false); // Hide it before we set the content
+
+            // @ts-ignore
+            this.editor.keyboard.addBinding({key: "m", ctrlKey: true}, (range: RangeStatic, context: any) => {
+                this.setMarkDown();
+            });
+
+            // @ts-ignore
+            this.editor.keyboard.addBinding({key: "a", ctrlKey: true, altKey: true}, (range: RangeStatic, context: any) => {
+                // @ts-ignore
+                this.editor.theme.tooltip.edit("formula");
+            });
+
+            // @ts-ignore
+            this.editor.keyboard.addBinding({key: "a", ctrlKey: true, shiftKey: true}, (range: RangeStatic, context: any) => {
+                const text = this.editor.getText(range.index, range.length);
+                this.editor.formatText(range, "formula", text);
+                this.editor.setSelection(range);
+            });
 
             const markdownLatexQuill = new MarkdownLatexQuill(Quill);
             markdownLatexQuill.registerQuill();
