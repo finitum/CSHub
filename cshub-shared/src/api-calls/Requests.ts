@@ -4,7 +4,7 @@ export class Requests {
     public static readonly EDITPOST: string = "/post/:hash"; // PUT
     public static readonly POSTCONTENT: string = "/postcontent"; // GET
     public static readonly SQUASHEDITS: string = "/post/:hash/squash"; // PUT
-    public static readonly FORCEEDITPOST: string = "/forceeditpost";
+    public static readonly FORCEEDITPOST: string = "/post/:hash/forcesave"; // PUT
     public static readonly EDITCONTENT: string = "/editcontent";
     public static readonly POSTSETTINGS: string = "/postsettings";
     public static readonly GETUNVERIFIEDPOSTS: string = "/unverifiedposts";

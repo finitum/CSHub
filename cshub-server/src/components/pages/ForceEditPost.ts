@@ -9,9 +9,9 @@ import {validateMultipleInputs} from "../../utilities/StringUtils";
 import Delta from "quill-delta/dist/Delta";
 
 import {getHTMLFromDelta} from "../../utilities/EditsHandler";
-import {ForceEditPost, ForceEditPostCallback} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
+import {ForceEditPost} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
 
-app.post(ForceEditPost.getURL, (req: Request, res: Response) => {
+app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
 
     const editPostRequest: ForceEditPost = req.body as ForceEditPost;
 
@@ -60,7 +60,7 @@ app.post(ForceEditPost.getURL, (req: Request, res: Response) => {
                         `, html, indexWords, editId, editPostRequest.postHash)
                             .then(() => {
                                 logger.info("Force edit post succesfully");
-                                res.json(new ForceEditPostCallback());
+                                res.sendStatus(200);
                             });
                     });
                 })
@@ -70,7 +70,7 @@ app.post(ForceEditPost.getURL, (req: Request, res: Response) => {
                     res.status(500).send();
                 });
         } else {
-            res.status(401).send();
+            res.sendStatus(401);
         }
     }
 });
