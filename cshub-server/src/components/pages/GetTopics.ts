@@ -34,6 +34,4 @@ app.post(GetTopics.getURL, (req: Request, res: Response) => {
                 res.json(new GetTopicsCallBack());
             }
         })
-
-
 });

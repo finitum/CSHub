@@ -15,6 +15,8 @@ export class GetPost implements IApiRequest {
     public static getURL: string = Requests.POSTDATA;
     public URL: string = GetPost.getURL;
 
-    constructor(public postHash: number) {}
+    constructor(public postHash: number) {
+        this.URL = this.URL.replace(/:hash/, postHash.toString());
+    }
 
 }

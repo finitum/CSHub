@@ -529,7 +529,7 @@
             localForage.getItem<IPost>(CacheTypes.POSTS + this.postHash)
                 .then((cachedValue: IPost) => {
                     if (cachedValue === null || cachedValue.id === undefined) {
-                        ApiWrapper.sendPostRequest(new GetPost(this.postHash), (callbackData: GetPostCallBack) => {
+                        ApiWrapper.sendGetRequest(new GetPost(this.postHash), (callbackData: GetPostCallBack) => {
                             if (callbackData.post !== null) {
                                 this.post = callbackData.post;
 

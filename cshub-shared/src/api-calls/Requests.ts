@@ -2,7 +2,7 @@ export class Requests {
     public static readonly LOGINREQUEST: string = "/login";
     public static readonly CREATEACCOUNTREQUEST: string = "/createaccount";
     public static readonly TOPICPOSTS: string = "/topicposts";
-    public static readonly POSTDATA: string = "/post";
+    public static readonly POSTDATA: string = "/post/:hash";
     public static readonly POSTCONTENT: string = "/postcontent";
     public static readonly TOPICS: string = "/topics";
     public static readonly VERIFYTOKEN: string = "/verifytoken";
