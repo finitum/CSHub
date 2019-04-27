@@ -70,10 +70,7 @@
     import userState from "../../store/user";
     import {ApiWrapper, logStringConsole} from "../../utilities";
     import {
-        EditPost,
-        EditPostCallback,
-        EditPostReturnTypes,
-        GetEditContent, GetEditContentCallback
+        EditPost, GetEditContent, GetEditContentCallback
     } from "../../../../cshub-shared/src/api-calls/pages";
     import dataState from "../../store/data";
     import Delta from "quill-delta/dist/Delta";
@@ -207,24 +204,26 @@
         private save() {
             this.showLoadingIcon = true;
             logStringConsole("Editing post");
-            ApiWrapper.sendPostRequest(new EditPost(
+            ApiWrapper.sendPutRequest(new EditPost(
                 this.post.hash,
                 this.post.title,
                 this.activeTopicHash[0]
-            ), (callbackData: EditPostCallback) => {
+            ), (responseData: null, status) => {
                 this.showLoadingIcon = false;
-                if (callbackData.result === EditPostReturnTypes.SUCCESS) {
+                if (status === 200) {
                     uiState.setNotificationDialogState({
                         on: true,
                         header: "Edited post",
                         text: "Post was edited successfully"
                     });
-                } else {
+                } else if (status === 204) {
                     uiState.setNotificationDialogState({
                         on: true,
                         header: "Didn't edit post",
                         text: "There was nothing to update!"
                     });
+                } else {
+                    logStringConsole("Editing post returned unexpected status code");
                 }
 
                 this.dialogActive = {

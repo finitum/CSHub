@@ -5,14 +5,15 @@ import logger from "../../utilities/Logger";
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
-import {EditPost, EditPostCallback, EditPostReturnTypes} from "../../../../cshub-shared/src/api-calls/pages/EditPost";
+import {EditPost} from "../../../../cshub-shared/src/api-calls/pages/EditPost";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import Delta from "quill-delta/dist/Delta";
 import {getHTMLFromDelta} from "../../utilities/EditsHandler";
 
-app.post(EditPost.getURL, (req: Request, res: Response) => {
+app.put(EditPost.getURL, (req: Request, res: Response) => {
 
     const editPostRequest: EditPost = req.body as EditPost;
+    editPostRequest.postHash = req.params.hash;
 
     const userObj = checkTokenValidity(req);
 
@@ -37,7 +38,7 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                     const rows = edits.convertRowsToResultObjects();
                     const lastRow = rows[rows.length - 1];
                     if (lastRow.getNumberFromDB("approved") !== 0) {
-                        res.json(new EditPostCallback(EditPostReturnTypes.NOTHINGTOUPDATE));
+                        res.sendStatus(204);
                     } else {
                         let delta = new Delta(JSON.parse(rows[0].getStringFromDB("content")));
 
@@ -71,7 +72,7 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
                             `, userObj.tokenObj.user.id, html, indexWords, editPostRequest.postTitle, editPostRequest.postTopicHash, editPostRequest.postHash, editPostRequest.postHash)
                                 .then(() => {
                                     logger.info("Edited post succesfully");
-                                    res.json(new EditPostCallback(EditPostReturnTypes.SUCCESS));
+                                    res.sendStatus(200);
                                 });
                         });
                     }

@@ -141,7 +141,7 @@ export class ApiWrapper {
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
-                    callback(response.data);
+                    callback(response.data, response.status);
                 }
             })
             .catch((err: AxiosError) => {

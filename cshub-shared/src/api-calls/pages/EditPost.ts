@@ -1,17 +1,6 @@
 import {IApiRequest} from "../../models/IApiRequest";
 
 import {Requests} from "../Requests";
-// @ts-ignore
-import Delta from "quill-delta/dist/Delta";
-
-export enum EditPostReturnTypes {
-    SUCCESS,
-    NOTHINGTOUPDATE
-}
-
-export class EditPostCallback {
-    constructor(public result: EditPostReturnTypes) {}
-}
 
 export class EditPost implements IApiRequest {
 
@@ -22,5 +11,7 @@ export class EditPost implements IApiRequest {
         public postHash: number,
         public postTitle: string,
         public postTopicHash: number
-    ) {}
+    ) {
+        this.URL = this.URL.replace(/:hash/, postHash.toString());
+    }
 }
