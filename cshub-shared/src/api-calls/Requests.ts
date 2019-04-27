@@ -5,10 +5,10 @@ export class Requests {
     public static readonly POSTCONTENT: string = "/postcontent"; // GET
     public static readonly SQUASHEDITS: string = "/post/:hash/squash"; // PUT
     public static readonly FORCEEDITPOST: string = "/post/:hash/forcesave"; // PUT
-    public static readonly EDITCONTENT: string = "/editcontent";
+    public static readonly EDITCONTENT: string = "/editcontent"; // GET
     public static readonly POSTSETTINGS: string = "/postsettings";
-    public static readonly GETUNVERIFIEDPOSTS: string = "/unverifiedposts";
-    public static readonly WIPPOSTS: string = "/wipposts";
+    public static readonly GETUNVERIFIEDPOSTS: string = "/posts/unverified";
+    public static readonly WIPPOSTS: string = "/posts/wip";
 
     public static readonly TOPICS: string = "/topics";
     public static readonly TOPICPOSTS: string = "/topicposts";

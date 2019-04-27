@@ -5,7 +5,7 @@ import {
     GetUnverifiedPostsCallBack} from "../../../../cshub-shared/src/api-calls";
 import {GetWIPPosts} from "../../../../cshub-shared/src/api-calls/pages/GetWIPPosts";
 
-app.post(GetWIPPosts.getURL, (req: Request, res: Response) => {
+app.get(GetWIPPosts.getURL, (req: Request, res: Response) => {
 
     query(`
       SELECT hash
