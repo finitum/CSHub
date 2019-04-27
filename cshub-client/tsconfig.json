@@ -24,7 +24,7 @@
     ]
   },
   "files": [
-    "src/index.ts"
+    "src/main.ts"
   ],
   "include": [
     "src/**/*.ts",
