@@ -134,6 +134,23 @@ export class ApiWrapper {
             });
     }
 
+    public static sendPutRequest(request: IApiRequest, callback?: (...args: any) => void, error?: (err: AxiosError) => void) {
+        axiosApi
+            .put(request.URL, request, {
+                withCredentials: true
+            })
+            .then((response: AxiosResponse<any>) => {
+                if (callback) {
+                    callback(response.data);
+                }
+            })
+            .catch((err: AxiosError) => {
+                if (error) {
+                    error(err);
+                }
+            });
+    }
+
     public static sendGetRequest(request: IApiRequest, callback?: (...args: any) => void, error?: (err: AxiosError) => void) {
         axiosApi
             .get(request.URL)

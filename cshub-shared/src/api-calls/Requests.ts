@@ -1,8 +1,8 @@
 export class Requests {
-    public static readonly POSTDATA: string = "/post/:hash";
-    public static readonly SUBMITPOST: string = "/post";
-    public static readonly POSTCONTENT: string = "/postcontent";
-    public static readonly SQUASHEDITS: string = "/squashedits";
+    public static readonly POSTDATA: string = "/post/:hash"; // GET
+    public static readonly SUBMITPOST: string = "/post"; // POST
+    public static readonly POSTCONTENT: string = "/postcontent"; // GET
+    public static readonly SQUASHEDITS: string = "/post/:hash/squash"; // PUT
     public static readonly EDITPOST: string = "/editpost";
     public static readonly FORCEEDITPOST: string = "/forceeditpost";
     public static readonly EDITCONTENT: string = "/editcontent";

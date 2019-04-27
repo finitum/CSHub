@@ -62,8 +62,7 @@
     import {
         GetEditContent,
         GetEditContentCallback,
-        SquashEdits,
-        SquashEditsCallback
+        SquashEdits
     } from "../../../../cshub-shared/src/api-calls/pages";
     import {IEdit} from "../../../../cshub-shared/src/models";
     import {Routes} from "../../../../cshub-shared/src/Routes";
@@ -223,7 +222,7 @@
                     on: true
                 });
             } else {
-                ApiWrapper.sendPostRequest(new SquashEdits(this.postHash, squashIds), (callback: SquashEditsCallback) => {
+                ApiWrapper.sendPutRequest(new SquashEdits(this.postHash, squashIds), () => {
                     this.dialogActive = {on: false, hash: -1};
                 });
             }

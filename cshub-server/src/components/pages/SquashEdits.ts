@@ -12,9 +12,10 @@ import {Dayjs} from "dayjs";
 import dayjs = require("dayjs");
 import Delta = require("quill-delta/dist/Delta");
 
-app.post(SquashEdits.getURL, (req: Request, res: Response) => {
+app.put(SquashEdits.getURL, (req: Request, res: Response) => {
 
     const squashEditRequest = req.body as SquashEdits;
+    squashEditRequest.postHash = req.params.hash;
 
     const userObj = checkTokenValidity(req);
 
@@ -65,7 +66,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                             currSquashIndexes.push(dbEditIndex);
                         } else {
                             logger.error("Invalid squash");
-                            res.status(501).send();
+                            res.status(400).send();
                             isValidRequest = false;
                             break;
                         }
@@ -79,7 +80,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                         for (let i = 1; i < currSquashIndexes.length; i++) {
                             if (Math.abs(currSquashIndexes[i] - prevIndex) > 1) {
                                 logger.error("Invalid squash");
-                                res.status(501).send();
+                                res.status(400).send();
                                 isValidRequest = false;
                                 break;
                             } else {
@@ -157,7 +158,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                                     });
                                 })
                                 .then(() => {
-                                    res.json(new SquashEditsCallback());
+                                    res.sendStatus(204);
                                 });
                         }
 
@@ -167,14 +168,14 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                 .catch((e) => {
                     logger.error("Error squashsing");
                     logger.error(e);
-                    res.status(501).send();
+                    res.status(500).send();
                 })
         } else {
             res.status(401).send();
         }
     } else {
         logger.error("Invalid squash input");
-        res.status(501).send();
+        res.status(400).send();
     }
 
 
