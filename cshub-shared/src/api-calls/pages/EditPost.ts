@@ -1,8 +1,6 @@
-import {IApiRequest} from "../../models/IApiRequest";
+import {IApiRequest} from "../../models";
 
 import {Requests} from "../Requests";
-// @ts-ignore
-import Delta from "quill-delta/dist/Delta";
 
 export enum EditPostReturnTypes {
     SUCCESS,
@@ -21,6 +19,7 @@ export class EditPost implements IApiRequest {
     constructor(
         public postHash: number,
         public postTitle: string,
-        public postTopicHash: number
+        public postTopicHash: number,
+        public deleteEdit: boolean
     ) {}
 }

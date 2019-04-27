@@ -17,6 +17,7 @@
                     <v-toolbar-title>Current edit</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
+                        <v-btn depressed small color="red" @click="deleteEdit">Delete</v-btn>
                         <v-btn depressed small color="red" @click="save">Save</v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
@@ -204,13 +205,14 @@
             this.activeTopicHash = [this.post.topicHash];
         }
 
-        private save() {
+        public save() {
             this.showLoadingIcon = true;
             logStringConsole("Editing post");
             ApiWrapper.sendPostRequest(new EditPost(
                 this.post.hash,
                 this.post.title,
-                this.activeTopicHash[0]
+                this.activeTopicHash[0],
+                false
             ), (callbackData: EditPostCallback) => {
                 this.showLoadingIcon = false;
                 if (callbackData.result === EditPostReturnTypes.SUCCESS) {
@@ -231,6 +233,29 @@
                     on: false,
                     hash: -1,
                     hasJustSaved: true
+                };
+            });
+        }
+
+        public deleteEdit() {
+            ApiWrapper.sendPostRequest(new EditPost(
+                this.post.hash,
+                this.post.title,
+                this.activeTopicHash[0],
+                true
+            ), (callbackData: EditPostCallback) => {
+                this.showLoadingIcon = false;
+
+                uiState.setNotificationDialogState({
+                    on: true,
+                    header: "Deleted edit",
+                    text: "Edit was successfully deleted"
+                });
+
+                this.dialogActive = {
+                    on: false,
+                    hash: -1,
+                    hasJustSaved: false
                 };
             });
         }

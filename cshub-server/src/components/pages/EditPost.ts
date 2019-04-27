@@ -16,71 +16,101 @@ app.post(EditPost.getURL, (req: Request, res: Response) => {
 
     const userObj = checkTokenValidity(req);
 
-    const inputsValidation = validateMultipleInputs({input: editPostRequest.postHash}, {input: editPostRequest.postTitle}, {input: editPostRequest.postTopicHash});
+    const inputsValidation = validateMultipleInputs({input: editPostRequest.postHash}, {input: editPostRequest.postTitle}, {input: editPostRequest.postTopicHash}, {input: editPostRequest.deleteEdit});
 
     if (inputsValidation.valid && userObj.valid) {
 
         const userIsAdmin = userObj.tokenObj.user.admin;
 
         if (userIsAdmin) {
-            return query(`
-              SELECT content, approved
-              FROM edits
-              WHERE post = (
-                SELECT id
-                FROM posts
-                WHERE hash = ?
-              )
-              ORDER BY datetime ASC
-            `, editPostRequest.postHash)
-                .then((edits: DatabaseResultSet) => {
-                    const rows = edits.convertRowsToResultObjects();
-                    const lastRow = rows[rows.length - 1];
-                    if (lastRow.getNumberFromDB("approved") !== 0) {
-                        res.json(new EditPostCallback(EditPostReturnTypes.NOTHINGTOUPDATE));
-                    } else {
-                        let delta = new Delta(JSON.parse(rows[0].getStringFromDB("content")));
 
-                        for (let i = 1; i < rows.length; i++) {
-                            const currRow = rows[i];
-                            delta = delta.compose(new Delta(JSON.parse(currRow.getStringFromDB("content"))));
-                        }
-
-                        getHTMLFromDelta(delta, (html, indexWords) => {
-                            query(`
-                              UPDATE edits, posts
-                              SET edits.approved    = 1,
-                                  edits.approvedBy  = ?,
-                                  edits.htmlContent = ?,
-                                  edits.indexWords  = ?,
-                                  edits.datetime    = NOW(),
-                                  posts.postVersion = posts.postVersion + 1,
-                                  posts.title       = ?,
-                                  posts.topic       = (SELECT id
-                                                       FROM topics
-                                                       WHERE hash = ?)
-                              WHERE edits.post = (
+            if (editPostRequest.deleteEdit) {
+                return query(`
+                    DELETE T1
+                    FROM editusers T1
+                             INNER JOIN edits T2 on T1.edit = T2.id
+                    WHERE T2.post = (
+                        SELECT id
+                        FROM posts
+                        WHERE hash = ?
+                    )
+                      AND T2.approved = 0
+                `, editPostRequest.postHash)
+                    .then(() => {
+                        return query(`
+                            DELETE FROM edits
+                            WHERE post = (
                                 SELECT id
                                 FROM posts
                                 WHERE hash = ?
-                              )
-                                AND edits.approved = 0
-                                AND posts.hash = ?
-                              ORDER BY edits.datetime DESC
-                              LIMIT 1
-                            `, userObj.tokenObj.user.id, html, indexWords, editPostRequest.postTitle, editPostRequest.postTopicHash, editPostRequest.postHash, editPostRequest.postHash)
-                                .then(() => {
-                                    logger.info("Edited post succesfully");
-                                    res.json(new EditPostCallback(EditPostReturnTypes.SUCCESS));
-                                });
-                        });
-                    }
-                })
-                .catch(err => {
-                    logger.error(`Editing failed`);
-                    logger.error(err);
-                    res.status(500).send();
-                });
+                            )
+                              AND approved = 0
+                        `, editPostRequest.postHash);
+
+                    })
+                    .then((edits: DatabaseResultSet) => {
+                        res.json(new EditPostCallback(EditPostReturnTypes.SUCCESS));
+                    });
+            } else {
+                return query(`
+                    SELECT content, approved
+                    FROM edits
+                    WHERE post = (
+                        SELECT id
+                        FROM posts
+                        WHERE hash = ?
+                    )
+                    ORDER BY datetime ASC
+                `, editPostRequest.postHash)
+                    .then((edits: DatabaseResultSet) => {
+                        const rows = edits.convertRowsToResultObjects();
+                        const lastRow = rows[rows.length - 1];
+                        if (lastRow.getNumberFromDB("approved") !== 0) {
+                            res.json(new EditPostCallback(EditPostReturnTypes.NOTHINGTOUPDATE));
+                        } else {
+                            let delta = new Delta(JSON.parse(rows[0].getStringFromDB("content")));
+
+                            for (let i = 1; i < rows.length; i++) {
+                                const currRow = rows[i];
+                                delta = delta.compose(new Delta(JSON.parse(currRow.getStringFromDB("content"))));
+                            }
+
+                            getHTMLFromDelta(delta, (html, indexWords) => {
+                                query(`
+                                    UPDATE edits, posts
+                                    SET edits.approved    = 1,
+                                        edits.approvedBy  = ?,
+                                        edits.htmlContent = ?,
+                                        edits.indexWords  = ?,
+                                        edits.datetime    = NOW(),
+                                        posts.postVersion = posts.postVersion + 1,
+                                        posts.title       = ?,
+                                        posts.topic       = (SELECT id
+                                                             FROM topics
+                                                             WHERE hash = ?)
+                                    WHERE edits.post = (
+                                        SELECT id
+                                        FROM posts
+                                        WHERE hash = ?
+                                    )
+                                      AND edits.approved = 0
+                                      AND posts.hash = ?
+                                    ORDER BY edits.datetime DESC
+                                    LIMIT 1
+                                `, userObj.tokenObj.user.id, html, indexWords, editPostRequest.postTitle, editPostRequest.postTopicHash, editPostRequest.postHash, editPostRequest.postHash)
+                                    .then(() => {
+                                        logger.info("Edited post succesfully");
+                                        res.json(new EditPostCallback(EditPostReturnTypes.SUCCESS));
+                                    });
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        logger.error(`Editing failed`);
+                        logger.error(err);
+                        res.status(500).send();
+                    });
+            }
         } else {
             res.status(401).send();
         }
