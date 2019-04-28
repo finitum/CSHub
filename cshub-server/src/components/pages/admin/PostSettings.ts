@@ -18,17 +18,17 @@ app.put(PostSettings.getURL, async (req: Request, res: Response) => {
 
     if (token.valid) {
         switch (action) {
-            case PostSettingsEditType[PostSettingsEditType.HIDE]:
+            case PostSettingsEditType[PostSettingsEditType.HIDE].toLowerCase():
                 if (token.tokenObj.user.admin) {
                     deletePost(res, postHash);
                 } else {
                     res.status(403).send();
                 }
                 break;
-            case PostSettingsEditType[PostSettingsEditType.FAVORITE]:
+            case PostSettingsEditType[PostSettingsEditType.FAVORITE].toLowerCase():
                 await favoritePost(res, postHash, token.tokenObj.user.id);
                 break;
-            case PostSettingsEditType[PostSettingsEditType.WIP]:
+            case PostSettingsEditType[PostSettingsEditType.WIP].toLowerCase():
                 if (token.tokenObj.user.admin) {
                     await wipPost(res, postHash);
                 } else {
