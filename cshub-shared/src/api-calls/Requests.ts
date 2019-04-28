@@ -11,8 +11,8 @@ export class Requests {
     public static readonly WIPPOSTS: string = "/posts/wip"; // GET
 
     public static readonly TOPICS: string = "/topics"; // GET
+    public static readonly SUBMITTOPIC: string = "/topics"; // POST
     public static readonly TOPICPOSTS: string = "/topicposts";
-    public static readonly SUBMITTOPIC: string = "/topic"; // POST
 
     public static readonly LOGINREQUEST: string = "/login";
     public static readonly CREATEACCOUNTREQUEST: string = "/createaccount";
