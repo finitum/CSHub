@@ -2,48 +2,69 @@ import {app} from "../../../";
 import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
-import {PostSettingsCallback, PostSettings, PostSettingsEditType} from "../../../../../cshub-shared/src/api-calls";
+import {PostSettings, PostSettingsCallback, PostSettingsEditType} from "../../../../../cshub-shared/src/api-calls";
 import {ServerError} from "../../../../../cshub-shared/src/models/ServerError";
 
-app.post(PostSettings.getURL, (req: Request, res: Response) => {
+app.put(PostSettings.getURL, async (req: Request, res: Response) => {
 
-    const postSettingsRequest = req.body as PostSettings;
+    const postHash: number = +req.params.hash;
+    const action: string = req.params.action;
+
+    if (typeof action === "undefined" || isNaN(postHash)) {
+        res.sendStatus(400);
+    }
 
     const token = checkTokenValidity(req);
 
     if (token.valid) {
-
-        switch (postSettingsRequest.editType) {
-            case PostSettingsEditType.HIDE:
+        switch (action) {
+            case PostSettingsEditType[PostSettingsEditType.HIDE]:
                 if (token.tokenObj.user.admin) {
-                    deletePost(res, postSettingsRequest.postHash);
+                    deletePost(res, postHash);
                 } else {
                     res.status(403).send();
                 }
                 break;
-            case PostSettingsEditType.FAVORITE:
-                favoritePost(res, postSettingsRequest.postHash, token.tokenObj.user.id, postSettingsRequest.favorite);
+            case PostSettingsEditType[PostSettingsEditType.FAVORITE]:
+                await favoritePost(res, postHash, token.tokenObj.user.id);
                 break;
-            case PostSettingsEditType.WIP:
+            case PostSettingsEditType[PostSettingsEditType.WIP]:
                 if (token.tokenObj.user.admin) {
-                    wipPost(res, postSettingsRequest.postHash, postSettingsRequest.favorite);
+                    await wipPost(res, postHash);
                 } else {
                     res.status(403).send();
                 }
                 break;
+            default:
+                res.status(400).json({
+                    error: new Error("Did not understand the PostSettingsEditType")
+                })
         }
     } else {
         res.status(403).send();
     }
 });
 
-const wipPost = (res: Response, postHash: number, wip: boolean) => {
+async function isWip(postHash: number): Promise<boolean> {
+    const result: DatabaseResultSet = await query(`
+        SELECT wip
+        FROM posts
+        WHERE hash = ?
+    `, postHash);
+
+    return result.getNumberFromDB("wip") === 1;
+}
+
+const wipPost = async (res: Response, postHash: number) => {
+
+    const isCurrentlyWip: boolean = await isWip(postHash);
+
     query(`
         UPDATE posts
         SET postVersion = postVersion + 1,
             wip         = ?
         WHERE hash = ?
-    `, wip, postHash)
+    `, !isCurrentlyWip, postHash)
         .then(() => {
             res.json(new PostSettingsCallback());
         });
@@ -63,8 +84,22 @@ const deletePost = (res: Response, postHash: number) => {
         });
 };
 
-const favoritePost = (res: Response, postHash: number, userId: number, favorite: boolean) => {
-    if (favorite) {
+async function isFavourite(postHash: number, userId: number): Promise<boolean> {
+    const result: DatabaseResultSet = await query(`
+        SELECT id
+        FROM favorites
+        WHERE post = (SELECT id FROM posts WHERE hash = ?) AND user = ?
+        LIMIT 1
+        `, postHash, userId);
+
+    return result.getRows().length === 1;
+}
+
+const favoritePost = async (res: Response, postHash: number, userId: number) => {
+
+    const favorite = await isFavourite(postHash, userId);
+
+    if (!favorite) {
         query(`
             SELECT isIndex
             FROM posts
@@ -78,7 +113,7 @@ const favoritePost = (res: Response, postHash: number, userId: number, favorite:
                             post = (SELECT id FROM posts WHERE hash = ?)
                     `, userId, postHash)
                         .then(() => {
-                            res.json(new PostSettingsCallback());
+                            res.status(200).json(new PostSettingsCallback());
                         });
                 } else {
                     res.status(400).send(new ServerError("You can't favorite an index post (and in the client you shouldn't be able to...)"));
@@ -95,5 +130,4 @@ const favoritePost = (res: Response, postHash: number, userId: number, favorite:
                 res.json(new PostSettingsCallback());
             });
     }
-
 };

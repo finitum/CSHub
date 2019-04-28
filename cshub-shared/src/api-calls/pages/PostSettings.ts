@@ -1,4 +1,4 @@
-import {IApiRequest, IUser} from "../../models";
+import {IApiRequest} from "../../models";
 import {Requests} from "../Requests";
 
 export enum PostSettingsEditType {
@@ -14,7 +14,8 @@ export class PostSettings implements IApiRequest {
     public static getURL: string = Requests.POSTSETTINGS;
     public URL: string = PostSettings.getURL;
 
-    constructor(postHash: number, editType: PostSettingsEditType.FAVORITE | PostSettingsEditType.WIP, toggle: boolean);
-    constructor(postHash: number, editType: PostSettingsEditType.HIDE);
-    constructor(public postHash: number, public editType: PostSettingsEditType, public favorite?: boolean) {}
+    constructor(postHash: number, editType: PostSettingsEditType) {
+        this.URL = this.URL.replace(/:hash/, postHash.toString());
+        this.URL = this.URL.replace(/:action/, PostSettingsEditType[editType]);
+    }
 }

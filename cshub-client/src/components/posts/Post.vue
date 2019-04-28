@@ -151,9 +151,11 @@
         GetPostCallBack,
         GetPostContent,
         GetPostContentCallBack,
+        PostSettings,
         PostSettingsCallback,
-        PostSettings, PostSettingsEditType,
-        PostVersionTypes, Requests
+        PostSettingsEditType,
+        PostVersionTypes,
+        Requests
     } from "../../../../cshub-shared/src/api-calls";
     import {IPost, ITopic} from "../../../../cshub-shared/src/models";
     import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
@@ -463,23 +465,24 @@
         }
 
         private toggleFavorite() {
-            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.FAVORITE, !this.post.isMyFavorite), (callback: PostSettingsCallback) => {
+            ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.FAVORITE), (callback: PostSettingsCallback) => {
                 logStringConsole("Toggled favorite");
                 this.post.isMyFavorite = !this.post.isMyFavorite;
             });
         }
 
         private hidePost() {
-            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.HIDE), (callback: PostSettingsCallback) => {
+            ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.HIDE), (callback: PostSettingsCallback) => {
                 logStringConsole("Removed post");
                 this.$router.push(Routes.INDEX);
             });
         }
 
         private wipPost() {
-            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.WIP, !this.post.isWIP), (callback: PostSettingsCallback) => {
+            ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.WIP), (callback: PostSettingsCallback) => {
                 logStringConsole("WIPPED post");
-                this.$router.push(Routes.WIPPOSTS);
+                this.post.isWIP = !this.post.isWIP;
+                // this.$router.push(Routes.WIPPOSTS);
             });
         }
 
