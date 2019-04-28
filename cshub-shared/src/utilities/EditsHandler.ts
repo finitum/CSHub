@@ -1,7 +1,7 @@
 import {getMarkdownParser, MarkdownLatexQuill} from "./MarkdownLatexQuill";
 
 export const getHTML = (quillEditor: any, document: Document, window: Window) => {
-    const node = quillEditor.container.firstChild;
+    const node = quillEditor.container.firstChild.cloneNode(true);
 
     // Converts the classes of all the code blocks so that hljs can highlight them properly
     const allNodes: any[] = [...node.getElementsByTagName("*")];
@@ -15,12 +15,12 @@ export const getHTML = (quillEditor: any, document: Document, window: Window) =>
         isMarkdownBlock: false
     };
 
-    const finalizeMarkdownBlock = (document: Document, window: Window) => {
+    const finalizeMarkdownBlock = (doc: Document, win: Window) => {
         if (prevElement.isMarkdownBlock) {
             prevElement.currString = prevElement.currString.substr(0, prevElement.currString.length - 1);
             prevElement.currString = prevElement.currString.split("<").join("&lt;");
             prevElement.currString = prevElement.currString.split(">").join("&gt;");
-            const newNode = document.createElement("div");
+            const newNode = doc.createElement("div");
             // To not have a break at the end
             newNode.style.whiteSpace = "normal";
             newNode.classList.add("markdown-body");

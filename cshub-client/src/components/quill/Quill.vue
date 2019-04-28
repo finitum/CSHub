@@ -130,28 +130,10 @@
                         <div class="editor" style="overflow: hidden;">
                         </div>
                     </div>
-                    <v-btn fab small depressed color="primary" class="ql-tooltip" id="markdownTooltip"
-                           @click="openMarkdownDialog" v-show="markdownTooltip !== null">
-                        <v-icon>fas fa-edit</v-icon>
-                    </v-btn>
-
-                    <v-dialog v-model="markdownDialogState.open" fullscreen hide-overlay
-                              transition="dialog-bottom-transition">
-                        <v-card>
-                            <v-toolbar dark color="primary">
-                                <v-btn icon dark @click="closeMarkdownDialog">
-                                    <v-icon>fas fa-times</v-icon>
-                                </v-btn>
-                                <v-toolbar-title>Markdown preview</v-toolbar-title>
-                                <v-spacer></v-spacer>
-                            </v-toolbar>
-                            <MarkdownEditor v-if="markdownDialogState"></MarkdownEditor>
-                        </v-card>
-                    </v-dialog>
                 </div>
             </v-flex>
             <v-flex xs6 v-if="showMarkdownPreview">
-                <div v-html="markdownHTMLPreview" style="margin-top: 10px"></div>
+                <div v-html="markdownHTMLPreview" style="margin-top: 10px" id="htmlOutput"></div>
             </v-flex>
         </v-layout>
     </v-container>
@@ -168,6 +150,8 @@
     // @ts-ignore
     import QuillCursors from "quill-cursors";
 
+    import CodeMirror from "codemirror";
+
     import Quill, {RangeStatic, Sources} from "quill";
     import "quill/dist/quill.core.css";
     import "quill/dist/quill.snow.css";
@@ -182,9 +166,7 @@
     import {idGenerator} from "../../utilities/id-generator";
 
     import {MarkdownLatexQuill} from "../../../../cshub-shared/src/utilities/MarkdownLatexQuill";
-    import MarkdownEditor from "./MarkdownEditor.vue";
 
-    import {markdownDialogType} from "../../store/ui/state";
     import uiState from "../../store/ui";
     import {
         ClientCursorUpdated,
@@ -204,14 +186,14 @@
     import {IUserCensored} from "../../../../cshub-shared/src/models";
     import {Requests} from "../../../../cshub-shared/src/api-calls";
     import {getHTML} from "../../../../cshub-shared/src/utilities/EditsHandler";
+    import {colorize} from "../../utilities/codemirror-colorize";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
     (window as any).Quill.register("modules/cursors", QuillCursors);
 
     @Component({
-        name: "QuillEditor",
-        components: {MarkdownEditor}
+        name: "QuillEditor"
     })
     export default class QuillEditor extends Vue {
 
@@ -243,7 +225,6 @@
         private previousAwaitingIds: Set<number> = new Set();
 
         // Markdown editor related variables
-        private markdownTooltip: any = null;
         private currentlySelectedDomNodes: object[] = [];
         private showMarkdownPreview = false;
         private markdownHTMLPreview = "";
@@ -407,14 +388,6 @@
         /**
          * Computed properties
          */
-        get markdownDialogState(): markdownDialogType {
-            return uiState.mardownDialogState;
-        }
-
-        set markdownDialogState(state: markdownDialogType) {
-            uiState.setMarkdownDialogState(state);
-        }
-
         get userId(): number {
             return userState.userModel.id;
         }
@@ -443,6 +416,10 @@
 
         private setMarkdownPreview(): void {
             this.showMarkdownPreview = !this.showMarkdownPreview;
+
+            if (this.showMarkdownPreview) {
+                this.markdownHTMLPreview = getHTML(this.editor, document, window);
+            }
         }
 
         private getDelta() {
@@ -474,7 +451,7 @@
 
                 // @ts-ignore
                 textArea.focus();
-                textArea.addEventListener("keydown", (evt => {
+                textArea.addEventListener("keydown", (evt) => {
                     // @ts-ignore
                     if (evt.keyCode === 13) {
                         const saveButton = document.querySelector(`#${this.editorId} .editor .ql-editing .ql-action`);
@@ -482,7 +459,7 @@
                         // @ts-ignore
                         saveButton.click();
                     }
-                }));
+                });
             };
 
             // @ts-ignore
@@ -516,8 +493,6 @@
                         }
                     }
                 }
-
-                this.markdownTooltip = new CustomTooltip(this.editor, null, document.getElementById("markdownTooltip")) as any;
 
                 // Specify function to be called on change
                 this.editor.on("text-change", this.textChanged);
@@ -560,22 +535,11 @@
 
             if (this.editor !== null && this.showMarkdownPreview) {
                 this.markdownHTMLPreview = getHTML(this.editor, document, window);
-                console.log(this.markdownHTMLPreview)
+
+                Vue.nextTick(() => {
+                    colorize(null, CodeMirror);
+                });
             }
-        }
-
-        private openMarkdownDialog() {
-            this.markdownDialogState = {
-                open: true,
-                blots: this.currentlySelectedDomNodes as Blot[]
-            };
-        }
-
-        private closeMarkdownDialog() {
-            this.markdownDialogState = {
-                ...this.markdownDialogState,
-                open: false
-            };
         }
 
         private selectionChanged(range: RangeStatic, oldRange: RangeStatic, source: any) {
@@ -590,9 +554,6 @@
                 if (obKeys[0] === MarkdownLatexQuill.blotName) {
 
                     const bounds = this.editor.getBounds(range.index, range.length);
-
-                    this.markdownTooltip.show();
-                    this.markdownTooltip.position(bounds);
 
                     const currentLineArray = this.editor.getLines(range);
 
@@ -623,15 +584,10 @@
                             }
                         }
 
-                        this.markdownTooltip.show();
                         this.currentlySelectedDomNodes = newLineArray;
                     }
 
-                } else {
-                    this.markdownTooltip.hide();
                 }
-            } else {
-                this.markdownTooltip.hide();
             }
         }
     }
@@ -639,10 +595,6 @@
 
 <style lang="scss">
     @import "../../styling/vars";
-
-    #markdownTooltip.ql-tooltip::before {
-        content: none;
-    }
 
     .theme--dark {
         svg > {
@@ -677,6 +629,12 @@
     .quillIcon {
         min-width: 10px;
         padding: 0;
+    }
+
+    #htmlOutput {
+        p {
+            margin-bottom: 0;
+        }
     }
 
 

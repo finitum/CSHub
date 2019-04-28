@@ -1,4 +1,4 @@
-import {getMarkdownParser, MarkdownLatexQuill} from "../../../cshub-shared/src/utilities/MarkdownLatexQuill";
+import {MarkdownLatexQuill} from "../../../cshub-shared/src/utilities/MarkdownLatexQuill";
 import {DOMWindow, JSDOM, VirtualConsole} from "jsdom";
 import QuillDefaultOptions from "../../../cshub-shared/src/utilities/QuillDefaultOptions";
 import Delta from "quill-delta/dist/Delta";

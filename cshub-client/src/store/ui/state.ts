@@ -33,7 +33,6 @@ export interface IUIState {
     currentEditDialogState: editDialogType;
     paginationPageState: number;
     notificationDialog: notificationDialogType;
-    markdownDialog: markdownDialogType;
     previousRoute: Route;
     darkMode: boolean;
 }
@@ -55,10 +54,6 @@ export const UIState: IUIState = {
         on: false,
         header: "",
         text: ""
-    },
-    markdownDialog: {
-        open: false,
-        blots: []
     },
     previousRoute: null,
     darkMode: localStorage.getItem(LocalStorageData.DARK) === "true"
