@@ -112,7 +112,8 @@
             if (this.errors) {
                 const collect = this.errors.collect("password");
                 if (collect.length > 0) {
-                    validationErrors = collect[0].msg;
+                    // @ts-ignore
+                    validationErrors = collect[0];
                 }
             }
 
@@ -125,7 +126,8 @@
             if (this.errors) {
                 const collect = this.errors.collect("email");
                 if (collect.length > 0) {
-                    validationErrors = collect[0].msg;
+                    // @ts-ignore
+                    validationErrors = collect[0];
                 }
             }
 

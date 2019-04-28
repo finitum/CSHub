@@ -115,6 +115,9 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
         case Routes.FORGOTPASSWORD:
             title = "Forgot password";
             break;
+        case Routes.WIPPOSTS:
+            title = "WIP posts";
+            break;
     }
 
     title += " - CSHub";
