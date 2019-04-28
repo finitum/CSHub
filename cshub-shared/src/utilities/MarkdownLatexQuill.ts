@@ -27,6 +27,9 @@ export class MarkdownLatexQuill {
         // @ts-ignore
         this.MarkdownLatexQuillExt.tagName = "PRE";
 
+        // @ts-ignore
+        this.MarkdownLatexQuillExt.allowedChildren = Block.allowedChildren;
+
         this.quillObj.register(this.MarkdownLatexQuillExt);
     }
 
@@ -36,7 +39,7 @@ export const getMarkdownParser = () => {
     return new MarkdownIt({
         highlight: (str: string, lang: string) => {
             if (lang.length === 0) { lang = "null"; }
-            return `<pre data-lang=${lang}>${str}</pre>`;
+            return `<pre data-lang=${lang}><code>${str}</code></pre>`;
         }
     }).use(mk);
 };
