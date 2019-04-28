@@ -47,7 +47,7 @@ axiosApi.interceptors.response.use((value: AxiosResponse<any>) => {
     };
 
     if (typeof error.response !== "undefined") {
-        if(error.response.status === 304) {
+        if (error.response.status === 304) {
             // Do nothing
         } else if (error.response.status === 401 || error.response.status === 403) {
             const isLoggedIn = userState.isLoggedIn;
@@ -162,7 +162,6 @@ export class ApiWrapper {
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
-                    console.error((response))
                     callback(response.data, response.status);
                 }
             })
