@@ -7,12 +7,12 @@ export class Requests {
     public static readonly FORCEEDITPOST: string = "/post/:hash/forcesave"; // PUT
     public static readonly EDITCONTENT: string = "/editcontent"; // GET
     public static readonly POSTSETTINGS: string = "/postsettings";
-    public static readonly GETUNVERIFIEDPOSTS: string = "/posts/unverified";
-    public static readonly WIPPOSTS: string = "/posts/wip";
+    public static readonly GETUNVERIFIEDPOSTS: string = "/posts/unverified"; // GET
+    public static readonly WIPPOSTS: string = "/posts/wip"; // GET
 
-    public static readonly TOPICS: string = "/topics";
+    public static readonly TOPICS: string = "/topics"; // GET
     public static readonly TOPICPOSTS: string = "/topicposts";
-    public static readonly SUBMITTOPIC: string = "/createtopic";
+    public static readonly SUBMITTOPIC: string = "/topic"; // POST
 
     public static readonly LOGINREQUEST: string = "/login";
     public static readonly CREATEACCOUNTREQUEST: string = "/createaccount";
