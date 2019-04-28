@@ -1,136 +1,160 @@
 <template>
-    <!-- Shamelessly stolen from the quilljs homepage -->
-    <div class="snow-wrapper" style="height: 100%">
-        <div class="snow-container" :id="editorId" style="height: 100%">
-            <div class="toolbar" v-show="editorSetup.showToolbar" style="border: none; padding: 1%;">
-                <span class="ql-formats">
-                    <select class="ql-header" title="Header">
-                        <option value="1">Heading</option>
-                        <option value="2">Subheading</option>
-                        <option value="3">Subsubheading</option>
-                        <option selected>Normal</option>
-                    </select>
-                </span>
-                <span class="ql-formats">
-                    <button class="ql-bold"></button>
-                    <button class="ql-italic"></button>
-                    <button class="ql-underline"></button>
-                    <button class="ql-clean"></button>
-                    <select class="ql-color">
-                        <option value="inherit"/>
-                        <option value="rgb(230, 0, 0)"/>
-                        <option value="rgb(255, 153, 0)"/>
-                        <option value="rgb(255, 255, 0)"/>
-                        <option value="rgb(0, 138, 0)"/>
-                        <option value="rgb(0, 102, 204)"/>
-                        <option value="rgb(153, 51, 255)"/>
-                        <option value="rgb(250, 204, 204)"/>
-                        <option value="rgb(255, 235, 204)"/>
-                        <option value="rgb(204, 224, 245)"/>
-                        <option value="rgb(235, 214, 255)"/>
-                        <option value="rgb(187, 187, 187)"/>
-                        <option value="rgb(102, 185, 102)"/>
-                    </select>
-                    <select class="ql-background">
-                        <option value="rgba(0, 0, 0, 0)"/>
-                        <option value="rgb(230, 0, 0)"/>
-                        <option value="rgb(255, 153, 0)"/>
-                        <option value="rgb(255, 255, 0)"/>
-                        <option value="rgb(0, 138, 0)"/>
-                        <option value="rgb(0, 102, 204)"/>
-                        <option value="rgb(153, 51, 255)"/>
-                        <option value="rgb(250, 204, 204)"/>
-                        <option value="rgb(255, 235, 204)"/>
-                        <option value="rgb(204, 224, 245)"/>
-                        <option value="rgb(235, 214, 255)"/>
-                        <option value="rgb(187, 187, 187)"/>
-                        <option value="rgb(102, 185, 102)"/>
-                    </select>
-                </span>
-                <span class="ql-formats">
-                    <button class="ql-list" value="ordered"></button>
-                    <button class="ql-list" value="bullet"></button>
-                    <select class="ql-align" title="Alignment">
-                        <option label="left" selected></option>
-                        <option label="center" value="center"></option>
-                        <option label="right" value="right"></option>
-                        <option label="justify" value="justify"></option>
-                    </select>
-                </span>
-                <span class="ql-formats">
-                <button class="ql-link"></button>
-                <button class="ql-image" style="display: none"></button>
-                <button class="ql-video"></button>
-                </span>
-                <span class="ql-formats">
-                    <button class="ql-formula"></button>
-                    <v-btn
-                            slot="activator"
-                            dark
-                            flat
-                            :ripple="false"
-                            small
-                            class="quillIcon"
-                            @click="setMarkDown"
-                            style="margin: 0"
-                    >
-                        <v-icon :color="darkMode ? 'white' : 'black'">fas fa-marker</v-icon>
-                    </v-btn>
-                </span>
-                <span class="ql-formats">
-                    <v-menu
-                            v-model="otherPeoplesMenu"
-                            :close-on-content-click="false"
-                            :nudge-width="200"
-                            offset-x
-                    >
-                        <v-btn
-                            slot="activator"
-                            dark
-                            flat
-                            :ripple="false"
-                            small
-                            class="quillIcon"
-                            style="margin: 0">
-                            <v-icon :color="darkMode ? 'white' : 'black'">fas fa-users</v-icon>
-                        </v-btn>
-                          <v-card>
-                              <v-list>
-                                  <v-list-tile avatar :key="user[1].id" v-for="user in Array.from(otherPeoples)">
-                                    <v-list-tile-avatar>
-                                        <img :src="getAvatarURL(user[1].id)">
-                                    </v-list-tile-avatar>
+    <v-container grid-list-xl style="max-width: 100%;">
+        <v-layout row wrap>
+            <v-flex :xs6="showMarkdownPreview">
+                <!-- Shamelessly stolen from the quilljs homepage -->
+                <div class="snow-wrapper" style="height: 100%">
+                    <div class="snow-container" :id="editorId" style="height: 100%">
+                        <div class="toolbar" v-show="editorSetup.showToolbar" style="border: none; padding: 1%;">
+                            <span class="ql-formats">
+                                <select class="ql-header" title="Header">
+                                    <option value="1">Heading</option>
+                                    <option value="2">Subheading</option>
+                                    <option value="3">Subsubheading</option>
+                                    <option selected>Normal</option>
+                                </select>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-bold"></button>
+                                <button class="ql-italic"></button>
+                                <button class="ql-underline"></button>
+                                <button class="ql-clean"></button>
+                                <select class="ql-color">
+                                    <option value="inherit"/>
+                                    <option value="rgb(230, 0, 0)"/>
+                                    <option value="rgb(255, 153, 0)"/>
+                                    <option value="rgb(255, 255, 0)"/>
+                                    <option value="rgb(0, 138, 0)"/>
+                                    <option value="rgb(0, 102, 204)"/>
+                                    <option value="rgb(153, 51, 255)"/>
+                                    <option value="rgb(250, 204, 204)"/>
+                                    <option value="rgb(255, 235, 204)"/>
+                                    <option value="rgb(204, 224, 245)"/>
+                                    <option value="rgb(235, 214, 255)"/>
+                                    <option value="rgb(187, 187, 187)"/>
+                                    <option value="rgb(102, 185, 102)"/>
+                                </select>
+                                <select class="ql-background">
+                                    <option value="rgba(0, 0, 0, 0)"/>
+                                    <option value="rgb(230, 0, 0)"/>
+                                    <option value="rgb(255, 153, 0)"/>
+                                    <option value="rgb(255, 255, 0)"/>
+                                    <option value="rgb(0, 138, 0)"/>
+                                    <option value="rgb(0, 102, 204)"/>
+                                    <option value="rgb(153, 51, 255)"/>
+                                    <option value="rgb(250, 204, 204)"/>
+                                    <option value="rgb(255, 235, 204)"/>
+                                    <option value="rgb(204, 224, 245)"/>
+                                    <option value="rgb(235, 214, 255)"/>
+                                    <option value="rgb(187, 187, 187)"/>
+                                    <option value="rgb(102, 185, 102)"/>
+                                </select>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-list" value="ordered"></button>
+                                <button class="ql-list" value="bullet"></button>
+                                <select class="ql-align" title="Alignment">
+                                    <option label="left" selected></option>
+                                    <option label="center" value="center"></option>
+                                    <option label="right" value="right"></option>
+                                    <option label="justify" value="justify"></option>
+                                </select>
+                            </span>
+                            <span class="ql-formats">
+                            <button class="ql-link"></button>
+                            <button class="ql-image" style="display: none"></button>
+                            <button class="ql-video"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-formula"></button>
+                                <v-menu
+                                        v-model="otherPeoplesMenu"
+                                        :close-on-content-click="false"
+                                        :nudge-width="200"
+                                        offset-x
+                                >
+                                    <v-btn
+                                            slot="activator"
+                                            dark
+                                            flat
+                                            :ripple="false"
+                                            small
+                                            class="quillIcon"
+                                            style="margin: 0">
+                                        <v-icon :color="darkMode ? 'white' : 'black'">fas fa-users</v-icon>
+                                    </v-btn>
+                                    <v-card>
+                                        <v-list>
+                                            <v-list-tile avatar :key="user[1].id"
+                                                       v-for="user in Array.from(otherPeoples)">
+                                                <v-list-tile-avatar>
+                                                    <img :src="getAvatarURL(user[1].id)">
+                                                </v-list-tile-avatar>
 
-                                    <v-list-tile-content>
-                                      <v-list-tile-title>{{user[1].firstname}} {{user[1].lastname}}</v-list-tile-title>
-                                    </v-list-tile-content>
-                                  </v-list-tile>
-                                  <v-list-tile v-if="otherPeoples.size === 0">You are alone here :(</v-list-tile>
-                                </v-list>
-                          </v-card>
-                        </v-menu>
-                </span>
-            </div>
-            <div class="editor" style="overflow: hidden;">
-            </div>
-        </div>
-        <v-btn fab small depressed color="primary" class="ql-tooltip" id="markdownTooltip" @click="openMarkdownDialog" v-show="markdownTooltip !== null">
-            <v-icon>fas fa-edit</v-icon>
-        </v-btn>
-
-        <v-dialog v-model="markdownDialogState.open" fullscreen hide-overlay transition="dialog-bottom-transition">
-            <v-card>
-                <v-toolbar dark color="primary">
-                    <v-btn icon dark @click="closeMarkdownDialog">
-                        <v-icon>fas fa-times</v-icon>
+                                                <v-list-tile-content>
+                                                    <v-list-tile-title>{{user[1].firstname}} {{user[1].lastname}}</v-list-tile-title>
+                                                </v-list-tile-content>
+                                            </v-list-tile>
+                                            <v-list-tile v-if="otherPeoples.size === 0">You are alone here :(</v-list-tile>
+                                      </v-list>
+                                    </v-card>
+                                </v-menu>
+                            </span>
+                            <span class="ql-formats">
+                                <v-btn
+                                        slot="activator"
+                                        dark
+                                        flat
+                                        :ripple="false"
+                                        small
+                                        class="quillIcon"
+                                        @click="setMarkDown"
+                                        style="margin: 0"
+                                >
+                                    <v-icon :color="darkMode ? 'white' : 'black'">fas fa-marker</v-icon>
+                                </v-btn>
+                                <v-btn
+                                        slot="activator"
+                                        dark
+                                        flat
+                                        :ripple="false"
+                                        small
+                                        class="quillIcon"
+                                        @click="setMarkdownPreview"
+                                        style="margin: 0"
+                                >
+                                    <v-icon :color="darkMode ? 'white' : 'black'">fas fa-desktop</v-icon>
+                                </v-btn>
+                            </span>
+                        </div>
+                        <div class="editor" style="overflow: hidden;">
+                        </div>
+                    </div>
+                    <v-btn fab small depressed color="primary" class="ql-tooltip" id="markdownTooltip"
+                           @click="openMarkdownDialog" v-show="markdownTooltip !== null">
+                        <v-icon>fas fa-edit</v-icon>
                     </v-btn>
-                    <v-toolbar-title>Markdown preview</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                </v-toolbar>
-                <MarkdownEditor v-if="markdownDialogState"></MarkdownEditor>
-            </v-card>
-        </v-dialog>
-    </div>
+
+                    <v-dialog v-model="markdownDialogState.open" fullscreen hide-overlay
+                              transition="dialog-bottom-transition">
+                        <v-card>
+                            <v-toolbar dark color="primary">
+                                <v-btn icon dark @click="closeMarkdownDialog">
+                                    <v-icon>fas fa-times</v-icon>
+                                </v-btn>
+                                <v-toolbar-title>Markdown preview</v-toolbar-title>
+                                <v-spacer></v-spacer>
+                            </v-toolbar>
+                            <MarkdownEditor v-if="markdownDialogState"></MarkdownEditor>
+                        </v-card>
+                    </v-dialog>
+                </div>
+            </v-flex>
+            <v-flex xs6 v-if="showMarkdownPreview">
+                <div v-html="markdownHTMLPreview" style="margin-top: 10px"></div>
+            </v-flex>
+        </v-layout>
+    </v-container>
 </template>
 
 <script lang="ts">
@@ -141,7 +165,6 @@
     import dayjs from "dayjs";
     import katex from "katex";
     import "katex/dist/katex.min.css";
-
     // @ts-ignore
     import QuillCursors from "quill-cursors";
 
@@ -155,7 +178,7 @@
     import defaultOptions from "../../../../cshub-shared/src/utilities/QuillDefaultOptions";
     import {IQuillEditSetup} from "./IQuillEditSetup";
 
-    import {logObjectConsole, logStringConsole} from "../../utilities";
+    import {logStringConsole} from "../../utilities";
     import {idGenerator} from "../../utilities/id-generator";
 
     import {MarkdownLatexQuill} from "../../../../cshub-shared/src/utilities/MarkdownLatexQuill";
@@ -166,7 +189,10 @@
     import {
         ClientCursorUpdated,
         ClientDataUpdated,
-        IRealtimeEdit, IRealtimeSelect, ServerCursorUpdated, ServerDataUpdated,
+        IRealtimeEdit,
+        IRealtimeSelect,
+        ServerCursorUpdated,
+        ServerDataUpdated,
         TogglePostJoin
     } from "../../../../cshub-shared/src/api-calls/realtime-edit";
     import {SocketWrapper} from "../../utilities/socket-wrapper";
@@ -177,6 +203,7 @@
     import {CustomTooltip} from "./CustomTooltip";
     import {IUserCensored} from "../../../../cshub-shared/src/models";
     import {Requests} from "../../../../cshub-shared/src/api-calls";
+    import {getHTML} from "../../../../cshub-shared/src/utilities/EditsHandler";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -217,8 +244,9 @@
 
         // Markdown editor related variables
         private markdownTooltip: any = null;
-        private markdownTextString = "";
         private currentlySelectedDomNodes: object[] = [];
+        private showMarkdownPreview = false;
+        private markdownHTMLPreview = "";
 
         /**
          * Lifecycle hooks
@@ -413,6 +441,10 @@
 
         }
 
+        private setMarkdownPreview(): void {
+            this.showMarkdownPreview = !this.showMarkdownPreview;
+        }
+
         private getDelta() {
             return this.editor.getContents();
         }
@@ -525,6 +557,11 @@
                 this.awaitingIds.add(randomNumberLarge);
                 SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
             }
+
+            if (this.editor !== null && this.showMarkdownPreview) {
+                this.markdownHTMLPreview = getHTML(this.editor, document, window);
+                console.log(this.markdownHTMLPreview)
+            }
         }
 
         private openMarkdownDialog() {
@@ -607,21 +644,25 @@
         content: none;
     }
 
-    .theme--dark  {
+    .theme--dark {
         svg > {
             .ql-fill {
                 fill: $fg-dark;
             }
+
             .ql-stroke {
                 stroke: $fg-dark;
             }
         }
+
         .ql-picker-label {
             color: $fg-dark;
         }
+
         .ql-picker-options {
             background: $bg-dark;
         }
+
         .ql-picker-item {
             color: $fg-dark;
         }
@@ -639,7 +680,7 @@
     }
 
 
-    .editor >>> .mklqx {
+    .editor > > > .mklqx {
         white-space: pre-wrap;
         background-color: rgba(182, 182, 182, 0.13);
     }
