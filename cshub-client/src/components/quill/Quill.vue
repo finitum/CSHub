@@ -435,18 +435,29 @@
                 this.setMarkDown();
             });
 
-            // @ts-ignore
-            this.editor.keyboard.addBinding({key: "a", ctrlKey: true, altKey: true}, (range: RangeStatic, context: any) => {
+            const callback = (range: RangeStatic, context: any) => {
                 // @ts-ignore
                 this.editor.theme.tooltip.edit("formula");
-            });
+                const textArea = document.querySelector(`#${this.editorId} .editor .ql-editing .mq-editable-field .mq-textarea textarea`);
+
+                // @ts-ignore
+                textArea.focus();
+                textArea.addEventListener("keydown", (evt => {
+                    // @ts-ignore
+                    if (evt.keyCode === 13) {
+                        const saveButton = document.querySelector(`#${this.editorId} .editor .ql-editing .ql-action`);
+
+                        // @ts-ignore
+                        saveButton.click();
+                    }
+                }));
+            };
 
             // @ts-ignore
-            this.editor.keyboard.addBinding({key: "a", ctrlKey: true, shiftKey: true}, (range: RangeStatic, context: any) => {
-                const text = this.editor.getText(range.index, range.length);
-                this.editor.formatText(range, "formula", text);
-                this.editor.setSelection(range);
-            });
+            this.editor.keyboard.addBinding({key: "a", ctrlKey: true, altKey: true}, callback);
+
+            // @ts-ignore
+            this.editor.keyboard.addBinding({key: "a", ctrlKey: true, shiftKey: true}, callback);
 
             const markdownLatexQuill = new MarkdownLatexQuill(Quill);
             markdownLatexQuill.registerQuill();

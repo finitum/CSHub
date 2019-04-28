@@ -33,7 +33,7 @@ app.post(ForgotPassword.getURL, (req: Request, res: Response) => {
                         .then((hashedValue: string) => {
                             return query(`
                                 UPDATE users
-                                SET password = ?
+                                SET password = ?, passresethash = NULL
                                 WHERE id = ?
                             `, hashedValue, forgotPassword.accId);
                         })
