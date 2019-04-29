@@ -12,8 +12,7 @@ export class Requests {
 
     public static readonly POSTSETTINGS: string = "/post/:hash/:action"; // PUT, action = hide,favourite,wip
 
-
-    public static readonly EDITCONTENT: string = "/editcontent";
+    public static readonly EDITCONTENT: string = "/post/:hash/editcontent";
 
     public static readonly TOPICS: string = "/topics"; // GET
     public static readonly SUBMITTOPIC: string = "/topics"; // POST
