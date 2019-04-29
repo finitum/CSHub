@@ -568,7 +568,9 @@
                 this.loadingIcon = true;
             }, 250);
 
-            ApiWrapper.sendPostRequest(new GetPostContent(this.postHash, typeof cachedValue.htmlContent !== "string", cachedValue.postVersion), (callbackContent: GetPostContentCallBack) => {
+            const postVersion: number = typeof cachedValue.htmlContent !== "string" ? -1 : cachedValue.postVersion;
+
+            ApiWrapper.sendGetRequest(new GetPostContent(this.postHash, postVersion), (callbackContent: GetPostContentCallBack) => {
 
                 clearTimeout(timeOut);
                 this.loadingIcon = false;

@@ -12,9 +12,11 @@ import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {getPostData} from "./GetPost";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 
-app.post(GetPostContent.getURL, (req: Request, res: Response) => {
+app.get(GetPostContent.getURL, (req: Request, res: Response) => {
 
-    const postContentRequest = req.body as GetPostContent;
+    // const postContentRequest = req.body as GetPostContent;
+    const postVersion: number = +req.header(GetPostContent.postVersionHeader);
+    const postHash: number = req.params.hash;
 
     enum postState {
         ONLINE,
@@ -36,15 +38,15 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
         FROM posts T1
                  LEFT JOIN favorites T2 on T1.id = T2.post AND T2.user = ?
         WHERE T1.hash = ?
-    `, userId, postContentRequest.postHash)
+    `, userId, postHash)
         .then((post: DatabaseResultSet) => {
 
             if (post.convertRowsToResultObjects().length === 0) {
                 res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED, post.getNumberFromDB("favorited") !== null));
-            } else if (post.getNumberFromDB("postVersion") !== postContentRequest.postVersion) {
+            } else if (post.getNumberFromDB("postVersion") !== postVersion) {
                 getContent()
                     .then((returnContent: contentReturn) => {
-                        getPostData(postContentRequest.postHash, userObj)
+                        getPostData(postHash, userObj)
                             .then((data: GetPostCallBack) => {
                                 if (data !== null && returnContent.state !== postState.DELETED) {
                                     res.json(new GetPostContentCallBack(PostVersionTypes.UPDATEDPOST,
@@ -54,26 +56,13 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
                                             approved: returnContent.state === postState.ONLINE
                                         }, data.post));
                                 } else {
-                                    res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED,
+                                    res.status(410).json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED,
                                         post.getNumberFromDB("favorited") !== null));
                                 }
                             });
                     });
-            } else if (postContentRequest.getHTMLOnNoUpdate) {
-                getContent()
-                    .then((returnContent: contentReturn) => {
-                        if (returnContent.state === postState.DELETED) {
-                            res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED,
-                                post.getNumberFromDB("favorited") !== null));
-                        } else {
-                            res.json(new GetPostContentCallBack(PostVersionTypes.RETRIEVEDCONTENT,
-                                post.getNumberFromDB("favorited") !== null, {
-                                    html: returnContent.content,
-                                    approved: returnContent.state === postState.ONLINE
-                                }));
-                        }
-                    });
             } else {
+                // TODO: Preferably I'd want to return a 304 here only a 304 can't contain data
                 res.json(new GetPostContentCallBack(PostVersionTypes.NOCHANGE, post.getNumberFromDB("favorited") !== null));
             }
 
@@ -94,7 +83,7 @@ app.post(GetPostContent.getURL, (req: Request, res: Response) => {
               AND deleted = 0
             ORDER BY T2.datetime DESC
             LIMIT 1
-        `, postContentRequest.postHash)
+        `, postHash)
             .then((content: DatabaseResultSet) => {
                 if (content.convertRowsToResultObjects().length > 0) {
                     if (content.getStringFromDB("htmlContent") === null) {
