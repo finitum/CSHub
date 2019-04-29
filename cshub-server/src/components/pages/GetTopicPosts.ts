@@ -4,14 +4,18 @@ import {app} from "../../";
 import logger from "../../utilities/Logger";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 
-import {GetTopicPostsCallBack, GetTopicPosts} from "../../../../cshub-shared/src/api-calls";
+import {GetTopicPosts, GetTopicPostsCallBack} from "../../../../cshub-shared/src/api-calls";
 import {getTopicTree} from "../../utilities/TopicsUtils";
 import {ITopic} from "../../../../cshub-shared/src/models";
 import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
 
-app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
+app.get(GetTopicPosts.getURL, (req: Request, res: Response) => {
 
-    const topicPostsRequest: GetTopicPosts = req.body as GetTopicPosts;
+    const topicHash: number = Number(req.params.hash);
+
+    if (isNaN(topicHash)) {
+        res.sendStatus(400);
+    }
 
     const getChildHashes = (inputTopic: ITopic[]): number[] => {
 
@@ -38,10 +42,10 @@ app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
                 let topicHashes: number[] = [];
 
                 // If no current topic, so on the homepage
-                if (topicPostsRequest.topicHash === 0) {
+                if (topicHash === 0) {
                     topicHashes = getChildHashes(topicsResult);
                 } else {
-                    const currTopic = getTopicFromHash(topicPostsRequest.topicHash, topicsResult);
+                    const currTopic = getTopicFromHash(topicHash, topicsResult);
                     topicHashes = getChildHashes([currTopic]);
                 }
 
@@ -56,7 +60,7 @@ app.post(GetTopicPosts.getURL, (req: Request, res: Response) => {
                         AND T2.hash IN (?)
                         AND (T1.isIndex = 0 OR T1.topic = (SELECT id FROM topics WHERE hash = ?))
                       ORDER BY T1.isIndex DESC, T1.datetime DESC
-                    `, topicHashes, topicPostsRequest.topicHash)
+                    `, topicHashes, topicHash)
                         .then((posts: DatabaseResultSet) => {
 
                             const postHashes: number[] = [];

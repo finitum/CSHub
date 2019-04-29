@@ -14,7 +14,7 @@ export class GetTopicPosts implements IApiRequest {
     public static getURL: string = Requests.TOPICPOSTS;
     public URL: string = GetTopicPosts.getURL;
 
-    constructor(
-        public topicHash: number
-    ) {}
+    constructor(topicHash: number) {
+        this.URL = this.URL.replace(/:hash/, topicHash.toString());
+    }
 }

@@ -7,16 +7,14 @@ export class Requests {
     public static readonly POSTDATA: string = "/post/:hash"; // GET
     public static readonly EDITPOST: string = "/post/:hash"; // PUT
     public static readonly POSTCONTENT: string = "/post/:hash/content"; // GET
+    public static readonly EDITCONTENT: string = "/post/:hash/editcontent"; // GET
     public static readonly SQUASHEDITS: string = "/post/:hash/squash"; // PUT
     public static readonly FORCEEDITPOST: string = "/post/:hash/forcesave"; // PUT
-
     public static readonly POSTSETTINGS: string = "/post/:hash/:action"; // PUT, action = hide,favourite,wip
-
-    public static readonly EDITCONTENT: string = "/post/:hash/editcontent";
 
     public static readonly TOPICS: string = "/topics"; // GET
     public static readonly SUBMITTOPIC: string = "/topics"; // POST
-    public static readonly TOPICPOSTS: string = "/topicposts";
+    public static readonly TOPICPOSTS: string = "/topics/:hash"; // GET
 
     public static readonly LOGINREQUEST: string = "/login";
     public static readonly CREATEACCOUNTREQUEST: string = "/createaccount";
