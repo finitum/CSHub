@@ -635,7 +635,11 @@
 
                 let hasBeenUpdated = false;
 
-                if (callbackContent.postVersionType === PostVersionTypes.POSTDELETED) {
+                if (callbackContent === null) {
+                    this.post = {
+                        ...cachedValue
+                    };
+                } else if (callbackContent.postVersionType === PostVersionTypes.POSTDELETED) {
                     this.$router.push(Routes.INDEX);
                 } else if (callbackContent.postVersionType === PostVersionTypes.UPDATEDPOST) {
                     this.post = {
@@ -649,10 +653,6 @@
                     };
                     this.post.htmlContent = callbackContent.content.html;
                     hasBeenUpdated = true;
-                } else if (callbackContent.postVersionType === PostVersionTypes.NOCHANGE) {
-                    this.post = {
-                        ...cachedValue
-                    };
                 }
 
                 this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));

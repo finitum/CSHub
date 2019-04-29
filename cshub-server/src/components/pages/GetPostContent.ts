@@ -37,7 +37,7 @@ app.get(GetPostContent.getURL, (req: Request, res: Response) => {
         SELECT T1.postVersion
         FROM posts T1
         WHERE T1.hash = ?
-    `, userId, postHash)
+    `, postHash)
         .then((post: DatabaseResultSet) => {
 
             if (post.convertRowsToResultObjects().length === 0) {

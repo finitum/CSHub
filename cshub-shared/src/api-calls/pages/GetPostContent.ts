@@ -4,8 +4,7 @@ import {Requests} from "../Requests";
 export enum PostVersionTypes {
     UPDATEDPOST,
     RETRIEVEDCONTENT,
-    POSTDELETED,
-    NOCHANGE
+    POSTDELETED
 }
 
 export class GetPostContentCallBack {

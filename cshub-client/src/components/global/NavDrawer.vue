@@ -163,7 +163,7 @@
                     // Sends a get request to the server, and sets the correct store value after receiving the topics in the GetTopicsCallBack
                     ApiWrapper.sendGetRequest(new GetTopics(currentVersion), (callbackData: GetTopicsCallBack) => {
 
-                        if (typeof callbackData.topics !== "undefined") {
+                        if (callbackData !== null && typeof callbackData.topics !== "undefined") {
                             this.topics = callbackData.topics;
                             dataState.setTopics(callbackData.topics);
 

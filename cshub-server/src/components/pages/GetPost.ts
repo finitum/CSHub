@@ -48,7 +48,7 @@ export const getPostData = (postHash: number, userObj: ValidationType): Promise<
                  INNER JOIN topics T3 ON T1.topic = T3.id
         WHERE T1.hash = ?
         ORDER BY datetime DESC
-    `, userId, postHash)
+    `, postHash)
         .then((post: DatabaseResultSet) => {
 
             if (post.convertRowsToResultObjects().length === 0) {

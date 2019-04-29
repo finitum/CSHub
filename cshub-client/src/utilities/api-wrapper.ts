@@ -127,7 +127,11 @@ export class ApiWrapper {
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
-                    callback(response.data, response.status);
+                    if (response === undefined) {
+                        callback(null, null);
+                    } else {
+                        callback(response.data, response.status);
+                    }
                 }
             })
             .catch((err: AxiosError) => {
@@ -145,7 +149,11 @@ export class ApiWrapper {
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
-                    callback(response.data, response.status);
+                    if (response === undefined) {
+                        callback(null, null);
+                    } else {
+                        callback(response.data, response.status);
+                    }
                 }
             })
             .catch((err: AxiosError) => {
@@ -162,7 +170,11 @@ export class ApiWrapper {
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
-                    callback(response.data, response.status);
+                    if (response === undefined) {
+                        callback(null, null);
+                    } else {
+                        callback(response.data, response.status);
+                    }
                 }
             })
             .catch((err: AxiosError) => {
