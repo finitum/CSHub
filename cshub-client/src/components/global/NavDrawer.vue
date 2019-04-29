@@ -186,8 +186,6 @@
                             this.activeTopicHash = [+this.$router.currentRoute.params.hash];
                         }
 
-                        logObjectConsole(this.topics, "NavDrawer mounted");
-
                     }, (err: AxiosError) => {
 
                         logStringConsole("Set topics from cache", "NavDrawer mounted error axios");
