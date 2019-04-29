@@ -1,3 +1,5 @@
+// Documentation available here: https://github.com/RobbinBaauw/CSHub/wiki/Endpoints
+
 export class Requests {
     public static readonly SUBMITPOST: string = "/post"; // POST
 
