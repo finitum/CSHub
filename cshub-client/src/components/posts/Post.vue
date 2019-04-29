@@ -109,6 +109,7 @@
                        ref="editQuill"
                        :class="'postScrollWindow_' + domId"
                        v-if="fullPostComputed && !loadingIcon && editModeComputed"
+                       @markdownPreviewToggle="markDownToggled"
                        style="margin-bottom: 20px"
                        :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
                 ></Quill>
@@ -327,6 +328,7 @@
             }
 
             window.addEventListener("resize", this.windowHeightChanged);
+            this.windowHeightChanged();
             this.getPostRequest();
 
             if (uiState.previousRoute.fullPath === Routes.USERDASHBOARD) {
@@ -390,6 +392,13 @@
         /**
          * Methods
          */
+
+        private markDownToggled(value: boolean){
+            Vue.nextTick(() => {
+                this.windowHeightChanged();
+            });
+        }
+
         private socketError() {
             if (this.editModeComputed) {
                 uiState.setNotificationDialogState({
