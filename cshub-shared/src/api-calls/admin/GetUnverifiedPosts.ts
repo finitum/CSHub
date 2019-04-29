@@ -1,4 +1,4 @@
-import {IApiRequest, IUser} from "../../models";
+import {IApiRequest} from "../../models";
 import {Requests} from "../Requests";
 
 export class GetUnverifiedPostsCallBack {

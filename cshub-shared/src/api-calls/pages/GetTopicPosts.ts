@@ -1,4 +1,4 @@
-import {IApiRequest} from "../../models/IApiRequest";
+import {IApiRequest} from "../../models";
 
 import {Requests} from "../Requests";
 
@@ -15,6 +15,6 @@ export class GetTopicPosts implements IApiRequest {
     public URL: string = GetTopicPosts.getURL;
 
     constructor(topicHash: number) {
-        this.URL = this.URL.replace(/:hash/, topicHash.toString());
+        this.URL = this.URL.replace(/:topichash/, topicHash.toString());
     }
 }

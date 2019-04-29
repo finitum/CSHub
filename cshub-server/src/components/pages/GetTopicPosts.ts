@@ -11,7 +11,7 @@ import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
 
 app.get(GetTopicPosts.getURL, (req: Request, res: Response) => {
 
-    const topicHash: number = Number(req.params.hash);
+    const topicHash: number = Number(req.params.topichash);
 
     if (isNaN(topicHash)) {
         res.sendStatus(400);

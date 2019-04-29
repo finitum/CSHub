@@ -2,10 +2,6 @@
 
 export class Requests {
     public static readonly SUBMITPOST: string = "/post"; // POST
-
-    public static readonly GETUNVERIFIEDPOSTS: string = "/posts/unverified"; // GET
-    public static readonly WIPPOSTS: string = "/posts/wip"; // GET
-
     public static readonly POSTDATA: string = "/post/:hash"; // GET
     public static readonly EDITPOST: string = "/post/:hash"; // PUT
     public static readonly POSTCONTENT: string = "/post/:hash/content"; // GET
@@ -14,16 +10,18 @@ export class Requests {
     public static readonly FORCEEDITPOST: string = "/post/:hash/forcesave"; // PUT
     public static readonly POSTSETTINGS: string = "/post/:hash/:action"; // PUT, action = hide,favourite,wip
 
+    public static readonly GETUNVERIFIEDPOSTS: string = "/posts/unverified"; // GET
+    public static readonly WIPPOSTS: string = "/posts/wip"; // GET
+    public static readonly TOPICPOSTS: string = "/posts/:topichash"; // GET
+
     public static readonly TOPICS: string = "/topics"; // GET
     public static readonly SUBMITTOPIC: string = "/topics"; // POST
-    public static readonly TOPICPOSTS: string = "/topics/:hash"; // GET
 
     public static readonly LOGINREQUEST: string = "/login"; // POST
     public static readonly CREATEACCOUNTREQUEST: string = "/createaccount"; // POST
     public static readonly VERIFYTOKEN: string = "/verifytoken"; // POST
 
     public static readonly GETALLUSERS: string = "/users/:page"; // GET
-
     public static readonly VERIFYMAIL: string = "/user/verifymail"; // GET
     public static readonly FORGOTPASSWORDMAIL: string = "/user/forgotpasswordmail"; // POST
     public static readonly FORGOTPASSWORD: string = "/user/forgotpassword"; // POST
