@@ -12,7 +12,7 @@ export class Requests {
 
     public static readonly GETUNVERIFIEDPOSTS: string = "/posts/unverified"; // GET
     public static readonly WIPPOSTS: string = "/posts/wip"; // GET
-    public static readonly TOPICPOSTS: string = "/posts/:topichash"; // GET
+    public static readonly TOPICPOSTS: string = "/posts/topic/:topichash"; // GET
 
     public static readonly TOPICS: string = "/topics"; // GET
     public static readonly SUBMITTOPIC: string = "/topics"; // POST
