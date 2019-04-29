@@ -10,6 +10,5 @@ export class Routes {
     public static readonly UNSAVEDPOSTS = "/unsavedposts";
     public static readonly WIPPOSTS = "/wipposts";
     public static readonly SEARCH = "/search";
-    public static readonly FAVORITES = "/favorites";
     public static readonly FORGOTPASSWORD = "/forgotpassword";
 }

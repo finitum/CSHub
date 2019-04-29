@@ -8,7 +8,7 @@ export class Requests {
     public static readonly EDITCONTENT: string = "/post/:hash/editcontent"; // GET
     public static readonly SQUASHEDITS: string = "/post/:hash/squash"; // PUT
     public static readonly FORCEEDITPOST: string = "/post/:hash/forcesave"; // PUT
-    public static readonly POSTSETTINGS: string = "/post/:hash/:action"; // PUT, action = hide,favourite,wip
+    public static readonly POSTSETTINGS: string = "/post/:hash/:action"; // PUT, action = hide,wip
 
     public static readonly GETUNVERIFIEDPOSTS: string = "/posts/unverified"; // GET
     public static readonly WIPPOSTS: string = "/posts/wip"; // GET
@@ -30,7 +30,7 @@ export class Requests {
 
     public static readonly PROFILE = "/profile/:userId"; // GET, Is actually profile pic
 
-    public static readonly DASHBOARD: string = "/dashboard/:type"; // GET type = myposts,favorites
+    public static readonly DASHBOARD: string = "/dashboard"; // GET
 
     public static readonly SEARCH: string = "/search"; // POST
 }

@@ -65,17 +65,6 @@
 
                                 <v-tooltip bottom>
                                     <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" color="lime" depressed small @click="toggleFavorite()"
-                                               v-if="!editModeComputed && userIsLoggedIn && !isIndexComputed">
-                                            <v-icon v-if="post.isMyFavorite">fas fa-star</v-icon>
-                                            <v-icon v-else>far fa-star</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>Favorite the post (dark = favorite)</span>
-                                </v-tooltip>
-
-                                <v-tooltip bottom>
-                                    <template v-slot:activator="{on}">
                                         <v-btn v-on="on" color="orange" depressed small @click="enableEdit"
                                                v-if="!editModeComputed && userIsLoggedIn">
                                             <v-icon>fas fa-edit</v-icon>
@@ -387,8 +376,6 @@
                 this.previousTopicURL = Routes.USERDASHBOARD;
             } else if (uiState.previousRoute.fullPath === Routes.ADMINDASHBOARD) {
                 this.previousTopicURL = Routes.ADMINDASHBOARD;
-            } else if (uiState.previousRoute.fullPath === Routes.FAVORITES) {
-                this.previousTopicURL = Routes.FAVORITES;
             } else if (uiState.previousRoute.fullPath === Routes.UNSAVEDPOSTS) {
                 this.previousTopicURL = Routes.UNSAVEDPOSTS;
             }
@@ -542,13 +529,6 @@
             }
         }
 
-        private toggleFavorite() {
-            ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.FAVORITE), (callback: PostSettingsCallback) => {
-                logStringConsole("Toggled favorite");
-                this.post.isMyFavorite = !this.post.isMyFavorite;
-            });
-        }
-
         private hidePost() {
             ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.HIDE), (callback: PostSettingsCallback) => {
                 logStringConsole("Removed post");
@@ -659,22 +639,19 @@
                     this.$router.push(Routes.INDEX);
                 } else if (callbackContent.postVersionType === PostVersionTypes.UPDATEDPOST) {
                     this.post = {
-                        ...callbackContent.postUpdated,
-                        isMyFavorite: callbackContent.isMyFavorite
+                        ...callbackContent.postUpdated
                     };
                     this.post.htmlContent = callbackContent.content.html;
                     hasBeenUpdated = true;
                 } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
                     this.post = {
-                        ...cachedValue,
-                        isMyFavorite: callbackContent.isMyFavorite
+                        ...cachedValue
                     };
                     this.post.htmlContent = callbackContent.content.html;
                     hasBeenUpdated = true;
                 } else if (callbackContent.postVersionType === PostVersionTypes.NOCHANGE) {
                     this.post = {
-                        ...cachedValue,
-                        isMyFavorite: callbackContent.isMyFavorite
+                        ...cachedValue
                     };
                 }
 

@@ -42,12 +42,10 @@ export const getPostData = (postHash: number, userObj: ValidationType): Promise<
                T3.hash      AS topicHash,
                T1.id,
                T1.postVersion,
-               T4.id        AS favorited,
                T1.wip
         FROM posts T1
                  INNER JOIN users T2 ON T1.author = T2.id
                  INNER JOIN topics T3 ON T1.topic = T3.id
-                 LEFT JOIN favorites T4 ON T1.id = T4.post AND T2.id = ?
         WHERE T1.hash = ?
         ORDER BY datetime DESC
     `, userId, postHash)
@@ -74,7 +72,6 @@ export const getPostData = (postHash: number, userObj: ValidationType): Promise<
                     admin: post.getNumberFromDB("authorAdmin") === 1
                 },
                 postVersion: post.getNumberFromDB("postVersion"),
-                isMyFavorite: post.getNumberFromDB("favorited") !== null,
                 isWIP: post.getNumberFromDB("wip") === 1
             };
 

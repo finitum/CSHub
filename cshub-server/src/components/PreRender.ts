@@ -109,9 +109,6 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
         case Routes.SEARCH:
             title = "Search";
             break;
-        case Routes.FAVORITES:
-            title = "Favorites";
-            break;
         case Routes.FORGOTPASSWORD:
             title = "Forgot password";
             break;

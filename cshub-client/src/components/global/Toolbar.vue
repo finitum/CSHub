@@ -3,7 +3,10 @@
         <v-toolbar-side-icon @click.native="drawerComputed = !drawerComputed"></v-toolbar-side-icon>
         <v-toolbar-title>
             <router-link to="/" style="color: inherit">
-                <div class="title ml-0" :class="{'mr-5': $vuetify.breakpoint.mdAndUp}">
+                <div v-if="darkMode" class="title ml-0" :class="{'mr-5': $vuetify.breakpoint.mdAndUp}">
+                    <v-img style="width: 80px" src="/assets/logo.jpg"></v-img>
+                </div>
+                <div v-else class="title ml-0" :class="{'mr-5': $vuetify.breakpoint.mdAndUp}">
                     CS&nbsp;<span class="font-weight-light">Hub</span>
                 </div>
             </router-link>

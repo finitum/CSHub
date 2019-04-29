@@ -10,7 +10,6 @@ const AdminDashboard = () => import("../user/AdminDashboard.vue");
 const UserDashboard = () => import("../user/UserDashboard.vue");
 const UnsavedPosts = () => import("../user/UnsavedPosts.vue");
 const ForgotPasswordComp = () => import("../user/ForgotPasswordComp.vue");
-const Favorites = () => import("../user/Favorites.vue");
 const WIPPosts = () => import("../user/WIPPosts.vue");
 
 const PostView = () => import("../posts/PostView.vue");
@@ -110,11 +109,6 @@ const router = new Router({
             path: Routes.FORGOTPASSWORD,
             name: "forgotpassword",
             component: ForgotPasswordComp
-        },
-        {
-            path: Routes.FAVORITES,
-            name: "favorites",
-            component: Favorites
         },
         {
             path: Routes.ADMINDASHBOARD,

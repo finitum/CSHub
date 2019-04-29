@@ -3,7 +3,6 @@ import {Requests} from "../Requests";
 
 export enum PostSettingsEditType {
     HIDE,
-    FAVORITE,
     WIP
 }
 

@@ -25,9 +25,6 @@ app.put(PostSettings.getURL, async (req: Request, res: Response) => {
                     res.status(403).send();
                 }
                 break;
-            case PostSettingsEditType[PostSettingsEditType.FAVORITE].toLowerCase():
-                await favoritePost(res, postHash, token.tokenObj.user.id);
-                break;
             case PostSettingsEditType[PostSettingsEditType.WIP].toLowerCase():
                 if (token.tokenObj.user.admin) {
                     await wipPost(res, postHash);
@@ -82,52 +79,4 @@ const deletePost = (res: Response, postHash: number) => {
         .then(() => {
             res.json(new PostSettingsCallback());
         });
-};
-
-async function isFavourite(postHash: number, userId: number): Promise<boolean> {
-    const result: DatabaseResultSet = await query(`
-        SELECT id
-        FROM favorites
-        WHERE post = (SELECT id FROM posts WHERE hash = ?) AND user = ?
-        LIMIT 1
-        `, postHash, userId);
-
-    return result.getRows().length === 1;
-}
-
-const favoritePost = async (res: Response, postHash: number, userId: number) => {
-
-    const favorite = await isFavourite(postHash, userId);
-
-    if (!favorite) {
-        query(`
-            SELECT isIndex
-            FROM posts
-            WHERE hash = ?
-        `, postHash)
-            .then((result: DatabaseResultSet) => {
-                if (result.getNumberFromDB("isIndex") === 0) {
-                    query(`
-                        INSERT IGNORE INTO favorites
-                        SET user = ?,
-                            post = (SELECT id FROM posts WHERE hash = ?)
-                    `, userId, postHash)
-                        .then(() => {
-                            res.status(200).json(new PostSettingsCallback());
-                        });
-                } else {
-                    res.status(400).send(new ServerError("You can't favorite an index post (and in the client you shouldn't be able to...)"));
-                }
-            });
-    } else {
-        query(`
-            DELETE
-            FROM favorites
-            WHERE user = ?
-              AND post = (SELECT id FROM posts WHERE hash = ?)
-        `, userId, postHash)
-            .then(() => {
-                res.json(new PostSettingsCallback());
-            });
-    }
 };

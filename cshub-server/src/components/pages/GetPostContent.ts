@@ -34,15 +34,14 @@ app.get(GetPostContent.getURL, (req: Request, res: Response) => {
     const userId = userObj.valid ? userObj.tokenObj.user.id : -1;
 
     query(`
-        SELECT T1.postVersion, T2.id AS favorited
+        SELECT T1.postVersion
         FROM posts T1
-                 LEFT JOIN favorites T2 on T1.id = T2.post AND T2.user = ?
         WHERE T1.hash = ?
     `, userId, postHash)
         .then((post: DatabaseResultSet) => {
 
             if (post.convertRowsToResultObjects().length === 0) {
-                res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED, post.getNumberFromDB("favorited") !== null));
+                res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
             } else if (post.getNumberFromDB("postVersion") !== postVersion) {
                 getContent()
                     .then((returnContent: contentReturn) => {
@@ -50,20 +49,18 @@ app.get(GetPostContent.getURL, (req: Request, res: Response) => {
                             .then((data: GetPostCallBack) => {
                                 if (data !== null && returnContent.state !== postState.DELETED) {
                                     res.json(new GetPostContentCallBack(PostVersionTypes.UPDATEDPOST,
-                                        post.getNumberFromDB("favorited") !== null,
                                         {
                                             html: returnContent.content,
                                             approved: returnContent.state === postState.ONLINE
                                         }, data.post));
                                 } else {
-                                    res.status(410).json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED,
-                                        post.getNumberFromDB("favorited") !== null));
+                                    res.status(410).json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
                                 }
                             });
                     });
             } else {
                 // TODO: Preferably I'd want to return a 304 here only a 304 can't contain data
-                res.json(new GetPostContentCallBack(PostVersionTypes.NOCHANGE, post.getNumberFromDB("favorited") !== null));
+                res.sendStatus(304);
             }
 
         })
