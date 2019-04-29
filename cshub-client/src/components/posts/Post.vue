@@ -461,21 +461,26 @@
                     let elements: HTMLCollectionOf<Element>;
 
                     if (rootElement.length === 1) {
-                        elements = document.getElementsByClassName(`postScrollWindow_${this.domId}`)[0].getElementsByClassName("flex");
-                    } else {
-                        errorLogStringConsole("Found multiple postScrollWindows", "Post.vue");
-                    }
+                        let elementsByClassNameElement = rootElement[0];
+                        elements = elementsByClassNameElement.getElementsByClassName("flex");
 
-                    if (elements !== null && newHeight > 0) {
-                        for (const element of elements) {
-                            // @ts-ignore
-                            element.style.maxHeight = `${newHeight}px`;
-                            setTimeout(() => {
-                                this.canResize = true;
-                            }, 250);
+                        if (elements !== null && newHeight > 0) {
+                            for (const element of elements) {
+                                // @ts-ignore
+                                element.style.maxHeight = `${newHeight}px`;
+
+                                // @ts-ignore
+                                elementsByClassNameElement.style.maxHeight = `${newHeight}px`;
+                                
+                                setTimeout(() => {
+                                    this.canResize = true;
+                                }, 250);
+                            }
+                        } else {
+                            this.canResize = true;
                         }
                     } else {
-                        this.canResize = true;
+                        errorLogStringConsole("Found multiple postScrollWindows", "Post.vue");
                     }
                 } else {
                     this.canResize = true;
