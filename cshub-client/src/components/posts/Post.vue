@@ -109,6 +109,7 @@
                        ref="editQuill"
                        :class="'postScrollWindow_' + domId"
                        v-if="fullPostComputed && !loadingIcon && editModeComputed"
+                       @markdownPreviewToggle="markDownToggled"
                        style="margin-bottom: 20px"
                        :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
                 ></Quill>
@@ -151,15 +152,17 @@
         GetPostCallBack,
         GetPostContent,
         GetPostContentCallBack,
+        PostSettings,
         PostSettingsCallback,
-        PostSettings, PostSettingsEditType,
-        PostVersionTypes, Requests
+        PostSettingsEditType,
+        PostVersionTypes,
+        Requests
     } from "../../../../cshub-shared/src/api-calls";
     import {IPost, ITopic} from "../../../../cshub-shared/src/models";
     import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
-    import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
+    import {ApiWrapper, errorLogStringConsole, logObjectConsole, logStringConsole} from "../../utilities";
     import {CacheTypes} from "../../utilities/cache-types";
     import {idGenerator} from "../../utilities/id-generator";
 
@@ -325,6 +328,7 @@
             }
 
             window.addEventListener("resize", this.windowHeightChanged);
+            this.windowHeightChanged();
             this.getPostRequest();
 
             if (uiState.previousRoute.fullPath === Routes.USERDASHBOARD) {
@@ -388,6 +392,13 @@
         /**
          * Methods
          */
+
+        private markDownToggled(value: boolean){
+            Vue.nextTick(() => {
+                this.windowHeightChanged();
+            });
+        }
+
         private socketError() {
             if (this.editModeComputed) {
                 uiState.setNotificationDialogState({
@@ -446,13 +457,23 @@
 
                     const newHeight = postCard.clientHeight - postCardTitleHeight - 50;
 
-                    const element = (document.getElementsByClassName(`postScrollWindow_${this.domId}`).item(0) as HTMLElement);
+                    const rootElement = document.getElementsByClassName(`postScrollWindow_${this.domId}`);
+                    let elements: HTMLCollectionOf<Element>;
 
-                    if (element !== null && newHeight > 0) {
-                        element.style.maxHeight = `${newHeight}px`;
-                        setTimeout(() => {
-                            this.canResize = true;
-                        }, 250);
+                    if (rootElement.length === 1) {
+                        elements = document.getElementsByClassName(`postScrollWindow_${this.domId}`)[0].getElementsByClassName("flex");
+                    } else {
+                        errorLogStringConsole("Found multiple postScrollWindows", "Post.vue");
+                    }
+
+                    if (elements !== null && newHeight > 0) {
+                        for (const element of elements) {
+                            // @ts-ignore
+                            element.style.maxHeight = `${newHeight}px`;
+                            setTimeout(() => {
+                                this.canResize = true;
+                            }, 250);
+                        }
                     } else {
                         this.canResize = true;
                     }

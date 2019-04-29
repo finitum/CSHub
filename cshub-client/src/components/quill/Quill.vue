@@ -143,7 +143,6 @@
     import Vue from "vue";
     import Delta from "quill-delta/dist/Delta";
     import {Component, Prop, Watch} from "vue-property-decorator";
-    import {Blot} from "parchment/dist/src/blot/abstract/blot";
     import dayjs from "dayjs";
     import katex from "katex";
     import "katex/dist/katex.min.css";
@@ -182,7 +181,6 @@
     import userState from "../../store/user";
     import {getRandomNumberLarge} from "../../../../cshub-shared/src/utilities/Random";
     import {transformFromArray} from "../../../../cshub-shared/src/utilities/DeltaHandler";
-    import {CustomTooltip} from "./CustomTooltip";
     import {IUserCensored} from "../../../../cshub-shared/src/models";
     import {Requests} from "../../../../cshub-shared/src/api-calls";
     import {getHTML} from "../../../../cshub-shared/src/utilities/EditsHandler";
@@ -417,6 +415,8 @@
         private setMarkdownPreview(): void {
             this.showMarkdownPreview = !this.showMarkdownPreview;
 
+            this.$emit("markdownPreviewToggle", this.showMarkdownPreview);
+
             if (this.showMarkdownPreview) {
                 this.markdownHTMLPreview = getHTML(this.editor, document, window);
             }
@@ -632,6 +632,8 @@
     }
 
     #htmlOutput {
+        height: 100%;
+        overflow-y: scroll;
         p {
             margin-bottom: 0;
         }
