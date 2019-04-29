@@ -16,19 +16,21 @@ export class Requests {
     public static readonly SUBMITTOPIC: string = "/topics"; // POST
     public static readonly TOPICPOSTS: string = "/topics/:hash"; // GET
 
-    public static readonly LOGINREQUEST: string = "/login";
-    public static readonly CREATEACCOUNTREQUEST: string = "/createaccount";
-    public static readonly VERIFYTOKEN: string = "/verifytoken";
+    public static readonly LOGINREQUEST: string = "/login"; // POST
+    public static readonly CREATEACCOUNTREQUEST: string = "/createaccount"; // POST
+    public static readonly VERIFYTOKEN: string = "/verifytoken"; // POST
 
-    public static readonly GETALLUSERS: string = "/users/:page"; //GET
+    public static readonly GETALLUSERS: string = "/users/:page"; // GET
 
-    public static readonly VERIFYMAIL: string = "/user/verifymail";
-    public static readonly FORGOTPASSWORDMAIL: string = "/user/forgotpasswordmail";
-    public static readonly FORGOTPASSWORD: string = "/user/forgotpassword";
-    public static readonly CHANGEPASSWORD: string = "/user/changepassword";
-    public static readonly CHANGEAVATAR: string = "/user/changeavatar";
+    public static readonly VERIFYMAIL: string = "/user/verifymail"; // POST
+    public static readonly FORGOTPASSWORDMAIL: string = "/user/forgotpasswordmail"; // POST
+    public static readonly FORGOTPASSWORD: string = "/user/forgotpassword"; // POST
+    public static readonly CHANGEPASSWORD: string = "/user/changepassword"; // POST
+    public static readonly CHANGEAVATAR: string = "/user/changeavatar"; // POST
 
-    public static readonly PROFILE = "/user/profile";
-    public static readonly DASHBOARD: string = "/user/dashboard";
-    public static readonly SEARCH: string = "/search";
+    public static readonly PROFILE = "/profile/:userId";
+
+    public static readonly DASHBOARD: string = "/dashboard/:type"; // GET type = myposts,favorites
+
+    public static readonly SEARCH: string = "/search"; // POST
 }
