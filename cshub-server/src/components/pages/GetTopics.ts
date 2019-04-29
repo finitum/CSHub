@@ -1,25 +1,27 @@
 import {Request, Response} from "express";
 
 import {app} from "../../";
-import logger from "../../utilities/Logger"
+import logger from "../../utilities/Logger";
 
-import {GetTopicsCallBack, GetTopics} from "../../../../cshub-shared/src/api-calls";
+import {GetTopics, GetTopicsCallBack} from "../../../../cshub-shared/src/api-calls";
 import {getTopicTree} from "../../utilities/TopicsUtils";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 
-app.post(GetTopics.getURL, (req: Request, res: Response) => {
+app.get(GetTopics.getURL, (req: Request, res: Response) => {
 
-    const topicsRequest = req.body as GetTopics;
+    const topicVersion: number = +req.header(GetTopics.topicVersionHeader);
+    logger.info("Received TopicVersion: " + topicVersion);
 
     query(`
         SELECT version
         FROM cacheversion
-        WHERE type = "TOPICS"
-    `)
+        WHERE type = "TOPICS"`)
         .then((versionData: DatabaseResultSet) => {
             const version = versionData.getNumberFromDB("version");
 
-            if (version !== topicsRequest.topicVersion || topicsRequest.topicVersion === -1) {
+            if (version === topicVersion) {
+                res.status(304).send(); // Not Modified
+            } else {
                 const topics = getTopicTree();
                 topics
                     .then((result) => {
@@ -30,10 +32,6 @@ app.post(GetTopics.getURL, (req: Request, res: Response) => {
                             res.json(new GetTopicsCallBack(result, version));
                         }
                     });
-            } else {
-                res.json(new GetTopicsCallBack());
             }
-        })
-
-
+        });
 });

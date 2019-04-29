@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 
 import {app} from "../../index";
-import logger from "../..//utilities/Logger"
+import logger from "../..//utilities/Logger";
 import {Settings} from "../../settings";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 
@@ -79,7 +79,7 @@ app.post(Login.getURL, (req: Request, res: Response) => {
                 res.status(500).send();
             });
     } else {
-        res.json(new LoginCallBack(LoginResponseTypes.INVALIDINPUT));
+        res.status(400).json(new LoginCallBack(LoginResponseTypes.INVALIDINPUT));
     }
 
 

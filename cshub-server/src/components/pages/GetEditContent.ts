@@ -11,11 +11,12 @@ import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/s
 import dayjs from "dayjs";
 import {IEdit, IUserCensored} from "../../../../cshub-shared/src/models";
 
-app.post(GetEditContent.getURL, (req: Request, res: Response) => {
+app.get(GetEditContent.getURL, (req: Request, res: Response) => {
 
-    const getEditContent: GetEditContent = req.body as GetEditContent;
+    const postHash: number = req.params.hash;
+    const includeLastEdit: boolean = !(req.header(GetEditContent.excludeLastEditHeader) == "true");
 
-    const inputsValidation = validateMultipleInputs({input: getEditContent.postHash});
+    const inputsValidation = validateMultipleInputs({input: postHash});
 
     if (inputsValidation.valid) {
         query(`
@@ -35,13 +36,13 @@ app.post(GetEditContent.getURL, (req: Request, res: Response) => {
                  LEFT JOIN editusers T4 on T1.id = T4.edit
                  LEFT JOIN users T3 ON T4.user = T3.id
           WHERE T2.hash = ?
-        `, getEditContent.postHash)
+        `, postHash)
             .then((edits: DatabaseResultSet) => {
 
                 const editArray: IEdit[] = [];
 
                 for (const edit of edits.convertRowsToResultObjects()) {
-                    if (edit.getNumberFromDB("approved") === 1 || getEditContent.includeLastEdit) {
+                    if (edit.getNumberFromDB("approved") === 1 || includeLastEdit) {
                         const editObj = editArray.find(x => x.id === edit.getNumberFromDB("id"));
 
                         const currUser: IUserCensored = {

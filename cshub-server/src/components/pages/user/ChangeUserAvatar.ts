@@ -43,7 +43,7 @@ app.post(ChangeUserAvatar.getURL, (req: Request, res: Response) => {
                 res.json(new ChangeUserAvatarCallback(ChangeUserAvatarResponseTypes.SUCCESS, Buffer.from(bufferData).toString("base64")));
             })
             .catch(() => {
-                res.json(new ChangeUserAvatarCallback(ChangeUserAvatarResponseTypes.INVALIDIMAGE));
+                res.status(400).json(new ChangeUserAvatarCallback(ChangeUserAvatarResponseTypes.INVALIDIMAGE));
             });
     } else {
         res.status(401).send();

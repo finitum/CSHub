@@ -412,7 +412,7 @@
         private forceEditPost() {
             this.showLoadingIcon = true;
 
-            ApiWrapper.sendPostRequest(new ForceEditPost(this.postHash), () => {
+            ApiWrapper.sendPutRequest(new ForceEditPost(this.postHash), () => {
                 this.showLoadingIcon = false;
                 uiState.setNotificationDialogState({
                     on: true,
@@ -491,23 +491,24 @@
         }
 
         private toggleFavorite() {
-            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.FAVORITE, !this.post.isMyFavorite), (callback: PostSettingsCallback) => {
+            ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.FAVORITE), (callback: PostSettingsCallback) => {
                 logStringConsole("Toggled favorite");
                 this.post.isMyFavorite = !this.post.isMyFavorite;
             });
         }
 
         private hidePost() {
-            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.HIDE), (callback: PostSettingsCallback) => {
+            ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.HIDE), (callback: PostSettingsCallback) => {
                 logStringConsole("Removed post");
                 this.$router.push(Routes.INDEX);
             });
         }
 
         private wipPost() {
-            ApiWrapper.sendPostRequest(new PostSettings(this.postHash, PostSettingsEditType.WIP, !this.post.isWIP), (callback: PostSettingsCallback) => {
+            ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.WIP), (callback: PostSettingsCallback) => {
                 logStringConsole("WIPPED post");
-                this.$router.push(Routes.WIPPOSTS);
+                this.post.isWIP = !this.post.isWIP;
+                // this.$router.push(Routes.WIPPOSTS);
             });
         }
 
@@ -557,7 +558,7 @@
             localForage.getItem<IPost>(CacheTypes.POSTS + this.postHash)
                 .then((cachedValue: IPost) => {
                     if (cachedValue === null || cachedValue.id === undefined) {
-                        ApiWrapper.sendPostRequest(new GetPost(this.postHash), (callbackData: GetPostCallBack) => {
+                        ApiWrapper.sendGetRequest(new GetPost(this.postHash), (callbackData: GetPostCallBack) => {
                             if (callbackData.post !== null) {
                                 this.post = callbackData.post;
 
@@ -593,7 +594,9 @@
                 this.loadingIcon = true;
             }, 250);
 
-            ApiWrapper.sendPostRequest(new GetPostContent(this.postHash, typeof cachedValue.htmlContent !== "string", cachedValue.postVersion), (callbackContent: GetPostContentCallBack) => {
+            const postVersion: number = typeof cachedValue.htmlContent !== "string" ? -1 : cachedValue.postVersion;
+
+            ApiWrapper.sendGetRequest(new GetPostContent(this.postHash, postVersion), (callbackContent: GetPostContentCallBack) => {
 
                 clearTimeout(timeOut);
                 this.loadingIcon = false;

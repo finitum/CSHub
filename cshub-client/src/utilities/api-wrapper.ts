@@ -47,7 +47,9 @@ axiosApi.interceptors.response.use((value: AxiosResponse<any>) => {
     };
 
     if (typeof error.response !== "undefined") {
-        if (error.response.status === 401 || error.response.status === 403) {
+        if (error.response.status === 304) {
+            // Do nothing
+        } else if (error.response.status === 401 || error.response.status === 403) {
             const isLoggedIn = userState.isLoggedIn;
             const tokenVal = getCookie("token");
 
@@ -120,11 +122,30 @@ export class ApiWrapper {
     public static sendPostRequest(request: IApiRequest, callback?: (...args: any) => void, error?: (err: AxiosError) => void) {
         axiosApi
             .post(request.URL, request, {
-                withCredentials: true
+                withCredentials: true,
+                headers: request.headers,
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
-                    callback(response.data);
+                    callback(response.data, response.status);
+                }
+            })
+            .catch((err: AxiosError) => {
+                if (error) {
+                    error(err);
+                }
+            });
+    }
+
+    public static sendPutRequest(request: IApiRequest, callback?: (...args: any) => void, error?: (err: AxiosError) => void) {
+        axiosApi
+            .put(request.URL, request, {
+                withCredentials: true,
+                headers: request.headers,
+            })
+            .then((response: AxiosResponse<any>) => {
+                if (callback) {
+                    callback(response.data, response.status);
                 }
             })
             .catch((err: AxiosError) => {
@@ -136,10 +157,12 @@ export class ApiWrapper {
 
     public static sendGetRequest(request: IApiRequest, callback?: (...args: any) => void, error?: (err: AxiosError) => void) {
         axiosApi
-            .get(request.URL)
+            .get(request.URL, {
+                headers: request.headers,
+            })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
-                    callback(response.data);
+                    callback(response.data, response.status);
                 }
             })
             .catch((err: AxiosError) => {

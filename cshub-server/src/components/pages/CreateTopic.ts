@@ -1,9 +1,9 @@
 import {Request, Response} from "express";
 
 import {app} from "../../";
-import logger from "../../utilities/Logger"
+import logger from "../../utilities/Logger";
 
-import {CreateTopicCallback, CreateTopic, CreateTopicResponseTypes} from "../../../../cshub-shared/src/api-calls";
+import {CreateTopic} from "../../../../cshub-shared/src/api-calls";
 import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
 
 import {validateMultipleInputs} from "../../utilities/StringUtils";
@@ -36,7 +36,7 @@ app.post(CreateTopic.getURL, (req: Request, res: Response) => {
                     const requestTopic = getTopicFromHash(submitTopicRequest.topicParentHash, topics);
 
                     if (requestTopic === null) {
-                        res.json(new CreateTopicCallback(CreateTopicResponseTypes.INVALIDINPUT));
+                        res.sendStatus(400);
                     } else {
                         query(`
                           SELECT id
@@ -45,7 +45,7 @@ app.post(CreateTopic.getURL, (req: Request, res: Response) => {
                         `, submitTopicRequest.topicTitle)
                             .then((data: DatabaseResultSet) => {
                                 if (data.convertRowsToResultObjects().length !== 0) {
-                                    res.json(new CreateTopicCallback(CreateTopicResponseTypes.TITLEALREADYINUSE));
+                                    res.sendStatus(409);
                                 } else {
                                     return generateRandomTopicHash();
                                 }
@@ -68,7 +68,7 @@ app.post(CreateTopic.getURL, (req: Request, res: Response) => {
                                 `)
                             })
                             .then(() => {
-                                res.json(new CreateTopicCallback(CreateTopicResponseTypes.SUCCESS));
+                                res.sendStatus(201);
                             })
                             .catch((err) => {
                                 logger.error(`Inserting into db failed`);
@@ -79,7 +79,7 @@ app.post(CreateTopic.getURL, (req: Request, res: Response) => {
                 }
             });
     } else if (!inputsValidation.valid) {
-        res.json(new CreateTopicCallback(CreateTopicResponseTypes.INVALIDINPUT));
+        res.sendStatus(400);
     } else if (!userObj.tokenObj.user.admin) {
         res.status(401).send();
     }

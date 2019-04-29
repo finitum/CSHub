@@ -3,7 +3,9 @@ import {Request, Response} from "express";
 import {app} from "../../index";
 
 import {
-    ForgotPassword, ForgotPasswordCallback, ForgotPasswordResponseTypes
+    ForgotPassword,
+    ForgotPasswordCallback,
+    ForgotPasswordResponseTypes
 } from "../../../../cshub-shared/src/api-calls";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
@@ -42,10 +44,10 @@ app.post(ForgotPassword.getURL, (req: Request, res: Response) => {
 
                         })
                 } else {
-                    res.json(new ForgotPasswordCallback(ForgotPasswordResponseTypes.INVALIDINPUT));
+                    res.status(400).json(new ForgotPasswordCallback(ForgotPasswordResponseTypes.INVALIDINPUT));
                 }
             })
     } else {
-        res.json(new ForgotPasswordCallback(ForgotPasswordResponseTypes.INVALIDINPUT));
+        res.status(400).json(new ForgotPasswordCallback(ForgotPasswordResponseTypes.INVALIDINPUT));
     }
 });

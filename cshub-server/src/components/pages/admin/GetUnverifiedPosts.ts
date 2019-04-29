@@ -6,7 +6,7 @@ import {
     GetUnverifiedPosts
 } from "../../../../../cshub-shared/src/api-calls";
 
-app.post(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
+app.get(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
 
     query(`
       SELECT hash, editCount

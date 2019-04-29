@@ -15,6 +15,10 @@ export class GetTopics implements IApiRequest {
 
     public static getURL: string = Requests.TOPICS;
     public URL: string = GetTopics.getURL;
+    public headers: any = {};
+    public static readonly topicVersionHeader = "X-Topic-Version";
 
-    constructor(public topicVersion: number) {}
+    constructor(topicVersion: number) {
+        this.headers[GetTopics.topicVersionHeader] = topicVersion;
+    }
 }

@@ -31,7 +31,7 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
             .then((topics) => {
                 if (topics === null) {
                     logger.error(`No topics found`);
-                    res.status(500).send();
+                    res.sendStatus(500);
                 } else {
                     query(`
                       SELECT id
@@ -40,7 +40,7 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
                     `, submitPostRequest.postTitle)
                         .then((result: DatabaseResultSet) => {
                             if (result.getLength() > 0) {
-                                res.json(new CreatePostCallback(SubmitPostResponse.TITLEALREADYINUSE));
+                                res.status(409).json(new CreatePostCallback(SubmitPostResponse.TITLEALREADYINUSE));
                             } else {
                                 return true;
                             }
@@ -57,7 +57,7 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
                         })
                         .then((isIndexResult) => {
                             if (typeof isIndexResult === "undefined" || (isIndexResult.getLength() > 0 && submitPostRequest.isIndex)) {
-                                res.json(new CreatePostCallback(SubmitPostResponse.ALREADYHASINDEX));
+                                res.status(409).json(new CreatePostCallback(SubmitPostResponse.ALREADYHASINDEX));
                             } else {
                                 return generateRandomTopicHash();
                             }
@@ -75,7 +75,7 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
                                       isIndex = ?
                                 `, requestTopic.id, userObj.tokenObj.user.id, submitPostRequest.postTitle, topicHash, submitPostRequest.isIndex ? 1 : 0)
                                     .then((insertEdit: DatabaseResultSet) => {
-                                        res.json(new CreatePostCallback(SubmitPostResponse.SUCCESS, topicHash));
+                                        res.status(201).json(new CreatePostCallback(SubmitPostResponse.SUCCESS, topicHash));
                                     })
                                     .catch((err) => {
                                         logger.error(`Inserting into db failed`);
@@ -92,9 +92,9 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
                 }
             });
     } else if (!inputsValidation.valid) {
-        res.json(new CreatePostCallback(SubmitPostResponse.INVALIDINPUT));
+        res.status(400).json(new CreatePostCallback(SubmitPostResponse.INVALIDINPUT));
     } else if (!userObj.valid) {
-        res.status(401).send();
+        res.sendStatus(401);
     }
 
 });

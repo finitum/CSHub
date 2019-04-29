@@ -59,12 +59,7 @@
 
     import Quill from "../quill/Quill.vue";
 
-    import {
-        GetEditContent,
-        GetEditContentCallback,
-        SquashEdits,
-        SquashEditsCallback
-    } from "../../../../cshub-shared/src/api-calls/pages";
+    import {GetEditContent, GetEditContentCallback, SquashEdits} from "../../../../cshub-shared/src/api-calls/pages";
     import {IEdit} from "../../../../cshub-shared/src/models";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
@@ -125,7 +120,7 @@
         @Watch("dialogActive")
         private dialogActiveChanged(newVal: editDialogType) {
             if (this.thisDialogActive) {
-                ApiWrapper.sendPostRequest(new GetEditContent(this.postHash, false), (callbackData: GetEditContentCallback) => {
+                ApiWrapper.sendGetRequest(new GetEditContent(this.postHash, false), (callbackData: GetEditContentCallback) => {
 
                     const checkboxEdits: EditCheckbox[] = [];
 
@@ -223,7 +218,7 @@
                     on: true
                 });
             } else {
-                ApiWrapper.sendPostRequest(new SquashEdits(this.postHash, squashIds), (callback: SquashEditsCallback) => {
+                ApiWrapper.sendPutRequest(new SquashEdits(this.postHash, squashIds), () => {
                     this.dialogActive = {on: false, hash: -1};
                 });
             }

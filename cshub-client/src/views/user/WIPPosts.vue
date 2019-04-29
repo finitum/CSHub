@@ -46,7 +46,7 @@
          * Methods
          */
         private getHashes() {
-            ApiWrapper.sendPostRequest(new GetWIPPosts(), (callbackData: GetWIPPostsCallBack) => {
+            ApiWrapper.sendGetRequest(new GetWIPPosts(), (callbackData: GetWIPPostsCallBack) => {
                 for (const post of callbackData.postHashes) {
                     this.postHashes.push(post);
                 }

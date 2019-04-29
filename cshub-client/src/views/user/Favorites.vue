@@ -14,10 +14,7 @@
     import userState from "../../store/user";
 
     import {ApiWrapper, logObjectConsole} from "../../utilities";
-    import {
-        GetUserPosts,
-        GetUserPostsCallback
-    } from "../../../../cshub-shared/src/api-calls/pages/user";
+    import {GetUserPosts, GetUserPostsCallback} from "../../../../cshub-shared/src/api-calls/pages/user";
     import {IUser} from "../../../../cshub-shared/src/models";
 
     @Component({
@@ -56,7 +53,7 @@
          * Methods
          */
         private getHashes() {
-            ApiWrapper.sendPostRequest(new GetUserPosts(true), (callbackData: GetUserPostsCallback) => {
+            ApiWrapper.sendGetRequest(new GetUserPosts(true), (callbackData: GetUserPostsCallback) => {
                 this.postHashes = callbackData.postHashes;
                 logObjectConsole(callbackData.postHashes, "User favorites posthashes");
             });

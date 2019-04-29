@@ -2,19 +2,6 @@ import {IApiRequest} from "../../models/IApiRequest";
 
 import {Requests} from "../Requests";
 
-export enum CreateTopicResponseTypes {
-    SUCCESS,
-    TITLEALREADYINUSE,
-    INVALIDINPUT
-}
-
-export class CreateTopicCallback {
-
-    constructor(
-        public response: CreateTopicResponseTypes
-    ) {}
-}
-
 export class CreateTopic implements IApiRequest {
 
     public static getURL: string = Requests.SUBMITTOPIC;

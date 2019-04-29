@@ -1,19 +1,19 @@
 import {app} from "../../../";
-import {GetUserPostsCallback, GetUserPosts} from "../../../../../cshub-shared/src/api-calls";
+import {GetUserPosts, GetUserPostsCallback} from "../../../../../cshub-shared/src/api-calls";
 import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
 
-app.post(GetUserPosts.getURL, (req: Request, res: Response) => {
+app.get(GetUserPosts.getURL, (req: Request, res: Response) => {
 
-    const userDashboardRequest = req.body as GetUserPosts;
+    const getFavorites: boolean = req.params.type === "favorites";
 
     const token = checkTokenValidity(req);
 
     if (token.valid) {
 
         let queryResult: Promise<DatabaseResultSet>;
-        if (userDashboardRequest.getFavorites) {
+        if (getFavorites) {
             queryResult = query(`
               SELECT hash
               FROM posts T1

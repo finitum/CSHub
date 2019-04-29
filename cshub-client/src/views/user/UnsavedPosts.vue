@@ -49,7 +49,7 @@
          * Methods
          */
         private getHashes() {
-            ApiWrapper.sendPostRequest(new GetUnverifiedPosts(), (callbackData: GetUnverifiedPostsCallBack) => {
+            ApiWrapper.sendGetRequest(new GetUnverifiedPosts(), (callbackData: GetUnverifiedPostsCallBack) => {
                 for (const post of callbackData.postHashes) {
                     this.postHashes.push(post);
                 }

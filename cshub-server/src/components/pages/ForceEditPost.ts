@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 
 import {app} from "../../";
-import logger from "../../utilities/Logger"
+import logger from "../../utilities/Logger";
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
@@ -9,15 +9,14 @@ import {validateMultipleInputs} from "../../utilities/StringUtils";
 import Delta from "quill-delta/dist/Delta";
 
 import {getHTMLFromDelta} from "../../utilities/EditsHandler";
-import {ForceEditPost, ForceEditPostCallback} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
+import {ForceEditPost} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
 
-app.post(ForceEditPost.getURL, (req: Request, res: Response) => {
-
-    const editPostRequest: ForceEditPost = req.body as ForceEditPost;
+app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
+    const postHash: number = Number(req.params.hash);
 
     const userObj = checkTokenValidity(req);
 
-    const inputsValidation = validateMultipleInputs({input: editPostRequest.postHash});
+    const inputsValidation = validateMultipleInputs({input: postHash});
 
     if (inputsValidation.valid && userObj.valid) {
 
@@ -33,7 +32,7 @@ app.post(ForceEditPost.getURL, (req: Request, res: Response) => {
                 WHERE hash = ?
               )
               ORDER BY datetime ASC
-            `, editPostRequest.postHash)
+            `, postHash)
                 .then((edits: DatabaseResultSet) => {
                     const rows = edits.convertRowsToResultObjects();
                     let delta = new Delta(JSON.parse(rows[0].getStringFromDB("content")));
@@ -57,10 +56,10 @@ app.post(ForceEditPost.getURL, (req: Request, res: Response) => {
                               posts.postVersion = posts.postVersion + 1
                           WHERE edits.id = ?
                             AND posts.hash = ?
-                        `, html, indexWords, editId, editPostRequest.postHash)
+                        `, html, indexWords, editId, postHash)
                             .then(() => {
                                 logger.info("Force edit post succesfully");
-                                res.json(new ForceEditPostCallback());
+                                res.sendStatus(200);
                             });
                     });
                 })
@@ -70,7 +69,7 @@ app.post(ForceEditPost.getURL, (req: Request, res: Response) => {
                     res.status(500).send();
                 });
         } else {
-            res.status(401).send();
+            res.sendStatus(401);
         }
     }
 });

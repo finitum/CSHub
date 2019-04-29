@@ -1,6 +1,5 @@
-import {IApiRequest} from "../../models";
+import {IApiRequest, IPost} from "../../models";
 import {Requests} from "../Requests";
-import {IPost} from "../../models";
 
 export enum PostVersionTypes {
     UPDATEDPOST,
@@ -27,6 +26,12 @@ export class GetPostContent implements IApiRequest {
     public static getURL: string = Requests.POSTCONTENT;
     public URL: string = GetPostContent.getURL;
 
-    constructor(public postHash: number, public getHTMLOnNoUpdate: boolean, public postVersion: number) {}
+    public headers: any = {};
+    public static readonly postVersionHeader = "X-Post-Version";
+
+    constructor(postHash: number, postVersion: number) {
+        this.URL = this.URL.replace(/:hash/, postHash.toString());
+        this.headers[GetPostContent.postVersionHeader] = postVersion;
+    }
 
 }

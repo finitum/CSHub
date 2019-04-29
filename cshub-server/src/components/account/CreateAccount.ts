@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 
 import {app} from "../../";
-import logger from "../..//utilities/Logger"
+import logger from "../..//utilities/Logger";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 
 import {CreateAccount, CreateAccountCallBack, CreateAccountResponseTypes} from "../../../../cshub-shared/src/api-calls";
@@ -52,7 +52,7 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
                             `, createAccountRequest.email, hashedValue, createAccountRequest.firstname, createAccountRequest.lastname)
                                 .then((result: DatabaseResultSet) => {
                                     sendVerificationEmail(createAccountRequest.email, createAccountRequest.firstname, result.getInsertId());
-                                    res.json(new CreateAccountCallBack(CreateAccountResponseTypes.SUCCESS));
+                                    res.status(201).json(new CreateAccountCallBack(CreateAccountResponseTypes.SUCCESS));
                                 })
                                 .catch(err => {
                                     logger.error(`Inserting into users table failed`);
@@ -76,7 +76,7 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
             });
 
     } else {
-        res.json(new CreateAccountCallBack(CreateAccountResponseTypes.INVALIDINPUT));
+        res.status(400).json(new CreateAccountCallBack(CreateAccountResponseTypes.INVALIDINPUT));
     }
 
 });

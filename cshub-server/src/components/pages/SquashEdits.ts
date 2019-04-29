@@ -2,9 +2,9 @@ import {Request, Response} from "express";
 import async from "async";
 
 import {app} from "../../";
-import logger from "../../utilities/Logger"
+import logger from "../../utilities/Logger";
 
-import {SquashEdits, SquashEditsCallback} from "../../../../cshub-shared/src/api-calls";
+import {SquashEdits} from "../../../../cshub-shared/src/api-calls";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
@@ -12,18 +12,19 @@ import {Dayjs} from "dayjs";
 import dayjs = require("dayjs");
 import Delta = require("quill-delta/dist/Delta");
 
-app.post(SquashEdits.getURL, (req: Request, res: Response) => {
+app.put(SquashEdits.getURL, (req: Request, res: Response) => {
 
     const squashEditRequest = req.body as SquashEdits;
+    const postHash = Number(req.params.hash);
 
     const userObj = checkTokenValidity(req);
 
-    const inputsValidation = validateMultipleInputs({input: squashEditRequest.postHash}, {input: squashEditRequest.editIds});
+    const inputsValidation = validateMultipleInputs({input: postHash}, {input: squashEditRequest.editIds});
 
     if (inputsValidation.valid && squashEditRequest.editIds.length > 1) {
 
         if (userObj.valid && userObj.tokenObj.user.admin) {
-            logger.info(`Executing squash for post id ${squashEditRequest.postHash}`);
+            logger.info(`Executing squash for post id ${postHash}`);
             query(`
               SELECT content, datetime, T1.id, T2.user
               FROM edits T1
@@ -35,7 +36,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
               )
                 AND approved = 1
               ORDER BY datetime ASC
-            `, squashEditRequest.postHash)
+            `, postHash)
                 .then((edits: DatabaseResultSet) => {
 
                     const dbEdits: Array<{ id: number, datetime: Dayjs, content: Delta, users: number[] }> = [];
@@ -65,7 +66,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                             currSquashIndexes.push(dbEditIndex);
                         } else {
                             logger.error("Invalid squash");
-                            res.status(501).send();
+                            res.status(400).send();
                             isValidRequest = false;
                             break;
                         }
@@ -79,7 +80,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                         for (let i = 1; i < currSquashIndexes.length; i++) {
                             if (Math.abs(currSquashIndexes[i] - prevIndex) > 1) {
                                 logger.error("Invalid squash");
-                                res.status(501).send();
+                                res.status(400).send();
                                 isValidRequest = false;
                                 break;
                             } else {
@@ -157,7 +158,7 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                                     });
                                 })
                                 .then(() => {
-                                    res.json(new SquashEditsCallback());
+                                    res.sendStatus(204);
                                 });
                         }
 
@@ -167,14 +168,14 @@ app.post(SquashEdits.getURL, (req: Request, res: Response) => {
                 .catch((e) => {
                     logger.error("Error squashsing");
                     logger.error(e);
-                    res.status(501).send();
+                    res.status(500).send();
                 })
         } else {
             res.status(401).send();
         }
     } else {
         logger.error("Invalid squash input");
-        res.status(501).send();
+        res.status(400).send();
     }
 
 

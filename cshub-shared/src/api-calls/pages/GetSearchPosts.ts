@@ -11,7 +11,7 @@ export class GetSearchPosts implements IApiRequest {
     public static getURL: string = Requests.SEARCH;
     public URL: string = GetSearchPosts.getURL;
 
-    constructor(
-        public query: string
-    ) {}
+    constructor(query: string) {
+        this.URL += "?query=" + query;
+    }
 }

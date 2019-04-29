@@ -56,13 +56,9 @@
 
     import dataState from "../../store/data";
 
-    import {ApiWrapper} from "../../utilities";
+    import {ApiWrapper, logStringConsole} from "../../utilities";
 
-    import {
-        CreateTopicCallback,
-        CreateTopic,
-        CreateTopicResponseTypes
-    } from "../../../../cshub-shared/src/api-calls";
+    import {CreateTopic} from "../../../../cshub-shared/src/api-calls";
     import {ITopic} from "../../../../cshub-shared/src/models";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
@@ -103,11 +99,13 @@
                 this.$validator.validateAll()
                     .then((allValid: boolean) => {
                         if (allValid) {
-                            ApiWrapper.sendPostRequest(new CreateTopic(this.topicTitle, this.activeTopicHash[0]), (response: CreateTopicCallback) => {
-                                if (response.response === CreateTopicResponseTypes.SUCCESS) {
+                            ApiWrapper.sendPostRequest(new CreateTopic(this.topicTitle, this.activeTopicHash[0]), (response: null, status) => {
+                                if (status === 201) {
                                     this.$router.push(Routes.ADMINDASHBOARD);
-                                } else if (response.response === CreateTopicResponseTypes.TITLEALREADYINUSE) {
+                                } else if (status === 409) {
                                     this.topicTitleError = "Title is already in use!";
+                                } else {
+                                    logStringConsole("Unexpected status code: " + status, "TopicCreate.vue");
                                 }
                             });
                         }

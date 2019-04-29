@@ -1,19 +1,17 @@
 import {app} from "../../.";
 import logger from "../../utilities/Logger";
 import {Request, Response} from "express";
-import {
-    GetSearchPosts, GetSearchPostsCallback
-} from "../../../../cshub-shared/src/api-calls";
+import {GetSearchPosts, GetSearchPostsCallback} from "../../../../cshub-shared/src/api-calls";
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import {ServerError} from "../../../../cshub-shared/src/models/ServerError";
 
-app.post(GetSearchPosts.getURL, (req: Request, res: Response) => {
+app.get(GetSearchPosts.getURL, (req: Request, res: Response) => {
 
-    const searchPostRequest = req.body as GetSearchPosts;
+    const search = req.query.query;
 
-    if (searchPostRequest.query.length >= 3) {
+    if (search.length >= 3) {
         const user = checkTokenValidity(req);
         const userId = user.valid ? user.tokenObj.user.id : -1;
         const adminNum = user.valid && user.tokenObj.user.admin ? 1 : 0;
@@ -56,7 +54,7 @@ app.post(GetSearchPosts.getURL, (req: Request, res: Response) => {
                   LIMIT 5)
             ) AS a
             LIMIT 5
-        `, userId, adminNum, `%${searchPostRequest.query}%`, `%${searchPostRequest.query}%`)
+        `, userId, adminNum, `%${search}%`, `%${search}%`)
             .then((hashes: DatabaseResultSet) => {
 
                 const hashesArray: number[] = [];

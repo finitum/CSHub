@@ -198,7 +198,7 @@
         }
 
         private getHashes() {
-            ApiWrapper.sendPostRequest(new GetUserPosts(), (callbackData: GetUserPostsCallback) => {
+            ApiWrapper.sendGetRequest(new GetUserPosts(), (callbackData: GetUserPostsCallback) => {
                 this.postHashes = callbackData.postHashes;
                 logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
             });

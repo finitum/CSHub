@@ -7,17 +7,17 @@ import {IPost} from "../../../../cshub-shared/src/models";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity, ValidationType} from "../../auth/AuthMiddleware";
 
-app.post(GetPost.getURL, (req: Request, res: Response) => {
+app.get(GetPost.getURL, (req: Request, res: Response) => {
 
-    const postRequest = req.body as GetPost;
+    const hash = req.params.hash;
 
     const userObj = checkTokenValidity(req);
 
     // Get all the post data from database
-    getPostData(postRequest.postHash, userObj)
+    getPostData(hash, userObj)
         .then((data: GetPostCallBack) => {
             if (data === null) {
-                res.status(500).send();
+                res.status(404).send();
             } else {
                 res.json(data);
             }
