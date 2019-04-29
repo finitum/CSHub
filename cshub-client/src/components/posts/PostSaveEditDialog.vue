@@ -17,8 +17,20 @@
                     <v-toolbar-title>Current edit</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
-                        <v-btn depressed small color="red" @click="deleteEdit">Delete</v-btn>
-                        <v-btn depressed small color="red" @click="save">Save</v-btn>
+                        <v-tooltip bottom>
+                            <template v-slot:activator="{on}">
+                                <v-btn v-on="on" depressed small color="red" @click="deleteEdit">Delete</v-btn>
+                            </template>
+                            <span>Delete the current edit</span>
+                        </v-tooltip>
+
+                        <v-tooltip bottom>
+                            <template v-slot:activator="{on}">
+                                <v-btn v-on="on" depressed small color="red" @click="save">Save</v-btn>
+                            </template>
+                            <span>Save the current edit</span>
+                        </v-tooltip>
+
                     </v-toolbar-items>
                 </v-toolbar>
                 <v-card-text>

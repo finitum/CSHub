@@ -66,65 +66,91 @@
                             <button class="ql-video"></button>
                             </span>
                             <span class="ql-formats">
-                                <button class="ql-formula"></button>
-                                <v-menu
-                                        v-model="otherPeoplesMenu"
-                                        :close-on-content-click="false"
-                                        :nudge-width="200"
-                                        offset-x
-                                >
-                                    <v-btn
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{on}">
+                                        <button v-on="on" class="ql-formula"></button>
+                                    </template>
+                                    <span>Add latex (ctrl + shift + a)</span>
+                                </v-tooltip>
+
+
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{on}">
+                                        <v-menu
+                                                v-model="otherPeoplesMenu"
+                                                :close-on-content-click="false"
+                                                :nudge-width="200"
+                                                offset-x
+                                        >
+                                            <v-btn
+                                                v-on="on"
+                                                slot="activator"
+                                                dark
+                                                flat
+                                                :ripple="false"
+                                                small
+                                                class="quillIcon"
+                                                style="margin: 0">
+                                                <v-icon :color="darkMode ? 'white' : 'black'">fas fa-users</v-icon>
+                                            </v-btn>
+                                            <v-card>
+                                                <v-list>
+                                                    <v-list-tile avatar :key="user[1].id"
+                                                                 v-for="user in Array.from(otherPeoples)">
+                                                        <v-list-tile-avatar>
+                                                            <img :src="getAvatarURL(user[1].id)">
+                                                        </v-list-tile-avatar>
+
+                                                        <v-list-tile-content>
+                                                            <v-list-tile-title>{{user[1].firstname}} {{user[1].lastname}}</v-list-tile-title>
+                                                        </v-list-tile-content>
+                                                    </v-list-tile>
+                                                    <v-list-tile v-if="otherPeoples.size === 0">You are alone here :(</v-list-tile>
+                                              </v-list>
+                                            </v-card>
+                                        </v-menu>
+                                    </template>
+                                    <span>View current users</span>
+                                </v-tooltip>
+                            </span>
+                            <span class="ql-formats">
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{on}">
+                                        <v-btn
+                                            v-on="on"
                                             slot="activator"
                                             dark
                                             flat
                                             :ripple="false"
                                             small
                                             class="quillIcon"
-                                            style="margin: 0">
-                                        <v-icon :color="darkMode ? 'white' : 'black'">fas fa-users</v-icon>
-                                    </v-btn>
-                                    <v-card>
-                                        <v-list>
-                                            <v-list-tile avatar :key="user[1].id"
-                                                       v-for="user in Array.from(otherPeoples)">
-                                                <v-list-tile-avatar>
-                                                    <img :src="getAvatarURL(user[1].id)">
-                                                </v-list-tile-avatar>
+                                            @click="setMarkDown"
+                                            style="margin: 0"
+                                        >
+                                            <v-icon :color="darkMode ? 'white' : 'black'">fas fa-marker</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Edit markdown (ctrl + m)</span>
+                                </v-tooltip>
 
-                                                <v-list-tile-content>
-                                                    <v-list-tile-title>{{user[1].firstname}} {{user[1].lastname}}</v-list-tile-title>
-                                                </v-list-tile-content>
-                                            </v-list-tile>
-                                            <v-list-tile v-if="otherPeoples.size === 0">You are alone here :(</v-list-tile>
-                                      </v-list>
-                                    </v-card>
-                                </v-menu>
-                            </span>
-                            <span class="ql-formats">
-                                <v-btn
-                                        slot="activator"
-                                        dark
-                                        flat
-                                        :ripple="false"
-                                        small
-                                        class="quillIcon"
-                                        @click="setMarkDown"
-                                        style="margin: 0"
-                                >
-                                    <v-icon :color="darkMode ? 'white' : 'black'">fas fa-marker</v-icon>
-                                </v-btn>
-                                <v-btn
-                                        slot="activator"
-                                        dark
-                                        flat
-                                        :ripple="false"
-                                        small
-                                        class="quillIcon"
-                                        @click="setMarkdownPreview"
-                                        style="margin: 0"
-                                >
-                                    <v-icon :color="darkMode ? 'white' : 'black'">fas fa-desktop</v-icon>
-                                </v-btn>
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{on}">
+                                        <v-btn
+                                            v-on="on"
+                                            slot="activator"
+                                            dark
+                                            flat
+                                            :ripple="false"
+                                            small
+                                            class="quillIcon"
+                                            @click="setMarkdownPreview"
+                                            style="margin: 0"
+                                        >
+                                            <v-icon :color="darkMode ? 'white' : 'black'">fas fa-desktop</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Show markdown preview</span>
+                                </v-tooltip>
                             </span>
                         </div>
                         <div class="editor" style="overflow: hidden;">
@@ -547,7 +573,6 @@
         }
 
         private refreshHTML() {
-            console.log("hoi")
             this.markdownHTMLPreview = getHTML(this.editor, document, window);
 
             Vue.nextTick(() => {

@@ -2,24 +2,27 @@
     <div>
         <div v-if="post !== null" @click.capture="navigateToPost">
             <!-- The following transition is just a trick so I get an event on the change from preview to full post (performance of the animation when the viewer is on is terrible) -->
-            <transition :duration="300" @before-leave="showContent = isIndexComputed" @before-enter="showContent = false" @after-enter="afterAnimation">
+            <transition :duration="300" @before-leave="showContent = isIndexComputed"
+                        @before-enter="showContent = false" @after-enter="afterAnimation">
                 <div v-if="fullPostComputed"></div>
             </transition>
             <v-progress-circular
-                v-if="showLoadingIcon"
-                :size="100"
-                color="primary"
-                indeterminate
-                class="loadingIcon"
+                    v-if="showLoadingIcon"
+                    :size="100"
+                    color="primary"
+                    indeterminate
+                    class="loadingIcon"
             ></v-progress-circular>
-            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed, isIndex: isIndexComputed}" :id="'post_' + domId" style="box-shadow: none">
+            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed, isIndex: isIndexComputed}"
+                    :id="'post_' + domId" style="box-shadow: none">
                 <v-card-title primary-title :id="'postTitle_' + domId" class="pb-0 xl-0 pt-1 titleCard">
                     <transition name="topMenuShow">
                         <div v-if="!showTopMenu && fullPostComputed">
                             <v-btn color="primary" depressed small dark @click="returnToPostMenu">
                                 <v-icon>fas fa-chevron-left</v-icon>
                             </v-btn>
-                            <v-btn color="secondary" depressed small @click="showTopMenu = true" class="angleLighten3Dark">
+                            <v-btn color="secondary" depressed small @click="showTopMenu = true"
+                                   class="angleLighten3Dark">
                                 <v-icon>fas fa-angle-down</v-icon>
                             </v-btn>
                         </div>
@@ -39,31 +42,78 @@
                                 <v-breadcrumbs-item :disabled="!editModeComputed" @click="disableEdit">
                                     {{post.title}}
                                 </v-breadcrumbs-item>
-                                <v-btn color="red" depressed small @click="hidePost()" v-if="!editModeComputed && userAdminComputed">
-                                    <v-icon>fas fa-trash</v-icon>
-                                </v-btn>
-                                <v-btn color="purple" depressed small @click="wipPost()" v-if="!editModeComputed && userIsLoggedIn && userAdminComputed">
-                                    <v-icon v-if="post.isWIP">fas fa-comments</v-icon>
-                                    <v-icon v-else>far fa-comments</v-icon>
-                                </v-btn>
-                                <v-btn color="lime" depressed small @click="toggleFavorite()" v-if="!editModeComputed && userIsLoggedIn && !isIndexComputed">
-                                    <v-icon v-if="post.isMyFavorite">fas fa-star</v-icon>
-                                    <v-icon v-else>far fa-star</v-icon>
-                                </v-btn>
-                                <v-btn color="orange" depressed small @click="enableEdit"
-                                       v-if="!editModeComputed && userIsLoggedIn">
-                                    <v-icon>fas fa-edit</v-icon>
-                                </v-btn>
-                                <v-btn v-if="!editModeComputed && userAdminComputed" depressed small color="green" @click="savePostDialog">
-                                    <v-icon>fas fa-save</v-icon>
-                                </v-btn>
-                                <v-btn v-if="!editModeComputed && userAdminComputed" depressed small color="blue" @click="forceEditPost">
-                                    <v-icon>fas fa-gavel</v-icon>
-                                </v-btn>
-                                <v-btn depressed small color="primary" @click="viewEditDialog" v-if="!editModeComputed">
-                                    <v-icon>fas fa-history</v-icon>
-                                </v-btn>
-                                <v-btn depressed small color="secondary" @click="showTopMenu = false" class="angleLighten3Dark">
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{on}">
+                                        <v-btn v-on="on" color="red" depressed small @click="hidePost()"
+                                               v-if="!editModeComputed && userAdminComputed">
+                                            <v-icon>fas fa-trash</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Delete the post (sorta)</span>
+                                </v-tooltip>
+
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{on}">
+                                        <v-btn v-on="on" color="purple" depressed small @click="wipPost()"
+                                               v-if="!editModeComputed && userIsLoggedIn && userAdminComputed">
+                                            <v-icon v-if="post.isWIP">fas fa-comments</v-icon>
+                                            <v-icon v-else>far fa-comments</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Toggle WIP (dark = WIP)</span>
+                                </v-tooltip>
+
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{on}">
+                                        <v-btn v-on="on" color="lime" depressed small @click="toggleFavorite()"
+                                               v-if="!editModeComputed && userIsLoggedIn && !isIndexComputed">
+                                            <v-icon v-if="post.isMyFavorite">fas fa-star</v-icon>
+                                            <v-icon v-else>far fa-star</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Favorite the post (dark = favorite)</span>
+                                </v-tooltip>
+
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{on}">
+                                        <v-btn v-on="on" color="orange" depressed small @click="enableEdit"
+                                               v-if="!editModeComputed && userIsLoggedIn">
+                                            <v-icon>fas fa-edit</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Edit the post</span>
+                                </v-tooltip>
+
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{on}">
+                                        <v-btn v-on="on" v-if="!editModeComputed && userAdminComputed" depressed small color="green"
+                                               @click="savePostDialog">
+                                            <v-icon>fas fa-save</v-icon>
+                                        </v-btn>
+                                    </template>
+                                <span>Save the post</span>
+                                </v-tooltip>
+
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{on}">
+                                        <v-btn v-on="on" v-if="!editModeComputed && userAdminComputed" depressed small color="blue" @click="forceEditPost">
+                                            <v-icon>fas fa-gavel</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Force edit the post</span>
+                                </v-tooltip>
+
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{on}">
+                                        <v-btn v-on="on" depressed small color="primary" @click="viewEditDialog" v-if="!editModeComputed">
+                                            <v-icon>fas fa-history</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>View post history</span>
+                                </v-tooltip>
+
+                                <v-btn depressed small color="secondary" @click="showTopMenu = false"
+                                       class="angleLighten3Dark">
                                     <v-icon>fas fa-angle-up</v-icon>
                                 </v-btn>
                             </v-breadcrumbs>
@@ -95,7 +145,8 @@
                             align-center
                             justify-center
                             v-scroll:#post-scroll-target>
-                        <v-card-text v-if="!loadingIcon" id="postCardText" :class="{indexPostCardText: isIndexComputed}">
+                        <v-card-text v-if="!loadingIcon" id="postCardText"
+                                     :class="{indexPostCardText: isIndexComputed}">
                             <v-list-tile-sub-title class="whitespaceInit post-title secondaryTitle">
                                 <span>{{post.title}}</span>
                             </v-list-tile-sub-title>
@@ -133,7 +184,8 @@
                     style="width: 100%; margin: 10% auto;"/>
         </div>
         <PostEditsDialog v-if="fullPostComputed" :key="postHash" :postHash="postHash"></PostEditsDialog>
-        <PostSaveEditDialog v-if="post !== null && fullPostComputed" :key="postHash - 1" :post="post"></PostSaveEditDialog>
+        <PostSaveEditDialog v-if="post !== null && fullPostComputed" :key="postHash - 1"
+                            :post="post"></PostSaveEditDialog>
     </div>
 </template>
 <script lang="ts">
@@ -393,7 +445,7 @@
          * Methods
          */
 
-        private markDownToggled(value: boolean){
+        private markDownToggled(value: boolean) {
             Vue.nextTick(() => {
                 this.windowHeightChanged();
             });
@@ -461,7 +513,7 @@
                     let elements: HTMLCollectionOf<Element>;
 
                     if (rootElement.length === 1) {
-                        let elementsByClassNameElement = rootElement[0];
+                        const elementsByClassNameElement = rootElement[0];
                         elements = elementsByClassNameElement.getElementsByClassName("flex");
 
                         if (elements !== null && newHeight > 0) {
@@ -775,7 +827,7 @@
         left: 50%;
         width: auto;
         height: auto;
-        transform: translate(-50%,-50%);
+        transform: translate(-50%, -50%);
         z-index: 9999;
     }
 
