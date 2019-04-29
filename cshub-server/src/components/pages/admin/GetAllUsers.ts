@@ -49,5 +49,7 @@ app.get(GetAllUsers.getURL, (req: Request, res: Response) => {
                         res.json(new GetAllUsersCallBack(users, count));
                     });
             });
+    } else {
+        res.sendStatus(403);
     }
 });

@@ -13,11 +13,11 @@ import {getHTMLFromDelta} from "../../utilities/EditsHandler";
 app.put(EditPost.getURL, (req: Request, res: Response) => {
 
     const editPostRequest: EditPost = req.body as EditPost;
-    editPostRequest.postHash = req.params.hash;
+    const postHash = req.params.hash;
 
     const userObj = checkTokenValidity(req);
 
-    const inputsValidation = validateMultipleInputs({input: editPostRequest.postHash}, {input: editPostRequest.postTitle}, {input: editPostRequest.postTopicHash});
+    const inputsValidation = validateMultipleInputs({input: postHash}, {input: editPostRequest.postTitle}, {input: editPostRequest.postTopicHash});
 
     if (inputsValidation.valid && userObj.valid) {
 
@@ -33,7 +33,7 @@ app.put(EditPost.getURL, (req: Request, res: Response) => {
                 WHERE hash = ?
               )
               ORDER BY datetime ASC
-            `, editPostRequest.postHash)
+            `, postHash)
                 .then((edits: DatabaseResultSet) => {
                     const rows = edits.convertRowsToResultObjects();
                     const lastRow = rows[rows.length - 1];
@@ -69,7 +69,7 @@ app.put(EditPost.getURL, (req: Request, res: Response) => {
                                 AND posts.hash = ?
                               ORDER BY edits.datetime DESC
                               LIMIT 1
-                            `, userObj.tokenObj.user.id, html, indexWords, editPostRequest.postTitle, editPostRequest.postTopicHash, editPostRequest.postHash, editPostRequest.postHash)
+                            `, userObj.tokenObj.user.id, html, indexWords, editPostRequest.postTitle, editPostRequest.postTopicHash, postHash, postHash)
                                 .then(() => {
                                     logger.info("Edited post succesfully");
                                     res.sendStatus(200);

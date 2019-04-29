@@ -22,13 +22,13 @@ export class Requests {
 
     public static readonly GETALLUSERS: string = "/users/:page"; // GET
 
-    public static readonly VERIFYMAIL: string = "/user/verifymail"; // POST
+    public static readonly VERIFYMAIL: string = "/user/verifymail"; // GET
     public static readonly FORGOTPASSWORDMAIL: string = "/user/forgotpasswordmail"; // POST
     public static readonly FORGOTPASSWORD: string = "/user/forgotpassword"; // POST
     public static readonly CHANGEPASSWORD: string = "/user/changepassword"; // POST
     public static readonly CHANGEAVATAR: string = "/user/changeavatar"; // POST
 
-    public static readonly PROFILE = "/profile/:userId";
+    public static readonly PROFILE = "/profile/:userId"; // GET, Is actually profile pic
 
     public static readonly DASHBOARD: string = "/dashboard/:type"; // GET type = myposts,favorites
 

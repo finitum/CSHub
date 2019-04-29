@@ -31,7 +31,6 @@
     import Vue from "vue";
 
     import {GetSearchPosts, GetSearchPostsCallback} from "../../../../cshub-shared/src/api-calls/pages";
-    import {Routes} from "../../../../cshub-shared/src/Routes";
 
     import PostList from "../../components/posts/PostList.vue";
 
@@ -94,7 +93,7 @@
          * Methods
          */
         private getSearchResults() {
-            ApiWrapper.sendPostRequest(new GetSearchPosts(this.searchQuery), (result: GetSearchPostsCallback) => {
+            ApiWrapper.sendGetRequest(new GetSearchPosts(this.searchQuery), (result: GetSearchPostsCallback) => {
                 this.postHashes = result.hashes;
             });
         }

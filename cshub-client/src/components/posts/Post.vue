@@ -403,7 +403,7 @@
         private forceEditPost() {
             this.showLoadingIcon = true;
 
-            ApiWrapper.sendPostRequest(new ForceEditPost(this.postHash), () => {
+            ApiWrapper.sendPutRequest(new ForceEditPost(this.postHash), () => {
                 this.showLoadingIcon = false;
                 uiState.setNotificationDialogState({
                     on: true,

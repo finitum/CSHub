@@ -16,8 +16,6 @@ app.get(GetEditContent.getURL, (req: Request, res: Response) => {
     const postHash: number = req.params.hash;
     const includeLastEdit: boolean = !(req.header(GetEditContent.excludeLastEditHeader) == "true");
 
-    console.log("555: "+ includeLastEdit)
-
     const inputsValidation = validateMultipleInputs({input: postHash});
 
     if (inputsValidation.valid) {

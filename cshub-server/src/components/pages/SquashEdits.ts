@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 import async from "async";
 
 import {app} from "../../";
-import logger from "../../utilities/Logger"
+import logger from "../../utilities/Logger";
 
 import {SquashEdits} from "../../../../cshub-shared/src/api-calls";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
@@ -15,16 +15,16 @@ import Delta = require("quill-delta/dist/Delta");
 app.put(SquashEdits.getURL, (req: Request, res: Response) => {
 
     const squashEditRequest = req.body as SquashEdits;
-    squashEditRequest.postHash = req.params.hash;
+    const postHash = Number(req.params.hash);
 
     const userObj = checkTokenValidity(req);
 
-    const inputsValidation = validateMultipleInputs({input: squashEditRequest.postHash}, {input: squashEditRequest.editIds});
+    const inputsValidation = validateMultipleInputs({input: postHash}, {input: squashEditRequest.editIds});
 
     if (inputsValidation.valid && squashEditRequest.editIds.length > 1) {
 
         if (userObj.valid && userObj.tokenObj.user.admin) {
-            logger.info(`Executing squash for post id ${squashEditRequest.postHash}`);
+            logger.info(`Executing squash for post id ${postHash}`);
             query(`
               SELECT content, datetime, T1.id, T2.user
               FROM edits T1
@@ -36,7 +36,7 @@ app.put(SquashEdits.getURL, (req: Request, res: Response) => {
               )
                 AND approved = 1
               ORDER BY datetime ASC
-            `, squashEditRequest.postHash)
+            `, postHash)
                 .then((edits: DatabaseResultSet) => {
 
                     const dbEdits: Array<{ id: number, datetime: Dayjs, content: Delta, users: number[] }> = [];

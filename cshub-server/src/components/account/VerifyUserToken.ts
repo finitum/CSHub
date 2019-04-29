@@ -17,6 +17,6 @@ app.get(VerifyUserToken.getURL, (req: Request, res: Response) => {
     if (tokenVailidity.valid) {
         res.json(new VerifyUserTokenCallback(VerifyUserTokenResponseTypes.VALID, tokenVailidity.tokenObj.user));
     } else {
-        res.json(new VerifyUserTokenCallback(VerifyUserTokenResponseTypes.INVALID));
+        res.status(400).json(new VerifyUserTokenCallback(VerifyUserTokenResponseTypes.INVALID));
     }
 });

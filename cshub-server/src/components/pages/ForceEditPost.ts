@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 
 import {app} from "../../";
-import logger from "../../utilities/Logger"
+import logger from "../../utilities/Logger";
 
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
@@ -12,12 +12,11 @@ import {getHTMLFromDelta} from "../../utilities/EditsHandler";
 import {ForceEditPost} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
 
 app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
-
-    const editPostRequest: ForceEditPost = req.body as ForceEditPost;
+    const postHash: number = Number(req.params.hash);
 
     const userObj = checkTokenValidity(req);
 
-    const inputsValidation = validateMultipleInputs({input: editPostRequest.postHash});
+    const inputsValidation = validateMultipleInputs({input: postHash});
 
     if (inputsValidation.valid && userObj.valid) {
 
@@ -33,7 +32,7 @@ app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
                 WHERE hash = ?
               )
               ORDER BY datetime ASC
-            `, editPostRequest.postHash)
+            `, postHash)
                 .then((edits: DatabaseResultSet) => {
                     const rows = edits.convertRowsToResultObjects();
                     let delta = new Delta(JSON.parse(rows[0].getStringFromDB("content")));
@@ -57,7 +56,7 @@ app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
                               posts.postVersion = posts.postVersion + 1
                           WHERE edits.id = ?
                             AND posts.hash = ?
-                        `, html, indexWords, editId, editPostRequest.postHash)
+                        `, html, indexWords, editId, postHash)
                             .then(() => {
                                 logger.info("Force edit post succesfully");
                                 res.sendStatus(200);

@@ -52,7 +52,7 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
                             `, createAccountRequest.email, hashedValue, createAccountRequest.firstname, createAccountRequest.lastname)
                                 .then((result: DatabaseResultSet) => {
                                     sendVerificationEmail(createAccountRequest.email, createAccountRequest.firstname, result.getInsertId());
-                                    res.json(new CreateAccountCallBack(CreateAccountResponseTypes.SUCCESS));
+                                    res.status(201).json(new CreateAccountCallBack(CreateAccountResponseTypes.SUCCESS));
                                 })
                                 .catch(err => {
                                     logger.error(`Inserting into users table failed`);

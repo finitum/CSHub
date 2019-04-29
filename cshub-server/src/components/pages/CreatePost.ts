@@ -75,7 +75,7 @@ app.post(CreatePost.getURL, (req: Request, res: Response) => {
                                       isIndex = ?
                                 `, requestTopic.id, userObj.tokenObj.user.id, submitPostRequest.postTitle, topicHash, submitPostRequest.isIndex ? 1 : 0)
                                     .then((insertEdit: DatabaseResultSet) => {
-                                        res.json(new CreatePostCallback(SubmitPostResponse.SUCCESS, topicHash));
+                                        res.status(201).json(new CreatePostCallback(SubmitPostResponse.SUCCESS, topicHash));
                                     })
                                     .catch((err) => {
                                         logger.error(`Inserting into db failed`);
