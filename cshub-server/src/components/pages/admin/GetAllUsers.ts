@@ -1,27 +1,28 @@
 import {app} from "../../../";
-import {GetAllUsersCallBack, GetAllUsers} from "../../../../../cshub-shared/src/api-calls/admin";
+import {GetAllUsers, GetAllUsersCallBack} from "../../../../../cshub-shared/src/api-calls/admin";
 import {Request, Response} from "express";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
 import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
 import {IUser} from "../../../../../cshub-shared/src/models";
 
-app.post(GetAllUsers.getURL, (req: Request, res: Response) => {
-    const getAllUsersRequest = req.body as GetAllUsers;
+app.get(GetAllUsers.getURL, (req: Request, res: Response) => {
+    const page = Number(req.params.page);
+    let rowsPerPage = Number(req.query.rowsPerPage);
+
+
 
     const token = checkTokenValidity(req);
 
     // Check if token is valid and user is admin
     if (token.valid && token.tokenObj.user.admin) {
 
-        if (getAllUsersRequest.rowsPerPage === -1) {
-            getAllUsersRequest.rowsPerPage = 4242424242;
-        }
+        rowsPerPage = rowsPerPage === -1 ? 4242424242 : rowsPerPage;
 
         query(`
         SELECT id, email, firstname, lastname, blocked, verified, admin
         FROM users
         LIMIT ?, ?
-        `, (getAllUsersRequest.page - 1) * getAllUsersRequest.rowsPerPage, getAllUsersRequest.rowsPerPage)
+        `, (page - 1) * rowsPerPage, rowsPerPage)
             .then((data: DatabaseResultSet) => {
 
                 const users: IUser[] = [];

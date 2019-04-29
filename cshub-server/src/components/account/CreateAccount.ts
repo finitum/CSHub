@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 
 import {app} from "../../";
-import logger from "../..//utilities/Logger"
+import logger from "../..//utilities/Logger";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 
 import {CreateAccount, CreateAccountCallBack, CreateAccountResponseTypes} from "../../../../cshub-shared/src/api-calls";
@@ -76,7 +76,7 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
             });
 
     } else {
-        res.json(new CreateAccountCallBack(CreateAccountResponseTypes.INVALIDINPUT));
+        res.status(400).json(new CreateAccountCallBack(CreateAccountResponseTypes.INVALIDINPUT));
     }
 
 });

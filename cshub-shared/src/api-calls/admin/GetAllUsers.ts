@@ -13,5 +13,8 @@ export class GetAllUsers implements IApiRequest {
     public static getURL: string = Requests.GETALLUSERS;
     public URL: string = GetAllUsers.getURL;
 
-    constructor(public rowsPerPage: number, public page: number) {}
+    constructor(rowsPerPage: number, page: number) {
+        this.URL = this.URL.replace(/:page/, page.toString());
+        this.URL += "?rowsPerPage=" + rowsPerPage;
+    }
 }

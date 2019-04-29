@@ -20,14 +20,15 @@ export class Requests {
     public static readonly CREATEACCOUNTREQUEST: string = "/createaccount";
     public static readonly VERIFYTOKEN: string = "/verifytoken";
 
-    public static readonly GETALLUSERS: string = "/allusers";
-    public static readonly VERIFYMAIL: string = "/verifymail";
-    public static readonly FORGOTPASSWORDMAIL: string = "/forgotpasswordmail";
-    public static readonly FORGOTPASSWORD: string = "/forgotpassword";
-    public static readonly CHANGEPASSWORD: string = "/changepassword";
-    public static readonly CHANGEAVATAR: string = "/changeavatar";
+    public static readonly GETALLUSERS: string = "/users/:page"; //GET
 
-    public static readonly DASHBOARD: string = "/dashboard";
-    public static readonly PROFILE = "/profile";
+    public static readonly VERIFYMAIL: string = "/user/verifymail";
+    public static readonly FORGOTPASSWORDMAIL: string = "/user/forgotpasswordmail";
+    public static readonly FORGOTPASSWORD: string = "/user/forgotpassword";
+    public static readonly CHANGEPASSWORD: string = "/user/changepassword";
+    public static readonly CHANGEAVATAR: string = "/user/changeavatar";
+
+    public static readonly PROFILE = "/user/profile";
+    public static readonly DASHBOARD: string = "/user/dashboard";
     public static readonly SEARCH: string = "/search";
 }

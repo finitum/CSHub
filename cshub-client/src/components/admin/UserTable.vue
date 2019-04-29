@@ -27,7 +27,7 @@
 
     import {ApiWrapper} from "../../utilities";
 
-    import {GetAllUsersCallBack, GetAllUsers} from "../../../../cshub-shared/src/api-calls/admin";
+    import {GetAllUsers, GetAllUsersCallBack} from "../../../../cshub-shared/src/api-calls/admin";
     import {IUser} from "../../../../cshub-shared/src/models";
 
     @Component({
@@ -73,7 +73,7 @@
          */
         private getData(rowsPerPage: number, page: number) {
             this.loading = true;
-            ApiWrapper.sendPostRequest(new GetAllUsers(rowsPerPage, page), (callback: GetAllUsersCallBack) => {
+            ApiWrapper.sendGetRequest(new GetAllUsers(rowsPerPage, page), (callback: GetAllUsersCallBack) => {
                 this.items = callback.users;
                 this.amountItems = callback.totalItems;
                 this.loading = false;
