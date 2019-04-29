@@ -446,13 +446,16 @@
 
                     const newHeight = postCard.clientHeight - postCardTitleHeight - 50;
 
-                    const element = (document.getElementsByClassName(`postScrollWindow_${this.domId}`).item(0) as HTMLElement);
+                    const elements = document.getElementsByClassName(`postScrollWindow_${this.domId} .flex`);
 
-                    if (element !== null && newHeight > 0) {
-                        element.style.maxHeight = `${newHeight}px`;
-                        setTimeout(() => {
-                            this.canResize = true;
-                        }, 250);
+                    if (elements !== null && newHeight > 0) {
+                        for (const element of elements) {
+                            // @ts-ignore
+                            element.style.maxHeight = `${newHeight}px`;
+                            setTimeout(() => {
+                                this.canResize = true;
+                            }, 250);
+                        }
                     } else {
                         this.canResize = true;
                     }
