@@ -465,21 +465,23 @@
                         elements = elementsByClassNameElement.getElementsByClassName("flex");
 
                         if (elements !== null && newHeight > 0) {
+
+                            // @ts-ignore
+                            elementsByClassNameElement.style.maxHeight = `${newHeight}px`;
+
                             for (const element of elements) {
                                 // @ts-ignore
                                 element.style.maxHeight = `${newHeight}px`;
-
-                                // @ts-ignore
-                                elementsByClassNameElement.style.maxHeight = `${newHeight}px`;
-                                
-                                setTimeout(() => {
-                                    this.canResize = true;
-                                }, 250);
                             }
+
+                            setTimeout(() => {
+                                this.canResize = true;
+                            }, 250);
                         } else {
                             this.canResize = true;
                         }
                     } else {
+                        this.canResize = true;
                         errorLogStringConsole("Found multiple postScrollWindows", "Post.vue");
                     }
                 } else {

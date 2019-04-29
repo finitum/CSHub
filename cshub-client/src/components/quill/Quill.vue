@@ -132,8 +132,8 @@
                     </div>
                 </div>
             </v-flex>
-            <v-flex xs6 v-if="showMarkdownPreview">
-                <div v-html="markdownHTMLPreview" style="margin-top: 10px" id="htmlOutput"></div>
+            <v-flex xs6 v-show="showMarkdownPreview">
+                <div v-html="markdownHTMLPreview" style="margin-top: 10px; overflow-y: auto" id="htmlOutput"></div>
             </v-flex>
         </v-layout>
     </v-container>
@@ -146,6 +146,9 @@
     import dayjs from "dayjs";
     import katex from "katex";
     import "katex/dist/katex.min.css";
+
+    import {debounce} from "lodash";
+
     // @ts-ignore
     import QuillCursors from "quill-cursors";
 
@@ -226,6 +229,8 @@
         private currentlySelectedDomNodes: object[] = [];
         private showMarkdownPreview = false;
         private markdownHTMLPreview = "";
+        private refreshDebounce = debounce(this.refreshHTML, 500);
+
 
         /**
          * Lifecycle hooks
@@ -476,6 +481,8 @@
                 this.editor.setContents(this.initialValue);
             }
 
+            this.$emit("markdownPreviewToggle", this.showMarkdownPreview);
+
             // Show the editor again
             if (this.editorSetup.allowEdit) {
                 this.editor.enable(true);
@@ -534,12 +541,18 @@
             }
 
             if (this.editor !== null && this.showMarkdownPreview) {
-                this.markdownHTMLPreview = getHTML(this.editor, document, window);
-
-                Vue.nextTick(() => {
-                    colorize(null, CodeMirror);
-                });
+                this.refreshDebounce();
             }
+
+        }
+
+        private refreshHTML() {
+            console.log("hoi")
+            this.markdownHTMLPreview = getHTML(this.editor, document, window);
+
+            Vue.nextTick(() => {
+                colorize(null, CodeMirror);
+            });
         }
 
         private selectionChanged(range: RangeStatic, oldRange: RangeStatic, source: any) {
@@ -633,7 +646,7 @@
 
     #htmlOutput {
         height: 100%;
-        overflow-y: scroll;
+
         p {
             margin-bottom: 0;
         }
