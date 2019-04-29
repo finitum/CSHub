@@ -151,15 +151,17 @@
         GetPostCallBack,
         GetPostContent,
         GetPostContentCallBack,
+        PostSettings,
         PostSettingsCallback,
-        PostSettings, PostSettingsEditType,
-        PostVersionTypes, Requests
+        PostSettingsEditType,
+        PostVersionTypes,
+        Requests
     } from "../../../../cshub-shared/src/api-calls";
     import {IPost, ITopic} from "../../../../cshub-shared/src/models";
     import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
-    import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
+    import {ApiWrapper, errorLogStringConsole, logObjectConsole, logStringConsole} from "../../utilities";
     import {CacheTypes} from "../../utilities/cache-types";
     import {idGenerator} from "../../utilities/id-generator";
 
@@ -446,7 +448,14 @@
 
                     const newHeight = postCard.clientHeight - postCardTitleHeight - 50;
 
-                    const elements = document.getElementsByClassName(`postScrollWindow_${this.domId} .flex`);
+                    const rootElement = document.getElementsByClassName(`postScrollWindow_${this.domId}`);
+                    let elements: HTMLCollectionOf<Element>;
+
+                    if (rootElement.length === 1) {
+                        elements = document.getElementsByClassName(`postScrollWindow_${this.domId}`)[0].getElementsByClassName("flex");
+                    } else {
+                        errorLogStringConsole("Found multiple postScrollWindows", "Post.vue");
+                    }
 
                     if (elements !== null && newHeight > 0) {
                         for (const element of elements) {
