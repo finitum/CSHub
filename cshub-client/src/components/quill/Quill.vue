@@ -483,15 +483,19 @@
 
                 // @ts-ignore
                 textArea.focus();
-                textArea.addEventListener("keydown", (evt) => {
+                const listener = (evt: Event) => {
                     // @ts-ignore
                     if (evt.keyCode === 13) {
                         const saveButton = document.querySelector(`#${this.editorId} .editor .ql-editing .ql-action`);
 
                         // @ts-ignore
                         saveButton.click();
+
+                        textArea.removeEventListener("keyup", listener);
                     }
-                });
+                };
+
+                textArea.addEventListener("keyup", listener);
             };
 
             // @ts-ignore

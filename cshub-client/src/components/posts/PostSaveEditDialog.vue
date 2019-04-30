@@ -19,14 +19,14 @@
                     <v-toolbar-items>
                         <v-tooltip bottom>
                             <template v-slot:activator="{on}">
-                                <v-btn v-on="on" depressed small color="red" @click="deleteEdit">Delete</v-btn>
+                                <v-btn v-on="on" depressed small color="red" @click="deleteEdit" v-if="hasBeenEdited">Delete</v-btn>
                             </template>
                             <span>Delete the current edit</span>
                         </v-tooltip>
 
                         <v-tooltip bottom>
                             <template v-slot:activator="{on}">
-                                <v-btn v-on="on" depressed small color="red" @click="save">Save</v-btn>
+                                <v-btn v-on="on" depressed small color="red" @click="save" v-if="hasBeenEdited">Save</v-btn>
                             </template>
                             <span>Save the current edit</span>
                         </v-tooltip>
@@ -56,6 +56,7 @@
                         <v-toolbar-title class="mt-2" style="margin-left: 0px">Edit by {{editedByText}}</v-toolbar-title>
                         <Quill key="currEditQuill"
                                ref="currEditQuill"
+                               class="save-quill"
                                v-if="content !== null"
                                :editorSetup="{allowEdit: false, showToolbar: false, postHash: post.hash}"
                                :initialValueProp="content">
@@ -271,5 +272,10 @@
     }
 </script>
 
-<style scoped>
+<style lang="scss">
+    .save-quill {
+        .ql-editor {
+            overflow: hidden;
+        }
+    }
 </style>
