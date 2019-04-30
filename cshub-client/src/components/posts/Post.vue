@@ -42,20 +42,19 @@
                                 <v-breadcrumbs-item :disabled="!editModeComputed" @click="disableEdit">
                                     {{post.title}}
                                 </v-breadcrumbs-item>
-                                <v-tooltip bottom>
+                                
+                                <v-tooltip bottom v-if="!editModeComputed && userAdminComputed">
                                     <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" color="red" depressed small @click="hidePost()"
-                                               v-if="!editModeComputed && userAdminComputed">
+                                        <v-btn v-on="on" color="red" depressed small @click="hidePost()">
                                             <v-icon>fas fa-trash</v-icon>
                                         </v-btn>
                                     </template>
                                     <span>Delete the post (sorta)</span>
                                 </v-tooltip>
 
-                                <v-tooltip bottom>
+                                <v-tooltip bottom v-if="!editModeComputed && userIsLoggedIn && userAdminComputed">
                                     <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" color="purple" depressed small @click="wipPost()"
-                                               v-if="!editModeComputed && userIsLoggedIn && userAdminComputed">
+                                        <v-btn v-on="on" color="purple" depressed small @click="wipPost()">
                                             <v-icon v-if="post.isWIP">fas fa-comments</v-icon>
                                             <v-icon v-else>far fa-comments</v-icon>
                                         </v-btn>
@@ -63,19 +62,18 @@
                                     <span>Toggle WIP (dark = WIP)</span>
                                 </v-tooltip>
 
-                                <v-tooltip bottom>
+                                <v-tooltip bottom v-if="!editModeComputed && userIsLoggedIn">
                                     <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" color="orange" depressed small @click="enableEdit"
-                                               v-if="!editModeComputed && userIsLoggedIn">
+                                        <v-btn v-on="on" color="orange" depressed small @click="enableEdit">
                                             <v-icon>fas fa-edit</v-icon>
                                         </v-btn>
                                     </template>
                                     <span>Edit the post</span>
                                 </v-tooltip>
 
-                                <v-tooltip bottom>
+                                <v-tooltip bottom v-if="!editModeComputed && userAdminComputed">
                                     <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" v-if="!editModeComputed && userAdminComputed" depressed small color="green"
+                                        <v-btn v-on="on" depressed small color="green"
                                                @click="savePostDialog">
                                             <v-icon>fas fa-save</v-icon>
                                         </v-btn>
@@ -83,18 +81,18 @@
                                 <span>Save the post</span>
                                 </v-tooltip>
 
-                                <v-tooltip bottom>
+                                <v-tooltip bottom v-if="!editModeComputed && userAdminComputed">
                                     <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" v-if="!editModeComputed && userAdminComputed" depressed small color="blue" @click="forceEditPost">
+                                        <v-btn v-on="on" depressed small color="blue" @click="forceEditPost">
                                             <v-icon>fas fa-gavel</v-icon>
                                         </v-btn>
                                     </template>
                                     <span>Force edit the post</span>
                                 </v-tooltip>
 
-                                <v-tooltip bottom>
+                                <v-tooltip bottom v-if="!editModeComputed">
                                     <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" depressed small color="primary" @click="viewEditDialog" v-if="!editModeComputed">
+                                        <v-btn v-on="on" depressed small color="primary" @click="viewEditDialog">
                                             <v-icon>fas fa-history</v-icon>
                                         </v-btn>
                                     </template>
