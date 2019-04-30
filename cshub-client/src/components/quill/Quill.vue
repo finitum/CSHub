@@ -369,7 +369,8 @@
         }
 
         private getAvatarURL(id: number) {
-            return `${process.env.VUE_APP_API_URL || (window as any).appConfig.VUE_APP_API_URL}${Requests.PROFILE}/${id}`;
+            const profileurl = Requests.PROFILE.replace(/:userId/, id.toString());
+            return `${process.env.VUE_APP_API_URL || (window as any).appConfig.VUE_APP_API_URL}${profileurl}`;
         }
 
         private setupQuill(delta: Delta, selects: IRealtimeSelect[]) {
