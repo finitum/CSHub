@@ -52,7 +52,7 @@
                     </v-flex>
                 </v-layout>
                 <router-link :to="navigationLocations.POSTCREATE"><NavDrawerItem icon="fas fa-pen" text="Create new post"></NavDrawerItem></router-link>
-                <router-link v-if="userAdminComputed" :to="`${navigationLocations.ADMINDASHBOARD}/${adminRoutes.TOPICCREATE}`"><NavDrawerItem icon="fas fa-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
+                <router-link v-if="userAdminComputed" :to="`${navigationLocations.TOPICCREATE}`"><NavDrawerItem icon="fas fa-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
             </div>
         </v-list>
     </v-navigation-drawer>
@@ -80,7 +80,6 @@
     import dataState from "../../store/data";
     import userState from "../../store/user";
 
-    import {AdminRoutes} from "../../views/router/adminRoutes";
     import {Component, Watch} from "vue-property-decorator";
 
     @Component({
@@ -95,7 +94,6 @@
         private activeTopicHash: number[] = [];
         private topics: ITopic[] = [];
         private navigationLocations = Routes;
-        private adminRoutes = AdminRoutes;
 
         /**
          * Computed properties

@@ -277,5 +277,9 @@
         .ql-editor {
             overflow: hidden;
         }
+
+        .ql-container {
+            height: 100%;
+        }
     }
 </style>

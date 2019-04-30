@@ -16,11 +16,11 @@ const PostView = () => import("../posts/PostView.vue");
 const PostCreate = () => import("../posts/PostCreate.vue");
 const PostsSearch = () => import("../posts/PostsSearch.vue");
 
+import TopicCreate from "../posts/TopicCreate.vue";
+
 import {userBeforeEnter} from "./guards/userDashboardGuard";
 import {adminBeforeEnter} from "./guards/adminDashboardGuard";
 import {onlyIfNotLoggedIn} from "./guards/onlyIfNotLoggedInGuard";
-
-import {adminChildrenRoutes} from "./adminRoutes";
 
 import userState from "../../store/user";
 import dataState from "../../store/data";
@@ -115,7 +115,12 @@ const router = new Router({
             name: "admin",
             component: AdminDashboard,
             beforeEnter: adminBeforeEnter,
-            children: adminChildrenRoutes
+        },
+        {
+            path: Routes.TOPICCREATE,
+            name: "topiccreate",
+            component: TopicCreate,
+            beforeEnter: adminBeforeEnter
         },
         {
             path: "*",
