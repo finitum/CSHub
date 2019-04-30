@@ -7,7 +7,7 @@ import {ServerError} from "../../../../cshub-shared/src/models/ServerError";
 import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
 import * as fs from "fs";
 
-app.get(`${Requests.PROFILE}`, (req: Request, res: Response) => {
+app.get(Requests.PROFILE, (req: Request, res: Response) => {
     const userId = parseInt(req.params.userId);
 
     if (!isNaN(userId)) {
