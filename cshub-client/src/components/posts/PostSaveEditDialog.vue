@@ -248,7 +248,7 @@
         }
 
         public deleteEdit() {
-            ApiWrapper.sendPostRequest(new EditPost(
+            ApiWrapper.sendPutRequest(new EditPost(
                 this.post.hash,
                 this.post.title,
                 this.activeTopicHash[0],
