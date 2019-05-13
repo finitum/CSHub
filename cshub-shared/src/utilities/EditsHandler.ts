@@ -74,6 +74,16 @@ export const getHTML = (quillEditor: any, document: Document, window: Window) =>
         domNode.remove();
     });
 
+    const newAllNodes: any[] = [...node.getElementsByTagName("*")];
+
+    for (const domNode of newAllNodes) {
+        const tagName = domNode.tagName;
+        if (tagName === "H1" || tagName === "H2" || tagName === "H3") {
+            const innerText = (domNode.innerText || domNode.textContent) as string;
+            domNode.id = innerText.split(" ").join("-").split("\n").join("-").toLowerCase();
+        }
+    }
+
     // fixes the not equal latex
     return node.innerHTML
         .split("\u0338") // Gets the unusable unicode character

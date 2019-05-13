@@ -664,6 +664,8 @@
                             logStringConsole("Changed post in cache", "getContentRequest");
                         });
                 }
+
+                this.scrollToHash();
             }, (err: AxiosError) => {
 
                 clearTimeout(timeOut);
@@ -673,7 +675,21 @@
                     this.post.htmlContent = cachedValue.htmlContent;
                 }
                 this.$forceUpdate();
+
+                this.scrollToHash();
             });
+        }
+
+        private scrollToHash() {
+            this.$nextTick()
+                .then(() => {
+                    if (this.$route.hash) {
+                        const hashElement = document.getElementById(this.$route.hash.substr(1));
+                        if (hashElement !== null) {
+                            hashElement.scrollIntoView();
+                        }
+                    }
+                });
         }
 
         private afterAnimation() {
