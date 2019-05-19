@@ -44,6 +44,15 @@ matrix:
       after_success:
         - docker push $DOCKER_USERNAME/server:$TRAVIS_BRANCH
 
+    - name: "delta2html-push"
+        if: type = push
+        stage: others
+        script:
+          - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+          - docker build --build-arg BASE_IMAGE=$DOCKER_USERNAME/shared:$TRAVIS_BRANCH -t $DOCKER_USERNAME/delta2html:$TRAVIS_BRANCH delta2html
+        after_success:
+          - docker push $DOCKER_USERNAME/delta2html:$TRAVIS_BRANCH
+
     - name: "client-pull"
       if: type = pull_request
       stage: others
@@ -57,3 +66,10 @@ matrix:
       script:
         - docker build -t shared-$TRAVIS_PULL_REQUEST_SHA cshub-shared
         - docker build --build-arg BASE_IMAGE=shared-$TRAVIS_PULL_REQUEST_SHA cshub-server
+
+    - name: "delta2html-pull"
+        if: type = pull_request
+        stage: others
+        script:
+          - docker build -t shared-$TRAVIS_PULL_REQUEST_SHA delta2html
+          - docker build --build-arg BASE_IMAGE=shared-$TRAVIS_PULL_REQUEST_SHA delta2html

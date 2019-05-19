@@ -57,7 +57,7 @@
         "vue-cli-plugin-vuetify": "^0.2.1",
         "vue-template-compiler": "^2.5.22"
     },
-    "gitSHA": "a28155c13fcb9b682c9ef64318233d1b93b9b234",
+    "gitSHA": "bbed3da0e83a121b8bb9b1a73e8175c39a383ac2",
     "resolutions": {
         "**/katex": "^0.10.1"
     }
