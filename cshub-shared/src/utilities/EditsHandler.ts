@@ -1,7 +1,9 @@
 import {getMarkdownParser, MarkdownLatexQuill} from "./MarkdownLatexQuill";
 
+// @ts-ignore
 export const getHTML = (quillEditor: any, document: Document, window: Window) => {
     const node = quillEditor.container.firstChild.cloneNode(true);
+
 
     // Converts the classes of all the code blocks so that hljs can highlight them properly
     const allNodes: any[] = [...node.getElementsByTagName("*")];
@@ -15,8 +17,9 @@ export const getHTML = (quillEditor: any, document: Document, window: Window) =>
         isMarkdownBlock: false
     };
 
-    const finalizeMarkdownBlock = (doc: Document, win: Window) => {
+    const finalizeMarkdownBlock = (doc: Document) => {
         if (prevElement.isMarkdownBlock) {
+            // @ts-ignore
             prevElement.currString = prevElement.currString.substr(0, prevElement.currString.length - 1);
             prevElement.currString = prevElement.currString.split("<").join("&lt;");
             prevElement.currString = prevElement.currString.split(">").join("&gt;");
@@ -31,6 +34,7 @@ export const getHTML = (quillEditor: any, document: Document, window: Window) =>
                 .split("&amp;gt;")
                 .join("&gt;");
 
+            // @ts-ignore
             prevElement.containerNode.before(newNode);
 
             prevElement = {
@@ -61,14 +65,14 @@ export const getHTML = (quillEditor: any, document: Document, window: Window) =>
             domNode.parentNode.replaceChild(br, domNode);
 
             if (!domNode.classList.contains(MarkdownLatexQuill.blotName)) {
-                finalizeMarkdownBlock(document, window);
+                finalizeMarkdownBlock(document);
             }
         } else {
-            finalizeMarkdownBlock(document, window);
+            finalizeMarkdownBlock(document);
         }
     }
 
-    finalizeMarkdownBlock(document, window);
+    finalizeMarkdownBlock(document);
 
     toBeDeletedNodes.forEach((domNode: HTMLElement) => {
         domNode.remove();

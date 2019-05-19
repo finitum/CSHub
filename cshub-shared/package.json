@@ -15,8 +15,8 @@
     },
     "dependencies": {
         "katex": "^0.10.1",
-        "markdown-it": "latest",
-        "markdown-it-katex": "latest",
+        "markdown-it": "8.4.2",
+        "markdown-it-katex": "2.0.3",
         "parchment": "^1.1.4"
     },
     "resolutions": {

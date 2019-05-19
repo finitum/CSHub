@@ -1,8 +1,7 @@
 import {BlotConstructor} from "parchment/dist/src/registry";
-
 // @ts-ignore
 import mk from "markdown-it-katex";
-import MarkdownIt from "markdown-it";
+import * as MarkdownIt from "markdown-it/lib";
 
 export class MarkdownLatexQuill {
 
@@ -36,6 +35,7 @@ export class MarkdownLatexQuill {
 }
 
 export const getMarkdownParser = () => {
+    // @ts-ignore
     return new MarkdownIt({
         highlight: (str: string, lang: string) => {
             if (lang.length === 0) { lang = "null"; }

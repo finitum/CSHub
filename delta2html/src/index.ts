@@ -16,11 +16,17 @@ app.use(bodyParser.json());
 app.use(async (req: Request, res: Response) => {
     const virtualConsole = new VirtualConsole();
     virtualConsole.on("error", (err: any) => {
-        console.error(err);
+        console.error(JSON.stringify({
+            "message": err,
+            "type": "error"
+        }));
     });
 
     virtualConsole.on("warn", (warn: any) => {
-        console.warn(warn);
+        console.error(JSON.stringify({
+            "message": warn,
+            "type": "warn"
+        }));
     });
 
     const jsdom = new JSDOM(`
@@ -44,10 +50,7 @@ app.use(async (req: Request, res: Response) => {
 
 
     const request: delta2htmlRequest = req.body;
-    console.log(req.body);
     const delta = request.delta;
-
-    console.log(JSON.stringify(delta));
 
     await new Promise((resolve, _) => {
         virtualConsole.on("log", (log: string) => {if (log === "loaded") resolve(jsdom)})
@@ -63,6 +66,10 @@ app.use(async (req: Request, res: Response) => {
     window.onerror = (err: any) => {
         console.info("JSDOM Save errors");
         console.info(err.toString());
+        console.error(JSON.stringify({
+            "message": `JSDOM Save error: ${err}`,
+            "type": "error"
+        }))
     };
 
     const container = document.getElementById("editor-container");
@@ -110,6 +117,7 @@ app.use(async (req: Request, res: Response) => {
 
 app.listen(Settings.PORT, () => {
     console.log(JSON.stringify({
-        "message": `Started server on port ${Settings.PORT}`
+        "message": `Started server on port ${Settings.PORT}`,
+        "type": "info"
     }))
 });
