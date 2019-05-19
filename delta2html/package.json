@@ -1,0 +1,19 @@
+{
+  "name": "cshub-delta2html",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "beautify-package.json": "beautify -o package.json package.json",
+    "start": "yarn build:live",
+    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./src/index.ts"
+  },
+  "dependencies": {
+    "@types/node": "^12.0.2",
+    "body-parser": "^1.19.0",
+    "express": "latest",
+    "jsdom": "latest",
+    "quill-delta": "4.1.0",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.1.3"
+  }
+}
