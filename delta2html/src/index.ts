@@ -1,7 +1,7 @@
 import {Settings} from "./SettingsBaseline";
 import {JSDOM, VirtualConsole} from "jsdom";
 import {Request, Response} from "express";
-import {delta2htmlRequest, delta2htmlRespons} from "./classes";
+import {delta2htmlRequest, delta2htmlResponse} from "./classes";
 import QuillDefaultOptions from "../../cshub-shared/src/utilities/QuillDefaultOptions";
 import {MarkdownLatexQuill} from "../../cshub-shared/src/utilities/MarkdownLatexQuill";
 import {getHTML} from "../../cshub-shared/src/utilities/EditsHandler";
@@ -15,11 +15,11 @@ app.use(bodyParser.json());
 
 app.use(async (req: Request, res: Response) => {
     const virtualConsole = new VirtualConsole();
-    virtualConsole.on("error", (err) => {
+    virtualConsole.on("error", (err: any) => {
         console.error(err);
     });
 
-    virtualConsole.on("warn", (warn) => {
+    virtualConsole.on("warn", (warn: any) => {
         console.warn(warn);
     });
 
@@ -50,22 +50,24 @@ app.use(async (req: Request, res: Response) => {
     console.log(JSON.stringify(delta));
 
     await new Promise((resolve, _) => {
-        virtualConsole.on("log", log => {if (log === "loaded") resolve(jsdom)})
+        virtualConsole.on("log", (log: string) => {if (log === "loaded") resolve(jsdom)})
     });
 
     const window = jsdom.window;
     const document = window.document;
 
+    // @ts-ignore
     document.execCommand = () => {
     };
 
-    window.onerror = (err) => {
+    window.onerror = (err: any) => {
         console.info("JSDOM Save errors");
         console.info(err.toString());
     };
 
     const container = document.getElementById("editor-container");
 
+    // @ts-ignore
     document.getSelection = function() {
         return {
             getRangeAt: function() {
@@ -100,7 +102,7 @@ app.use(async (req: Request, res: Response) => {
     const unique = [...new Set(filteredArr)];
     const htmlFiltered = unique.join("");
 
-    const response = new delta2htmlRespons(html, htmlFiltered);
+    const response = new delta2htmlResponse(html, htmlFiltered);
     res.send(response);
 });
 

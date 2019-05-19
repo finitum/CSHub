@@ -6,6 +6,6 @@ export class delta2htmlRequest {
     }
 }
 
-export class delta2htmlRespons {
-    constructor(public html, public htmlFiltered: string) { }
+export class delta2htmlResponse {
+    constructor(public html: any, public htmlFiltered: string) { }
 }
