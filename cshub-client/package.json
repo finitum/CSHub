@@ -14,7 +14,7 @@
         "@babel/polyfill": "^7.0.0-rc.1",
         "@types/socket.io-client": "^1.4.32",
         "animate.css": "^3.7.0",
-        "axios": "^0.18.0",
+        "axios": "^0.18.1",
         "codemirror": "^5.42.2",
         "dayjs": "^1.7.7",
         "katex": "^0.10.1",
