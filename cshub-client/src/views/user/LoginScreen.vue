@@ -39,7 +39,7 @@
                             ></v-text-field>
                             <div v-if="!forgotPassword">
                                 <v-switch
-                                        label="Remember login?"
+                                        label="Remember email"
                                         v-model="userData.rememberuser"
                                 ></v-switch>
                                 <v-btn depressed color="primary" @click="doLogin">Login</v-btn>
