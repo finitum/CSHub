@@ -30,7 +30,7 @@
     import {Component, Watch} from "vue-property-decorator";
     import Vue from "vue";
 
-    import {GetSearchPosts, GetSearchPostsCallback} from "../../../../cshub-shared/src/api-calls/pages";
+    import {Search, GetSearchPostsCallback} from "../../../../cshub-shared/src/api-calls";
 
     import PostList from "../../components/posts/PostList.vue";
 
@@ -93,7 +93,7 @@
          * Methods
          */
         private getSearchResults() {
-            ApiWrapper.sendGetRequest(new GetSearchPosts(this.searchQuery), (result: GetSearchPostsCallback) => {
+            ApiWrapper.sendGetRequest(new Search(this.searchQuery), (result: GetSearchPostsCallback) => {
                 this.postHashes = result.hashes;
             });
         }

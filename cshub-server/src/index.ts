@@ -27,7 +27,7 @@ import "./utilities/VersionMiddleware";
 export const server = http.createServer(app).listen(Settings.PORT);
 
 // Here all the connectors will be defined
-import "./components";
+import "./endpoints";
 import {query} from "./db/database-query";
 
 logger.info("Express server started with settings:");

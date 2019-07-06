@@ -70,7 +70,7 @@
     import {ITopic} from "../../../../cshub-shared/src/models";
     import {
         GetTopicsCallBack,
-        GetTopics
+        Topics
     } from "../../../../cshub-shared/src/api-calls";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
@@ -159,7 +159,7 @@
                     }
 
                     // Sends a get request to the server, and sets the correct store value after receiving the topics in the GetTopicsCallBack
-                    ApiWrapper.sendGetRequest(new GetTopics(currentVersion), (callbackData: GetTopicsCallBack) => {
+                    ApiWrapper.sendGetRequest(new Topics(currentVersion), (callbackData: GetTopicsCallBack) => {
 
                         if (callbackData !== null && typeof callbackData.topics !== "undefined") {
                             this.topics = callbackData.topics;

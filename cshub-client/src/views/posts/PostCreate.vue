@@ -1,4 +1,3 @@
-import {SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
 <template>
     <v-container fluid fill-height>
         <v-layout justify-center align-center>
@@ -101,7 +100,7 @@ import {SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
 
     import {ApiWrapper} from "../../utilities";
 
-    import {CreatePost, CreatePostCallback, SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
+    import {SubmitPost, CreatePostCallback, SubmitPostResponse} from "../../../../cshub-shared/src/api-calls";
     import {ITopic} from "../../../../cshub-shared/src/models";
 
     @Component({
@@ -155,7 +154,7 @@ import {SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
                 this.$validator.validateAll()
                     .then((allValid: boolean) => {
                         if (allValid) {
-                            ApiWrapper.sendPostRequest(new CreatePost(this.postTitle, this.activeTopicHash[0], this.isIndex), (response: CreatePostCallback) => {
+                            ApiWrapper.sendPostRequest(new SubmitPost(this.postTitle, this.activeTopicHash[0], this.isIndex), (response: CreatePostCallback) => {
                                 this.showLoadingIcon = false;
                                 if (response.response === SubmitPostResponse.SUCCESS) {
                                     this.$router.push(`/post/${response.postHash}/edit`);

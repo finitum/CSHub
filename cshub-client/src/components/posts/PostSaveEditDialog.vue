@@ -83,7 +83,7 @@
 
     import userState from "../../store/user";
     import {ApiWrapper, logStringConsole} from "../../utilities";
-    import {EditPost, GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/src/api-calls/pages";
+    import {EditPost, EditContent, GetEditContentCallback} from "../../../../cshub-shared/src/api-calls";
     import dataState from "../../store/data";
     import Delta from "quill-delta/dist/Delta";
 
@@ -155,7 +155,7 @@
          * Methods
          */
         private getEdit() {
-            ApiWrapper.sendGetRequest(new GetEditContent(this.post.hash, true), (callbackData: GetEditContentCallback) => {
+            ApiWrapper.sendGetRequest(new EditContent(this.post.hash, true), (callbackData: GetEditContentCallback) => {
 
                 if (callbackData.edits[callbackData.edits.length - 1].approved) {
                     this.hasBeenEdited = false;

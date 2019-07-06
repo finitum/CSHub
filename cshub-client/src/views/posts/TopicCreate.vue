@@ -58,7 +58,7 @@
 
     import {ApiWrapper, logStringConsole} from "../../utilities";
 
-    import {CreateTopic} from "../../../../cshub-shared/src/api-calls";
+    import {SubmitTopic} from "../../../../cshub-shared/src/api-calls";
     import {ITopic} from "../../../../cshub-shared/src/models";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
@@ -99,7 +99,7 @@
                 this.$validator.validateAll()
                     .then((allValid: boolean) => {
                         if (allValid) {
-                            ApiWrapper.sendPostRequest(new CreateTopic(this.topicTitle, this.activeTopicHash[0]), (response: null, status) => {
+                            ApiWrapper.sendPostRequest(new SubmitTopic(this.topicTitle, this.activeTopicHash[0]), (response: null, status) => {
                                 if (status === 201) {
                                     this.$router.push(Routes.ADMINDASHBOARD);
                                 } else if (status === 409) {

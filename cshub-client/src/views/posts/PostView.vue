@@ -20,7 +20,7 @@
 
     import PostList from "../../components/posts/PostList.vue";
 
-    import {GetTopicPosts, GetTopicPostsCallBack} from "../../../../cshub-shared/src/api-calls/index";
+    import {TopicPosts, GetTopicPostsCallBack} from "../../../../cshub-shared/src/api-calls/index";
     import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
@@ -119,7 +119,7 @@
                         logStringConsole("Set topicPosts from cache", "getTopicRequest");
                     }
 
-                    ApiWrapper.sendGetRequest(new GetTopicPosts(topicHash), (callbackData: GetTopicPostsCallBack) => {
+                    ApiWrapper.sendGetRequest(new TopicPosts(topicHash), (callbackData: GetTopicPostsCallBack) => {
 
                         if (!isEqual(callbackData.postHashes, this.postHashes)) {
                             this.postHashes = callbackData.postHashes;

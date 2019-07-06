@@ -1,4 +1,6 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {Post} from "./post";
+import {EditUser} from "./edituser";
 
 @Entity({
     name: "users"
@@ -8,10 +10,14 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({
+        type: "text"
+    })
     email: string;
 
-    @Column()
+    @Column({
+        type: "text"
+    })
     password: string;
 
     @Column({
@@ -35,10 +41,14 @@ export class User {
     @Column()
     verified: boolean;
 
-    @Column()
+    @Column({
+        type: "text"
+    })
     firstname: string;
 
-    @Column()
+    @Column({
+        type: "text"
+    })
     lastname: string;
 
     @Column({
@@ -50,4 +60,10 @@ export class User {
         nullable: true
     })
     passresethash: number;
+
+    @OneToMany(type => Post, post => post.author)
+    posts: Post[];
+
+    @OneToMany(type => EditUser, edituser => edituser.user)
+    edits: EditUser[];
 }

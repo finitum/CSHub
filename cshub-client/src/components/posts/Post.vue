@@ -187,9 +187,9 @@
     import PostEditsDialog from "./PostEditsDialog.vue";
 
     import {
-        GetPost,
+        PostData,
         GetPostCallBack,
-        GetPostContent,
+        PostContent,
         GetPostContentCallBack,
         PostSettings,
         PostSettingsCallback,
@@ -208,7 +208,7 @@
     import dataState from "../../store/data";
     import userState from "../../store/user";
     import uiState from "../../store/ui";
-    import {ForceEditPost} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
+    import {ForceEditPost} from "../../../../cshub-shared/src/api-calls";
     import {colorize} from "../../utilities/codemirror-colorize";
     import PostSaveEditDialog from "./PostSaveEditDialog.vue";
 
@@ -590,7 +590,7 @@
             localForage.getItem<IPost>(CacheTypes.POSTS + this.postHash)
                 .then((cachedValue: IPost) => {
                     if (cachedValue === null || cachedValue.id === undefined) {
-                        ApiWrapper.sendGetRequest(new GetPost(this.postHash), (callbackData: GetPostCallBack) => {
+                        ApiWrapper.sendGetRequest(new PostData(this.postHash), (callbackData: GetPostCallBack) => {
                             if (callbackData.post !== null) {
                                 this.post = callbackData.post;
 
@@ -628,7 +628,7 @@
 
             const postVersion: number = typeof cachedValue.htmlContent !== "string" ? -1 : cachedValue.postVersion;
 
-            ApiWrapper.sendGetRequest(new GetPostContent(this.postHash, postVersion), (callbackContent: GetPostContentCallBack) => {
+            ApiWrapper.sendGetRequest(new PostContent(this.postHash, postVersion), (callbackContent: GetPostContentCallBack) => {
 
                 clearTimeout(timeOut);
                 this.loadingIcon = false;
