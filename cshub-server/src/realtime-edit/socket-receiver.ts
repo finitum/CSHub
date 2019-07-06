@@ -1,17 +1,16 @@
-import {server} from "../../../index";
+import {server} from "../index";
 import socket, {Socket} from "socket.io";
 import {
     ClientDataUpdated,
-    ClientCursorUpdated, IRealtimeSelect, ServerCursorUpdated
-} from "../../../../../cshub-shared/src/api-calls";
+    ClientCursorUpdated, IRealtimeSelect
+} from "../../../cshub-shared/src/api-calls";
 import {DataUpdatedHandler} from "./DataUpdatedHandler";
-import {TogglePostJoin} from "../../../../../cshub-shared/src/api-calls";
-import {IRealtimeEdit} from "../../../../../cshub-shared/src/api-calls";
+import {TogglePostJoin} from "../../../cshub-shared/src/api-calls";
+import {IRealtimeEdit} from "../../../cshub-shared/src/api-calls";
 import cookieParser from "cookie-parser";
-import {customValidator} from "../../../utilities/StringUtils";
-import {hasAccessToPost, postAccessType} from "../../../auth/validateRights/PostAccess";
+import {customValidator} from "../utilities/StringUtils";
+import {hasAccessToPost, postAccessType} from "../auth/validateRights/PostAccess";
 import {CursorUpdatedHandler} from "./CursorUpdatedHandler";
-import {validateAccessToken} from "../../../auth/JWTHandler";
 
 export const io = socket(server);
 

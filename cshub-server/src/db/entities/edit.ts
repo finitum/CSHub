@@ -25,6 +25,7 @@ export class Edit {
     content: string;
 
     @Column({
+        type: "int", // Otherwise it overrides the value
         default: false
     })
     approved: boolean;

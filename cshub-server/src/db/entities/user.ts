@@ -26,7 +26,10 @@ export class User {
     })
     avatar: string;
 
-    @Column()
+    @Column({
+        type: "int", // Otherwise it overrides the value
+        default: false
+    })
     admin: boolean;
 
     @Column({
@@ -35,10 +38,16 @@ export class User {
     })
     created: Date;
 
-    @Column()
+    @Column({
+        type: "int", // Otherwise it overrides the value
+        default: false
+    })
     blocked: boolean;
 
-    @Column()
+    @Column({
+        type: "int", // Otherwise it overrides the value
+        default: false
+    })
     verified: boolean;
 
     @Column({

@@ -1,8 +1,8 @@
-import {IRealtimeEdit} from "../../../../../cshub-shared/src/api-calls/realtime-edit";
-import {DatabaseResultSet, query} from "../../../db/database-query";
-import logger from "../../../utilities/Logger"
+import {IRealtimeEdit} from "../../../cshub-shared/src/api-calls/realtime-edit";
+import {DatabaseResultSet, query} from "../db/database-query";
+import logger from "../utilities/Logger";
 import Delta = require("quill-delta/dist/Delta");
-import {transformFromArray} from "../../../../../cshub-shared/src/utilities/DeltaHandler";
+import {transformFromArray} from "../../../cshub-shared/src/utilities/DeltaHandler";
 import async from "async";
 
 type queueType = {

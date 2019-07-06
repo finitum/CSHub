@@ -28,6 +28,7 @@ export const server = http.createServer(app).listen(Settings.PORT);
 
 // Here all the connectors will be defined
 import "./endpoints";
+import "./realtime-edit";
 import {query} from "./db/database-query";
 
 logger.info("Express server started with settings:");

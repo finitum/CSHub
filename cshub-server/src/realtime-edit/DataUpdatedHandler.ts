@@ -3,15 +3,15 @@ import {Socket} from "socket.io";
 import {
     ServerDataUpdated,
     IRealtimeEdit
-} from "../../../../../cshub-shared/src/api-calls";
+} from "../../../cshub-shared/src/api-calls";
 import dayjs, {Dayjs} from "dayjs";
 // @ts-ignore
 import Delta from "quill-delta/dist/Delta";
-import {DatabaseResultSet, query} from "../../../db/database-query";
-import logger from "../../../utilities/Logger";
-import {getRandomNumberLarge} from "../../../../../cshub-shared/src/utilities/Random";
+import {DatabaseResultSet, query} from "../db/database-query";
+import logger from "../utilities/Logger";
+import {getRandomNumberLarge} from "../../../cshub-shared/src/utilities/Random";
 import {io} from "./socket-receiver";
-import {validateAccessToken} from "../../../auth/JWTHandler";
+import {validateAccessToken} from "../auth/JWTHandler";
 import async from "async";
 
 type deltaReturnType = {

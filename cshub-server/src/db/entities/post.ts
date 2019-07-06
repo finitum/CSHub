@@ -46,18 +46,21 @@ export class Post {
     postVersion: number;
 
     @Column({
+        type: "int", // Otherwise it overrides the value
         default: false
     })
     @Index()
     deleted: boolean;
 
     @Column({
+        type: "int", // Otherwise it overrides the value
         default: true
     })
     @Index()
     wip: boolean;
 
     @Column({
+        type: "int", // Otherwise it overrides the value
         default: false
     })
     @Index()

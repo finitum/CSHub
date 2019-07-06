@@ -1,10 +1,9 @@
 import {CursorList} from "./CursorList";
-import {IRealtimeSelect, ServerCursorUpdated} from "../../../../../cshub-shared/src/api-calls/realtime-edit";
+import {IRealtimeSelect, ServerCursorUpdated} from "../../../cshub-shared/src/api-calls/realtime-edit";
 import {Socket} from "socket.io";
 import {io} from "./socket-receiver";
 import randomColor from "randomcolor";
-import {validateAccessToken} from "../../../auth/JWTHandler";
-import {IJWTToken} from "../../../../../cshub-shared/src/models";
+import {validateAccessToken} from "../auth/JWTHandler";
 
 export class CursorUpdatedHandler {
 

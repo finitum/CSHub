@@ -1,4 +1,4 @@
-import {IRealtimeSelect} from "../../../../../cshub-shared/src/api-calls";
+import {IRealtimeSelect} from "../../../cshub-shared/src/api-calls";
 
 export class CursorList {
 
