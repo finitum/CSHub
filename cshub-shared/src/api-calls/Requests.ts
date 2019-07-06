@@ -17,11 +17,11 @@ export class Requests {
     public static readonly TOPICS: string = "/topics"; // GET
     public static readonly SUBMITTOPIC: string = "/topics"; // POST
 
-    public static readonly LOGINREQUEST: string = "/login"; // POST
-    public static readonly CREATEACCOUNTREQUEST: string = "/createaccount"; // POST
+    public static readonly LOGIN: string = "/login"; // POST
+    public static readonly CREATEACCOUNT: string = "/createaccount"; // POST
     public static readonly VERIFYTOKEN: string = "/verifytoken"; // POST
 
-    public static readonly GETALLUSERS: string = "/users/:page"; // GET
+    public static readonly ALLUSERS: string = "/users/:page"; // GET
     public static readonly VERIFYMAIL: string = "/user/verifymail"; // GET
     public static readonly FORGOTPASSWORDMAIL: string = "/user/forgotpasswordmail"; // POST
     public static readonly FORGOTPASSWORD: string = "/user/forgotpassword"; // POST

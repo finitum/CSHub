@@ -5,7 +5,7 @@ import * as fs from "fs";
 import {ClientResponse} from "@sendgrid/client/src/response";
 
 import {Settings} from "../settings";
-import {query} from "./DatabaseConnection";
+import {query} from "../db/database-query";
 import logger from "./Logger";
 import {Requests} from "../../../cshub-shared/src/api-calls/index";
 import {Routes} from "../../../cshub-shared/src/Routes";

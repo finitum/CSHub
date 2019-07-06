@@ -1,5 +1,5 @@
 import {ITopic} from "../../../cshub-shared/src/models";
-import {DatabaseResultSet, query} from "./DatabaseConnection";
+import {DatabaseResultSet, query} from "../db/database-query";
 import {getTopicFromHash} from "../../../cshub-shared/src/utilities/Topics";
 import {getRandomNumberLarge} from "../../../cshub-shared/src/utilities/Random";
 

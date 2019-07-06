@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Router, {Route} from "vue-router";
 
-import {VerifyUserToken, VerifyUserTokenCallback, VerifyUserTokenResponseTypes} from "../../../../cshub-shared/src/api-calls/account";
+import {VerifyToken, VerifyUserTokenCallback, VerifyUserTokenResponseTypes} from "../../../../cshub-shared/src/api-calls";
 import {Routes} from "../../../../cshub-shared/src/Routes";
 
 const LoginScreen = () => import("../user/LoginScreen.vue");
@@ -10,7 +10,7 @@ const AdminDashboard = () => import("../user/AdminDashboard.vue");
 const UserDashboard = () => import("../user/UserDashboard.vue");
 const UnsavedPosts = () => import("../user/UnsavedPosts.vue");
 const ForgotPasswordComp = () => import("../user/ForgotPasswordComp.vue");
-const WIPPosts = () => import("../user/WIPPosts.vue");
+const WIPPosts = () => import("../user/WIPPostsView.vue");
 
 const PostView = () => import("../posts/PostView.vue");
 const PostCreate = () => import("../posts/PostCreate.vue");
@@ -133,7 +133,7 @@ const router = new Router({
 router.beforeEach((to: Route, from: Route, next) => {
 
     if (!userState.hasCheckedToken) {
-        ApiWrapper.sendGetRequest(new VerifyUserToken(), (verified: VerifyUserTokenCallback) => {
+        ApiWrapper.sendGetRequest(new VerifyToken(), (verified: VerifyUserTokenCallback) => {
 
             if (!dataState.hasConnection) {
                 dataState.setConnection(true);

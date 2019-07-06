@@ -1,5 +1,5 @@
 import {validateAccessToken} from "../JWTHandler";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 import dayjs from "dayjs";
 
 export type postAccessType = {

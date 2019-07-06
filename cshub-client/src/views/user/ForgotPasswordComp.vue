@@ -58,7 +58,7 @@
         ForgotPassword,
         ForgotPasswordCallback,
         ForgotPasswordResponseTypes
-    } from "../../../../cshub-shared/src/api-calls/account";
+    } from "../../../../cshub-shared/src/api-calls";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
     import uiState from "../../store/ui";

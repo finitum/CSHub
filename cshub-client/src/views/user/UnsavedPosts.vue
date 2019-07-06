@@ -19,7 +19,7 @@
     import {
         GetUnverifiedPostsCallBack,
         GetUnverifiedPosts
-    } from "../../../../cshub-shared/src/api-calls/admin";
+    } from "../../../../cshub-shared/src/api-calls";
 
     @Component({
         name: "UnsavedPosts",

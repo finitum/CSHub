@@ -119,18 +119,18 @@
 
     import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
     import {
-        ChangeUserPassword,
-        ChangeUserPasswordCallback,
-        ChangeUserPasswordResponseTypes,
-        GetUserPosts,
-        GetUserPostsCallback
-    } from "../../../../cshub-shared/src/api-calls/pages/user";
+        ChangePassword,
+        ChangePasswordCallback,
+        ChangePasswordResponseTypes,
+        Dashboard,
+        DashboardCallback
+    } from "../../../../cshub-shared/src/api-calls";
     import {IPost, IUser} from "../../../../cshub-shared/src/models";
     import {
-        ChangeUserAvatar,
-        ChangeUserAvatarCallback,
-        ChangeUserAvatarResponseTypes
-    } from "../../../../cshub-shared/src/api-calls/pages/user/ChangeUserAvatar";
+        ChangeAvatar,
+        ChangeAvatarCallback,
+        ChangeAvatarResponseTypes
+    } from "../../../../cshub-shared/src/api-calls";
     import uiState from "../../store/ui";
 
     @Component({
@@ -198,15 +198,15 @@
         }
 
         private getHashes() {
-            ApiWrapper.sendGetRequest(new GetUserPosts(), (callbackData: GetUserPostsCallback) => {
+            ApiWrapper.sendGetRequest(new Dashboard(), (callbackData: DashboardCallback) => {
                 this.postHashes = callbackData.postHashes;
                 logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
             });
         }
 
         private changeAvatar() {
-            ApiWrapper.sendPostRequest(new ChangeUserAvatar(this.imageBase64), (callback: ChangeUserAvatarCallback) => {
-                if (callback.response === ChangeUserAvatarResponseTypes.SUCCESS) {
+            ApiWrapper.sendPostRequest(new ChangeAvatar(this.imageBase64), (callback: ChangeAvatarCallback) => {
+                if (callback.response === ChangeAvatarResponseTypes.SUCCESS) {
                     logStringConsole("User changed avatar");
                     localForage.keys()
                         .then((keys: string[]) => {
@@ -229,25 +229,25 @@
                                 text: "Your avatar has been changed, refresh the page to see your avatar update"
                             });
                         });
-                } else if (callback.response === ChangeUserAvatarResponseTypes.INVALIDIMAGE) {
+                } else if (callback.response === ChangeAvatarResponseTypes.INVALIDIMAGE) {
                     // Perhaps do something
                 }
             });
         }
 
         private changePassword() {
-            ApiWrapper.sendPostRequest(new ChangeUserPassword(this.userData.currentPassword, this.userData.newPassword), (callBack: ChangeUserPasswordCallback) => {
-                if (callBack.response === ChangeUserPasswordResponseTypes.SUCCESS) {
+            ApiWrapper.sendPostRequest(new ChangePassword(this.userData.currentPassword, this.userData.newPassword), (callBack: ChangePasswordCallback) => {
+                if (callBack.response === ChangePasswordResponseTypes.SUCCESS) {
                     uiState.setNotificationDialogState({
                         on: true,
                         header: "Changed password",
                         text: "Your password has been changed successfully"
                     });
                     logStringConsole("User changed password");
-                } else if (callBack.response === ChangeUserPasswordResponseTypes.WRONGPASSWORD) {
+                } else if (callBack.response === ChangePasswordResponseTypes.WRONGPASSWORD) {
                     logStringConsole("Wrong password was entered so password not changed");
                     this.userData.currentPasswordError = "Wrong password!";
-                } else if (callBack.response === ChangeUserPasswordResponseTypes.INVALIDINPUT) {
+                } else if (callBack.response === ChangePasswordResponseTypes.INVALIDINPUT) {
                     logStringConsole("Invalid input at password change");
                     this.userData.currentPasswordError = "Wrong input!";
                 }

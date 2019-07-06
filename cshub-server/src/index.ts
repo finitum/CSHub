@@ -1,6 +1,9 @@
 import logger from "./utilities/Logger";
 import {Settings} from "./settings";
 
+import "reflect-metadata";
+import "./db/orm-connection";
+
 import {CORSMiddleware} from "./utilities/CORSMiddleware";
 import http from "http";
 import express from "express";
@@ -24,8 +27,9 @@ import "./utilities/VersionMiddleware";
 export const server = http.createServer(app).listen(Settings.PORT);
 
 // Here all the connectors will be defined
-import "./components";
-import {query} from "./utilities/DatabaseConnection";
+import "./endpoints";
+import "./realtime-edit";
+import {query} from "./db/database-query";
 
 logger.info("Express server started with settings:");
 logger.info(JSON.stringify(Settings));

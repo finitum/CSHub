@@ -5,14 +5,15 @@ export interface ISettings {
         HOST: string;
         USER: string;
         PASSWORD: string;
-        NAME: string
+        NAME: string;
+        PORT: number;
     };
     USESSH: boolean;
     SSH: {
         HOST: string,
         USER: string,
         PORT: number,
-        PRIVATEKEYLOCATION: string
+        PRIVATEKEYLOCATION: string,
     };
     DOMAIN: string;
     SITEADDRESS: string;
@@ -45,6 +46,7 @@ export const Settings: ISettings = {
         USER: process.env.DATABASE_USER ? process.env.DATABASE_USER : "xxx",
         PASSWORD: process.env.DATABASE_PASSWORD ? process.env.DATABASE_PASSWORD : "xxx",
         NAME: process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "CSHubTest",
+        PORT: process.env.PORT ? Number(process.env.PORT) : 3306,
     },
     USESSH: process.env.USESSH ? process.env.USESSH === "true" : true,
     SSH: {
