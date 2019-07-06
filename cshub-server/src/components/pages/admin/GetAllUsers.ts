@@ -2,7 +2,7 @@ import {app} from "../../../";
 import {GetAllUsers, GetAllUsersCallBack} from "../../../../../cshub-shared/src/api-calls/admin";
 import {Request, Response} from "express";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
-import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../../db/database-query";
 import {IUser} from "../../../../../cshub-shared/src/models";
 
 app.get(GetAllUsers.getURL, (req: Request, res: Response) => {

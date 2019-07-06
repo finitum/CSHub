@@ -3,7 +3,7 @@ import {Request, Response} from "express";
 import {app} from "../../";
 import logger from "../../utilities/Logger";
 
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import {EditPost} from "../../../../cshub-shared/src/api-calls/pages/EditPost";
 import {validateMultipleInputs} from "../../utilities/StringUtils";

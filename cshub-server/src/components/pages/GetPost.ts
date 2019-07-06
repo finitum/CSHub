@@ -4,7 +4,7 @@ import {Request, Response} from "express";
 import {GetPost, GetPostCallBack} from "../../../../cshub-shared/src/api-calls";
 import {IPost} from "../../../../cshub-shared/src/models";
 
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 import {checkTokenValidity, ValidationType} from "../../auth/AuthMiddleware";
 
 app.get(GetPost.getURL, (req: Request, res: Response) => {

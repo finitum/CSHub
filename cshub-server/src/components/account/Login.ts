@@ -3,7 +3,7 @@ import {Request, Response} from "express";
 import {app} from "../../index";
 import logger from "../..//utilities/Logger";
 import {Settings} from "../../settings";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 
 import {Login, LoginCallBack, LoginResponseTypes} from "../../../../cshub-shared/src/api-calls/index";
 import {IUser} from "../../../../cshub-shared/src/models/IUser";

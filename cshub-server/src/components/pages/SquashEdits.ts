@@ -5,7 +5,7 @@ import {app} from "../../";
 import logger from "../../utilities/Logger";
 
 import {SquashEdits} from "../../../../cshub-shared/src/api-calls";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {Dayjs} from "dayjs";

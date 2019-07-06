@@ -6,7 +6,7 @@ import {
     ChangeUserPasswordResponseTypes
 } from "../../../../../cshub-shared/src/api-calls";
 import {Request, Response} from "express";
-import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../../db/database-query";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
 import {validateMultipleInputs} from "../../../utilities/StringUtils";
 import {hashPassword} from "../../../auth/HashPassword";

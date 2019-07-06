@@ -8,7 +8,7 @@ import {
     ForgotPasswordResponseTypes
 } from "../../../../cshub-shared/src/api-calls";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 import {hashPassword} from "../../auth/HashPassword";
 
 app.post(ForgotPassword.getURL, (req: Request, res: Response) => {

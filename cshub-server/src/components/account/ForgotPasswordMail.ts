@@ -8,7 +8,7 @@ import {
     ForgotPasswordMailResponseTypes
 } from "../../../../cshub-shared/src/api-calls";
 import {customValidator} from "../../utilities/StringUtils";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 import {sendPasswordResetMail} from "../../utilities/MailConnection";
 
 app.post(ForgotPasswordMail.getURL, (req: Request, res: Response) => {

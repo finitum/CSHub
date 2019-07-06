@@ -1,6 +1,6 @@
 import {app} from "../../../";
 import {Request, Response} from "express";
-import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../../db/database-query";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
 import {PostSettings, PostSettingsCallback, PostSettingsEditType} from "../../../../../cshub-shared/src/api-calls";
 import {ServerError} from "../../../../../cshub-shared/src/models/ServerError";

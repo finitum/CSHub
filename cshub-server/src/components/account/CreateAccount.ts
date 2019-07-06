@@ -1,8 +1,8 @@
 import {Request, Response} from "express";
 
 import {app} from "../../";
-import logger from "../..//utilities/Logger";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import logger from "../../utilities/Logger";
+import {DatabaseResultSet, query} from "../../db/database-query";
 
 import {CreateAccount, CreateAccountCallBack, CreateAccountResponseTypes} from "../../../../cshub-shared/src/api-calls";
 import {validateMultipleInputs} from "../../utilities/StringUtils";

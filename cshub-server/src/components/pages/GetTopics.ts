@@ -5,7 +5,7 @@ import logger from "../../utilities/Logger";
 
 import {GetTopics, GetTopicsCallBack} from "../../../../cshub-shared/src/api-calls";
 import {getTopicTree} from "../../utilities/TopicsUtils";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 
 app.get(GetTopics.getURL, (req: Request, res: Response) => {
 

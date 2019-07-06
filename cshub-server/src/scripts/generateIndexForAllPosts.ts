@@ -1,4 +1,4 @@
-import {query} from "../utilities/DatabaseConnection";
+import {query} from "../db/database-query";
 import async from "async";
 
 query(`

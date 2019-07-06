@@ -8,7 +8,7 @@ import {
     PostVersionTypes
 } from "../../../../cshub-shared/src/api-calls";
 
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 import {getPostData} from "./GetPost";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 

@@ -1,6 +1,6 @@
 import {app} from "../../";
 import {Request, Response} from "express";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 import {
     GetUnverifiedPostsCallBack} from "../../../../cshub-shared/src/api-calls";
 import {GetWIPPosts} from "../../../../cshub-shared/src/api-calls/pages/GetWIPPosts";

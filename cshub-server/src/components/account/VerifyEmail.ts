@@ -8,7 +8,7 @@ import {
 } from "../../../../cshub-shared/src/api-calls";
 
 import {Settings} from "../../settings";
-import {query} from "../../utilities/DatabaseConnection";
+import {query} from "../../db/database-query";
 
 app.get(Requests.VERIFYMAIL, (req: Request, res: Response) => {
 

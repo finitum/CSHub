@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 import {app} from "..";
 import {Settings} from "../settings";
 import {Routes} from "../../../cshub-shared/src/Routes";
-import {DatabaseResultSet, query} from "../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../db/database-query";
 
 app.get("/prerender(/*)?", (req: Request, res: Response) => {
     let param = req.params[0] as string;

@@ -7,7 +7,7 @@ import {
 import dayjs, {Dayjs} from "dayjs";
 // @ts-ignore
 import Delta from "quill-delta/dist/Delta";
-import {DatabaseResultSet, query} from "../../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../../db/database-query";
 import logger from "../../../utilities/Logger";
 import {getRandomNumberLarge} from "../../../../../cshub-shared/src/utilities/Random";
 import {io} from "./socket-receiver";

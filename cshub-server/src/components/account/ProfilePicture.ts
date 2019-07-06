@@ -4,7 +4,7 @@ import {app} from "../../";
 import {Requests} from "../../../../cshub-shared/src/api-calls";
 import logger from "../../utilities/Logger";
 import {ServerError} from "../../../../cshub-shared/src/models/ServerError";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 import * as fs from "fs";
 
 app.get(Requests.PROFILE, (req: Request, res: Response) => {

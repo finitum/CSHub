@@ -7,7 +7,7 @@ import {
 import {Request, Response} from "express";
 import {checkTokenValidity} from "../../../auth/AuthMiddleware";
 import sharp from "sharp";
-import {query} from "../../../utilities/DatabaseConnection";
+import {query} from "../../../db/database-query";
 
 app.post(ChangeUserAvatar.getURL, (req: Request, res: Response) => {
 

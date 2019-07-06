@@ -4,7 +4,7 @@ import {app} from "../../";
 import logger from "../../utilities/Logger";
 
 import {validateMultipleInputs} from "../../utilities/StringUtils";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 
 import {GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/src/api-calls";
 

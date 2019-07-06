@@ -1,72 +1,18 @@
-import mysql from "mysql2";
-import {Settings} from "../settings";
-import {Client} from "ssh2";
-import fs from "fs";
+import logger from "../utilities/Logger";
+import {Connection, getConnection} from "typeorm";
+import {ConnectionNotFoundError} from "typeorm/error/ConnectionNotFoundError";
 
-const connectionconf = {
-    host: Settings.DATABASE.HOST,
-    user: Settings.DATABASE.USER,
-    password: Settings.DATABASE.PASSWORD,
-    database: Settings.DATABASE.NAME,
-    multipleStatements: true
+const getCurrentConnection = (): Connection => {
+    try {
+        return getConnection();
+    } catch (err) {
+        if (err instanceof ConnectionNotFoundError) {
+            return null;
+        } else {
+            throw err;
+        }
+    }
 };
-
-const sshClient = new Client();
-
-let connection = null;
-
-let connectionPromise = null;
-if (Settings.USESSH) {
-     connectionPromise = new Promise((resolve, reject) => {
-        sshClient.on("ready", () => {
-            sshClient.forwardOut(
-                "127.0.0.1",
-                12345,
-                "localhost",
-                3306,
-                (err, stream) => {
-                    if (err) {
-                        throw err;
-                    }
-
-                    const currConnection = mysql.createConnection({
-                        ...connectionconf,
-                        stream
-                    });
-
-                    connection = currConnection;
-
-                    currConnection.connect(err => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(currConnection);
-                        }
-                    });
-
-                    connectionPromise.then((connection: any) => {
-                        if (toExecuteQueries.length > 0) {
-                            for (const queryobj of toExecuteQueries) {
-                                query(queryobj.query, ...queryobj.args).then((data: any) => {
-                                    queryobj.resolve(data);
-                                });
-                            }
-                        }
-                    });
-                });
-        }).connect({
-            host: Settings.SSH.HOST,
-            port: Settings.SSH.PORT,
-            username: Settings.SSH.USER,
-            privateKey: fs.readFileSync(Settings.SSH.PRIVATEKEYLOCATION)
-        });
-
-    });
-} else {
-    connection = mysql.createConnection({
-        ...connectionconf
-    });
-}
 
 const toExecuteQueries: {
     query: string,
@@ -79,19 +25,29 @@ export const query = (query: string, ...args: any[]) => {
 
         if ((query.match(/\?/g) || []).length !== args.length) {
             reject("Amount of arguments mismatch");
-        } else if (connection == null && Settings.USESSH) {
+        } else if (getCurrentConnection() == null) {
             toExecuteQueries.push({
                 query,
                 resolve,
                 args
             });
+        } else if (toExecuteQueries.length > 0) {
+            for (const queryobj of toExecuteQueries) {
+                getCurrentConnection()
+                    .query(queryobj.query, ...queryobj.args)
+                    .then((data: any) => {
+                        queryobj.resolve(data);
+                    });
+            }
         } else {
-            connection.query(query, args, (err, rows) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve(new DatabaseResultSet(rows, rows.insertId));
-            });
+            getCurrentConnection()
+                .query(query, args)
+                .then(value => {
+                    resolve(new DatabaseResultSet(value, value.insertId));
+                })
+                .catch(reason => {
+                    logger.error(reason);
+                });
         }
     });
 };

@@ -8,7 +8,7 @@ import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
 
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {generateRandomTopicHash, getTopicTree} from "../../utilities/TopicsUtils";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 
 app.post(CreateTopic.getURL, (req: Request, res: Response) => {

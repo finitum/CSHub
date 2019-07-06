@@ -3,7 +3,7 @@ import logger from "../../utilities/Logger";
 import {Request, Response} from "express";
 import {GetSearchPosts, GetSearchPostsCallback} from "../../../../cshub-shared/src/api-calls";
 
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
+import {DatabaseResultSet, query} from "../../db/database-query";
 import {checkTokenValidity} from "../../auth/AuthMiddleware";
 import {ServerError} from "../../../../cshub-shared/src/models/ServerError";
 
