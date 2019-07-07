@@ -84,7 +84,7 @@
          */
         @Watch("searchQuery")
         private searchQueryChanged() {
-            if (this.searchQuery.length >= 3) {
+            if (this.searchQuery.trim().length >= 3) {
                 this.getSearchResults();
             }
         }
