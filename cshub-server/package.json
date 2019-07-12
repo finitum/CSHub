@@ -18,7 +18,7 @@
         "jsdom": "^13.2.0",
         "jsonwebtoken": "^8.3.0",
         "katex": "^0.10.1",
-        "lodash": "^4.17.11",
+        "lodash": "^4.17.13",
         "markdown-it": "latest",
         "markdown-it-katex": "latest",
         "mysql": "^2.17.1",
