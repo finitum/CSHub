@@ -19,10 +19,11 @@ export const generateRandomTopicHash = (): Promise<number> => {
 };
 
 // This is called quite often, it will retreive all the topics from the database and parse them into the correct model
-export const getTopicTree = (): Promise<ITopic[] | null> => {
+export const getTopicTree = (study?: number): Promise<ITopic[] | null> => {
     return query(`
-      SELECT id, parentid, name, hash
-      FROM topics
+        SELECT t.id, parentid, t.name, hash, s.id AS studyId
+        FROM topics t
+                 LEFT JOIN studies s on t.id = s.topTopicId
     `)
         .then((topics: DatabaseResultSet) => {
 
@@ -31,7 +32,9 @@ export const getTopicTree = (): Promise<ITopic[] | null> => {
             // This will return an array of the children of a certain topic, through recursion as well.
             const getChildTopics = (id: number): ITopic[] => {
 
-                if (id === 0) { id = null; }
+                if (id === 0) {
+                    id = null;
+                }
 
                 const childTopicsParsed: ITopic[] = [];
                 // Get all the topics which have this topic as their parent, then get the child topics of these as well to create the actual topic tree
@@ -46,7 +49,8 @@ export const getTopicTree = (): Promise<ITopic[] | null> => {
                         const currTopic: ITopic = {
                             name: topic.getStringFromDB("name"),
                             id: topic.getNumberFromDB("id"),
-                            hash: topic.getNumberFromDB("hash")
+                            hash: topic.getNumberFromDB("hash"),
+                            study: topic.getNumberFromDB("studyId")
                         };
 
                         // If this topic has children, add them to the object
@@ -71,7 +75,8 @@ export const getTopicTree = (): Promise<ITopic[] | null> => {
                 const currTopic: ITopic = {
                     name: topic.getStringFromDB("name"),
                     id: topic.getNumberFromDB("id"),
-                    hash: topic.getNumberFromDB("hash")
+                    hash: topic.getNumberFromDB("hash"),
+                    study: topic.getNumberFromDB("studyId")
                 };
 
                 if (children !== null) {
@@ -81,7 +86,27 @@ export const getTopicTree = (): Promise<ITopic[] | null> => {
                 topicsParsed.push(currTopic);
             }
 
-            return topicsParsed;
+            const getTreeForStudy = (topicTree: ITopic[], study: number): ITopic => {
+                for (const topic of topicTree) {
+                    if (topic.study === study) {
+                        return topic;
+                    } else {
+                        const treeForStudy = getTreeForStudy(topic.children, study);
+                        if (treeForStudy) {
+                            return treeForStudy;
+                        }
+                    }
+                }
+
+                return null;
+            };
+
+            if (study) {
+                return [getTreeForStudy(topicsParsed, study)];
+            } else {
+                return topicsParsed;
+            }
+
         })
         .catch(err => {
             return null;

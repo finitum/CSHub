@@ -6,7 +6,6 @@ export interface IPost {
     hash: number;
     datetime: string;
     title: string;
-    upvotes: number;
     id: number;
     isIndex: boolean;
     postVersion: number;

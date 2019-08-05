@@ -38,4 +38,9 @@ export class Topic {
         unique: true
     })
     hash: number;
+
+    @Column({
+        nullable: true
+    })
+    cacheVersion: number;
 }

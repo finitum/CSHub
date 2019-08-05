@@ -36,7 +36,7 @@ app.get(Search.getURL, (req: Request, res: Response) => {
                 AND T2.deleted = 0
                 AND T2.isIndex = 0
                 AND T2.wip = 0
-                ORDER BY T2.upvotes DESC, T2.datetime DESC
+                ORDER BY T2.datetime DESC
             )
 
             SELECT DISTINCT hash

@@ -17,6 +17,8 @@ export class Requests {
     public static readonly TOPICS: string = "/topics"; // GET
     public static readonly SUBMITTOPIC: string = "/topics"; // POST
 
+    public static readonly STUDIES: string = "/study"; // GET
+
     public static readonly LOGIN: string = "/login"; // POST
     public static readonly CREATEACCOUNT: string = "/createaccount"; // POST
     public static readonly VERIFYTOKEN: string = "/verifytoken"; // POST

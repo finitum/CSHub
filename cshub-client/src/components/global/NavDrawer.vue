@@ -7,6 +7,12 @@
             app>
         <v-list
                 dense>
+            <v-select
+                    :items="studies"
+                    v-model="study"
+                    box
+                    label="Study"
+            ></v-select>
             <v-layout
                     row
                     align-center>
@@ -81,6 +87,8 @@
     import userState from "../../store/user";
 
     import {Component, Watch} from "vue-property-decorator";
+    import {LocalStorageData} from "../../store/localStorageData";
+    import {GetStudiesCallback, Studies} from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
 
     @Component({
         name: "NavDrawer",
@@ -93,6 +101,10 @@
          */
         private activeTopicHash: number[] = [];
         private topics: ITopic[] = [];
+
+        private studies: Array<{text: string; value: any}> = [];
+        private _study: number = -1;
+
         private navigationLocations = Routes;
 
         /**
@@ -112,6 +124,16 @@
 
         get userAdminComputed(): boolean {
             return userState.isAdmin;
+        }
+
+        get study(): number {
+            return this._study;
+        }
+
+        set study(study: number) {
+            console.log(study)
+            this._study = study;
+            localStorage.setItem(LocalStorageData.STUDY, study.toString(10));
         }
 
         /**
@@ -149,47 +171,66 @@
                 topics: ITopic[]
             };
 
-            localForage.getItem<topicCache>(CacheTypes.TOPICS)
-                .then((value: topicCache) => {
-
-                    let currentVersion = -1;
-
-                    if (value !== null) {
-                        currentVersion = value.version;
+            ApiWrapper.sendGetRequest(new Studies(), (callback: GetStudiesCallback) => {
+                this.studies = callback.studies.map((value) => {
+                    return {
+                        text: value.name,
+                        value: value.id
                     }
+                });
 
-                    // Sends a get request to the server, and sets the correct store value after receiving the topics in the GetTopicsCallBack
-                    ApiWrapper.sendGetRequest(new Topics(currentVersion), (callbackData: GetTopicsCallBack) => {
+                localForage.getItem<topicCache>(CacheTypes.TOPICS)
+                    .then((value: topicCache) => {
 
-                        if (callbackData !== null && typeof callbackData.topics !== "undefined") {
-                            this.topics = callbackData.topics;
-                            dataState.setTopics(callbackData.topics);
+                        let currentVersion = -1;
 
-                            const topicData: topicCache = {
-                                version: callbackData.version,
-                                topics: callbackData.topics
-                            };
+                        if (value !== null) {
+                            currentVersion = value.version;
+                        }
 
-                            localForage.setItem(CacheTypes.TOPICS, topicData)
-                                .then(() => {
-                                    logStringConsole("Added topics to cache", "NavDrawer");
-                                });
+                        const study = localStorage.getItem(LocalStorageData.STUDY);
+                        let studynr: number;
+                        if (!study) {
+                            studynr = callback.studies[0].id;
+                            this.study = studynr;
                         } else {
+                            studynr = +study;
+                        }
+
+                        // Sends a get request to the server, and sets the correct store value after receiving the topics in the GetTopicsCallBack
+                        ApiWrapper.sendGetRequest(new Topics(currentVersion, studynr), (callbackData: GetTopicsCallBack) => {
+
+                            if (callbackData !== null && typeof callbackData.topics !== "undefined") {
+                                this.topics = callbackData.topics;
+                                dataState.setTopics(callbackData.topics);
+
+                                const topicData: topicCache = {
+                                    version: callbackData.version,
+                                    topics: callbackData.topics
+                                };
+
+                                localForage.setItem(CacheTypes.TOPICS, topicData)
+                                    .then(() => {
+                                        logStringConsole("Added topics to cache", "NavDrawer");
+                                    });
+                            } else {
+                                this.topics = value.topics;
+                                dataState.setTopics(value.topics);
+                            }
+
+                            if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
+                                this.activeTopicHash = [+this.$router.currentRoute.params.hash];
+                            }
+
+                        }, (err: AxiosError) => {
+
+                            logStringConsole("Set topics from cache", "NavDrawer mounted error axios, error:" + err);
                             this.topics = value.topics;
                             dataState.setTopics(value.topics);
-                        }
-
-                        if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
-                            this.activeTopicHash = [+this.$router.currentRoute.params.hash];
-                        }
-
-                    }, (err: AxiosError) => {
-
-                        logStringConsole("Set topics from cache", "NavDrawer mounted error axios, error:" + err);
-                        this.topics = value.topics;
-                        dataState.setTopics(value.topics);
+                        });
                     });
-                });
+
+            });
         }
 
         /**

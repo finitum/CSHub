@@ -14,11 +14,18 @@ export class GetTopicsCallBack {
 export class Topics implements IApiRequest {
 
     public static getURL: string = Requests.TOPICS;
-    public URL: string = Topics.getURL;
-    public headers: any = {};
-    public static readonly topicVersionHeader = "X-Topic-Version";
 
-    constructor(topicVersion: number) {
-        this.headers[Topics.topicVersionHeader] = topicVersion;
+    public static readonly topicVersionHeader = "X-Topic-Version";
+    public static readonly studyQueryParam = "study";
+
+    public URL: string = Topics.getURL;
+
+    public headers: { [key: string]: string } = {};
+    public params: { [key: string]: string } = {};
+
+    constructor(topicVersion: number, study: number) {
+        this.headers[Topics.topicVersionHeader] = topicVersion.toString(10);
+        this.params[Topics.studyQueryParam] = study.toString(10);
     }
+
 }

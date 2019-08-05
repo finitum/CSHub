@@ -3,4 +3,5 @@ export interface ITopic {
     name: string;
     hash: number;
     id: number;
+    study?: number;
 }

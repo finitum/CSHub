@@ -17,4 +17,5 @@ export class AllUsers implements IApiRequest {
         this.URL = this.URL.replace(/:page/, page.toString());
         this.URL += "?rowsPerPage=" + rowsPerPage;
     }
+
 }
