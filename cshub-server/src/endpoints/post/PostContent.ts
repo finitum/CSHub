@@ -10,7 +10,7 @@ import {
 
 import {DatabaseResultSet, query} from "../../db/database-query";
 import {getPostData} from "./PostData";
-import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
 
 app.get(PostContent.getURL, (req: Request, res: Response) => {
 
@@ -29,7 +29,7 @@ app.get(PostContent.getURL, (req: Request, res: Response) => {
         state: postState
     };
 
-    const userObj = checkTokenValidity(req);
+    const userObj = checkTokenValidityFromRequest(req);
 
     const userId = userObj.valid ? userObj.tokenObj.user.id : -1;
 

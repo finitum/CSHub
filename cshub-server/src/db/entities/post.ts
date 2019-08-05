@@ -10,14 +10,14 @@ export class Post {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(type => Topic, topic => topic.id, {
+    @ManyToOne(type => Topic, topic => topic.posts, {
         nullable: false
     })
     @JoinColumn({name: "topic"})
     @Index()
     topic: Topic;
 
-    @ManyToOne(type => User, user => user.id, {
+    @ManyToOne(type => User, user => user.posts, {
         nullable: false
     })
     @JoinColumn({name: "author"})

@@ -1,5 +1,6 @@
-import {Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import {Post} from "./post";
+import {Study} from "./study";
 
 @Entity({
     name: "topics"
@@ -20,8 +21,13 @@ export class Topic {
     @OneToMany(type => Topic, topic => topic.parent)
     children: Topic[];
 
-    @OneToMany(type => Post, post => post.id)
+    @OneToMany(type => Post, post => post.topic)
     posts: Post[];
+
+    @OneToOne(type => Study, study => study.topTopic, {
+        nullable: true
+    })
+    study: Study;
 
     @Column({
         type: "text"

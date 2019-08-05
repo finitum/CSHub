@@ -1,7 +1,7 @@
 import {app} from "../../";
 import {AllUsers, AllUsersCallBack} from "../../../../cshub-shared/src/api-calls";
 import {Request, Response} from "express";
-import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
 import {DatabaseResultSet, query} from "../../db/database-query";
 import {IUser} from "../../../../cshub-shared/src/models";
 
@@ -9,7 +9,7 @@ app.get(AllUsers.getURL, (req: Request, res: Response) => {
     const page = Number(req.params.page);
     let rowsPerPage = Number(req.query.rowsPerPage);
 
-    const token = checkTokenValidity(req);
+    const token = checkTokenValidityFromRequest(req);
 
     // Check if token is valid and user is admin
     if (token.valid && token.tokenObj.user.admin) {

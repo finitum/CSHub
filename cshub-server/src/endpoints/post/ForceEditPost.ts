@@ -4,7 +4,7 @@ import {app} from "../../";
 import logger from "../../utilities/Logger";
 
 import {DatabaseResultSet, query} from "../../db/database-query";
-import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import Delta from "quill-delta/dist/Delta";
 
@@ -14,7 +14,7 @@ import {ForceEditPost} from "../../../../cshub-shared/src/api-calls";
 app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
     const postHash: number = Number(req.params.hash);
 
-    const userObj = checkTokenValidity(req);
+    const userObj = checkTokenValidityFromRequest(req);
 
     const inputsValidation = validateMultipleInputs({input: postHash});
 

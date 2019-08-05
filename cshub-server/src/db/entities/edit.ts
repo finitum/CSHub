@@ -30,7 +30,7 @@ export class Edit {
     })
     approved: boolean;
 
-    @ManyToOne(type => User, user => user.id, {
+    @ManyToOne(type => User, user => user.approvedEdits, {
         nullable: true
     })
     @JoinColumn({name: "approvedBy"})

@@ -31,7 +31,7 @@ export const getTopicTree = (): Promise<ITopic[] | null> => {
             // This will return an array of the children of a certain topic, through recursion as well.
             const getChildTopics = (id: number): ITopic[] => {
 
-                if (id === 0) id = null;
+                if (id === 0) { id = null; }
 
                 const childTopicsParsed: ITopic[] = [];
                 // Get all the topics which have this topic as their parent, then get the child topics of these as well to create the actual topic tree

@@ -6,6 +6,7 @@ import {User} from "./entities/user";
 import {Topic} from "./entities/topic";
 import {Post} from "./entities/post";
 import {Edit} from "./entities/edit";
+import {Study} from "./entities/study";
 import {EditUser} from "./entities/edituser";
 import {CacheVersion} from "./entities/cacheversion";
 
@@ -49,7 +50,7 @@ const options: ConnectionOptions = {
     multipleStatements: true,
     logger: new CustomLogger(),
     entities: [
-        User, Topic, Post, Edit, EditUser, CacheVersion
+        User, Topic, Post, Edit, EditUser, CacheVersion, Study
     ],
     synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
 };

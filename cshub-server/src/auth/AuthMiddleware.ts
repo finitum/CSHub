@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import dayjs from "dayjs";
 
-import {IJWTToken} from "../../../cshub-shared/src/models/IJWTToken";
+import {IJWTToken} from "../../../cshub-shared/src/models";
 
 import {app} from "../index";
 import {sign, validateAccessToken} from "./JWTHandler";
@@ -11,7 +11,7 @@ import {logMiddleware} from "../utilities/LoggingMiddleware";
 app.use((req: Request, res: Response, next: Function) => {
 
 
-    const tokenValidity = checkTokenValidity(req);
+    const tokenValidity = checkTokenValidityFromRequest(req);
 
     if (tokenValidity.valid) {
 
@@ -36,21 +36,37 @@ app.use((req: Request, res: Response, next: Function) => {
     next();
 });
 
-export type ValidationType = { valid: boolean, tokenObj?: IJWTToken };
-export const checkTokenValidity = (req: Request): ValidationType => {
+export type ValidationType = {
+    valid: boolean,
+    tokenObj?: IJWTToken
+};
+
+export const checkTokenValidityFromJWT = (jwt: string): ValidationType => {
 
     // This checks the incoming JWT token, validates it, checks if it's still valid.
     // If valid, create a new one (so no cookie stealing)
     // If invalid, remove the cookie
-    if (req.cookies !== null && req.cookies["token"] !== null) {
+    if (jwt === null || jwt === undefined) {
 
-        const tokenObj: IJWTToken = validateAccessToken(req.cookies.token);
+        const tokenObj: IJWTToken = validateAccessToken(jwt);
 
-        if (tokenObj !== undefined && dayjs(tokenObj.expirydate * 1000).isAfter(dayjs()) && tokenObj.user.verified && !tokenObj.user.blocked) {
+        if (tokenObj !== undefined &&
+            dayjs(tokenObj.expirydate * 1000).isAfter(dayjs()) &&
+            tokenObj.user.verified && !tokenObj.user.blocked) {
             return {valid: true, tokenObj};
         } else {
             return {valid: false};
         }
     }
     return {valid: false};
+
+};
+
+export const checkTokenValidityFromRequest = (req: Request): ValidationType => {
+
+    if (req.cookies === null) {
+        return {valid: false};
+    }
+
+    return checkTokenValidityFromJWT(req.cookies["token"]);
 };

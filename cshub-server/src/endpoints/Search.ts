@@ -4,7 +4,7 @@ import {Request, Response} from "express";
 import {Search, GetSearchPostsCallback} from "../../../cshub-shared/src/api-calls";
 
 import {DatabaseResultSet, query} from "../db/database-query";
-import {checkTokenValidity} from "../auth/AuthMiddleware";
+import {checkTokenValidityFromRequest} from "../auth/AuthMiddleware";
 import {ServerError} from "../../../cshub-shared/src/models/ServerError";
 
 app.get(Search.getURL, (req: Request, res: Response) => {
@@ -12,7 +12,7 @@ app.get(Search.getURL, (req: Request, res: Response) => {
     const search = req.query.query;
 
     if (search.length >= 3) {
-        const user = checkTokenValidity(req);
+        const user = checkTokenValidityFromRequest(req);
         const userId = user.valid ? user.tokenObj.user.id : -1;
         const adminNum = user.valid && user.tokenObj.user.admin ? 1 : 0;
 

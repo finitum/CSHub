@@ -1,7 +1,7 @@
 import {app} from "../../";
 import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../db/database-query";
-import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
 import {PostSettings, PostSettingsCallback, PostSettingsEditType} from "../../../../cshub-shared/src/api-calls";
 
 app.put(PostSettings.getURL, async (req: Request, res: Response) => {
@@ -13,7 +13,7 @@ app.put(PostSettings.getURL, async (req: Request, res: Response) => {
         res.sendStatus(400);
     }
 
-    const token = checkTokenValidity(req);
+    const token = checkTokenValidityFromRequest(req);
 
     if (token.valid) {
         switch (action) {

@@ -6,7 +6,7 @@ import logger from "../../utilities/Logger";
 
 import {SquashEdits} from "../../../../cshub-shared/src/api-calls";
 import {DatabaseResultSet, query} from "../../db/database-query";
-import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {Dayjs} from "dayjs";
 import dayjs = require("dayjs");
@@ -17,7 +17,7 @@ app.put(SquashEdits.getURL, (req: Request, res: Response) => {
     const squashEditRequest = req.body as SquashEdits;
     const postHash = Number(req.params.hash);
 
-    const userObj = checkTokenValidity(req);
+    const userObj = checkTokenValidityFromRequest(req);
 
     const inputsValidation = validateMultipleInputs({input: postHash}, {input: squashEditRequest.editIds});
 

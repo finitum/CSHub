@@ -1,6 +1,8 @@
-import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {Post} from "./post";
 import {EditUser} from "./edituser";
+import {Study} from "./study";
+import {Edit} from "./edit";
 
 @Entity({
     name: "users"
@@ -75,4 +77,10 @@ export class User {
 
     @OneToMany(type => EditUser, edituser => edituser.user)
     edits: EditUser[];
+
+    @ManyToOne(type => Edit, edit => edit.approvedBy)
+    approvedEdits: Edit[];
+
+    @ManyToMany(type => Study, study => study.admins)
+    studies: Study[];
 }

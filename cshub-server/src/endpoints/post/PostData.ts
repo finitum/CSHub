@@ -5,13 +5,13 @@ import {PostData, GetPostCallBack} from "../../../../cshub-shared/src/api-calls"
 import {IPost} from "../../../../cshub-shared/src/models";
 
 import {DatabaseResultSet, query} from "../../db/database-query";
-import {checkTokenValidity, ValidationType} from "../../auth/AuthMiddleware";
+import {checkTokenValidityFromRequest, ValidationType} from "../../auth/AuthMiddleware";
 
 app.get(PostData.getURL, (req: Request, res: Response) => {
 
     const hash = req.params.hash;
 
-    const userObj = checkTokenValidity(req);
+    const userObj = checkTokenValidityFromRequest(req);
 
     // Get all the post data from database
     getPostData(hash, userObj)
