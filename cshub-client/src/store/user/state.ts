@@ -1,6 +1,6 @@
-import {IUser} from "../../../../cshub-shared/src/models/IUser";
 import {getStoreBuilder} from "vuex-typex";
 import {IRootState} from "../";
+import {IUser} from "../../../../cshub-shared/src/entities/user";
 
 export interface IUserState {
     userModel: IUser;

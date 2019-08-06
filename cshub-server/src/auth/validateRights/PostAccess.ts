@@ -1,6 +1,7 @@
 import {DatabaseResultSet, query} from "../../db/database-query";
 import {checkTokenValidityFromJWT} from "../AuthMiddleware";
 import {Request} from "express";
+import {getStudiesFromTopic} from "../../utilities/TopicsUtils";
 
 export type postAccessType = {
     canEdit: boolean,
@@ -23,9 +24,10 @@ export const hasAccessToPostJWT = (postHash: number, jwt: string): Promise<postA
     const tokenResult = checkTokenValidityFromJWT(jwt);
 
     return query(`
-      SELECT deleted
+      SELECT deleted, t.hash
       FROM posts p
-      WHERE hash = ?
+        INNER JOIN topics t on p.topic = t.id
+      WHERE p.hash = ?
     `, postHash)
         .then((databaseResult: DatabaseResultSet) => {
             if (databaseResult.getNumberFromDB("deleted") === 1) {
@@ -34,17 +36,26 @@ export const hasAccessToPostJWT = (postHash: number, jwt: string): Promise<postA
 
             // Check if user is global admin
             if (tokenResult.valid &&
+                tokenResult.tokenObj &&
                 tokenResult.tokenObj.user.admin) {
                 return {canEdit: true, canSave: true};
             }
 
             // Check if user is study admin
-            if (tokenResult.valid &&
-                true
-            ) {
-                return {canEdit: true, canSave: true};
-            }
+            return getStudiesFromTopic(databaseResult.getNumberFromDB("hash"))
+                .then(studies => {
+                    if (tokenResult.valid &&
+                        tokenResult.tokenObj
+                    ) {
+                        for (const study of studies) {
+                            const studyIndex = tokenResult.tokenObj.user.studies.findIndex(value => value.id === study.id);
+                            if (studyIndex !== -1) {
+                                return {canEdit: true, canSave: true};
+                            }
+                        }
+                    }
 
-            return {canEdit: true, canSave: false};
+                    return {canEdit: true, canSave: false};
+                });
         });
 };

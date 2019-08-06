@@ -3,11 +3,12 @@ import {Post} from "./post";
 import {EditUser} from "./edituser";
 import {Study} from "./study";
 import {Edit} from "./edit";
+import {IUser} from "../../../../cshub-shared/src/entities/user";
 
 @Entity({
     name: "users"
 })
-export class User {
+export class User implements IUser {
 
     @PrimaryGeneratedColumn()
     id: number;

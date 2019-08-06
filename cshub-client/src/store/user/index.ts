@@ -1,7 +1,7 @@
 import {userStateGetter, userStoreBuilder} from "./state";
 import {hasCheckedToken, isAdmin, isLoggedIn, userModel} from "./getters";
 import {changeUserModel, clearUserModel, setCheckedToken} from "./mutations";
-import {IUser} from "../../../../cshub-shared/src/models";
+import {IUser} from "../../../../cshub-shared/src/entities/user";
 
 const userState = {
     get state() { return userStateGetter(); },

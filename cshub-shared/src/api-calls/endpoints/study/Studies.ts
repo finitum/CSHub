@@ -1,12 +1,12 @@
 import {IApiRequest} from "../../../models";
 
 import {Requests} from "../../Requests";
-import {Study} from "../../../../../cshub-server/src/db/entities/study";
+import {IStudy} from "../../../entities/study";
 
 export class GetStudiesCallback {
 
     constructor(
-        public studies?: Study[]
+        public studies?: IStudy[]
     ) {}
 }
 

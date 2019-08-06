@@ -6,10 +6,12 @@
             id="cshub-nav"
             app>
         <v-list
+                class="pt-0"
                 dense>
             <v-select
                     :items="studies"
                     v-model="study"
+                    hide-details
                     box
                     label="Study"
             ></v-select>
@@ -103,7 +105,7 @@
         private topics: ITopic[] = [];
 
         private studies: Array<{text: string; value: any}> = [];
-        private _study: number = -1;
+        private studyD: number = -1;
 
         private navigationLocations = Routes;
 
@@ -127,12 +129,11 @@
         }
 
         get study(): number {
-            return this._study;
+            return this.studyD;
         }
 
         set study(study: number) {
-            console.log(study)
-            this._study = study;
+            this.studyD = study;
             localStorage.setItem(LocalStorageData.STUDY, study.toString(10));
         }
 
@@ -176,7 +177,7 @@
                     return {
                         text: value.name,
                         value: value.id
-                    }
+                    };
                 });
 
                 localForage.getItem<topicCache>(CacheTypes.TOPICS)
@@ -192,10 +193,10 @@
                         let studynr: number;
                         if (!study) {
                             studynr = callback.studies[0].id;
-                            this.study = studynr;
                         } else {
                             studynr = +study;
                         }
+                        this.study = studynr;
 
                         // Sends a get request to the server, and sets the correct store value after receiving the topics in the GetTopicsCallBack
                         ApiWrapper.sendGetRequest(new Topics(currentVersion, studynr), (callbackData: GetTopicsCallBack) => {

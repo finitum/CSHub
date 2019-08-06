@@ -1,11 +1,12 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import {Topic} from "./topic";
 import {User} from "./user";
+import {IPost} from "../../../../cshub-shared/src/entities/post";
 
 @Entity({
     name: "posts"
 })
-export class Post {
+export class Post implements IPost {
 
     @PrimaryGeneratedColumn()
     id: number;

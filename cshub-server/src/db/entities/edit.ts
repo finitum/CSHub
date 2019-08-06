@@ -2,11 +2,12 @@ import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGenerate
 import {User} from "./user";
 import {Post} from "./post";
 import {EditUser} from "./edituser";
+import {IEdit} from "../../../../cshub-shared/src/entities/edit";
 
 @Entity({
     name: "edits"
 })
-export class Edit {
+export class Edit implements IEdit {
 
     @PrimaryGeneratedColumn()
     id: number;
