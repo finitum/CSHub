@@ -101,7 +101,7 @@
     import {ApiWrapper} from "../../utilities";
 
     import {SubmitPost, CreatePostCallback, SubmitPostResponse} from "../../../../cshub-shared/src/api-calls";
-    import {ITopic} from "../../../../cshub-shared/src/models";
+    import {ITopic} from "../../../../cshub-shared/src/entities/topic";
 
     @Component({
         name: "PostCreate",

@@ -22,4 +22,6 @@ export interface IPost {
     wip: boolean;
 
     isIndex: boolean;
+
+    htmlContent?: string;
 }

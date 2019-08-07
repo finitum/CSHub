@@ -1,6 +1,5 @@
 import {Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {Post} from "./post";
-import {EditUser} from "./edituser";
 import {Study} from "./study";
 import {Edit} from "./edit";
 import {IUser} from "../../../../cshub-shared/src/entities/user";
@@ -76,8 +75,8 @@ export class User implements IUser {
     @OneToMany(type => Post, post => post.author)
     posts: Post[];
 
-    @OneToMany(type => EditUser, edituser => edituser.user)
-    edits: EditUser[];
+    @ManyToMany(type => Edit, edit => edit.editusers)
+    edits: Edit[];
 
     @ManyToOne(type => Edit, edit => edit.approvedBy)
     approvedEdits: Edit[];

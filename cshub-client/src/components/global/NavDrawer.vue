@@ -75,7 +75,6 @@
     import {ApiWrapper, logObjectConsole, logStringConsole} from "../../utilities";
     import {CacheTypes} from "../../utilities/cache-types";
 
-    import {ITopic} from "../../../../cshub-shared/src/models";
     import {
         GetTopicsCallBack,
         Topics
@@ -91,6 +90,7 @@
     import {Component, Watch} from "vue-property-decorator";
     import {LocalStorageData} from "../../store/localStorageData";
     import {GetStudiesCallback, Studies} from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
+    import {ITopic} from "../../../../cshub-shared/src/entities/topic";
 
     @Component({
         name: "NavDrawer",

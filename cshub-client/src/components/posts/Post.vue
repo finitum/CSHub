@@ -197,7 +197,6 @@
         PostVersionTypes,
         Requests
     } from "../../../../cshub-shared/src/api-calls";
-    import {IPost, ITopic} from "../../../../cshub-shared/src/models";
     import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
@@ -211,6 +210,8 @@
     import {ForceEditPost} from "../../../../cshub-shared/src/api-calls";
     import {colorize} from "../../utilities/codemirror-colorize";
     import PostSaveEditDialog from "./PostSaveEditDialog.vue";
+    import {IPost} from "../../../../cshub-shared/src/entities/post";
+    import {ITopic} from "../../../../cshub-shared/src/entities/topic";
 
     interface IBreadCrumbType {
         name: string;
@@ -539,7 +540,7 @@
         private wipPost() {
             ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.WIP), (callback: PostSettingsCallback) => {
                 logStringConsole("WIPPED post");
-                this.post.isWIP = !this.post.isWIP;
+                this.post.wip = !this.post.wip;
                 // this.$router.push(Routes.WIPPOSTS);
             });
         }
@@ -655,7 +656,7 @@
                     hasBeenUpdated = true;
                 }
 
-                this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
+                this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topic.hash, dataState.topics));
 
                 if (hasBeenUpdated) {
                     this.$forceUpdate();

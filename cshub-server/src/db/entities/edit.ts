@@ -1,8 +1,19 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    PrimaryGeneratedColumn
+} from "typeorm";
 import {User} from "./user";
 import {Post} from "./post";
-import {EditUser} from "./edituser";
 import {IEdit} from "../../../../cshub-shared/src/entities/edit";
+
+// @ts-ignore
+import Delta from "quill-delta";
 
 @Entity({
     name: "edits"
@@ -17,13 +28,14 @@ export class Edit implements IEdit {
     @Index()
     post: Post;
 
-    @OneToMany(type => EditUser, edituser => edituser.edit)
-    editusers: EditUser[];
+    @ManyToMany(type => User, user => user.edits)
+    @JoinTable({name: "editusers"})
+    editusers: User[];
 
     @Column({
         type: "longtext"
     })
-    content: string;
+    content: Delta;
 
     @Column({
         type: "int", // Otherwise it overrides the value

@@ -1,5 +1,4 @@
 import {IPost} from "./post";
-import {IEditUser} from "./edituser";
 import {IStudy} from "./study";
 import {IEdit} from "./edit";
 
@@ -9,13 +8,9 @@ export interface IUser {
 
     email: string;
 
-    password: string;
-
     avatar: string;
 
     admin: boolean;
-
-    created: Date;
 
     blocked: boolean;
 
@@ -25,15 +20,11 @@ export interface IUser {
 
     lastname: string;
 
-    verifyhash: number;
+    posts?: IPost[];
 
-    passresethash: number;
+    edits?: IEdit[];
 
-    posts: IPost[];
+    approvedEdits?: IEdit[];
 
-    edits: IEditUser[];
-
-    approvedEdits: IEdit[];
-
-    studies: IStudy[];
+    studies?: IStudy[];
 }

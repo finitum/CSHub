@@ -45,7 +45,7 @@ app.get(PostContent.getURL, (req: Request, res: Response) => {
             } else if (post.getNumberFromDB("postVersion") !== postVersion) {
                 getContent()
                     .then((returnContent: contentReturn) => {
-                        getPostData(postHash, userObj)
+                        getPostData(postHash)
                             .then((data: GetPostCallBack) => {
                                 if (data !== null && returnContent.state !== postState.DELETED) {
                                     res.json(new GetPostContentCallBack(PostVersionTypes.UPDATEDPOST,

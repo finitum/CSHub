@@ -2,19 +2,16 @@ import {app} from "../../";
 import logger from "../../utilities/Logger";
 import {Request, Response} from "express";
 import {PostData, GetPostCallBack} from "../../../../cshub-shared/src/api-calls";
-import {IPost} from "../../../../cshub-shared/src/models";
 
-import {DatabaseResultSet, query} from "../../db/database-query";
-import {checkTokenValidityFromRequest, ValidationType} from "../../auth/AuthMiddleware";
+import {getRepository} from "typeorm";
+import {Post} from "../../db/entities/post";
 
 app.get(PostData.getURL, (req: Request, res: Response) => {
 
     const hash = req.params.hash;
 
-    const userObj = checkTokenValidityFromRequest(req);
-
     // Get all the post data from database
-    getPostData(hash, userObj)
+    getPostData(hash)
         .then((data: GetPostCallBack) => {
             if (data === null) {
                 res.status(404).send();
@@ -24,60 +21,28 @@ app.get(PostData.getURL, (req: Request, res: Response) => {
         });
 });
 
-export const getPostData = (postHash: number, userObj: ValidationType): Promise<GetPostCallBack> => {
-    const userId = userObj.valid ? userObj.tokenObj.user.id : -1;
+export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
 
-    return query(`
-        SELECT T1.datetime,
-               T1.title,
-               T1.hash,
-               T1.isIndex,
-               T2.id        AS authorId,
-               T2.firstname AS authorFirstName,
-               T2.lastname  AS authorLastName,
-               T2.avatar    AS authorAvatar,
-               T2.admin     AS authorAdmin,
-               T3.name,
-               T3.hash      AS topicHash,
-               T1.id,
-               T1.postVersion,
-               T1.wip
-        FROM posts T1
-                 INNER JOIN users T2 ON T1.author = T2.id
-                 INNER JOIN topics T3 ON T1.topic = T3.id
-        WHERE T1.hash = ?
-        ORDER BY datetime DESC
-    `, postHash)
-        .then((post: DatabaseResultSet) => {
+    const postRepository = getRepository(Post);
 
-            if (post.convertRowsToResultObjects().length === 0) {
+    return postRepository
+        .findOne({
+            relations: ["author", "topic"],
+            where: {
+                hash: postHash
+            }
+        })
+        .then(post => {
+
+            if (!post) {
                 return new GetPostCallBack(null);
             }
-            // Create the postBase object, it will be expanded depending on the type of request (Preview or full, preview has less data)
-            // The author is of typed IUserCensored as it protects a bit of privacy, it doesn't get all their data, just name and avatar
-            const postBase: IPost = {
-                topicHash: post.getNumberFromDB("topicHash"),
-                datetime: post.getStringFromDB("datetime"),
-                title: post.getStringFromDB("title"),
-                hash: post.getNumberFromDB("hash"),
-                isIndex: post.getNumberFromDB("isIndex") === 1,
-                id: post.getNumberFromDB("id"),
-                author: {
-                    id: post.getNumberFromDB("authorId"),
-                    firstname: post.getStringFromDB("authorFirstName"),
-                    lastname: post.getStringFromDB("authorLastName"),
-                    avatar: post.getStringFromDB("authorAvatar"),
-                    admin: post.getNumberFromDB("authorAdmin") === 1
-                },
-                postVersion: post.getNumberFromDB("postVersion"),
-                isWIP: post.getNumberFromDB("wip") === 1
-            };
 
-            if (postBase.author.avatar !== null) {
-                postBase.author.avatar = Buffer.from(postBase.author.avatar).toString("base64");
+            if (post.author.avatar !== null) {
+                post.author.avatar = Buffer.from(post.author.avatar).toString("base64");
             }
 
-            return new GetPostCallBack(postBase);
+            return new GetPostCallBack(post);
         })
         .catch(err => {
             logger.error(`Retreiving post data failed`);

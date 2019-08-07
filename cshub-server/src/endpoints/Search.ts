@@ -13,8 +13,6 @@ app.get(Search.getURL, (req: Request, res: Response) => {
 
     if (search.length >= 3) {
         const user = checkTokenValidityFromRequest(req);
-        const userId = user.valid ? user.tokenObj.user.id : -1;
-        const adminNum = user.valid && user.tokenObj.user.admin ? 1 : 0;
 
         query(`
             WITH possibleHashes AS (
@@ -32,7 +30,6 @@ app.get(Search.getURL, (req: Request, res: Response) => {
                     ) editsDate ON edits.datetime = editsDate.datetime
                     ORDER BY edits.id DESC
                 )
-                AND (T2.author = ? OR (T1.approved = 1) OR ? = 1)
                 AND T2.deleted = 0
                 AND T2.isIndex = 0
                 AND T2.wip = 0
@@ -54,7 +51,7 @@ app.get(Search.getURL, (req: Request, res: Response) => {
                   LIMIT 5)
             ) AS a
             LIMIT 5
-        `, userId, adminNum, `%${search}%`, `%${search}%`)
+        `, `%${search}%`, `%${search}%`)
             .then((hashes: DatabaseResultSet) => {
 
                 const hashesArray: number[] = [];

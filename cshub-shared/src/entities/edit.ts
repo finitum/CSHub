@@ -1,6 +1,8 @@
 import {IUser} from "./user";
 import {IPost} from "./post";
-import {IEditUser} from "./edituser";
+
+// @ts-ignore
+import Delta from "quill-delta";
 
 export interface IEdit {
 
@@ -8,9 +10,9 @@ export interface IEdit {
 
     post?: IPost;
 
-    editusers?: IEditUser[];
+    editusers?: IUser[];
 
-    content: string;
+    content: Delta;
 
     approved: boolean;
 

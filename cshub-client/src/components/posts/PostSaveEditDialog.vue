@@ -75,7 +75,6 @@
 
     import Quill from "../quill/Quill.vue";
 
-    import {IPost, ITopic} from "../../../../cshub-shared/src/models";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
     import uiState from "../../store/ui";
@@ -86,6 +85,8 @@
     import {EditPost, EditContent, GetEditContentCallback} from "../../../../cshub-shared/src/api-calls";
     import dataState from "../../store/data";
     import Delta from "quill-delta/dist/Delta";
+    import {IPost} from "../../../../cshub-shared/src/entities/post";
+    import {ITopic} from "../../../../cshub-shared/src/entities/topic";
 
     @Component({
         name: "PostSaveEditDialog",
@@ -169,7 +170,7 @@
                         if (i >= callbackData.edits.length - 1 && !currEdit.approved) {
                             this.editedByText = "";
 
-                            for (const editor of currEdit.editedBy) {
+                            for (const editor of currEdit.editusers) {
                                 if (this.editedByText !== "") {
                                     this.editedByText += ", ";
                                 }
@@ -210,7 +211,7 @@
 
             });
 
-            this.activeTopicHash = [this.post.topicHash];
+            this.activeTopicHash = [this.post.topic.hash];
         }
 
         public save() {

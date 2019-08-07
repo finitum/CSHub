@@ -3,6 +3,7 @@ import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../db/database-query";
 import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
 import {PostSettings, PostSettingsCallback, PostSettingsEditType} from "../../../../cshub-shared/src/api-calls";
+import {hasAccessToPostRequest} from "../../auth/validateRights/PostAccess";
 
 app.put(PostSettings.getURL, async (req: Request, res: Response) => {
 
@@ -13,32 +14,29 @@ app.put(PostSettings.getURL, async (req: Request, res: Response) => {
         res.sendStatus(400);
     }
 
-    const token = checkTokenValidityFromRequest(req);
-
-    if (token.valid) {
-        switch (action) {
-            case PostSettingsEditType[PostSettingsEditType.HIDE].toLowerCase():
-                if (token.tokenObj.user.admin) {
-                    deletePost(res, postHash);
-                } else {
-                    res.status(403).send();
-                }
-                break;
-            case PostSettingsEditType[PostSettingsEditType.WIP].toLowerCase():
-                if (token.tokenObj.user.admin) {
-                    await wipPost(res, postHash);
-                } else {
-                    res.status(403).send();
-                }
-                break;
-            default:
-                res.status(400).json({
-                    error: new Error("Did not understand the PostSettingsEditType")
-                })
-        }
-    } else {
-        res.status(403).send();
-    }
+    hasAccessToPostRequest(postHash, req)
+        .then(async access => {
+            switch (action) {
+                case PostSettingsEditType[PostSettingsEditType.HIDE].toLowerCase():
+                    if (access.canSave) {
+                        deletePost(res, postHash);
+                    } else {
+                        res.status(403).send();
+                    }
+                    break;
+                case PostSettingsEditType[PostSettingsEditType.WIP].toLowerCase():
+                    if (access.canSave) {
+                        await wipPost(res, postHash);
+                    } else {
+                        res.status(403).send();
+                    }
+                    break;
+                default:
+                    res.status(400).json({
+                        error: new Error("Did not understand the PostSettingsEditType")
+                    });
+            }
+        });
 });
 
 async function isWip(postHash: number): Promise<boolean> {

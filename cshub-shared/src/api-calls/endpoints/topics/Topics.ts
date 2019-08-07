@@ -1,7 +1,7 @@
 import {IApiRequest} from "../../../models";
-import {ITopic} from "../../../models";
 
 import {Requests} from "../../Requests";
+import {ITopic} from "../../../entities/topic";
 
 export class GetTopicsCallBack {
 

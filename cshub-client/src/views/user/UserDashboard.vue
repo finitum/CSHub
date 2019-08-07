@@ -125,13 +125,14 @@
         Dashboard,
         DashboardCallback
     } from "../../../../cshub-shared/src/api-calls";
-    import {IPost, IUser} from "../../../../cshub-shared/src/models";
     import {
         ChangeAvatar,
         ChangeAvatarCallback,
         ChangeAvatarResponseTypes
     } from "../../../../cshub-shared/src/api-calls";
     import uiState from "../../store/ui";
+    import {IPost} from "../../../../cshub-shared/src/entities/post";
+    import {IUser} from "../../../../cshub-shared/src/entities/user";
 
     @Component({
         name: "UserDashboard",
