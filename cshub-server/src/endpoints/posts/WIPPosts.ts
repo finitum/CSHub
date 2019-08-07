@@ -1,18 +1,36 @@
 import {app} from "../../";
 import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../db/database-query";
-import {
-    GetUnverifiedPostsCallBack} from "../../../../cshub-shared/src/api-calls";
-import {WIPPosts} from "../../../../cshub-shared/src/api-calls";
+import {GetUnverifiedPostsCallBack, SubmitTopic, WIPPosts} from "../../../../cshub-shared/src/api-calls";
+import {customValidator, validateMultipleInputs} from "../../utilities/StringUtils";
 
 app.get(WIPPosts.getURL, (req: Request, res: Response) => {
 
+    const wipPostsRequest = req.body as WIPPosts;
+
+    if (!customValidator({input: wipPostsRequest.study}).valid) {
+        res.sendStatus(400);
+        return;
+    }
+
     query(`
-      SELECT hash
-      FROM posts T1
-      WHERE T1.wip = 1 AND T1.deleted = 0
-      ORDER BY T1.datetime DESC
-    `)
+        WITH RECURSIVE studyTopics (id, parentid) AS (
+            SELECT t1.id, t1.parentid
+            FROM topics t1
+            WHERE id = (SELECT topTopicId FROM studies WHERE id = ?)
+
+            UNION ALL
+
+            SELECT t2.id, t2.parentid
+            FROM topics t2
+            INNER JOIN studyTopics ON t2.parentid = studyTopics.id
+        )
+
+        SELECT hash
+        FROM posts T1
+        WHERE T1.wip = 1 AND T1.deleted = 0 AND T1.topic IN (SELECT id FROM studyTopics)
+        ORDER BY T1.datetime DESC
+    `, wipPostsRequest.study)
         .then((result: DatabaseResultSet) => {
 
             const hashes: number[] = [];

@@ -46,7 +46,7 @@ export const checkTokenValidityFromJWT = (jwt: string): ValidationType => {
     // This checks the incoming JWT token, validates it, checks if it's still valid.
     // If valid, create a new one (so no cookie stealing)
     // If invalid, remove the cookie
-    if (jwt === null || jwt === undefined) {
+    if (jwt !== null || jwt !== undefined) {
 
         const tokenObj: IJWTToken = validateAccessToken(jwt);
 

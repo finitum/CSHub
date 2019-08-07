@@ -60,7 +60,7 @@
                     </v-flex>
                 </v-layout>
                 <router-link :to="navigationLocations.POSTCREATE"><NavDrawerItem icon="fas fa-pen" text="Create new post"></NavDrawerItem></router-link>
-                <router-link v-if="userAdminComputed" :to="`${navigationLocations.TOPICCREATE}`"><NavDrawerItem icon="fas fa-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
+                <router-link v-if="userStudyAdminComputed" :to="`${navigationLocations.TOPICCREATE}`"><NavDrawerItem icon="fas fa-folder-plus" text="Add a topic"></NavDrawerItem></router-link>
             </div>
         </v-list>
     </v-navigation-drawer>
@@ -126,6 +126,10 @@
 
         get userAdminComputed(): boolean {
             return userState.isAdmin;
+        }
+
+        get userStudyAdminComputed(): boolean {
+            return this.userAdminComputed || userState.getStudyAdmins.length > 0
         }
 
         get study(): number {

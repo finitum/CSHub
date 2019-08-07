@@ -11,4 +11,6 @@ export class GetUnverifiedPostsCallBack {
 export class GetUnverifiedPosts implements IApiRequest {
     public static getURL: string = Requests.GETUNVERIFIEDPOSTS;
     public URL: string = GetUnverifiedPosts.getURL;
+
+    constructor(public study: number) {}
 }

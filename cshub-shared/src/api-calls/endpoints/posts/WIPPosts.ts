@@ -11,4 +11,6 @@ export class WIPPostsCallBack {
 export class WIPPosts implements IApiRequest {
     public static getURL: string = Requests.WIPPOSTS;
     public URL: string = WIPPosts.getURL;
+
+    constructor(public study: number) {}
 }
