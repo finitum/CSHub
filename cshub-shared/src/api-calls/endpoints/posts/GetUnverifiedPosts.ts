@@ -10,7 +10,15 @@ export class GetUnverifiedPostsCallBack {
 
 export class GetUnverifiedPosts implements IApiRequest {
     public static getURL: string = Requests.GETUNVERIFIEDPOSTS;
+
+    public static readonly studyQueryParam = "study";
+
     public URL: string = GetUnverifiedPosts.getURL;
 
-    constructor(public study: number) {}
+    public params: { [key: string]: string } = {};
+
+    constructor(study: number) {
+        this.params[GetUnverifiedPosts.studyQueryParam] = study.toString(10);
+
+    }
 }

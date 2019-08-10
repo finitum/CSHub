@@ -6,13 +6,14 @@ import {customValidator, validateMultipleInputs} from "../../utilities/StringUti
 
 app.get(WIPPosts.getURL, (req: Request, res: Response) => {
 
-    const wipPostsRequest = req.body as WIPPosts;
+    const studyId = +req.query[WIPPosts.studyQueryParam];
 
-    if (!customValidator({input: wipPostsRequest.study}).valid) {
+    if (!customValidator({input: studyId}).valid) {
         res.sendStatus(400);
         return;
     }
 
+    // language=MySQL
     query(`
         WITH RECURSIVE studyTopics (id, parentid) AS (
             SELECT t1.id, t1.parentid
@@ -30,7 +31,7 @@ app.get(WIPPosts.getURL, (req: Request, res: Response) => {
         FROM posts T1
         WHERE T1.wip = 1 AND T1.deleted = 0 AND T1.topic IN (SELECT id FROM studyTopics)
         ORDER BY T1.datetime DESC
-    `, wipPostsRequest.study)
+    `, studyId)
         .then((result: DatabaseResultSet) => {
 
             const hashes: number[] = [];

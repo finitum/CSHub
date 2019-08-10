@@ -10,7 +10,14 @@ export class WIPPostsCallBack {
 
 export class WIPPosts implements IApiRequest {
     public static getURL: string = Requests.WIPPOSTS;
+
+    public static readonly studyQueryParam = "study";
+
     public URL: string = WIPPosts.getURL;
 
-    constructor(public study: number) {}
+    public params: { [key: string]: string } = {};
+
+    constructor(study: number) {
+        this.params[WIPPosts.studyQueryParam] = study.toString(10);
+    }
 }

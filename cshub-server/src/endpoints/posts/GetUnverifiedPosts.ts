@@ -1,18 +1,19 @@
 import {app} from "../../";
 import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../db/database-query";
-import {GetUnverifiedPosts, GetUnverifiedPostsCallBack, WIPPosts} from "../../../../cshub-shared/src/api-calls";
+import {GetUnverifiedPosts, GetUnverifiedPostsCallBack} from "../../../../cshub-shared/src/api-calls";
 import {customValidator} from "../../utilities/StringUtils";
 
 app.get(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
 
-    const unverifiedPostsRequest = req.body as GetUnverifiedPosts;
+    const studyId = +req.query[GetUnverifiedPosts.studyQueryParam];
 
-    if (!customValidator({input: unverifiedPostsRequest.study}).valid) {
+    if (!customValidator({input: studyId}).valid) {
         res.sendStatus(400);
         return;
     }
 
+    // language=MySQL
     query(`
         WITH RECURSIVE studyTopics (id, parentid) AS (
             SELECT t1.id, t1.parentid
@@ -43,7 +44,7 @@ app.get(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
           AND T1.deleted = 0 AND T1.topic IN (SELECT id FROM studyTopics)
         GROUP BY T2.post
         ORDER BY T1.datetime DESC
-    `, unverifiedPostsRequest.study)
+    `, studyId)
         .then((result: DatabaseResultSet) => {
 
             const hashes: number[] = [];

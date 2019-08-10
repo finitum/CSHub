@@ -129,7 +129,7 @@
         }
 
         get userStudyAdminComputed(): boolean {
-            return this.userAdminComputed || userState.getStudyAdmins.length > 0
+            return this.userAdminComputed || userState.getStudyAdmins.length > 0;
         }
 
         get study(): number {
@@ -187,10 +187,10 @@
                 localForage.getItem<topicCache>(CacheTypes.TOPICS)
                     .then((value: topicCache) => {
 
-                        let currentVersion = -1;
+                        let topicCurrentVersion = -1;
 
                         if (value !== null) {
-                            currentVersion = value.version;
+                            topicCurrentVersion = value.version;
                         }
 
                         const study = localStorage.getItem(LocalStorageData.STUDY);
@@ -198,12 +198,16 @@
                         if (!study) {
                             studynr = callback.studies[0].id;
                         } else {
-                            studynr = +study;
+                            if (this.studies.findIndex(currStudy => currStudy.value === studynr) === -1) {
+                                studynr = callback.studies[0].id;
+                            } else {
+                                studynr = +study;
+                            }
                         }
                         this.study = studynr;
 
                         // Sends a get request to the server, and sets the correct store value after receiving the topics in the GetTopicsCallBack
-                        ApiWrapper.sendGetRequest(new Topics(currentVersion, studynr), (callbackData: GetTopicsCallBack) => {
+                        ApiWrapper.sendGetRequest(new Topics(topicCurrentVersion, studynr), (callbackData: GetTopicsCallBack) => {
 
                             if (callbackData !== null && typeof callbackData.topics !== "undefined") {
                                 this.topics = callbackData.topics;

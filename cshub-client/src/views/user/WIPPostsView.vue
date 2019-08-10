@@ -17,6 +17,7 @@
     import {ApiWrapper, logObjectConsole} from "../../utilities";
 
     import {WIPPosts, WIPPostsCallBack} from "../../../../cshub-shared/src/api-calls";
+    import {LocalStorageData} from "../../store/localStorageData";
 
     @Component({
         name: "WIPPostsView",
@@ -46,7 +47,8 @@
          * Methods
          */
         private getHashes() {
-            ApiWrapper.sendGetRequest(new WIPPosts(), (callbackData: WIPPostsCallBack) => {
+            const studyId = +localStorage.getItem(LocalStorageData.STUDY);
+            ApiWrapper.sendGetRequest(new WIPPosts(studyId), (callbackData: WIPPostsCallBack) => {
                 for (const post of callbackData.postHashes) {
                     this.postHashes.push(post);
                 }
