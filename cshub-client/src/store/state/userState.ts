@@ -4,16 +4,16 @@ import { IStudy } from "../../../../cshub-shared/src/entities/study";
 import store from "../store";
 
 export interface IUserState {
-    userModel?: IUser;
+    userModel: IUser | null;
     hasCheckedToken: boolean;
 }
 
 @Module
 class UserState extends VuexModule implements IUserState {
-    private _userModel: IUser | undefined;
+    private _userModel: IUser | null = null;
     private _hasCheckedToken = false;
 
-    get userModel(): IUser | undefined {
+    get userModel(): IUser | null {
         return this._userModel;
     }
 
@@ -24,7 +24,7 @@ class UserState extends VuexModule implements IUserState {
 
     @Mutation
     public clearUserModel() {
-        this._userModel = undefined;
+        this._userModel = null;
     }
 
     get hasCheckedToken(): boolean {

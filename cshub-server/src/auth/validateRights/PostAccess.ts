@@ -8,6 +8,42 @@ export type postAccessType = {
     canSave: boolean
 };
 
+export const hasAccessToTopicRequest = (topicHash: number, req: Request): Promise<postAccessType> => {
+    if (req.cookies === null) {
+        return Promise.resolve({canEdit: false, canSave: false});
+    }
+
+    return hasAccessToTopicJWT(topicHash, req.cookies["token"]);
+};
+
+export const hasAccessToTopicJWT = (topicHash: number, jwt: string): Promise<postAccessType> => {
+    const tokenResult = checkTokenValidityFromJWT(jwt);
+
+    // Check if user is global admin
+    if (tokenResult.valid &&
+        tokenResult.tokenObj &&
+        tokenResult.tokenObj.user.admin) {
+        return Promise.resolve({canEdit: true, canSave: true});
+    }
+
+    // Check if user is study admin
+    return getStudiesFromTopic(topicHash)
+        .then(studies => {
+            if (tokenResult.valid &&
+                tokenResult.tokenObj
+            ) {
+                for (const study of studies) {
+                    const studyIndex = tokenResult.tokenObj.user.studies.findIndex(value => value.id === study.id);
+                    if (studyIndex !== -1) {
+                        return {canEdit: true, canSave: true};
+                    }
+                }
+            }
+
+            return {canEdit: true, canSave: false};
+        });
+};
+
 export const hasAccessToPostRequest = (postHash: number, req: Request): Promise<postAccessType> => {
 
     if (req.cookies === null) {
@@ -21,8 +57,6 @@ export const hasAccessToPostRequest = (postHash: number, req: Request): Promise<
 // A (study) admin has the ability to save
 export const hasAccessToPostJWT = (postHash: number, jwt: string): Promise<postAccessType> => {
 
-    const tokenResult = checkTokenValidityFromJWT(jwt);
-
     return query(`
       SELECT deleted, t.hash
       FROM posts p
@@ -34,28 +68,7 @@ export const hasAccessToPostJWT = (postHash: number, jwt: string): Promise<postA
                 return {canEdit: false, canSave: false};
             }
 
-            // Check if user is global admin
-            if (tokenResult.valid &&
-                tokenResult.tokenObj &&
-                tokenResult.tokenObj.user.admin) {
-                return {canEdit: true, canSave: true};
-            }
+            return hasAccessToTopicJWT(databaseResult.getNumberFromDB("hash"), jwt);
 
-            // Check if user is study admin
-            return getStudiesFromTopic(databaseResult.getNumberFromDB("hash"))
-                .then(studies => {
-                    if (tokenResult.valid &&
-                        tokenResult.tokenObj
-                    ) {
-                        for (const study of studies) {
-                            const studyIndex = tokenResult.tokenObj.user.studies.findIndex(value => value.id === study.id);
-                            if (studyIndex !== -1) {
-                                return {canEdit: true, canSave: true};
-                            }
-                        }
-                    }
-
-                    return {canEdit: true, canSave: false};
-                });
         });
 };

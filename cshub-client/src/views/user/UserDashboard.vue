@@ -21,12 +21,14 @@
                                     label="Email"
                                     suffix="@student.tudelft.nl"
                                     filled
+                                    autocomplete=""
                                     disabled
                                 ></v-text-field>
                                 <v-text-field
                                     v-model="userDataComputed.firstname"
                                     label="First name"
                                     filled
+                                    autocomplete=""
                                     disabled
                                 ></v-text-field>
                                 <v-text-field
@@ -162,7 +164,7 @@ export default class UserDashboard extends Vue {
     /**
      * Computed properties
      */
-    get userDataComputed(): IUser | undefined {
+    get userDataComputed(): IUser | null {
         return userState.userModel;
     }
 

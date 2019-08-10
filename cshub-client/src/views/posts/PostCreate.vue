@@ -9,19 +9,13 @@
                     indeterminate
                 ></v-progress-circular>
                 <v-card :class="{ opaqueLoading: showLoadingIcon }">
-                    <v-card-title class="title font-weight-regular justify-space-between">
-                        <v-layout row justify-space-between>
-                            <v-flex>
-                                <h3 class="headline">Create post</h3>
-                            </v-flex>
-                            <v-flex class="text-xs-right">
-                                <v-btn depressed large color="primary" @click="submitPost">
-                                    <span>Submit</span>
-                                </v-btn>
-                            </v-flex>
-                        </v-layout>
+                    <v-card-title class="title">
+                        <h3 class="headline mr-4">Create post</h3>
+                        <v-btn depressed large color="primary" @click="submitPost">
+                            <span>Submit</span>
+                        </v-btn>
                     </v-card-title>
-                    <v-card-text>
+                    <v-card-text class="ma-2">
                         <v-layout row>
                             <v-flex xs10>
                                 <v-text-field
@@ -36,38 +30,33 @@
                                     @change="postTitleError = ''"
                                 ></v-text-field>
                             </v-flex>
-                            <v-flex xs2>
+                            <v-flex xs1>
                                 <v-checkbox v-model="isIndex" class="ml-3" label="Is index"></v-checkbox>
                             </v-flex>
                             <v-flex xs1 class="text-xs-right">
-                                <v-menu
-                                    v-model="topicViewOpen"
-                                    :close-on-content-click="false"
-                                    :nudge-width="100"
-                                    :nudge-left="200"
-                                    offset-x
-                                >
-                                    <v-btn id="tableButton" slot="activator" dark text>
-                                        <v-icon
-                                            v-if="!showTopicWrongIcon && !showTopicFilledIcon"
-                                            color="black"
-                                            style="font-size: 25px !important"
-                                            >fas fa-folder</v-icon
-                                        >
-                                        <v-icon
-                                            v-if="showTopicFilledIcon"
-                                            color="primary"
-                                            style="font-size: 25px !important"
-                                            >fas fa-folder-plus</v-icon
-                                        >
-                                        <v-icon
-                                            v-if="showTopicWrongIcon && !showTopicFilledIcon"
-                                            color="red"
-                                            style="font-size: 25px !important"
-                                            >fas fa-folder-minus</v-icon
-                                        >
-                                    </v-btn>
-
+                                <v-menu :close-on-content-click="false" :nudge-width="100" :nudge-left="200" offset-x>
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn id="tableButton" dark text v-on="on">
+                                            <v-icon
+                                                v-if="!showTopicWrongIcon && !showTopicFilledIcon"
+                                                color="black"
+                                                style="font-size: 25px !important"
+                                                >fas fa-folder</v-icon
+                                            >
+                                            <v-icon
+                                                v-if="showTopicFilledIcon"
+                                                color="primary"
+                                                style="font-size: 25px !important"
+                                                >fas fa-folder-plus</v-icon
+                                            >
+                                            <v-icon
+                                                v-if="showTopicWrongIcon && !showTopicFilledIcon"
+                                                color="red"
+                                                style="font-size: 25px !important"
+                                                >fas fa-folder-minus</v-icon
+                                            >
+                                        </v-btn>
+                                    </template>
                                     <v-card>
                                         <v-card-title primary-title style="padding-bottom: 0">
                                             <h3>
@@ -120,7 +109,6 @@ export default class PostCreate extends Vue {
      * Data
      */
     private activeTopicHash: number[] = [];
-    private topicViewOpen = false;
     private postTitle = "";
     private postTitleError = "";
     private isIndex = false;

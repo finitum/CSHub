@@ -10,6 +10,7 @@ import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {generateRandomTopicHash, getTopicTree} from "../../utilities/TopicsUtils";
 import {DatabaseResultSet, query} from "../../db/database-query";
 import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
+import {hasAccessToTopicRequest} from "../../auth/validateRights/PostAccess";
 
 app.post(SubmitPost.getURL, (req: Request, res: Response) => {
 
@@ -26,8 +27,17 @@ app.post(SubmitPost.getURL, (req: Request, res: Response) => {
     }, {input: submitPostRequest.postTopicHash}, {input: submitPostRequest.isIndex});
 
     if (inputsValidation.valid && userObj.valid) {
-        const topics = getTopicTree();
-        topics
+        hasAccessToTopicRequest(submitPostRequest.postTopicHash, req)
+            .then(value => {
+                if (value.canEdit) {
+                    return;
+                }
+                res.sendStatus(403);
+                throw new Error("No access")
+            })
+            .then(() => {
+                return getTopicTree();
+            })
             .then((topics) => {
                 if (topics === null) {
                     logger.error(`No topics found`);
@@ -90,6 +100,9 @@ app.post(SubmitPost.getURL, (req: Request, res: Response) => {
                             res.status(500).send();
                         });
                 }
+            })
+            .catch(reason => {
+                // noop
             });
     } else if (!inputsValidation.valid) {
         res.status(400).json(new CreatePostCallback(SubmitPostResponse.INVALIDINPUT));

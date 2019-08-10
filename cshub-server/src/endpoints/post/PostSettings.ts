@@ -4,6 +4,7 @@ import {DatabaseResultSet, query} from "../../db/database-query";
 import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
 import {PostSettings, PostSettingsCallback, PostSettingsEditType} from "../../../../cshub-shared/src/api-calls";
 import {hasAccessToPostRequest} from "../../auth/validateRights/PostAccess";
+import {ServerError} from "../../../../cshub-shared/src/models/ServerError";
 
 app.put(PostSettings.getURL, async (req: Request, res: Response) => {
 
@@ -32,9 +33,7 @@ app.put(PostSettings.getURL, async (req: Request, res: Response) => {
                     }
                     break;
                 default:
-                    res.status(400).json({
-                        error: new Error("Did not understand the PostSettingsEditType")
-                    });
+                    res.status(400).json(new ServerError("Did not understand the PostSettingsEditType"));
             }
         });
 });

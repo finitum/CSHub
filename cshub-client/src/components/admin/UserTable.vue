@@ -3,10 +3,10 @@
         <v-data-table
             :headers="headers"
             :items="items"
-            :pagination.sync="pagination"
-            :total-items="amountItems"
             :loading="loading"
+            :server-items-length="amountItems"
             class="elevation-1"
+            @update:options="getDataOptions"
         >
             <template slot="items" slot-scope="props">
                 <td>{{ props.item.id }}</td>
@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Watch } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../utilities";
 
@@ -38,7 +38,7 @@ export default class UserTable extends Vue {
      * Data
      */
     private items: IUser[] = [];
-    private pagination: any = {};
+
     private readonly headers = [
         { text: "Id", value: "id" },
         { text: "First name", value: "firstname" },
@@ -51,27 +51,23 @@ export default class UserTable extends Vue {
     private loading = true;
     private amountItems: number = 0;
 
-    /**
-     * Watchers
-     */
-    @Watch("pagination", { deep: true })
-    private paginationChanged(newValue: any) {
-        this.getData(newValue.rowsPerPage, newValue.page);
-    }
-
-    /**
+    /*
      * Lifecycle hooks
      */
     private mounted() {
-        this.getData(this.pagination.rowsPerPage, this.pagination.page);
+        this.getData(10, 1);
     }
 
     /**
      * Methods
      */
-    private getData(rowsPerPage: number, page: number) {
+    private getDataOptions(options: { page: number; itemsPerPage: number }) {
+        this.getData(options.itemsPerPage, options.page);
+    }
+
+    private getData(itemsPerPage: number, page: number) {
         this.loading = true;
-        ApiWrapper.sendGetRequest(new AllUsers(rowsPerPage, page), (callback: AllUsersCallBack) => {
+        ApiWrapper.sendGetRequest(new AllUsers(itemsPerPage, page), (callback: AllUsersCallBack) => {
             this.items = callback.users;
             this.amountItems = callback.totalItems;
             this.loading = false;

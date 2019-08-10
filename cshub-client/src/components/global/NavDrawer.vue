@@ -54,13 +54,9 @@
             </v-treeview>
             <div v-if="userLoggedInComputed">
                 <v-divider dark class="my-3"></v-divider>
-                <v-layout row align-center>
-                    <v-flex xs6>
-                        <v-subheader>
-                            Create
-                        </v-subheader>
-                    </v-flex>
-                </v-layout>
+                <v-subheader>
+                    Create
+                </v-subheader>
 
                 <NavDrawerItem
                     :to="navigationLocations.POSTCREATE"

@@ -39,7 +39,7 @@ export interface IUIState {
 @Module
 class UIState extends VuexModule implements IUIState {
     private _navbar = {
-        open: false
+        open: true
     };
 
     private _editDialogState: editDialogType = {

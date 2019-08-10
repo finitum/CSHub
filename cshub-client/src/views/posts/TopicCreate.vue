@@ -3,21 +3,15 @@
         <v-layout justify-center align-center>
             <v-flex>
                 <v-card>
-                    <v-card-title class="title font-weight-regular justify-space-between">
-                        <v-layout row justify-space-between>
-                            <v-flex>
-                                <h3 class="headline">Add topic</h3>
-                            </v-flex>
-                            <v-flex class="text-xs-right">
-                                <v-btn depressed large color="primary" @click="submitTopic">
-                                    <span>Submit</span>
-                                </v-btn>
-                            </v-flex>
-                        </v-layout>
+                    <v-card-title class="title">
+                        <h3 class="headline mr-4">Add topic</h3>
+                        <v-btn depressed large color="primary" @click="submitTopic">
+                            <span>Submit</span>
+                        </v-btn>
                     </v-card-title>
-                    <v-card-text>
+                    <v-card-text class="ma-2">
                         <v-layout row>
-                            <v-flex xs8>
+                            <v-flex xs8 class="pr-4">
                                 <v-text-field
                                     v-model="topicTitle"
                                     v-validate="'required|min:2|max:35'"

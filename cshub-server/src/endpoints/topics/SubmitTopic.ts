@@ -11,6 +11,7 @@ import {generateRandomTopicHash, getTopicTree} from "../../utilities/TopicsUtils
 import {DatabaseResultSet, query} from "../../db/database-query";
 import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
 import {canCreateTopicRequest} from "../../auth/validateRights/TopicAccess";
+import {hasAccessToTopicRequest} from "../../auth/validateRights/PostAccess";
 
 app.post(SubmitTopic.getURL, (req: Request, res: Response) => {
 
@@ -31,7 +32,17 @@ app.post(SubmitTopic.getURL, (req: Request, res: Response) => {
         return;
     }
 
-    canCreateTopicRequest(submitTopicRequest.topicParentHash, req)
+    hasAccessToTopicRequest(submitTopicRequest.topicParentHash, req)
+        .then(value => {
+            if (value.canSave) {
+                return;
+            }
+            res.sendStatus(403);
+            throw new Error("No access")
+        })
+        .then(() => {
+            return  canCreateTopicRequest(submitTopicRequest.topicParentHash, req);
+        })
         .then(access => {
             if (access) {
                 const topics = getTopicTree();
@@ -89,5 +100,8 @@ app.post(SubmitTopic.getURL, (req: Request, res: Response) => {
             } else {
                 res.status(401).send();
             }
+        })
+        .catch(reason => {
+            // noop
         });
 });
