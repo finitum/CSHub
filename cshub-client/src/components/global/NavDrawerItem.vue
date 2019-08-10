@@ -1,5 +1,5 @@
 <template>
-    <v-list-item @click.prevent>
+    <v-list-item :to="to">
         <v-list-item-action>
             <v-icon>{{ icon }}</v-icon>
         </v-list-item-action>
@@ -24,6 +24,8 @@ export default class NavDrawerItem extends Vue {
      */
     @Prop({ required: true }) private icon!: string;
     @Prop({ required: true }) private text!: string;
+
+    @Prop() private to?: string;
 }
 </script>
 

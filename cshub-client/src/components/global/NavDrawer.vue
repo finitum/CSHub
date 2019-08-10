@@ -5,21 +5,36 @@
             <v-subheader>
                 User
             </v-subheader>
-            <router-link v-if="userLoggedInComputed" :to="navigationLocations.USERDASHBOARD"
-                ><NavDrawerItem icon="fas fa-user" text="User dashboard"></NavDrawerItem
-            ></router-link>
-            <router-link :to="navigationLocations.WIPPOSTS"
-                ><NavDrawerItem icon="fas fa-pen" text="WIP posts"></NavDrawerItem
-            ></router-link>
-            <router-link v-if="userLoggedInComputed" :to="navigationLocations.UNSAVEDPOSTS"
-                ><NavDrawerItem icon="fas fa-save" text="Unsaved posts"></NavDrawerItem
-            ></router-link>
-            <router-link v-if="userLoggedInComputed && userAdminComputed" :to="navigationLocations.ADMINDASHBOARD"
-                ><NavDrawerItem icon="fas fa-users" text="Admin dashboard"></NavDrawerItem
-            ></router-link>
-            <router-link v-if="!userLoggedInComputed" :to="navigationLocations.LOGIN"
-                ><NavDrawerItem icon="fas fa-sign-in-alt" text="Login"></NavDrawerItem
-            ></router-link>
+            <NavDrawerItem
+                v-if="userLoggedInComputed"
+                :to="navigationLocations.USERDASHBOARD"
+                icon="fas fa-user"
+                text="User dashboard"
+            ></NavDrawerItem>
+
+            <NavDrawerItem :to="navigationLocations.WIPPOSTS" icon="fas fa-pen" text="WIP posts"></NavDrawerItem>
+
+            <NavDrawerItem
+                v-if="userLoggedInComputed"
+                :to="navigationLocations.UNSAVEDPOSTS"
+                icon="fas fa-save"
+                text="Unsaved posts"
+            ></NavDrawerItem>
+
+            <NavDrawerItem
+                v-if="userLoggedInComputed && userAdminComputed"
+                :to="navigationLocations.ADMINDASHBOARD"
+                icon="fas fa-users"
+                text="Admin dashboard"
+            ></NavDrawerItem>
+
+            <NavDrawerItem
+                v-if="!userLoggedInComputed"
+                icon="fas fa-sign-in-alt"
+                text="Login"
+                :to="navigationLocations.LOGIN"
+            ></NavDrawerItem>
+
             <a @click="logout"
                 ><NavDrawerItem v-if="userLoggedInComputed" icon="fas fa-sign-out-alt" text="Logout"></NavDrawerItem
             ></a>
@@ -46,12 +61,19 @@
                         </v-subheader>
                     </v-flex>
                 </v-layout>
-                <router-link :to="navigationLocations.POSTCREATE"
-                    ><NavDrawerItem icon="fas fa-pen" text="Create new post"></NavDrawerItem
-                ></router-link>
-                <router-link v-if="userStudyAdminComputed" :to="`${navigationLocations.TOPICCREATE}`"
-                    ><NavDrawerItem icon="fas fa-folder-plus" text="Add a topic"></NavDrawerItem
-                ></router-link>
+
+                <NavDrawerItem
+                    :to="navigationLocations.POSTCREATE"
+                    icon="fas fa-pen"
+                    text="Create new post"
+                ></NavDrawerItem>
+
+                <NavDrawerItem
+                    v-if="userStudyAdminComputed"
+                    :to="`${navigationLocations.TOPICCREATE}`"
+                    icon="fas fa-folder-plus"
+                    text="Add a topic"
+                ></NavDrawerItem>
             </div>
         </v-list>
     </v-navigation-drawer>
@@ -91,8 +113,7 @@ export default class NavDrawer extends Vue {
     private activeTopicHash: number[] = [];
     private topics: ITopic[] = [];
 
-    private studies: Array<{ text: string; value: any }> = [];
-    private _studyNr: number | null = null;
+    private studies: Array<{ text: string; value: number }> = [];
 
     private navigationLocations = Routes;
 
@@ -119,13 +140,11 @@ export default class NavDrawer extends Vue {
         return this.userAdminComputed || userState.studyAdmins.length > 0;
     }
 
-    get studyNr(): number | null {
-        return this._studyNr;
+    get studyNr(): number | undefined {
+        return uiState.studyNr;
     }
 
-    set studyNr(study: number | null) {
-        this._studyNr = study;
-
+    set studyNr(study: number | undefined) {
         if (study) {
             localStorage.setItem(LocalStorageData.STUDY, study.toString(10));
             uiState.setStudyNr(study);
@@ -189,18 +208,19 @@ export default class NavDrawer extends Vue {
                 }
 
                 if (this.studies.length > 0) {
-                    const study = localStorage.getItem(LocalStorageData.STUDY);
+                    const studyLocalStorage = localStorage.getItem(LocalStorageData.STUDY);
 
                     let studynr: number;
-                    if (!study) {
+                    if (!studyLocalStorage || isNaN(Number(studyLocalStorage))) {
                         studynr = this.studies[0].value;
                     } else {
-                        if (this.studies.findIndex(currStudy => currStudy.value === studynr) === -1) {
+                        if (this.studies.findIndex(currStudy => currStudy.value === +studyLocalStorage) === -1) {
                             studynr = this.studies[0].value;
                         } else {
-                            studynr = +study;
+                            studynr = +studyLocalStorage;
                         }
                     }
+
                     this.studyNr = studynr;
 
                     // Sends a get request to the server, and sets the correct store value after receiving the topics in the GetTopicsCallBack

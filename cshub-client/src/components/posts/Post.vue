@@ -215,7 +215,7 @@
                                     style="width: 100%"
                                     class="pt-0"
                                 >
-                                    <v-list-item class="mb-1 pa-0 postTile">
+                                    <v-list-item class="pa-0 postTile">
                                         <v-list-item-avatar>
                                             <img src="https://picsum.photos/id/339/40/40" class="profileBorder" />
                                         </v-list-item-avatar>
@@ -232,7 +232,7 @@
                             </span>
                         </v-card-title>
                     </v-flex>
-                    <v-flex class="fullHeight">
+                    <v-flex class="fullHeight" style="width: 100%">
                         <v-card-text
                             v-if="
                                 ((fullPostComputed && !editModeComputed) || (!fullPostComputed && isIndexComputed)) &&
