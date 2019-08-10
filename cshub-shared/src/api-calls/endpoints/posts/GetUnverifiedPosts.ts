@@ -1,17 +1,14 @@
-import {IApiRequest} from "../../../models";
-import {Requests} from "../../Requests";
+import { IApiRequest } from "../../../models";
+import { Requests } from "../../Requests";
 
 export class GetUnverifiedPostsCallBack {
-
-    constructor(
-        public postHashes: number[]
-    ) {}
+    constructor(public postHashes: number[]) {}
 }
 
 export class GetUnverifiedPosts implements IApiRequest {
     public static getURL: string = Requests.GETUNVERIFIEDPOSTS;
 
-    public static readonly studyQueryParam = "study";
+    public static readonly studyQueryParam = "studyNr";
 
     public URL: string = GetUnverifiedPosts.getURL;
 
@@ -19,6 +16,5 @@ export class GetUnverifiedPosts implements IApiRequest {
 
     constructor(study: number) {
         this.params[GetUnverifiedPosts.studyQueryParam] = study.toString(10);
-
     }
 }

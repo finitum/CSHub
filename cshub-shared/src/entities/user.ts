@@ -1,9 +1,8 @@
-import {IPost} from "./post";
-import {IStudy} from "./study";
-import {IEdit} from "./edit";
+import { IPost } from "./post";
+import { IStudy } from "./study";
+import { IEdit } from "./edit";
 
 export interface IUser {
-
     id: number;
 
     email: string;

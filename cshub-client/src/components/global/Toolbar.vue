@@ -1,20 +1,20 @@
 <template>
-    <v-toolbar color="primary" app fixed clipped-left id="cshub-toolbar">
-        <v-toolbar-side-icon @click.native="drawerComputed = !drawerComputed"></v-toolbar-side-icon>
+    <v-app-bar id="cshub-toolbar" color="primary" app fixed clipped-left>
+        <v-app-bar-nav-icon @click.native="drawerComputed = !drawerComputed"></v-app-bar-nav-icon>
         <v-toolbar-title>
             <router-link to="/" style="color: inherit">
-                <div v-if="darkMode" class="title ml-0" :class="{'mr-5': $vuetify.breakpoint.mdAndUp}">
+                <div v-if="darkMode" class="title ml-0" :class="{ 'mr-5': $vuetify.breakpoint.mdAndUp }">
                     <v-img style="width: 80px" src="/assets/logo.jpg"></v-img>
                 </div>
-                <div v-else class="title ml-0" :class="{'mr-5': $vuetify.breakpoint.mdAndUp}">
+                <div v-else class="title ml-0" :class="{ 'mr-5': $vuetify.breakpoint.mdAndUp }">
                     CS&nbsp;<span class="font-weight-light">Hub</span>
                 </div>
             </router-link>
         </v-toolbar-title>
 
         <v-text-field
-            v-model="searchQuery"
             v-if="$vuetify.breakpoint.mdAndUp"
+            v-model="searchQuery"
             solo-inverted
             flat
             hide-details
@@ -23,121 +23,123 @@
         ></v-text-field>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-            <v-btn icon v-if="!$vuetify.breakpoint.mdAndUp" depressed small color="primary" @click="goToSearch"><v-icon color="white">fas fa-search</v-icon></v-btn>
-            <v-btn icon depressed small color="primary" @click="showVersionDialog"><v-icon color="white">fas fa-code-branch</v-icon></v-btn>
-            <v-btn icon depressed small color="primary" @click="darkMode = !darkMode"><v-icon color="white">{{darkMode ? "fas fa-sun" : "fas fa-moon"}}</v-icon></v-btn>
+            <v-btn v-if="!$vuetify.breakpoint.mdAndUp" icon depressed small color="primary" @click="goToSearch"
+                ><v-icon color="white">fas fa-search</v-icon></v-btn
+            >
+            <v-btn icon depressed small color="primary" @click="showVersionDialog"
+                ><v-icon color="white">fas fa-code-branch</v-icon></v-btn
+            >
+            <v-btn icon depressed small color="primary" @click="darkMode = !darkMode"
+                ><v-icon color="white">{{ darkMode ? "fas fa-sun" : "fas fa-moon" }}</v-icon></v-btn
+            >
         </v-toolbar-items>
-    </v-toolbar>
+    </v-app-bar>
 </template>
 
 <script lang="ts">
-    import Vue from "vue";
-    import {Component, Watch} from "vue-property-decorator";
+import Vue from "vue";
+import { Component, Watch } from "vue-property-decorator";
 
-    import {Routes} from "../../../../cshub-shared/src/Routes";
+import { Routes } from "../../../../cshub-shared/src/Routes";
 
-    import uiState from "../../store/ui/index";
-    import dataState from "../../store/data";
+import { uiState } from "../../store";
+import { dataState } from "../../store";
 
-    import router from "../../views/router/router";
+import router from "../../views/router/router";
 
-    @Component({
-        name: "Toolbar"
-    })
-    export default class Toolbar extends Vue {
+@Component({
+    name: "Toolbar"
+})
+export default class Toolbar extends Vue {
+    /**
+     * Data
+     */
 
-        /**
-         * Data
-         */
+    // Build information
+    private shortVersionString = "SHA: " + process.env.VUE_APP_VERSION.substr(0, 7);
+    private fullGitSHA = process.env.VUE_APP_VERSION;
+    private githubLink = "https://github.com/RobbinBaauw/CSHub/commit/" + this.fullGitSHA;
+    private buildDate = "Build Date: " + process.env.VUE_APP_BUILDDATE;
 
-        // Build information
-        private shortVersionString = "SHA: " + process.env.VUE_APP_VERSION.substr(0, 7);
-        private fullGitSHA = process.env.VUE_APP_VERSION;
-        private githubLink = "https://github.com/RobbinBaauw/CSHub/commit/" + this.fullGitSHA;
-        private buildDate = "Build Date: " + process.env.VUE_APP_BUILDDATE;
+    /**
+     * Computed properties
+     */
+    get drawerComputed(): boolean {
+        return uiState.navbar.open;
+    }
 
+    set drawerComputed(newValue: boolean) {
+        uiState.setNavbar({ open: newValue });
+    }
 
-        /**
-         * Computed properties
-         */
-        get drawerComputed(): boolean {
-            return uiState.drawerState;
-        }
+    get searchQuery(): string {
+        return dataState.searchQuery;
+    }
 
-        set drawerComputed(newValue: boolean) {
-            uiState.setDrawerState(newValue);
-        }
+    set searchQuery(newValue: string) {
+        dataState.setSearchQuery(newValue);
+    }
 
-        get searchQuery(): string {
-            return dataState.searchQuery;
-        }
+    get darkMode(): boolean {
+        return uiState.darkMode;
+    }
 
-        set searchQuery(newValue: string) {
-            dataState.setSearchQuery(newValue);
-        }
+    set darkMode(newValue: boolean) {
+        uiState.setDarkMode(newValue);
+    }
 
-        get darkMode(): boolean {
-            return uiState.darkMode;
-        }
+    /**
+     * Methods
+     */
+    private routeHome() {
+        router.push(Routes.INDEX);
+    }
 
-        set darkMode(newValue: boolean) {
-            uiState.setDarkModeState(newValue);
-        }
-
-        /**
-         * Methods
-         */
-        private routeHome() {
-            router.push(Routes.INDEX);
-        }
-
-        private showVersionDialog() {
-            uiState.setNotificationDialogState({
-                text: `${this.shortVersionString}\n${this.buildDate}`,
-                header: "Build version",
-                on: true,
-                button: {
-                    text: "Go to github",
-                    jsAction: () => {
-                        window.open(this.githubLink, "_blank");
-                    }
-                }
-            });
-        }
-
-        private goToSearch() {
-            router.push(Routes.SEARCH);
-        }
-
-        /**
-         * Watchers
-         */
-        @Watch("searchQuery")
-        private searchQueryChanged() {
-            if (this.searchQuery.length >= 3) {
-                if (this.$route.fullPath !== Routes.SEARCH) {
-                    this.$router.push(Routes.SEARCH);
+    private showVersionDialog() {
+        uiState.setNotificationDialog({
+            text: `${this.shortVersionString}\n${this.buildDate}`,
+            header: "Build version",
+            on: true,
+            button: {
+                text: "Go to github",
+                jsAction: () => {
+                    window.open(this.githubLink, "_blank");
                 }
             }
-        }
-
+        });
     }
+
+    private goToSearch() {
+        router.push(Routes.SEARCH);
+    }
+
+    /**
+     * Watchers
+     */
+    @Watch("searchQuery")
+    private searchQueryChanged() {
+        if (this.searchQuery.length >= 3) {
+            if (this.$route.fullPath !== Routes.SEARCH) {
+                this.$router.push(Routes.SEARCH);
+            }
+        }
+    }
+}
 </script>
 
 <style scoped>
+.darkModeSwitch i {
+    color: white !important;
+}
 
-    .darkModeSwitch i {
-        color: white !important;
-    }
+.theme--dark .primary {
+    background-color: #0072a1 !important;
+    border-color: #0072a1 !important;
+}
 
-    .theme--dark .primary {
-        background-color: #0072a1 !important;
-        border-color: #0072a1 !important;
+@media print {
+    #cshub-toolbar {
+        display: none;
     }
-
-    @media print {
-        #cshub-toolbar {
-            display: none;
-        }
-    }
+}
 </style>

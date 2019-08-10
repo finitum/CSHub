@@ -1,14 +1,12 @@
-import {IApiRequest} from "../../../models";
-import {Requests} from "../../Requests";
-import {IEdit} from "../../../entities/edit";
+import { IApiRequest } from "../../../models";
+import { Requests } from "../../Requests";
+import { IEdit } from "../../../entities/edit";
 
 export class GetEditContentCallback {
-
     constructor(public edits: IEdit[]) {}
 }
 
 export class EditContent implements IApiRequest {
-
     public static getURL: string = Requests.EDITCONTENT;
     public URL: string = EditContent.getURL;
 

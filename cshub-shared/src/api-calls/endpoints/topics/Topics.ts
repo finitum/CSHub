@@ -1,22 +1,17 @@
-import {IApiRequest} from "../../../models";
+import { IApiRequest } from "../../../models";
 
-import {Requests} from "../../Requests";
-import {ITopic} from "../../../entities/topic";
+import { Requests } from "../../Requests";
+import { ITopic } from "../../../entities/topic";
 
 export class GetTopicsCallBack {
-
-    constructor(
-        public topics?: ITopic[],
-        public version?: number
-    ) {}
+    constructor(public version: number, public topics?: ITopic[]) {}
 }
 
 export class Topics implements IApiRequest {
-
     public static getURL: string = Requests.TOPICS;
 
     public static readonly topicVersionHeader = "X-Topic-Version";
-    public static readonly studyQueryParam = "study";
+    public static readonly studyQueryParam = "studyNr";
 
     public URL: string = Topics.getURL;
 
@@ -27,5 +22,4 @@ export class Topics implements IApiRequest {
         this.headers[Topics.topicVersionHeader] = topicVersion.toString(10);
         this.params[Topics.studyQueryParam] = study.toString(10);
     }
-
 }

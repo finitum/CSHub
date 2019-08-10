@@ -1,23 +1,13 @@
-import {IApiRequest} from "../../../models";
+import { IApiRequest } from "../../../models";
 
-import {Requests} from "../../Requests";
-import {IUser} from "../../../entities/user";
-
-export enum VerifyUserTokenResponseTypes {
-    VALID,
-    INVALID
-}
+import { Requests } from "../../Requests";
+import { IUser } from "../../../entities/user";
 
 export class VerifyUserTokenCallback {
-
-    constructor(
-        public response: VerifyUserTokenResponseTypes,
-        public userModel?: IUser
-    ) {}
+    constructor(public response: false | IUser) {}
 }
 
 export class VerifyToken implements IApiRequest {
-
     public static getURL: string = Requests.VERIFYTOKEN;
     public URL: string = VerifyToken.getURL;
 }

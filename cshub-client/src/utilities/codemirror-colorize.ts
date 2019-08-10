@@ -1,12 +1,15 @@
-import uiState from "../store/ui";
+import { uiState } from "../store";
 
 const isBlock = /^(p|li|div|h\\d|pre|blockquote|td)$/;
 
 const textContent = (node: Node, out: string[]) => {
     if (node.nodeType === 3) {
-        return out.push(node.nodeValue);
+        const nodeValue = node.nodeValue;
+        if (nodeValue) {
+            return out.push(nodeValue);
+        }
     }
-    for (let ch: Node = node.firstChild; ch; ch = ch.nextSibling) {
+    for (let ch = node.firstChild; ch; ch = ch.nextSibling) {
         textContent(ch, out);
         if (isBlock.test(node.nodeType.toString())) {
             out.push("\n");

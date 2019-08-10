@@ -1,11 +1,10 @@
-import {IUser} from "./user";
-import {IPost} from "./post";
+import { IUser } from "./user";
+import { IPost } from "./post";
 
 // @ts-ignore
 import Delta from "quill-delta";
 
 export interface IEdit {
-
     id: number;
 
     post?: IPost;

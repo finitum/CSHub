@@ -1,6 +1,6 @@
-import {IApiRequest} from "../../../models";
+import { IApiRequest } from "../../../models";
 
-import {Requests} from "../../Requests";
+import { Requests } from "../../Requests";
 
 export enum SubmitPostResponse {
     SUCCESS,
@@ -10,21 +10,12 @@ export enum SubmitPostResponse {
 }
 
 export class CreatePostCallback {
-
-    constructor(
-        public response: SubmitPostResponse,
-        public postHash?: number
-    ) {}
+    constructor(public response: SubmitPostResponse, public postHash?: number) {}
 }
 
 export class SubmitPost implements IApiRequest {
-
     public static getURL: string = Requests.SUBMITPOST;
     public URL: string = SubmitPost.getURL;
 
-    constructor(
-        public postTitle: string,
-        public postTopicHash: number,
-        public isIndex: boolean
-    ) {}
+    constructor(public postTitle: string, public postTopicHash: number, public isIndex: boolean) {}
 }

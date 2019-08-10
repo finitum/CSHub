@@ -1,13 +1,12 @@
-import {IApiRequest} from "../../../models";
-import {Requests} from "../../Requests";
+import { IApiRequest } from "../../../models";
+import { Requests } from "../../Requests";
 
 export enum PostSettingsEditType {
     HIDE,
     WIP
 }
 
-export class PostSettingsCallback {
-}
+export class PostSettingsCallback {}
 
 export class PostSettings implements IApiRequest {
     public static getURL: string = Requests.POSTSETTINGS;

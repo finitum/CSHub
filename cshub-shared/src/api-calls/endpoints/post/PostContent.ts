@@ -1,6 +1,6 @@
-import {IApiRequest} from "../../../models";
-import {Requests} from "../../Requests";
-import {IPost} from "../../../entities/post";
+import { IApiRequest } from "../../../models";
+import { Requests } from "../../Requests";
+import { IPost } from "../../../entities/post";
 
 export enum PostVersionTypes {
     UPDATEDPOST,
@@ -9,19 +9,17 @@ export enum PostVersionTypes {
 }
 
 export class GetPostContentCallBack {
-
     constructor(
         public postVersionType: PostVersionTypes,
         public content?: {
-            html: string,
-            approved: boolean
+            html: string;
+            approved: boolean;
         },
         public postUpdated?: IPost
     ) {}
 }
 
 export class PostContent implements IApiRequest {
-
     public static getURL: string = Requests.POSTCONTENT;
     public URL: string = PostContent.getURL;
 
@@ -32,5 +30,4 @@ export class PostContent implements IApiRequest {
         this.URL = this.URL.replace(/:hash/, postHash.toString());
         this.headers[PostContent.postVersionHeader] = postVersion;
     }
-
 }

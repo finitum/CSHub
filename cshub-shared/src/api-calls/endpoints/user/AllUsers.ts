@@ -1,13 +1,9 @@
-import {IApiRequest} from "../../../models";
-import {Requests} from "../../Requests";
-import {IUser} from "../../../entities/user";
+import { IApiRequest } from "../../../models";
+import { Requests } from "../../Requests";
+import { IUser } from "../../../entities/user";
 
 export class AllUsersCallBack {
-
-    constructor(
-        public users: IUser[],
-        public totalItems: number
-    ) {}
+    constructor(public users: IUser[], public totalItems: number) {}
 }
 
 export class AllUsers implements IApiRequest {
@@ -18,5 +14,4 @@ export class AllUsers implements IApiRequest {
         this.URL = this.URL.replace(/:page/, page.toString());
         this.URL += "?rowsPerPage=" + rowsPerPage;
     }
-
 }

@@ -14,29 +14,26 @@
 </template>
 
 <script lang="ts">
-    import Vue from "vue";
-    import {Component} from "vue-property-decorator";
+import Vue from "vue";
+import { Component } from "vue-property-decorator";
 
-    import UserTable from "../../components/admin/UserTable.vue";
+import UserTable from "../../components/admin/UserTable.vue";
 
-    @Component({
-        name: "AdminDashboard",
-        components: {UserTable},
-    })
-    export default class AdminDashboard extends Vue {
+@Component({
+    name: "AdminDashboard",
+    components: { UserTable }
+})
+export default class AdminDashboard extends Vue {
+    /**
+     * Lifecycle hooks
+     */
 
-        /**
-         * Lifecycle hooks
-         */
-
-        public metaInfo(): any {
-            return {
-                title: "Admin - CSHub"
-            };
-        }
+    public metaInfo(): any {
+        return {
+            title: "Admin - CSHub"
+        };
     }
+}
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

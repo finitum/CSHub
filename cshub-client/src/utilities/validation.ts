@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VeeValidate from "vee-validate";
-import {isValidEmail} from "../../../cshub-shared/src/utilities/TUEmail";
+import { isValidEmail } from "../../../cshub-shared/src/utilities/TUEmail";
 
 export const emailValidator = {
     getMessage() {
@@ -12,4 +12,3 @@ export const emailValidator = {
 };
 
 Vue.use(VeeValidate, { inject: false, delay: 1 });
-

@@ -1,8 +1,8 @@
 import Vue from "vue";
-import Router, {Route} from "vue-router";
+import Router, { Route } from "vue-router";
 
-import {VerifyToken, VerifyUserTokenCallback, VerifyUserTokenResponseTypes} from "../../../../cshub-shared/src/api-calls";
-import {Routes} from "../../../../cshub-shared/src/Routes";
+import { VerifyToken, VerifyUserTokenCallback } from "../../../../cshub-shared/src/api-calls";
+import { Routes } from "../../../../cshub-shared/src/Routes";
 
 const LoginScreen = () => import("../user/LoginScreen.vue");
 const CreateAccount = () => import("../user/CreateUserAccount.vue");
@@ -18,16 +18,16 @@ const PostsSearch = () => import("../posts/PostsSearch.vue");
 
 import TopicCreate from "../posts/TopicCreate.vue";
 
-import {userBeforeEnter} from "./guards/userDashboardGuard";
-import {adminBeforeEnter} from "./guards/adminDashboardGuard";
-import {onlyIfNotLoggedIn} from "./guards/onlyIfNotLoggedInGuard";
+import { userBeforeEnter } from "./guards/userDashboardGuard";
+import { adminBeforeEnter } from "./guards/adminDashboardGuard";
+import { onlyIfNotLoggedIn } from "./guards/onlyIfNotLoggedInGuard";
 
-import userState from "../../store/user";
-import dataState from "../../store/data";
+import { userState } from "../../store";
+import { dataState } from "../../store";
 
-import {AxiosError} from "axios";
-import {ApiWrapper, logStringConsole} from "../../utilities";
-import uiState from "../../store/ui";
+import { AxiosError } from "axios";
+import { ApiWrapper, logStringConsole } from "../../utilities";
+import { uiState } from "../../store";
 
 Vue.use(Router);
 
@@ -114,7 +114,7 @@ const router = new Router({
             path: Routes.ADMINDASHBOARD,
             name: "admin",
             component: AdminDashboard,
-            beforeEnter: adminBeforeEnter,
+            beforeEnter: adminBeforeEnter
         },
         {
             path: Routes.TOPICCREATE,
@@ -127,39 +127,39 @@ const router = new Router({
             name: "wildcard",
             component: PostView
         }
-    ],
+    ]
 });
 
 router.beforeEach((to: Route, from: Route, next) => {
-
     if (!userState.hasCheckedToken) {
-        ApiWrapper.sendGetRequest(new VerifyToken(), (verified: VerifyUserTokenCallback) => {
+        ApiWrapper.sendGetRequest(
+            new VerifyToken(),
+            (verified: VerifyUserTokenCallback) => {
+                if (!dataState.hasConnection) {
+                    dataState.setConnection(true);
+                }
 
-            if (!dataState.hasConnection) {
-                dataState.setConnection(true);
+                if (verified.response) {
+                    logStringConsole("User is logged in", "isLoggedIn after API");
+                    userState.setUserModel(verified.response);
+                } else {
+                    logStringConsole("User is not logged in", "isLoggedIn after API");
+                }
+                next();
+                userState.setHasCheckedToken(true);
+            },
+            (err: AxiosError) => {
+                dataState.setConnection(false);
+                next();
             }
-
-            if (verified.response === VerifyUserTokenResponseTypes.VALID) {
-                logStringConsole("User is logged in", "isLoggedIn after API");
-                userState.changeUserModel(verified.userModel);
-            } else {
-                logStringConsole("User is not logged in", "isLoggedIn after API");
-            }
-            next();
-            userState.setCheckedToken();
-
-        }, (err: AxiosError) => {
-            dataState.setConnection(false);
-            next();
-        });
+        );
     } else {
         next();
     }
-
 });
 
 router.afterEach((to: Route, from: Route) => {
-    uiState.setPreviousRouteState(from);
+    uiState.setPreviousRoute(from);
 });
 
 export default router;

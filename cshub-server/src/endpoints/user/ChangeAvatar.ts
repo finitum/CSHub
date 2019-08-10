@@ -1,8 +1,7 @@
 import {app} from "../../";
 import {
     ChangeAvatar,
-    ChangeAvatarCallback,
-    ChangeAvatarResponseTypes
+    ChangeAvatarCallback
 } from "../../../../cshub-shared/src/api-calls";
 import {Request, Response} from "express";
 import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
@@ -40,10 +39,10 @@ app.post(ChangeAvatar.getURL, (req: Request, res: Response) => {
                 `, bufferData, token.tokenObj.user.id)
             })
             .then(() => {
-                res.json(new ChangeAvatarCallback(ChangeAvatarResponseTypes.SUCCESS, Buffer.from(bufferData).toString("base64")));
+                res.json(new ChangeAvatarCallback(Buffer.from(bufferData).toString("base64")));
             })
             .catch(() => {
-                res.status(400).json(new ChangeAvatarCallback(ChangeAvatarResponseTypes.INVALIDIMAGE));
+                res.status(400).json(new ChangeAvatarCallback(false));
             });
     } else {
         res.status(401).send();

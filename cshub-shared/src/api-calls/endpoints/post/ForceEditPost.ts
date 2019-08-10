@@ -1,9 +1,8 @@
-import {IApiRequest} from "../../../models";
+import { IApiRequest } from "../../../models";
 
-import {Requests} from "../../Requests";
+import { Requests } from "../../Requests";
 
 export class ForceEditPost implements IApiRequest {
-
     public static getURL: string = Requests.FORCEEDITPOST;
     public URL: string = ForceEditPost.getURL;
 

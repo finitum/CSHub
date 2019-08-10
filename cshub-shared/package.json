@@ -10,13 +10,20 @@
     "devDependencies": {
         "@types/markdown-it": "^0.0.7",
         "@types/quill": "^2.0.1",
+        "@typescript-eslint/eslint-plugin": "^1.13.0",
+        "@typescript-eslint/parser": "^1.13.0",
         "dayjs": "^1.7.7",
+        "eslint-config-prettier": "^6.0.0",
+        "eslint-plugin-prettier": "^3.1.0",
+        "prettier": "^1.18.2",
         "quill-delta": "^4.1.0"
     },
     "dependencies": {
+        "eslint": "^6.1.0",
         "katex": "^0.10.1",
         "markdown-it": "latest",
         "markdown-it-katex": "latest",
+        "typescript": "^3.5.3",
         "parchment": "^1.1.4"
     },
     "resolutions": {

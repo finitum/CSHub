@@ -1,13 +1,11 @@
-import {IApiRequest} from "../../models";
-import {Requests} from "../Requests";
+import { IApiRequest } from "../../models";
+import { Requests } from "../Requests";
 
 export class GetSearchPostsCallback {
-
     constructor(public hashes: number[]) {}
 }
 
 export class Search implements IApiRequest {
-
     public static getURL: string = Requests.SEARCH;
     public URL: string = Search.getURL;
 

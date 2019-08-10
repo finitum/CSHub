@@ -1,6 +1,6 @@
 // @ts-ignore
 import Delta from "quill-delta/dist/Delta";
-import {Dayjs} from "dayjs";
+import { Dayjs } from "dayjs";
 
 export interface IRealtimeEdit {
     postHash: number;

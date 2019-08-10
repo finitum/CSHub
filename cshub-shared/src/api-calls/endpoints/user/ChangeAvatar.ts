@@ -1,22 +1,12 @@
-import {IApiRequest} from "../../../models";
+import { IApiRequest } from "../../../models";
 
-import {Requests} from "../../Requests";
-
-export enum ChangeAvatarResponseTypes {
-    SUCCESS,
-    INVALIDIMAGE
-}
+import { Requests } from "../../Requests";
 
 export class ChangeAvatarCallback {
-
-    constructor(
-        public response: ChangeAvatarResponseTypes,
-        public newAvatar?: string
-    ) {}
+    constructor(public response: false | string) {}
 }
 
 export class ChangeAvatar implements IApiRequest {
-
     public static getURL: string = Requests.CHANGEAVATAR;
     public URL: string = ChangeAvatar.getURL;
 

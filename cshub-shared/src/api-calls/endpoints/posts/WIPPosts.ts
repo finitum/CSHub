@@ -1,17 +1,14 @@
-import {IApiRequest} from "../../../models";
-import {Requests} from "../../Requests";
+import { IApiRequest } from "../../../models";
+import { Requests } from "../../Requests";
 
 export class WIPPostsCallBack {
-
-    constructor(
-        public postHashes: number[]
-    ) {}
+    constructor(public postHashes: number[]) {}
 }
 
 export class WIPPosts implements IApiRequest {
     public static getURL: string = Requests.WIPPOSTS;
 
-    public static readonly studyQueryParam = "study";
+    public static readonly studyQueryParam = "studyNr";
 
     public URL: string = WIPPosts.getURL;
 

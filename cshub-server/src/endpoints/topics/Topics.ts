@@ -38,7 +38,7 @@ app.get(Topics.getURL, (req: Request, res: Response) => {
                             logger.error(`No topics found`);
                             res.status(500).send();
                         } else {
-                            res.json(new GetTopicsCallBack(result, version));
+                            res.json(new GetTopicsCallBack(version, result));
                         }
                     });
             }
