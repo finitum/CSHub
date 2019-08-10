@@ -9,13 +9,13 @@ import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {generateRandomTopicHash, getTopicTree} from "../../utilities/TopicsUtils";
 import {DatabaseResultSet, query} from "../../db/database-query";
-import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
 
 app.post(SubmitPost.getURL, (req: Request, res: Response) => {
 
     const submitPostRequest: SubmitPost = req.body as SubmitPost;
 
-    const userObj = checkTokenValidity(req);
+    const userObj = checkTokenValidityFromRequest(req);
 
     const inputsValidation = validateMultipleInputs({
         input: submitPostRequest.postTitle,

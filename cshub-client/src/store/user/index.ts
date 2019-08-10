@@ -1,12 +1,14 @@
 import {userStateGetter, userStoreBuilder} from "./state";
-import {hasCheckedToken, isAdmin, isLoggedIn, userModel} from "./getters";
+import {hasCheckedToken, isAdmin, isLoggedIn, studyAdmins, userModel} from "./getters";
 import {changeUserModel, clearUserModel, setCheckedToken} from "./mutations";
-import {IUser} from "../../../../cshub-shared/src/models";
+import {IUser} from "../../../../cshub-shared/src/entities/user";
+import {IStudy} from "../../../../cshub-shared/src/entities/study";
 
 const userState = {
     get state() { return userStateGetter(); },
 
     get isAdmin(): boolean { return isAdmin(); },
+    get getStudyAdmins(): IStudy[] { return studyAdmins(); },
     get isLoggedIn(): boolean { return isLoggedIn(); },
     get hasCheckedToken(): boolean { return hasCheckedToken(); },
     get userModel(): IUser { return userModel(); },

@@ -1,7 +1,7 @@
 import {IApiRequest} from "../../../models";
-import {IUser} from "../../../models";
 
 import {Requests} from "../../Requests";
+import {IUser} from "../../../entities/user";
 
 export enum VerifyUserTokenResponseTypes {
     VALID,

@@ -59,8 +59,8 @@
     import {ApiWrapper, logStringConsole} from "../../utilities";
 
     import {SubmitTopic} from "../../../../cshub-shared/src/api-calls";
-    import {ITopic} from "../../../../cshub-shared/src/models";
     import {Routes} from "../../../../cshub-shared/src/Routes";
+    import {ITopic} from "../../../../cshub-shared/src/entities/topic";
 
     @Component({
         name: "TopicCreate",

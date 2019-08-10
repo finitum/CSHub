@@ -4,7 +4,7 @@ import {Request, Response} from "express";
 import {Search, GetSearchPostsCallback} from "../../../cshub-shared/src/api-calls";
 
 import {DatabaseResultSet, query} from "../db/database-query";
-import {checkTokenValidity} from "../auth/AuthMiddleware";
+import {checkTokenValidityFromRequest} from "../auth/AuthMiddleware";
 import {ServerError} from "../../../cshub-shared/src/models/ServerError";
 
 app.get(Search.getURL, (req: Request, res: Response) => {
@@ -12,9 +12,7 @@ app.get(Search.getURL, (req: Request, res: Response) => {
     const search = req.query.query;
 
     if (search.length >= 3) {
-        const user = checkTokenValidity(req);
-        const userId = user.valid ? user.tokenObj.user.id : -1;
-        const adminNum = user.valid && user.tokenObj.user.admin ? 1 : 0;
+        const user = checkTokenValidityFromRequest(req);
 
         query(`
             WITH possibleHashes AS (
@@ -32,11 +30,10 @@ app.get(Search.getURL, (req: Request, res: Response) => {
                     ) editsDate ON edits.datetime = editsDate.datetime
                     ORDER BY edits.id DESC
                 )
-                AND (T2.author = ? OR (T1.approved = 1) OR ? = 1)
                 AND T2.deleted = 0
                 AND T2.isIndex = 0
                 AND T2.wip = 0
-                ORDER BY T2.upvotes DESC, T2.datetime DESC
+                ORDER BY T2.datetime DESC
             )
 
             SELECT DISTINCT hash
@@ -54,7 +51,7 @@ app.get(Search.getURL, (req: Request, res: Response) => {
                   LIMIT 5)
             ) AS a
             LIMIT 5
-        `, userId, adminNum, `%${search}%`, `%${search}%`)
+        `, `%${search}%`, `%${search}%`)
             .then((hashes: DatabaseResultSet) => {
 
                 const hashesArray: number[] = [];

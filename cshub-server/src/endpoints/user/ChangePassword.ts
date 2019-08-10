@@ -7,7 +7,7 @@ import {
 } from "../../../../cshub-shared/src/api-calls";
 import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../db/database-query";
-import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
 import {validateMultipleInputs} from "../../utilities/StringUtils";
 import {hashPassword} from "../../auth/HashPassword";
 
@@ -15,7 +15,7 @@ app.post(ChangePassword.getURL, (req: Request, res: Response) => {
 
     const userDashboardChangePasswordRequest = req.body as ChangePassword;
 
-    const token = checkTokenValidity(req);
+    const token = checkTokenValidityFromRequest(req);
 
     if (token.valid) {
 

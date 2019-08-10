@@ -8,11 +8,11 @@ import {
     VerifyUserTokenResponseTypes
 } from "../../../../cshub-shared/src/api-calls";
 
-import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
 
 app.get(VerifyToken.getURL, (req: Request, res: Response) => {
 
-    const tokenVailidity = checkTokenValidity(req);
+    const tokenVailidity = checkTokenValidityFromRequest(req);
 
     if (tokenVailidity.valid) {
         res.json(new VerifyUserTokenCallback(VerifyUserTokenResponseTypes.VALID, tokenVailidity.tokenObj.user));

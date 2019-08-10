@@ -1,15 +1,15 @@
 import jwt from "jsonwebtoken";
 import dayjs from "dayjs";
 
-import {IUser} from "../../../cshub-shared/src/models/IUser";
-import {IJWTToken} from "../../../cshub-shared/src/models/IJWTToken";
+import {IJWTToken} from "../../../cshub-shared/src/models";
+import {IUser} from "../../../cshub-shared/src/entities/user";
 
 import {Settings} from "../settings";
 
 // Sign the object, add the expirydate of 2 hours and then convert to unix timeformat
 export const sign = (obj: IUser): string => {
 
-    let newObj: IUser = JSON.parse(JSON.stringify(obj));
+    const newObj: IUser = JSON.parse(JSON.stringify(obj));
     newObj.avatar = "";
 
     const jwtobj: IJWTToken = {

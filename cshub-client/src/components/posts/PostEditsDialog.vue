@@ -60,7 +60,6 @@
     import Quill from "../quill/Quill.vue";
 
     import {EditContent, GetEditContentCallback, SquashEdits} from "../../../../cshub-shared/src/api-calls";
-    import {IEdit} from "../../../../cshub-shared/src/models";
     import {Routes} from "../../../../cshub-shared/src/Routes";
 
     import uiState from "../../store/ui";
@@ -68,6 +67,7 @@
 
     import {ApiWrapper} from "../../utilities";
     import userState from "../../store/user";
+    import {IEdit} from "../../../../cshub-shared/src/entities/edit";
 
     interface EditCheckbox extends IEdit {
         squash: boolean;

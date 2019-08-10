@@ -124,6 +124,7 @@ export class ApiWrapper {
             .post(request.URL, request, {
                 withCredentials: true,
                 headers: request.headers,
+                params: request.params
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
@@ -146,6 +147,7 @@ export class ApiWrapper {
             .put(request.URL, request, {
                 withCredentials: true,
                 headers: request.headers,
+                params: request.params
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
@@ -167,6 +169,7 @@ export class ApiWrapper {
         axiosApi
             .get(request.URL, {
                 headers: request.headers,
+                params: request.params
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {

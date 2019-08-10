@@ -1,9 +1,9 @@
 import {RangeStatic} from "quill";
-import {IUserCensored} from "../../models";
+import {IUser} from "../../entities/user";
 
 export interface IRealtimeSelect {
      color: string;
-     user: IUserCensored;
+     user: IUser;
      userName: string;
      postHash: number;
      active: boolean;

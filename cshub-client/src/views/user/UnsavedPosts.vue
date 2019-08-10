@@ -20,6 +20,8 @@
         GetUnverifiedPostsCallBack,
         GetUnverifiedPosts
     } from "../../../../cshub-shared/src/api-calls";
+    import {UIState} from "../../store/ui/state";
+    import {LocalStorageData} from "../../store/localStorageData";
 
     @Component({
         name: "UnsavedPosts",
@@ -49,7 +51,7 @@
          * Methods
          */
         private getHashes() {
-            ApiWrapper.sendGetRequest(new GetUnverifiedPosts(), (callbackData: GetUnverifiedPostsCallBack) => {
+            ApiWrapper.sendGetRequest(new GetUnverifiedPosts(+localStorage.getItem(LocalStorageData.STUDY)), (callbackData: GetUnverifiedPostsCallBack) => {
                 for (const post of callbackData.postHashes) {
                     this.postHashes.push(post);
                 }

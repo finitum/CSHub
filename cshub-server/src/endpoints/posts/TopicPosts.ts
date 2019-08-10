@@ -6,8 +6,8 @@ import {DatabaseResultSet, query} from "../../db/database-query";
 
 import {TopicPosts, GetTopicPostsCallBack} from "../../../../cshub-shared/src/api-calls";
 import {getTopicTree} from "../../utilities/TopicsUtils";
-import {ITopic} from "../../../../cshub-shared/src/models";
 import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
+import {ITopic} from "../../../../cshub-shared/src/entities/topic";
 
 app.get(TopicPosts.getURL, (req: Request, res: Response) => {
 

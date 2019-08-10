@@ -1,6 +1,7 @@
-import {IApiRequest, IPost} from "../../../models";
+import {IApiRequest} from "../../../models";
 
 import {Requests} from "../../Requests";
+import {IPost} from "../../../entities/post";
 
 export class GetPostCallBack {
 

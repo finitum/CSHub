@@ -6,8 +6,7 @@ import {User} from "./entities/user";
 import {Topic} from "./entities/topic";
 import {Post} from "./entities/post";
 import {Edit} from "./entities/edit";
-import {EditUser} from "./entities/edituser";
-import {CacheVersion} from "./entities/cacheversion";
+import {Study} from "./entities/study";
 
 import tunnel from "tunnel-ssh";
 import fs from "fs";
@@ -49,7 +48,7 @@ const options: ConnectionOptions = {
     multipleStatements: true,
     logger: new CustomLogger(),
     entities: [
-        User, Topic, Post, Edit, EditUser, CacheVersion
+        User, Topic, Post, Edit, Study
     ],
     synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
 };

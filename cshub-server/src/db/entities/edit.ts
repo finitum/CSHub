@@ -1,12 +1,24 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    PrimaryGeneratedColumn
+} from "typeorm";
 import {User} from "./user";
 import {Post} from "./post";
-import {EditUser} from "./edituser";
+import {IEdit} from "../../../../cshub-shared/src/entities/edit";
+
+// @ts-ignore
+import Delta from "quill-delta";
 
 @Entity({
     name: "edits"
 })
-export class Edit {
+export class Edit implements IEdit {
 
     @PrimaryGeneratedColumn()
     id: number;
@@ -16,13 +28,14 @@ export class Edit {
     @Index()
     post: Post;
 
-    @OneToMany(type => EditUser, edituser => edituser.edit)
-    editusers: EditUser[];
+    @ManyToMany(type => User, user => user.edits)
+    @JoinTable({name: "editusers"})
+    editusers: User[];
 
     @Column({
         type: "longtext"
     })
-    content: string;
+    content: Delta;
 
     @Column({
         type: "int", // Otherwise it overrides the value
@@ -30,7 +43,7 @@ export class Edit {
     })
     approved: boolean;
 
-    @ManyToOne(type => User, user => user.id, {
+    @ManyToOne(type => User, user => user.approvedEdits, {
         nullable: true
     })
     @JoinColumn({name: "approvedBy"})

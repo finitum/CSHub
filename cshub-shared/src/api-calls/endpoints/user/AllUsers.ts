@@ -1,5 +1,6 @@
-import {IApiRequest, IUser} from "../../../models";
+import {IApiRequest} from "../../../models";
 import {Requests} from "../../Requests";
+import {IUser} from "../../../entities/user";
 
 export class AllUsersCallBack {
 
@@ -17,4 +18,5 @@ export class AllUsers implements IApiRequest {
         this.URL = this.URL.replace(/:page/, page.toString());
         this.URL += "?rowsPerPage=" + rowsPerPage;
     }
+
 }

@@ -29,7 +29,7 @@ app.post(ForgotPasswordMail.getURL, (req: Request, res: Response) => {
                 } else {
                     res.status(400).json(new ForgotPasswordMailCallback(ForgotPasswordMailResponseTypes.EMAILDOESNTEXIST));
                 }
-            })
+            });
     } else {
         res.status(400).json(new ForgotPasswordMailCallback(ForgotPasswordMailResponseTypes.INVALIDINPUT));
     }

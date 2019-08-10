@@ -9,7 +9,7 @@ import {TogglePostJoin} from "../../../cshub-shared/src/api-calls";
 import {IRealtimeEdit} from "../../../cshub-shared/src/api-calls";
 import cookieParser from "cookie-parser";
 import {customValidator} from "../utilities/StringUtils";
-import {hasAccessToPost, postAccessType} from "../auth/validateRights/PostAccess";
+import {hasAccessToPostJWT, postAccessType} from "../auth/validateRights/PostAccess";
 import {CursorUpdatedHandler} from "./CursorUpdatedHandler";
 
 export const io = socket(server);
@@ -45,9 +45,9 @@ io.on("connection", (socketConn: Socket) => {
         });
 
         if (inputsValidation.valid) {
-            hasAccessToPost(togglePost.postHash, socketConn.request.cookies["token"])
+            hasAccessToPostJWT(togglePost.postHash, socketConn.request.cookies["token"])
                 .then((approved: postAccessType) => {
-                    if (approved.access && approved.editRights) {
+                    if (approved.canEdit) {
                         const roomName = `POST_${togglePost.postHash}`;
                         if (togglePost.join) {
                             socketConn.join(roomName);

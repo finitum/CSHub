@@ -1,7 +1,5 @@
 import {IDataState} from "./state";
-import {ITopic} from "../../../../cshub-shared/src/models";
-// @ts-ignore
-import { Delta } from "quill-delta";
+import {ITopic} from "../../../../cshub-shared/src/entities/topic";
 
 export const setTopics = (state: IDataState, payload: ITopic[]) => {
     state.topics = payload;

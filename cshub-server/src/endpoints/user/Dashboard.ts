@@ -2,11 +2,11 @@ import {app} from "../../";
 import {Dashboard, DashboardCallback} from "../../../../cshub-shared/src/api-calls";
 import {Request, Response} from "express";
 import {DatabaseResultSet, query} from "../../db/database-query";
-import {checkTokenValidity} from "../../auth/AuthMiddleware";
+import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
 
 app.get(Dashboard.getURL, (req: Request, res: Response) => {
 
-    const token = checkTokenValidity(req);
+    const token = checkTokenValidityFromRequest(req);
 
     if (token.valid) {
 

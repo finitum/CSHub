@@ -1,6 +1,6 @@
 import {getStoreBuilder} from "vuex-typex";
 import {IRootState} from "../";
-import {ITopic} from "../../../../cshub-shared/src/models";
+import {ITopic} from "../../../../cshub-shared/src/entities/topic";
 
 export interface IDataState {
     topics: ITopic[];

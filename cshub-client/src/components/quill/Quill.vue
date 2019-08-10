@@ -210,10 +210,10 @@
     import userState from "../../store/user";
     import {getRandomNumberLarge} from "../../../../cshub-shared/src/utilities/Random";
     import {transformFromArray} from "../../../../cshub-shared/src/utilities/DeltaHandler";
-    import {IUserCensored} from "../../../../cshub-shared/src/models";
     import {Requests} from "../../../../cshub-shared/src/api-calls";
     import {getHTML} from "../../../../cshub-shared/src/utilities/EditsHandler";
     import {colorize} from "../../utilities/codemirror-colorize";
+    import {IUser} from "../../../../cshub-shared/src/entities/user";
 
     (window as any).Quill = Quill;
     (window as any).Quill.register("modules/resize", ImageResize);
@@ -244,7 +244,7 @@
         // Realtime edit related variables
         private lastFewEdits: IRealtimeEdit[] = [];
         private myCursor: IRealtimeSelect;
-        private otherPeoples: Map<number, IUserCensored> = new Map();
+        private otherPeoples: Map<number, IUser> = new Map();
         private otherPeoplesMenu = false;
 
         private checkingInterval: number = -1;
