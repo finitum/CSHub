@@ -44,7 +44,7 @@ axiosApi.interceptors.response.use(
             }
         };
 
-        if (typeof error.response !== "undefined") {
+        if (error.response) {
             if (error.response.status === 304) {
                 // Do nothing
             } else if (error.response.status === 401 || error.response.status === 403) {
@@ -71,7 +71,7 @@ axiosApi.interceptors.response.use(
                 });
             } else {
                 const response = error.response.data as ServerError;
-                if (response.message !== null && typeof response.message !== "undefined") {
+                if (response.message) {
                     const button = error.response.data.showRefresh ? forceRefreshButton : undefined;
 
                     uiState.setNotificationDialog({

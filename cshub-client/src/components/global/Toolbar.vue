@@ -16,7 +16,7 @@
             v-if="$vuetify.breakpoint.mdAndUp"
             v-model="searchQuery"
             solo-inverted
-            flat
+            text
             hide-details
             label="Search"
             prepend-inner-icon="fas fa-search"
@@ -86,6 +86,7 @@ export default class Toolbar extends Vue {
 
     set darkMode(newValue: boolean) {
         uiState.setDarkMode(newValue);
+        this.$vuetify.theme.dark = newValue;
     }
 
     /**

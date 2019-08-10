@@ -93,7 +93,7 @@ export default class App extends Vue {
     font-size: 17px !important;
 }
 
-.theme--light.application {
+.theme--light.v-application {
     background: #f5f5f5;
 }
 
@@ -185,5 +185,9 @@ strong {
 
 .quillIcon .v-icon:hover {
     color: #06c !important;
+}
+
+.v-subheader {
+    font-weight: 500 !important;
 }
 </style>

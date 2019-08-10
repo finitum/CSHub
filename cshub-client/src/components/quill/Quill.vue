@@ -84,7 +84,7 @@
                                             <v-btn
                                                 slot="activator"
                                                 dark
-                                                flat
+                                                text
                                                 :ripple="false"
                                                 small
                                                 class="quillIcon"
@@ -127,7 +127,7 @@
                                         <v-btn
                                             slot="activator"
                                             dark
-                                            flat
+                                            text
                                             :ripple="false"
                                             small
                                             class="quillIcon"
@@ -146,7 +146,7 @@
                                         <v-btn
                                             slot="activator"
                                             dark
-                                            flat
+                                            text
                                             :ripple="false"
                                             small
                                             class="quillIcon"
@@ -242,14 +242,14 @@ export default class QuillEditor extends Vue {
     @Prop() private initialValueProp?: Delta;
 
     // Editor related options
-    private editor?: Quill;
+    private editor: Quill | null = null;
     private editorOptions: any = defaultOptions;
     private editorId = "";
-    private initialValue?: Delta;
+    private initialValue: Delta | null = null;
 
     // Realtime edit related variables
     private lastFewEdits: IRealtimeEdit[] = [];
-    private myCursor?: IRealtimeSelect;
+    private myCursor: IRealtimeSelect | null = null;
     private otherPeoples: Map<number, IUser> = new Map();
     private otherPeoplesMenu = false;
 
@@ -295,7 +295,7 @@ export default class QuillEditor extends Vue {
                 } else {
                     const lastEdit = this.lastFewEdits[this.lastFewEdits.length - 1];
 
-                    if (lastEdit && userState.userModel.id !== data.edit.userId) {
+                    if (lastEdit && userState.userModel && userState.userModel.id !== data.edit.userId) {
                         if (this.editor) {
                             if (lastEdit.serverGeneratedId === data.edit.prevServerGeneratedId) {
                                 this.lastFewEdits.push(data.edit);
@@ -327,7 +327,7 @@ export default class QuillEditor extends Vue {
 
             this.sockets.subscribe(ServerCursorUpdated.getURL, (data: ServerCursorUpdated) => {
                 if (this.editor) {
-                    if (userState.userModel.id !== data.select.user.id) {
+                    if (userState.userModel && userState.userModel.id !== data.select.user.id) {
                         if (!data.select.active) {
                             this.otherPeoples.delete(data.select.user.id);
                             this.$forceUpdate();
@@ -348,14 +348,16 @@ export default class QuillEditor extends Vue {
                 }
             });
 
-            this.myCursor = {
-                color: "", // doesn't matter, server will decide anyway
-                user: userState.userModel,
-                userName: "", // doesn't matter /\
-                postHash: this.editorSetup.postHash,
-                selection: new RangeStatic(),
-                active: true
-            };
+            if (userState.userModel) {
+                this.myCursor = {
+                    color: "", // doesn't matter, server will decide anyway
+                    user: userState.userModel,
+                    userName: "", // doesn't matter /\
+                    postHash: this.editorSetup.postHash,
+                    selection: new RangeStatic(),
+                    active: true
+                };
+            }
 
             SocketWrapper.emitSocket(
                 new TogglePostJoin(
@@ -389,7 +391,9 @@ export default class QuillEditor extends Vue {
         if (delta) {
             this.$router.push(Routes.INDEX);
         } else {
-            this.initialValue = delta;
+            if (delta) {
+                this.initialValue = delta;
+            }
 
             (window as any).katex = katex;
 
@@ -409,7 +413,7 @@ export default class QuillEditor extends Vue {
 
     private beforeDestroy() {
         // Remove the editor on destroy
-        this.editor = undefined;
+        this.editor = null;
         clearInterval(this.checkingInterval);
 
         if (this.myCursor) {
@@ -436,7 +440,7 @@ export default class QuillEditor extends Vue {
      * Computed properties
      */
     get userId(): number {
-        return userState.userModel.id;
+        return userState.userModel ? userState.userModel.id : -1;
     }
 
     get darkMode(): boolean {
@@ -546,7 +550,7 @@ export default class QuillEditor extends Vue {
 
             if (selects !== null) {
                 for (const select of selects) {
-                    if (select.user.id !== userState.userModel.id) {
+                    if (userState.userModel && select.user.id !== userState.userModel.id) {
                         if (!this.otherPeoples.has(select.user.id)) {
                             this.otherPeoples.set(select.user.id, select.user);
                             this.$forceUpdate();
@@ -706,8 +710,6 @@ export default class QuillEditor extends Vue {
 }
 
 #htmlOutput {
-    height: 100%;
-
     p {
         margin-bottom: 0;
     }

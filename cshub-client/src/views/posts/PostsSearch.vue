@@ -17,7 +17,7 @@
             v-if="!$vuetify.breakpoint.mdAndUp"
             v-model="searchQuery"
             solo-inverted
-            flat
+            text
             hide-details
             label="Search"
             prepend-inner-icon="fas fa-search"

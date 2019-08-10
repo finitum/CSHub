@@ -3,6 +3,7 @@ import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
 import "@fortawesome/fontawesome-free/css/solid.min.css";
 import "@fortawesome/fontawesome-free/css/regular.min.css";
 import Vue from "vue";
+import { LocalStorageData } from "../../store/localStorageData";
 
 Vue.use(Vuetify);
 
@@ -18,7 +19,8 @@ export default new Vuetify({
                 success: "#4CAF50",
                 warning: "#FFC107"
             }
-        }
+        },
+        dark: localStorage.getItem(LocalStorageData.DARK) === "true"
     },
     customProperties: true,
     icons: {

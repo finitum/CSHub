@@ -2,10 +2,9 @@ import { IUser } from "../../../../cshub-shared/src/entities/user";
 import { Module, Mutation, VuexModule } from "vuex-class-modules";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
 import store from "../store";
-import { uiState } from "../index";
 
 export interface IUserState {
-    userModel: IUser;
+    userModel?: IUser;
     hasCheckedToken: boolean;
 }
 
@@ -14,18 +13,7 @@ class UserState extends VuexModule implements IUserState {
     private _userModel: IUser | undefined;
     private _hasCheckedToken = false;
 
-    get userModel(): IUser {
-        if (!this._userModel) {
-            uiState.setNotificationDialog({
-                header: "Trying to retrieve user data while not logged in",
-                text:
-                    "The application tried to retrieve data about the logged in user while no-one seems to be logged in, " +
-                    "this is probably a bug:(",
-                on: true
-            });
-            throw new Error();
-        }
-
+    get userModel(): IUser | undefined {
         return this._userModel;
     }
 

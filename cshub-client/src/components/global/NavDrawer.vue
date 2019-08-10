@@ -2,13 +2,9 @@
     <v-navigation-drawer id="cshub-nav" v-model="drawerComputed" fixed clipped app>
         <v-list class="pt-0" dense>
             <v-select v-model="studyNr" :items="studies" hide-details filled label="Study"></v-select>
-            <v-layout row align-center>
-                <v-flex xs6>
-                    <v-subheader>
-                        User
-                    </v-subheader>
-                </v-flex>
-            </v-layout>
+            <v-subheader>
+                User
+            </v-subheader>
             <router-link v-if="userLoggedInComputed" :to="navigationLocations.USERDASHBOARD"
                 ><NavDrawerItem icon="fas fa-user" text="User dashboard"></NavDrawerItem
             ></router-link>
@@ -28,14 +24,11 @@
                 ><NavDrawerItem v-if="userLoggedInComputed" icon="fas fa-sign-out-alt" text="Logout"></NavDrawerItem
             ></a>
             <v-divider dark class="my-3"></v-divider>
-            <v-layout row align-center>
-                <v-flex xs6>
-                    <v-subheader>
-                        Topics
-                    </v-subheader>
-                </v-flex>
-            </v-layout>
+            <v-subheader>
+                Topics
+            </v-subheader>
             <v-treeview
+                dense
                 :active.sync="activeTopicHash"
                 :items="topics"
                 item-key="hash"
@@ -99,7 +92,7 @@ export default class NavDrawer extends Vue {
     private topics: ITopic[] = [];
 
     private studies: Array<{ text: string; value: any }> = [];
-    private _studyNr: number | undefined = undefined;
+    private _studyNr: number | null = null;
 
     private navigationLocations = Routes;
 
@@ -126,11 +119,11 @@ export default class NavDrawer extends Vue {
         return this.userAdminComputed || userState.studyAdmins.length > 0;
     }
 
-    get studyNr(): number | undefined {
+    get studyNr(): number | null {
         return this._studyNr;
     }
 
-    set studyNr(study: number | undefined) {
+    set studyNr(study: number | null) {
         this._studyNr = study;
 
         if (study) {
@@ -212,9 +205,9 @@ export default class NavDrawer extends Vue {
 
                     // Sends a get request to the server, and sets the correct store value after receiving the topics in the GetTopicsCallBack
                     ApiWrapper.sendGetRequest(
-                        new Topics(topicCurrentVersion, this.studyNr),
+                        new Topics(topicCurrentVersion, studynr),
                         (callbackData: GetTopicsCallBack) => {
-                            if (callbackData !== null && typeof callbackData.topics !== "undefined") {
+                            if (callbackData !== null && callbackData.topics) {
                                 this.topics = callbackData.topics;
                                 dataState.setTopics(callbackData.topics);
 

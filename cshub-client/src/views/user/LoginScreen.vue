@@ -39,13 +39,19 @@
                             ></v-text-field>
                             <div v-if="!forgotPassword">
                                 <v-switch v-model="userData.rememberuser" label="Remember email"></v-switch>
-                                <v-btn depressed color="primary" @click="doLogin">Login</v-btn>
-                                <v-btn depressed color="secondary" to="createaccount">Create account</v-btn>
-                                <v-btn depressed color="accent" @click="forgotPassword = true">Forgot password</v-btn>
+                                <v-btn depressed color="primary" class="mr-2" @click="doLogin">Login</v-btn>
+                                <v-btn depressed color="secondary" to="createaccount" class="mr-2"
+                                    >Create account</v-btn
+                                >
+                                <v-btn depressed color="accent" class="mr-2" @click="forgotPassword = true"
+                                    >Forgot password</v-btn
+                                >
                             </div>
                             <div v-else>
-                                <v-btn depressed color="primary" @click="forgotPasswordSend">Send</v-btn>
-                                <v-btn depressed color="secondary" @click="forgotPassword = false">Back</v-btn>
+                                <v-btn depressed color="primary" class="mr-2" @click="forgotPasswordSend">Send</v-btn>
+                                <v-btn depressed color="secondary" class="mr-2" @click="forgotPassword = false"
+                                    >Back</v-btn
+                                >
                             </div>
                         </v-form>
                     </v-card-text>

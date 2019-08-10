@@ -68,8 +68,8 @@ import { uiState } from "../../store";
     inject: ["$validator"]
 })
 export default class ForgotPasswordComp extends Vue {
-    private accountId?: number;
-    private requestHash?: number;
+    private accountId: number | null = null;
+    private requestHash: number | null = null;
 
     private password: string = "";
     private confirmPassword: string = "";

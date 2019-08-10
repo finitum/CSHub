@@ -47,12 +47,14 @@ export default class WIPPostsView extends Vue {
      */
     private getHashes() {
         const studyId = uiState.studyNr;
-        ApiWrapper.sendGetRequest(new WIPPosts(studyId), (callbackData: WIPPostsCallBack) => {
-            for (const post of callbackData.postHashes) {
-                this.postHashes.push(post);
-            }
-            logObjectConsole(callbackData.postHashes, "WIP dashboard posthashes");
-        });
+        if (studyId) {
+            ApiWrapper.sendGetRequest(new WIPPosts(studyId), (callbackData: WIPPostsCallBack) => {
+                for (const post of callbackData.postHashes) {
+                    this.postHashes.push(post);
+                }
+                logObjectConsole(callbackData.postHashes, "WIP dashboard posthashes");
+            });
+        }
     }
 }
 </script>

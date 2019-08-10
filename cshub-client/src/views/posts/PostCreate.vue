@@ -156,7 +156,7 @@ export default class PostCreate extends Vue {
      * Methods
      */
     private submitPost() {
-        if (typeof this.activeTopicHash[0] !== "undefined") {
+        if (this.activeTopicHash[0]) {
             this.$validator.validateAll().then((allValid: boolean) => {
                 if (allValid) {
                     ApiWrapper.sendPostRequest(

@@ -95,7 +95,7 @@ export default class TopicCreate extends Vue {
      * Methods
      */
     private submitTopic() {
-        if (typeof this.activeTopicHash[0] !== "undefined") {
+        if (this.activeTopicHash[0]) {
             this.$validator.validateAll().then((allValid: boolean) => {
                 if (allValid) {
                     ApiWrapper.sendPostRequest(

@@ -47,15 +47,16 @@ export default class UnsavedPosts extends Vue {
      * Methods
      */
     private getHashes() {
-        ApiWrapper.sendGetRequest(
-            new GetUnverifiedPosts(uiState.studyNr),
-            (callbackData: GetUnverifiedPostsCallBack) => {
+        const studyNr = uiState.studyNr;
+
+        if (studyNr) {
+            ApiWrapper.sendGetRequest(new GetUnverifiedPosts(studyNr), (callbackData: GetUnverifiedPostsCallBack) => {
                 for (const post of callbackData.postHashes) {
                     this.postHashes.push(post);
                 }
                 logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
-            }
-        );
+            });
+        }
     }
 }
 </script>

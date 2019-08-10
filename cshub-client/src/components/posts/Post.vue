@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
     <div>
         <div v-if="post !== null" @click.capture="navigateToPost">
             <!-- The following transition is just a trick so I get an event on the change from preview to full post (performance of the animation when the viewer is on is terrible) -->
@@ -18,154 +18,246 @@
                 class="loadingIcon"
             ></v-progress-circular>
             <v-card
-                :id="'post_' + domId"
                 :class="{ previewCard: !fullPostComputed, fullCard: fullPostComputed, isIndex: isIndexComputed }"
                 style="box-shadow: none"
             >
-                <v-card-title :id="'postTitle_' + domId" primary-title class="pb-0 xl-0 pt-1 titleCard">
-                    <transition name="topMenuShow">
-                        <div v-if="!showTopMenu && fullPostComputed">
-                            <v-btn color="primary" depressed small dark @click="returnToPostMenu">
-                                <v-icon>fas fa-chevron-left</v-icon>
-                            </v-btn>
-                            <v-btn
-                                color="secondary"
-                                depressed
-                                small
-                                class="angleLighten3Dark"
-                                @click="showTopMenu = true"
-                            >
-                                <v-icon>fas fa-angle-down</v-icon>
-                            </v-btn>
-                        </div>
-                    </transition>
-                    <span v-if="showTopMenu || !fullPostComputed" style="display: contents">
-                        <transition name="breadcrumb">
-                            <v-breadcrumbs v-if="fullPostComputed" divider="/" style="width: 100%">
-                                <v-btn color="primary" depressed small dark @click="returnToPostMenu">
-                                    <v-icon>fas fa-chevron-left</v-icon>
-                                </v-btn>
-                                <v-breadcrumbs-item v-for="item in topicNames" :key="item.index" :disabled="false">
-                                    <router-link :to="item.url">{{ item.name }}</router-link>
-                                </v-breadcrumbs-item>
-                                <v-breadcrumbs-item :disabled="!editModeComputed" @click="disableEdit">
-                                    {{ post.title }}
-                                </v-breadcrumbs-item>
-
-                                <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
-                                    <template v-slot:activator="{ on }">
-                                        <v-btn color="red" depressed small v-on="on" @click="hidePost()">
-                                            <v-icon>fas fa-trash</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>Delete the post (sorta)</span>
-                                </v-tooltip>
-
-                                <v-tooltip v-if="!editModeComputed && userIsLoggedIn && userAdminComputed" bottom>
-                                    <template v-slot:activator="{ on }">
-                                        <v-btn color="purple" depressed small v-on="on" @click="wipPost()">
-                                            <v-icon v-if="post.isWIP">fas fa-comments</v-icon>
-                                            <v-icon v-else>far fa-comments</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>Toggle WIP (dark = WIP)</span>
-                                </v-tooltip>
-
-                                <v-tooltip v-if="!editModeComputed && userIsLoggedIn" bottom>
-                                    <template v-slot:activator="{ on }">
-                                        <v-btn color="orange" depressed small v-on="on" @click="enableEdit">
-                                            <v-icon>fas fa-edit</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>Edit the post</span>
-                                </v-tooltip>
-
-                                <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
-                                    <template v-slot:activator="{ on }">
-                                        <v-btn depressed small color="green" v-on="on" @click="savePostDialog">
-                                            <v-icon>fas fa-save</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>Save the post</span>
-                                </v-tooltip>
-
-                                <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
-                                    <template v-slot:activator="{ on }">
-                                        <v-btn depressed small color="blue" v-on="on" @click="forceEditPost">
-                                            <v-icon>fas fa-gavel</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>Force edit the post</span>
-                                </v-tooltip>
-
-                                <v-tooltip v-if="!editModeComputed" bottom>
-                                    <template v-slot:activator="{ on }">
-                                        <v-btn depressed small color="primary" v-on="on" @click="viewEditDialog">
-                                            <v-icon>fas fa-history</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>View post history</span>
-                                </v-tooltip>
-
-                                <v-btn
-                                    depressed
-                                    small
-                                    color="secondary"
-                                    class="angleLighten3Dark"
-                                    @click="showTopMenu = false"
-                                >
-                                    <v-icon>fas fa-angle-up</v-icon>
-                                </v-btn>
-                            </v-breadcrumbs>
-                        </transition>
-                        <v-list v-if="!isIndexComputed || fullPostComputed" two-line style="width: 100%">
-                            <v-list-item class="mb-1 postTile">
-                                <v-list-item-avatar>
-                                    <img :src="getAvatarURL(post.author.avatar)" class="profileBorder" />
-                                </v-list-item-avatar>
-                                <v-list-item-content class="pt-2 d-inline">
-                                    <v-list-item-subtitle class="whitespaceInit post-title">
-                                        <span>{{ post.title }} {{ post.isIndex ? "(index page)" : "" }}</span>
-                                    </v-list-item-subtitle>
-                                    <v-list-item-subtitle class="whitespaceInit"
-                                        >{{ post.author.firstname }} {{ post.author.lastname }} -
-                                        {{ post.datetime | formatDate }}</v-list-item-subtitle
+                <v-layout align-start justify-start column fill-height>
+                    <v-flex>
+                        <v-card-title primary-title class="pb-0 xl-0 pt-1 titleCard">
+                            <transition name="topMenuShow">
+                                <div v-if="!showTopMenu && fullPostComputed">
+                                    <v-btn
+                                        color="primary"
+                                        min-width="88"
+                                        class="mr-1 my-1"
+                                        tile
+                                        depressed
+                                        small
+                                        dark
+                                        @click="returnToPostMenu"
                                     >
-                                </v-list-item-content>
-                            </v-list-item>
-                        </v-list>
-                    </span>
-                </v-card-title>
-                <v-container
-                    v-if="(fullPostComputed && !editModeComputed) || (!fullPostComputed && isIndexComputed)"
-                    position="relative"
-                    class="scroll-y"
-                    :class="[
-                        { noPaddingTop: fullPostComputed, fixedPadding: isIndexComputed },
-                        'postScrollWindow_' + domId
-                    ]"
-                    style="margin: 0; max-width: none; overflow-wrap: break-word"
-                >
-                    <v-layout id="htmlContentContainer" v-scroll:#post-scroll-target column align-center justify-center>
+                                        <v-icon>fas fa-chevron-left</v-icon>
+                                    </v-btn>
+                                    <v-btn
+                                        color="secondary"
+                                        depressed
+                                        tile
+                                        min-width="88"
+                                        small
+                                        class="ma-1 angleLighten3Dark"
+                                        @click="showTopMenu = true"
+                                    >
+                                        <v-icon>fas fa-angle-down</v-icon>
+                                    </v-btn>
+                                </div>
+                            </transition>
+                            <span v-if="showTopMenu || !fullPostComputed" style="display: contents">
+                                <transition name="breadcrumb">
+                                    <div v-if="fullPostComputed">
+                                        <v-btn
+                                            color="primary"
+                                            min-width="88"
+                                            depressed
+                                            tile
+                                            class="my-1 mr-2 d-inline-block"
+                                            small
+                                            dark
+                                            @click="returnToPostMenu"
+                                        >
+                                            <v-icon>fas fa-chevron-left</v-icon>
+                                        </v-btn>
+
+                                        <v-breadcrumbs :items="topicNames" class="d-inline-block pa-0 mr-2 my-1">
+                                            <template v-slot:item="props">
+                                                <v-breadcrumbs-item
+                                                    v-if="props.item.topic"
+                                                    :to="props.item.to"
+                                                    :exact="true"
+                                                >
+                                                    {{ props.item.text }}
+                                                </v-breadcrumbs-item>
+                                                <v-breadcrumbs-item
+                                                    v-else
+                                                    :disabled="!editModeComputed"
+                                                    @click="disableEdit"
+                                                >
+                                                    {{ props.item.text }}
+                                                </v-breadcrumbs-item>
+                                            </template>
+                                        </v-breadcrumbs>
+                                        <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                    min-width="88"
+                                                    color="red"
+                                                    depressed
+                                                    tile
+                                                    class="my-1 mr-2 d-inline-block"
+                                                    small
+                                                    v-on="on"
+                                                    @click="hidePost()"
+                                                >
+                                                    <v-icon>fas fa-trash</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>Delete the post (sorta)</span>
+                                        </v-tooltip>
+
+                                        <v-tooltip
+                                            v-if="!editModeComputed && userIsLoggedIn && userAdminComputed"
+                                            bottom
+                                        >
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                    min-width="88"
+                                                    color="purple"
+                                                    depressed
+                                                    class="my-1 mr-2 d-inline-block"
+                                                    small
+                                                    v-on="on"
+                                                    @click="wipPost()"
+                                                >
+                                                    <v-icon v-if="post.isWIP">fas fa-comments</v-icon>
+                                                    <v-icon v-else>far fa-comments</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>Toggle WIP (dark = WIP)</span>
+                                        </v-tooltip>
+
+                                        <v-tooltip v-if="!editModeComputed && userIsLoggedIn" bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                    min-width="88"
+                                                    color="orange"
+                                                    depressed
+                                                    class="my-1 mr-2 d-inline-block"
+                                                    tile
+                                                    small
+                                                    v-on="on"
+                                                    @click="enableEdit"
+                                                >
+                                                    <v-icon>fas fa-edit</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>Edit the post</span>
+                                        </v-tooltip>
+
+                                        <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                    min-width="88"
+                                                    depressed
+                                                    class="my-1 mr-2 d-inline-block"
+                                                    tile
+                                                    small
+                                                    color="green"
+                                                    v-on="on"
+                                                    @click="savePostDialog"
+                                                >
+                                                    <v-icon>fas fa-save</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>Save the post</span>
+                                        </v-tooltip>
+
+                                        <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                    min-width="88"
+                                                    depressed
+                                                    tile
+                                                    class="my-1 mr-2 d-inline-block"
+                                                    small
+                                                    color="blue"
+                                                    v-on="on"
+                                                    @click="forceEditPost"
+                                                >
+                                                    <v-icon>fas fa-gavel</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>Force edit the post</span>
+                                        </v-tooltip>
+
+                                        <v-tooltip v-if="!editModeComputed" bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                    min-width="88"
+                                                    depressed
+                                                    tile
+                                                    small
+                                                    class="my-1 mr-2 d-inline-block"
+                                                    color="primary"
+                                                    v-on="on"
+                                                    @click="viewEditDialog"
+                                                >
+                                                    <v-icon>fas fa-history</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>View post history</span>
+                                        </v-tooltip>
+
+                                        <v-btn
+                                            depressed
+                                            small
+                                            tile
+                                            min-width="88"
+                                            color="secondary"
+                                            class="my-1 mr-2 d-inline-block angleLighten3Dark"
+                                            @click="showTopMenu = false"
+                                        >
+                                            <v-icon>fas fa-angle-up</v-icon>
+                                        </v-btn>
+                                    </div>
+                                </transition>
+                                <v-list
+                                    v-if="!isIndexComputed || fullPostComputed"
+                                    two-line
+                                    style="width: 100%"
+                                    class="pt-0"
+                                >
+                                    <v-list-item class="mb-1 pa-0 postTile">
+                                        <v-list-item-avatar>
+                                            <img src="https://picsum.photos/id/339/40/40" class="profileBorder" />
+                                        </v-list-item-avatar>
+                                        <v-list-item-content class="pt-2 d-inline">
+                                            <v-list-item-subtitle class="whitespaceInit post-title">
+                                                <span>{{ post.title }} {{ post.isIndex ? "(index page)" : "" }}</span>
+                                            </v-list-item-subtitle>
+                                            <v-list-item-subtitle class="whitespaceInit">
+                                                {{ post.datetime | formatDate }}
+                                            </v-list-item-subtitle>
+                                        </v-list-item-content>
+                                    </v-list-item>
+                                </v-list>
+                            </span>
+                        </v-card-title>
+                    </v-flex>
+                    <v-flex class="fullHeight">
                         <v-card-text
-                            v-if="!loadingIcon"
-                            id="postCardText"
-                            :class="{ indexPostCardText: isIndexComputed }"
+                            v-if="
+                                ((fullPostComputed && !editModeComputed) || (!fullPostComputed && isIndexComputed)) &&
+                                    !loadingIcon
+                            "
+                            class="pt-0 fullHeight"
                         >
-                            <v-list-item-sub-title class="whitespaceInit post-title secondaryTitle">
+                            <v-list-item-subtitle class="whitespaceInit post-title secondaryTitle">
                                 <span>{{ post.title }}</span>
-                            </v-list-item-sub-title>
-                            <div class="ql-editor">
-                                <div v-show="showContent" id="htmlOutput" v-html="post.htmlContent"></div>
+                            </v-list-item-subtitle>
+                            <div class="ql-editor fullHeight pa-0">
+                                <div
+                                    v-show="showContent"
+                                    id="htmlOutput"
+                                    class="fullHeight"
+                                    v-html="post.htmlContent"
+                                ></div>
                             </div>
                         </v-card-text>
-                    </v-layout>
-                </v-container>
+                    </v-flex>
+                </v-layout>
                 <Quill
                     v-if="fullPostComputed && !loadingIcon && editModeComputed"
                     key="editQuill"
                     ref="editQuill"
-                    :class="'postScrollWindow_' + domId"
                     style="margin-bottom: 20px"
                     :editor-setup="{ allowEdit: true, showToolbar: true, postHash }"
                     @markdownPreviewToggle="markDownToggled"
@@ -211,10 +303,11 @@ import Quill from "../quill/Quill.vue";
 import PostEditsDialog from "./PostEditsDialog.vue";
 
 import {
-    PostData,
+    ForceEditPost,
     GetPostCallBack,
-    PostContent,
     GetPostContentCallBack,
+    PostContent,
+    PostData,
     PostSettings,
     PostSettingsCallback,
     PostSettingsEditType,
@@ -224,22 +317,19 @@ import {
 import { getTopicFromHash } from "../../../../cshub-shared/src/utilities/Topics";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
-import { ApiWrapper, errorLogStringConsole, logObjectConsole, logStringConsole } from "../../utilities";
+import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities";
 import { CacheTypes } from "../../utilities/cache-types";
-import { idGenerator } from "../../utilities/id-generator";
 
-import { dataState } from "../../store";
-import { userState } from "../../store";
-import { uiState } from "../../store";
-import { ForceEditPost } from "../../../../cshub-shared/src/api-calls";
+import { dataState, uiState, userState } from "../../store";
 import { colorize } from "../../utilities/codemirror-colorize";
 import PostSaveEditDialog from "./PostSaveEditDialog.vue";
 import { IPost } from "../../../../cshub-shared/src/entities/post";
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
 
 interface IBreadCrumbType {
-    name: string;
-    url: string;
+    topic: boolean;
+    text: string;
+    to: string;
 }
 
 @Component({
@@ -254,7 +344,6 @@ export default class Post extends Vue {
 
     private dialogOpen = false;
 
-    private domId: string = idGenerator();
     private post: IPost | null = null;
     private topicNames: IBreadCrumbType[] = [];
     private canResize = true;
@@ -262,14 +351,14 @@ export default class Post extends Vue {
     private loadingIcon = false;
     private previousTopicURL = "";
     private showTopMenu = true;
-    private resizeInterval: number | undefined = undefined;
+    private resizeInterval: number | null = null;
     private showLoadingIcon = false;
 
     /**
      * Computed properties
      */
     get userOwnsThisPostComputed(): boolean {
-        if (this.post) {
+        if (this.post && userState.userModel) {
             return userState.userModel.id === this.post.author.id;
         } else {
             return false;
@@ -393,8 +482,6 @@ export default class Post extends Vue {
             this.showTopMenu = false;
         }
 
-        window.addEventListener("resize", this.windowHeightChanged);
-        this.windowHeightChanged();
         this.getPostRequest();
 
         if (uiState.previousRoute) {
@@ -424,31 +511,10 @@ export default class Post extends Vue {
                 hash: this.postHash
             });
         }
-
-        this.resizeInterval = setInterval(() => {
-            const postCard = document.getElementById(`post_${this.domId}`);
-            const postCardTitle = document.getElementById(`postTitle_${this.domId}`);
-            if (postCard !== null) {
-                let postCardTitleHeight = 0;
-                if (postCardTitle !== null) {
-                    postCardTitleHeight = postCardTitle.clientHeight;
-                }
-
-                const newHeight = postCard.clientHeight - postCardTitleHeight - 50;
-
-                if (newHeight > 0) {
-                    this.windowHeightChanged();
-                    clearInterval(this.resizeInterval);
-                } else {
-                    this.windowHeightChanged();
-                }
-            }
-        }, 100);
     }
 
     private updated() {
         if (this.fullPostComputed && this.post !== null && !this.loadingIcon) {
-            this.windowHeightChanged();
             this.highlightCode();
         }
     }
@@ -456,13 +522,6 @@ export default class Post extends Vue {
     /**
      * Methods
      */
-
-    private markDownToggled(value: boolean) {
-        Vue.nextTick(() => {
-            this.windowHeightChanged();
-        });
-    }
-
     private socketError() {
         if (this.editModeComputed) {
             uiState.setNotificationDialog({
@@ -504,53 +563,6 @@ export default class Post extends Vue {
             return `data:image/jpg;base64,${dbImage}`;
         } else {
             return "/img/defaultAvatar.png";
-        }
-    }
-
-    private windowHeightChanged() {
-        if (this.canResize && this.fullPostComputed) {
-            // Calculate the right height for the postcardtext, 100px padding
-            this.canResize = false;
-
-            const postCard = document.getElementById(`post_${this.domId}`);
-            const postCardTitle = document.getElementById(`postTitle_${this.domId}`);
-            if (postCard !== null) {
-                let postCardTitleHeight = 0;
-                if (postCardTitle !== null) {
-                    postCardTitleHeight = postCardTitle.clientHeight;
-                }
-
-                const newHeight = postCard.clientHeight - postCardTitleHeight - 50;
-
-                const rootElement = document.getElementsByClassName(`postScrollWindow_${this.domId}`);
-                let elements: HTMLCollectionOf<Element>;
-
-                if (rootElement.length === 1) {
-                    const elementsByClassNameElement = rootElement[0];
-                    elements = elementsByClassNameElement.getElementsByClassName("flex");
-
-                    if (elements !== null && newHeight > 0) {
-                        // @ts-ignore
-                        elementsByClassNameElement.style.maxHeight = `${newHeight}px`;
-
-                        for (const element of elements) {
-                            // @ts-ignore
-                            element.style.maxHeight = `${newHeight}px`;
-                        }
-
-                        setTimeout(() => {
-                            this.canResize = true;
-                        }, 250);
-                    } else {
-                        this.canResize = true;
-                    }
-                } else {
-                    this.canResize = true;
-                    errorLogStringConsole("Found multiple postScrollWindows", "Post.vue");
-                }
-            } else {
-                this.canResize = true;
-            }
         }
     }
 
@@ -608,8 +620,9 @@ export default class Post extends Vue {
         const parentTopic = this.getParentTopic(child, dataState.topics);
 
         const currTopic: IBreadCrumbType = {
-            name: child.name,
-            url: `${Routes.TOPIC}/${child.hash}`
+            text: child.name,
+            to: `${Routes.TOPIC}/${child.hash}`,
+            topic: true
         };
 
         if (parentTopic !== null) {
@@ -698,6 +711,11 @@ export default class Post extends Vue {
 
                     if (topicFromHash) {
                         this.topicNames = this.getTopicListWhereFinalChildIs(topicFromHash);
+                        this.topicNames.push({
+                            text: this.post.title,
+                            to: this.$route.fullPath,
+                            topic: true
+                        });
                     }
                 }
 
@@ -893,8 +911,16 @@ export default class Post extends Vue {
     }
 }
 
-.theme--light.v-list .v-list__tile__sub-title {
+.theme--light.v-list .v-list-item__subtitle {
     color: black;
+}
+
+.theme--light.v-card .v-card__text {
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.theme--dark.v-card .v-card__text {
+    color: rgba(255, 255, 255, 0.87);
 }
 
 .theme--dark .angleLighten3Dark {
@@ -919,5 +945,9 @@ export default class Post extends Vue {
 
 .fixedPadding {
     padding: 10px 10px 10px 30px;
+}
+
+.fullHeight {
+    height: 100%;
 }
 </style>

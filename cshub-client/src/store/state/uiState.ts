@@ -4,7 +4,8 @@ import { LocalStorageData } from "../localStorageData";
 import { colorize } from "../../utilities/codemirror-colorize";
 import store from "../store";
 import CodeMirror from "codemirror";
-import { uiState } from "../index";
+
+import vuetify from "../../plugins/vuetify/vuetify";
 
 export type editDialogType = {
     on: boolean;
@@ -130,17 +131,7 @@ class UIState extends VuexModule implements IUIState {
         colorize(null, CodeMirror);
     }
 
-    get studyNr(): number {
-        if (!this._studyNr) {
-            uiState.setNotificationDialog({
-                header: "Trying to retrieve user data while not logged in",
-                text:
-                    "The application tried to retrieve data about the current study while no study seems to be selected, " +
-                    "this is probably a bug:(",
-                on: true
-            });
-            throw new Error();
-        }
+    get studyNr(): number | undefined {
         return this._studyNr;
     }
 

@@ -108,7 +108,7 @@ export default class PostSaveEditDialog extends Vue {
 
     private showLoadingIcon = false;
 
-    private content?: Delta;
+    private content: Delta | null = null;
     private editedByText: string = "";
     private hasBeenEdited = true;
 

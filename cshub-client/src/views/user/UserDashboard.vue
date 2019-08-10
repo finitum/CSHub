@@ -162,7 +162,7 @@ export default class UserDashboard extends Vue {
     /**
      * Computed properties
      */
-    get userDataComputed(): IUser {
+    get userDataComputed(): IUser | undefined {
         return userState.userModel;
     }
 
@@ -222,7 +222,11 @@ export default class UserDashboard extends Vue {
                         for (const key of keys) {
                             if (key.slice(0, 5) === "POST_") {
                                 localForage.getItem<IPost>(key).then((post: IPost) => {
-                                    if (post.author.id === userState.userModel.id && callback.response) {
+                                    if (
+                                        userState.userModel &&
+                                        post.author.id === userState.userModel.id &&
+                                        callback.response
+                                    ) {
                                         post.author.avatar = callback.response;
                                         localForage.setItem<IPost>(key, post);
                                     }
