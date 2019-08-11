@@ -1,56 +1,66 @@
 import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Post } from "./post";
 import { Study } from "./study";
 import { Edit } from "./edit";
 import { IUser } from "../../../../cshub-shared/src/entities/user";
 import { Question } from "./question";
+import { Exclude, Expose } from "class-transformer";
 
+@Exclude()
 @Entity({
     name: "users"
 })
 export class User implements IUser {
+    @Expose()
     @PrimaryGeneratedColumn()
     id!: number;
 
+    @Expose()
     @Column({
         type: "text"
     })
     email!: string;
 
+    @Expose()
     @Column({
         type: "blob",
         nullable: true
     })
     avatar!: string;
 
+    @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
         default: false
     })
     admin!: boolean;
 
+    @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
         default: false
     })
     blocked!: boolean;
 
+    @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
         default: false
     })
     verified!: boolean;
 
+    @Expose()
     @Column({
         type: "text"
     })
     firstname!: string;
 
+    @Expose()
     @Column({
         type: "text"
     })
     lastname!: string;
 
+    @Expose()
     @ManyToMany(type => Study, study => study.admins)
     studies!: Study[];
 

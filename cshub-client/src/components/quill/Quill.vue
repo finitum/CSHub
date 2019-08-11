@@ -285,25 +285,26 @@ export default class QuillEditor extends Vue {
             }, 10000);
 
             this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
-                if (data.error) {
+                const editOrError = data.editOrError;
+                if (editOrError.error) {
                     this.$router.push(Routes.INDEX);
                     uiState.setNotificationDialog({
                         header: "Edit error!",
-                        text: data.error,
+                        text: editOrError.message,
                         on: true
                     });
                 } else {
                     const lastEdit = this.lastFewEdits[this.lastFewEdits.length - 1];
 
-                    if (lastEdit && userState.userModel && userState.userModel.id !== data.edit.userId) {
+                    if (lastEdit && userState.userModel && userState.userModel.id !== editOrError.edit.userId) {
                         if (this.editor) {
-                            if (lastEdit.serverGeneratedId === data.edit.prevServerGeneratedId) {
-                                this.lastFewEdits.push(data.edit);
-                                this.editor.updateContents(data.edit.delta || new Delta());
+                            if (lastEdit.serverGeneratedId === editOrError.edit.prevServerGeneratedId) {
+                                this.lastFewEdits.push(editOrError.edit);
+                                this.editor.updateContents(editOrError.edit.delta || new Delta());
                             } else {
-                                const delta = transformFromArray(this.lastFewEdits, data.edit, true);
-                                data.edit.delta = delta;
-                                this.lastFewEdits.push(data.edit);
+                                const delta = transformFromArray(this.lastFewEdits, editOrError.edit, true);
+                                editOrError.edit.delta = delta;
+                                this.lastFewEdits.push(editOrError.edit);
 
                                 if (delta) {
                                     this.editor.updateContents(delta);
@@ -311,15 +312,15 @@ export default class QuillEditor extends Vue {
                             }
                         }
                     } else {
-                        const index = this.lastFewEdits.findIndex(x => x.userGeneratedId === data.edit.userGeneratedId);
+                        const index = this.lastFewEdits.findIndex(x => x.userGeneratedId === editOrError.edit.userGeneratedId);
 
                         if (index !== -1) {
                             this.lastFewEdits.splice(index, 1);
-                            this.lastFewEdits.push(data.edit);
+                            this.lastFewEdits.push(editOrError.edit);
                         }
 
-                        if (this.awaitingIds.has(data.edit.userGeneratedId)) {
-                            this.awaitingIds.delete(data.edit.userGeneratedId);
+                        if (this.awaitingIds.has(editOrError.edit.userGeneratedId)) {
+                            this.awaitingIds.delete(editOrError.edit.userGeneratedId);
                         }
                     }
                 }

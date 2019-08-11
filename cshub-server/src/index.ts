@@ -22,6 +22,7 @@ app.options("*", CORSMiddleware);
 
 import "./auth/AuthMiddleware";
 import "./utilities/VersionMiddleware";
+import "./endpoints/utils";
 
 // Run the server on port 3000
 export const server = http.createServer(app).listen(Settings.PORT);

@@ -23,8 +23,8 @@
         "katex": "^0.10.1",
         "markdown-it": "latest",
         "markdown-it-katex": "latest",
-        "typescript": "^3.5.3",
-        "parchment": "^1.1.4"
+        "parchment": "^1.1.4",
+        "typescript": "^3.5.3"
     },
     "resolutions": {
         "**/katex": "0.10.1"

@@ -1,15 +1,18 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Topic } from "./topic";
-import { User } from "./user";
 import { IPost } from "../../../../cshub-shared/src/entities/post";
+import { Exclude, Expose } from "class-transformer";
 
+@Exclude()
 @Entity({
     name: "posts"
 })
 export class Post implements IPost {
+    @Expose()
     @PrimaryGeneratedColumn()
     id!: number;
 
+    @Expose()
     @ManyToOne(type => Topic, topic => topic.posts, {
         nullable: false
     })
@@ -17,12 +20,14 @@ export class Post implements IPost {
     @Index()
     topic!: Topic;
 
+    @Expose()
     @Column({
         type: "datetime",
         default: () => "CURRENT_TIMESTAMP"
     })
     datetime!: Date;
 
+    @Expose()
     @Column({
         type: "varchar",
         length: 127,
@@ -30,15 +35,18 @@ export class Post implements IPost {
     })
     title!: string;
 
+    @Expose()
     @Column({
         unique: true
     })
     hash!: number;
 
+    @Expose()
     @Column()
     @Index()
     postVersion!: number;
 
+    @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
         default: false
@@ -46,6 +54,7 @@ export class Post implements IPost {
     @Index()
     deleted!: boolean;
 
+    @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
         default: true
@@ -53,10 +62,11 @@ export class Post implements IPost {
     @Index()
     wip!: boolean;
 
+    @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
         default: false
     })
     @Index()
     isIndex!: boolean;
-a}
+}

@@ -3,14 +3,18 @@ import { Post } from "./post";
 import { Study } from "./study";
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
 import { Question } from "./question";
+import { Exclude, Expose } from "class-transformer";
 
+@Exclude()
 @Entity({
     name: "topics"
 })
 export class Topic implements ITopic {
+    @Expose()
     @PrimaryGeneratedColumn()
     id!: number;
 
+    @Expose()
     @ManyToOne(type => Topic, topic => topic.children, {
         nullable: true,
         onDelete: "RESTRICT",
@@ -19,14 +23,17 @@ export class Topic implements ITopic {
     @JoinColumn({ name: "parentid" })
     parent!: Topic | null;
 
+    @Expose()
     @OneToMany(type => Topic, topic => topic.parent)
     children!: Topic[];
 
+    @Expose()
     @Column({
         type: "text"
     })
     name!: string;
 
+    @Expose()
     @Column({
         unique: true
     })

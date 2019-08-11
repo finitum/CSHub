@@ -3,6 +3,7 @@ import { Topic } from "./topic";
 import { User } from "./user";
 import { Answer } from "./answer";
 import { IQuestion } from "../../../../cshub-shared/src/entities/question";
+import { Exclude, Expose } from "class-transformer";
 
 export enum QuestionType {
     CLOSED,
@@ -10,26 +11,32 @@ export enum QuestionType {
     OPENTEXT
 }
 
+@Exclude()
 @Entity({
     name: "question"
 })
 export class Question implements IQuestion {
+    @Expose()
     @PrimaryGeneratedColumn()
     id!: number;
 
+    @Expose()
     @ManyToOne(type => Topic, topic => topic.questions, {
         nullable: false
     })
     topic!: Topic;
 
+    @Expose()
     @Column({
         type: "text"
     })
     question!: string;
 
+    @Expose()
     @Column()
     questionType!: QuestionType;
 
+    @Expose()
     @Column({
         default: false
     })
@@ -39,6 +46,7 @@ export class Question implements IQuestion {
     // - multiple choice: has a list of answers (multiple can be correct)
     // - open (number): has only a single answer, which will be checked
     // - open (string): has only a single answer, which won't be checked
+    @Expose()
     @OneToMany(type => Answer, answer => answer.question)
     answers!: Answer[];
 
