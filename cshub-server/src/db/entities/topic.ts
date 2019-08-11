@@ -1,14 +1,13 @@
-import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Post} from "./post";
-import {Study} from "./study";
-import {ITopic} from "../../../../cshub-shared/src/entities/topic";
-import {Question} from "./question";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Post } from "./post";
+import { Study } from "./study";
+import { ITopic } from "../../../../cshub-shared/src/entities/topic";
+import { Question } from "./question";
 
 @Entity({
     name: "topics"
 })
 export class Topic implements ITopic {
-
     @PrimaryGeneratedColumn()
     id!: number;
 

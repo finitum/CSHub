@@ -1,18 +1,17 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({
     name: "cacheversion"
 })
 export class CacheVersion {
-
     @PrimaryGeneratedColumn()
-    id: number;
+    id!: number;
 
     @Column({
         type: "text"
     })
-    type: string;
+    type!: string;
 
     @Column()
-    version: number;
+    version!: number;
 }

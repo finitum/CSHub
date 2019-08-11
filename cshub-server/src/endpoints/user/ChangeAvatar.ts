@@ -1,21 +1,16 @@
-import {app} from "../../";
-import {
-    ChangeAvatar,
-    ChangeAvatarCallback
-} from "../../../../cshub-shared/src/api-calls";
-import {Request, Response} from "express";
-import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
+import { app } from "../../";
+import { ChangeAvatar, ChangeAvatarCallback } from "../../../../cshub-shared/src/api-calls";
+import { Request, Response } from "express";
+import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
 import sharp from "sharp";
-import {query} from "../../db/database-query";
+import { query } from "../../db/database-query";
 
 app.post(ChangeAvatar.getURL, (req: Request, res: Response) => {
-
     const userDashboardChangeAvatarRequest = req.body as ChangeAvatar;
 
     const token = checkTokenValidityFromRequest(req);
 
-    if (token.valid) {
-
+    if (token) {
         const base64stripped = userDashboardChangeAvatarRequest.imageb64.replace(/data:image\/(.+);base64,/, "");
 
         const imageBuff = Buffer.from(base64stripped, "base64");
@@ -30,13 +25,17 @@ app.post(ChangeAvatar.getURL, (req: Request, res: Response) => {
                 quality: 40
             })
             .toBuffer()
-            .then((bufferDataJPG) => {
+            .then(bufferDataJPG => {
                 bufferData = bufferDataJPG;
-                return query(`
+                return query(
+                    `
                     UPDATE users
                     SET avatar = ?
                     WHERE id = ?
-                `, bufferData, token.tokenObj.user.id)
+                `,
+                    bufferData,
+                    token.user.id
+                );
             })
             .then(() => {
                 res.json(new ChangeAvatarCallback(Buffer.from(bufferData).toString("base64")));

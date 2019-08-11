@@ -1,16 +1,7 @@
-import {
-    Column,
-    Entity,
-    Index,
-    JoinColumn,
-    JoinTable,
-    ManyToMany,
-    ManyToOne,
-    PrimaryGeneratedColumn
-} from "typeorm";
-import {User} from "./user";
-import {Post} from "./post";
-import {IEdit} from "../../../../cshub-shared/src/entities/edit";
+import { Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "./user";
+import { Post } from "./post";
+import { IEdit } from "../../../../cshub-shared/src/entities/edit";
 
 // @ts-ignore
 import Delta from "quill-delta";
@@ -19,12 +10,11 @@ import Delta from "quill-delta";
     name: "edits"
 })
 export class Edit implements IEdit {
-
     @PrimaryGeneratedColumn()
     id!: number;
 
     @ManyToMany(type => User, user => user.edits)
-    @JoinTable({name: "editusers"})
+    @JoinTable({ name: "editusers" })
     editusers!: User[];
 
     @Column({
@@ -53,7 +43,7 @@ export class Edit implements IEdit {
 
     // Not sent to client
     @ManyToOne(type => Post, post => post.id)
-    @JoinColumn({name: "post"})
+    @JoinColumn({ name: "post" })
     @Index()
     post?: Post;
 
@@ -67,6 +57,6 @@ export class Edit implements IEdit {
     @ManyToOne(type => User, user => user.approvedEdits, {
         nullable: true
     })
-    @JoinColumn({name: "approvedBy"})
+    @JoinColumn({ name: "approvedBy" })
     approvedBy?: User;
 }

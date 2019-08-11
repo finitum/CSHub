@@ -1,39 +1,37 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
-import {app} from "../../";
+import { app } from "../../";
 import logger from "../../utilities/Logger";
 
-import {validateMultipleInputs} from "../../utilities/StringUtils";
+import { validateMultipleInputs } from "../../utilities/StringUtils";
 
-import {EditContent, GetEditContentCallback} from "../../../../cshub-shared/src/api-calls";
+import { EditContent, GetEditContentCallback } from "../../../../cshub-shared/src/api-calls";
 
-import {Edit} from "../../db/entities/edit";
-import {getRepository} from "typeorm";
+import { Edit } from "../../db/entities/edit";
+import { getRepository } from "typeorm";
 
 app.get(EditContent.getURL, (req: Request, res: Response) => {
-
     const postHash: number = req.params.hash;
-    const includeLastEdit: boolean = !(req.header(EditContent.includeLastEditHeader) === "true");
+    const includeLastEdit = !(req.header(EditContent.includeLastEditHeader) === "true");
 
-    const inputsValidation = validateMultipleInputs({input: postHash});
+    const inputsValidation = validateMultipleInputs({ input: postHash });
 
     if (inputsValidation.valid) {
-
         const editRepository = getRepository(Edit);
 
-        editRepository.find({
-            relations: ["editusers"],
-            where: {
-                post: {
-                    hash: postHash
+        editRepository
+            .find({
+                relations: ["editusers"],
+                where: {
+                    post: {
+                        hash: postHash
+                    }
+                },
+                order: {
+                    datetime: "DESC"
                 }
-            },
-            order: {
-                datetime: "DESC"
-            }
-        })
+            })
             .then(edits => {
-
                 if (edits.length > 0) {
                     if (!edits[0].approved && !includeLastEdit) {
                         edits.shift();
@@ -50,5 +48,4 @@ app.get(EditContent.getURL, (req: Request, res: Response) => {
     } else {
         res.status(401).send();
     }
-
 });

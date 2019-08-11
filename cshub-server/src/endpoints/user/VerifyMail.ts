@@ -1,26 +1,27 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
-import {app} from "../../";
+import { app } from "../../";
 import logger from "../..//utilities/Logger";
 
-import {
-    Requests
-} from "../../../../cshub-shared/src/api-calls";
+import { Requests } from "../../../../cshub-shared/src/api-calls";
 
-import {Settings} from "../../settings";
-import {query} from "../../db/database-query";
+import { Settings } from "../../settings";
+import { query } from "../../db/database-query";
 
 app.get(Requests.VERIFYMAIL, (req: Request, res: Response) => {
-
     const hash = parseInt(req.query.hash, 10);
     const userID = parseInt(req.query.accId, 10);
 
     if (!isNaN(hash) && !isNaN(userID)) {
-        query(`
+        query(
+            `
         UPDATE users
         SET verified = 1
         WHERE verifyhash = ? AND id = ?
-        `, hash, userID)
+        `,
+            hash,
+            userID
+        )
             .then(() => {
                 res.redirect(`${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}`);
             })
@@ -33,5 +34,4 @@ app.get(Requests.VERIFYMAIL, (req: Request, res: Response) => {
         logger.error("Error while verifying email, wrong hashes");
         res.status(500).send();
     }
-
 });

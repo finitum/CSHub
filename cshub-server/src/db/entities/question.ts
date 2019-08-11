@@ -1,18 +1,19 @@
-import {Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Topic} from "./topic";
-import {User} from "./user";
-import {Answer} from "./answer";
-import {IQuestion} from "../../../../cshub-shared/src/entities/question";
+import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Topic } from "./topic";
+import { User } from "./user";
+import { Answer } from "./answer";
+import { IQuestion } from "../../../../cshub-shared/src/entities/question";
 
 export enum QuestionType {
-    CLOSED, OPENNUMBER, OPENTEXT
+    CLOSED,
+    OPENNUMBER,
+    OPENTEXT
 }
 
 @Entity({
     name: "question"
 })
 export class Question implements IQuestion {
-
     @PrimaryGeneratedColumn()
     id!: number;
 
@@ -52,5 +53,4 @@ export class Question implements IQuestion {
         nullable: true
     })
     approvedBy?: User;
-
 }

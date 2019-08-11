@@ -217,7 +217,7 @@
                                 >
                                     <v-list-item class="pa-0 postTile">
                                         <v-list-item-avatar>
-                                            <img src="https://picsum.photos/id/339/40/40" class="profileBorder" />
+                                            <img src="https://picsum.photos/40" class="profileBorder" />
                                         </v-list-item-avatar>
                                         <v-list-item-content class="pt-2 d-inline">
                                             <v-list-item-subtitle class="whitespaceInit post-title">

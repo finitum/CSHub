@@ -1,20 +1,19 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Topic} from "./topic";
-import {User} from "./user";
-import {IPost} from "../../../../cshub-shared/src/entities/post";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Topic } from "./topic";
+import { User } from "./user";
+import { IPost } from "../../../../cshub-shared/src/entities/post";
 
 @Entity({
     name: "posts"
 })
 export class Post implements IPost {
-
     @PrimaryGeneratedColumn()
     id!: number;
 
     @ManyToOne(type => Topic, topic => topic.posts, {
         nullable: false
     })
-    @JoinColumn({name: "topic"})
+    @JoinColumn({ name: "topic" })
     @Index()
     topic!: Topic;
 
@@ -60,11 +59,4 @@ export class Post implements IPost {
     })
     @Index()
     isIndex!: boolean;
-
-    // Just for statistics
-    @ManyToOne(type => User, user => user.posts, {
-        nullable: false
-    })
-    @JoinColumn({name: "author"})
-    author?: User;
-}
+a}

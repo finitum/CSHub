@@ -1,15 +1,14 @@
-import {Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {Post} from "./post";
-import {Study} from "./study";
-import {Edit} from "./edit";
-import {IUser} from "../../../../cshub-shared/src/entities/user";
-import {Question} from "./question";
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Post } from "./post";
+import { Study } from "./study";
+import { Edit } from "./edit";
+import { IUser } from "../../../../cshub-shared/src/entities/user";
+import { Question } from "./question";
 
 @Entity({
     name: "users"
 })
 export class User implements IUser {
-
     @PrimaryGeneratedColumn()
     id!: number;
 
@@ -78,9 +77,6 @@ export class User implements IUser {
     passresethash?: number;
 
     // Just to make the model complete
-    @OneToMany(type => Post, post => post.author)
-    posts?: Post[];
-
     @ManyToMany(type => Edit, edit => edit.editusers)
     edits?: Edit[];
 

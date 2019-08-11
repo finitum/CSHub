@@ -1,16 +1,13 @@
-import {server} from "../index";
-import socket, {Socket} from "socket.io";
-import {
-    ClientDataUpdated,
-    ClientCursorUpdated, IRealtimeSelect
-} from "../../../cshub-shared/src/api-calls";
-import {DataUpdatedHandler} from "./DataUpdatedHandler";
-import {TogglePostJoin} from "../../../cshub-shared/src/api-calls";
-import {IRealtimeEdit} from "../../../cshub-shared/src/api-calls";
+import { server } from "../index";
+import socket, { Socket } from "socket.io";
+import { ClientDataUpdated, ClientCursorUpdated, IRealtimeSelect } from "../../../cshub-shared/src/api-calls";
+import { DataUpdatedHandler } from "./DataUpdatedHandler";
+import { TogglePostJoin } from "../../../cshub-shared/src/api-calls";
+import { IRealtimeEdit } from "../../../cshub-shared/src/api-calls";
 import cookieParser from "cookie-parser";
-import {customValidator} from "../utilities/StringUtils";
-import {hasAccessToPostJWT, postAccessType} from "../auth/validateRights/PostAccess";
-import {CursorUpdatedHandler} from "./CursorUpdatedHandler";
+import { customValidator } from "../utilities/StringUtils";
+import { hasAccessToPostJWT, PostAccessType } from "../auth/validateRights/PostAccess";
+import { CursorUpdatedHandler } from "./CursorUpdatedHandler";
 
 export const io = socket(server);
 
@@ -19,14 +16,13 @@ const cookieparser = () => {
     const parser = cookieParser.apply(null, arguments);
 
     return (socket, next) => {
-        parser(socket.request, null, next);
+        parser(socket.request, socket.response, next);
     };
 };
 
 io.use(cookieparser());
 
 io.on("connection", (socketConn: Socket) => {
-
     socketConn.on("disconnecting", () => {
         CursorUpdatedHandler.removeCursor(socketConn);
     });
@@ -39,23 +35,24 @@ io.on("connection", (socketConn: Socket) => {
         DataUpdatedHandler.applyNewEdit(dataUpdated.edit, socketConn);
     });
 
-    socketConn.on(TogglePostJoin.getURL, (togglePost: TogglePostJoin, fn: (edit: IRealtimeEdit, select: IRealtimeSelect[]) => void) => {
-        const inputsValidation = customValidator({
-            input: togglePost.postHash
-        });
+    socketConn.on(
+        TogglePostJoin.getURL,
+        (togglePost: TogglePostJoin, fn: (edit: IRealtimeEdit | null, select: IRealtimeSelect[] | null) => void) => {
+            const inputsValidation = customValidator({
+                input: togglePost.postHash
+            });
 
-        if (inputsValidation.valid) {
-            hasAccessToPostJWT(togglePost.postHash, socketConn.request.cookies["token"])
-                .then((approved: postAccessType) => {
-                    if (approved.canEdit) {
-                        const roomName = `POST_${togglePost.postHash}`;
-                        if (togglePost.join) {
-                            socketConn.join(roomName);
+            if (inputsValidation.valid) {
+                hasAccessToPostJWT(togglePost.postHash, socketConn.request.cookies["token"]).then(
+                    (approved: PostAccessType) => {
+                        if (approved.canEdit) {
+                            const roomName = `POST_${togglePost.postHash}`;
+                            if (togglePost.join) {
+                                socketConn.join(roomName);
 
-                            let edit: IRealtimeEdit;
+                                let edit: IRealtimeEdit | null;
 
-                            DataUpdatedHandler.getCurrentPostData(togglePost.postHash)
-                                .then((data) => {
+                                DataUpdatedHandler.getCurrentPostData(togglePost.postHash).then(data => {
                                     edit = data;
                                     const select = CursorUpdatedHandler.getCurrentPostData(togglePost.postHash);
 
@@ -63,16 +60,18 @@ io.on("connection", (socketConn: Socket) => {
 
                                     fn(edit, select);
                                 });
+                            } else {
+                                socketConn.leave(roomName);
+                                fn(null, null);
+                            }
                         } else {
-                            socketConn.leave(roomName);
                             fn(null, null);
                         }
-                    } else {
-                        fn(null, null);
                     }
-                });
-        } else {
-            fn(null, null);
+                );
+            } else {
+                fn(null, null);
+            }
         }
-    });
+    );
 });

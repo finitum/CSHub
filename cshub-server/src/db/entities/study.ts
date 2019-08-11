@@ -1,13 +1,12 @@
-import {Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Topic} from "./topic";
-import {User} from "./user";
-import {IStudy} from "../../../../cshub-shared/src/entities/study";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Topic } from "./topic";
+import { User } from "./user";
+import { IStudy } from "../../../../cshub-shared/src/entities/study";
 
 @Entity({
     name: "studies"
 })
 export class Study implements IStudy {
-
     @PrimaryGeneratedColumn()
     id!: number;
 
@@ -26,5 +25,4 @@ export class Study implements IStudy {
     @ManyToMany(type => User, user => user.studies)
     @JoinTable()
     admins?: User[];
-
 }

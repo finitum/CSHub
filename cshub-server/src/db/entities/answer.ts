@@ -1,12 +1,11 @@
-import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Question} from "./question";
-import {IAnswer} from "../../../../cshub-shared/src/entities/answer";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Question } from "./question";
+import { IAnswer } from "../../../../cshub-shared/src/entities/answer";
 
 @Entity({
     name: "answer"
 })
 export class Answer implements IAnswer {
-
     @PrimaryGeneratedColumn()
     id!: number;
 

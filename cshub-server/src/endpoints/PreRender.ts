@@ -1,8 +1,8 @@
-import {Request, Response} from "express";
-import {app} from "..";
-import {Settings} from "../settings";
-import {Routes} from "../../../cshub-shared/src/Routes";
-import {DatabaseResultSet, query} from "../db/database-query";
+import { Request, Response } from "express";
+import { app } from "..";
+import { Settings } from "../settings";
+import { Routes } from "../../../cshub-shared/src/Routes";
+import { DatabaseResultSet, query } from "../db/database-query";
 
 app.get("/prerender(/*)?", (req: Request, res: Response) => {
     let param = req.params[0] as string;
@@ -22,68 +22,59 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
                 title = "Post";
                 break;
             } else {
-                query(`
-                  SELECT firstname, lastname, title, T2.id
+                query(
+                    `
+                  SELECT firstname, lastname, title
                   FROM posts T1
-                         INNER JOIN users T2 ON T1.author = T2.id
                   WHERE hash = ?
-                `, strings[2])
-                    .then((result: DatabaseResultSet) => {
-                        const firstname = result.getStringFromDB("firstname");
-                        const lastname = result.getStringFromDB("lastname");
-                        const title = result.getStringFromDB("title");
-                        const userId = result.getNumberFromDB("id");
-
-                        const descriptionMeta: metaType = {
-                            property: "og:description",
-                            content: `A post by ${firstname} ${lastname}. Join now and start writing!`
-                        };
-                        const imageMeta: metaType = {
-                            property: "og:image",
-                            content: `${Settings.APIADDRESS}/profile/${userId}`
-                        };
-                        const titleMeta: metaType = {property: "og:title", content: `${title} - CSHub`};
-                        const titleActualMeta: metaType = {name: "title", content: `${title} - CSHub`};
-
-                        const metas = [
-                            ...getSitename(param),
-                            descriptionMeta,
-                            titleActualMeta,
-                            imageMeta,
-                            titleMeta
-                        ];
-
-                        res.send(createHTML(metas));
-                        return;
-                    });
-                return;
-            }
-        case Routes.TOPIC:
-            query(`
-              SELECT name
-              FROM topics T1
-              WHERE hash = ?
-            `, strings[2])
-                .then((result: DatabaseResultSet) => {
-                    const name = result.getStringFromDB("name");
+                `,
+                    strings[2]
+                ).then((result: DatabaseResultSet) => {
+                    const firstname = result.getStringFromDB("firstname");
+                    const lastname = result.getStringFromDB("lastname");
+                    const title = result.getStringFromDB("title");
 
                     const descriptionMeta: metaType = {
                         property: "og:description",
-                        content: `A topic on ${name}. Click to see all the related posts!`
+                        content: `A post by ${firstname} ${lastname}. Join now and start writing!`
                     };
-                    const titleMeta: metaType = {property: "og:title", content: `${name} - CSHub`};
-                    const titleActualMeta: metaType = {name: "title", content: `${name} - CSHub`};
+                    const imageMeta: metaType = {
+                        property: "og:image",
+                        content: `https://picsum.photos/40`
+                    };
+                    const titleMeta: metaType = { property: "og:title", content: `${title} - CSHub` };
+                    const titleActualMeta: metaType = { name: "title", content: `${title} - CSHub` };
 
-                    const metas = [
-                        ...getSitenameImage(param),
-                        descriptionMeta,
-                        titleMeta,
-                        titleActualMeta
-                    ];
+                    const metas = [...getSitename(param), descriptionMeta, titleActualMeta, imageMeta, titleMeta];
 
                     res.send(createHTML(metas));
                     return;
                 });
+                return;
+            }
+        case Routes.TOPIC:
+            query(
+                `
+              SELECT name
+              FROM topics T1
+              WHERE hash = ?
+            `,
+                strings[2]
+            ).then((result: DatabaseResultSet) => {
+                const name = result.getStringFromDB("name");
+
+                const descriptionMeta: metaType = {
+                    property: "og:description",
+                    content: `A topic on ${name}. Click to see all the related posts!`
+                };
+                const titleMeta: metaType = { property: "og:title", content: `${name} - CSHub` };
+                const titleActualMeta: metaType = { name: "title", content: `${name} - CSHub` };
+
+                const metas = [...getSitenameImage(param), descriptionMeta, titleMeta, titleActualMeta];
+
+                res.send(createHTML(metas));
+                return;
+            });
             return;
         case Routes.INDEX:
             title = "Index";
@@ -121,24 +112,28 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
     res.send(createHTML(getSitenameImageDescription(param, title)));
 });
 
-type metaType = {
+interface metaType {
     property?: string;
     name?: string;
     content: string;
-};
+}
 
 const getSitename = (param: string): metaType[] => [
-    {property: "og:type", content: "website"},
-    {property: "og:url", content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}${param}`},
-    {property: "og:site_name", content: "CSHub"}
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}${param}` },
+    { property: "og:site_name", content: "CSHub" }
 ];
 
 const getSitenameImage = (param: string): metaType[] => [
     ...getSitename(param),
-    {property: "og:image", content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}/img/icons/favicon-192x192.png`},
+    {
+        property: "og:image",
+        content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}/img/icons/favicon-192x192.png`
+    }
 ];
 
-const joinNowAndHelpCreateThem = "CSHub is a place where everyone can create, view and edit summaries. Join now and help create them!";
+const joinNowAndHelpCreateThem =
+    "CSHub is a place where everyone can create, view and edit summaries. Join now and help create them!";
 const getSitenameImageDescription = (param: string, title: string): metaType[] => [
     ...getSitenameImage(param),
     {
@@ -160,7 +155,6 @@ const getSitenameImageDescription = (param: string, title: string): metaType[] =
 ];
 
 const createHTML = (metas: metaType[]) => {
-
     let metaTags = "";
     let titleTag = "";
     for (const meta of metas) {

@@ -1,5 +1,3 @@
-import { IStudy } from "./study";
-
 export interface ITopic {
     id: number;
 
@@ -10,6 +8,4 @@ export interface ITopic {
     name: string;
 
     hash: number;
-
-    study?: IStudy;
 }

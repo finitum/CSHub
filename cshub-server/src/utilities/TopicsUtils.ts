@@ -1,27 +1,29 @@
-import {getTopicFromHash} from "../../../cshub-shared/src/utilities/Topics";
-import {getRandomNumberLarge} from "../../../cshub-shared/src/utilities/Random";
-import {ITopic} from "../../../cshub-shared/src/entities/topic";
-import {IStudy} from "../../../cshub-shared/src/entities/study";
-import {getRepository} from "typeorm";
-import {Topic} from "../db/entities/topic";
+import { getTopicFromHash } from "../../../cshub-shared/src/utilities/Topics";
+import { getRandomNumberLarge } from "../../../cshub-shared/src/utilities/Random";
+import { ITopic } from "../../../cshub-shared/src/entities/topic";
+import { IStudy } from "../../../cshub-shared/src/entities/study";
+import { getRepository } from "typeorm";
+import { Topic } from "../db/entities/topic";
 
 export const generateRandomTopicHash = (): Promise<number> => {
     const hash = getRandomNumberLarge();
 
     // Right now, using getTopicTree each time is terribly inefficient, but in the future we want to optimize this one. So just use this one for now and the optimizations will be in this method so not much refactoring has to be done.
-    return getTopicTree()
-        .then((topics) => {
+    return getTopicTree().then(topics => {
+        if (topics) {
             const topic = getTopicFromHash(hash, topics);
             if (topic === null) {
                 return hash;
             } else {
                 return generateRandomTopicHash();
             }
-        });
+        } else {
+            return generateRandomTopicHash();
+        }
+    });
 };
 
-export const findTopicInTree = (topicHash: number, topics: ITopic[]): ITopic => {
-
+export const findTopicInTree = (topicHash: number, topics: ITopic[]): ITopic | null => {
     for (const topic of topics) {
         if (topic.hash === topicHash) {
             return topic;
@@ -36,9 +38,7 @@ export const findTopicInTree = (topicHash: number, topics: ITopic[]): ITopic => 
     return null;
 };
 
-
-export const findStudyIdsOfTopic = (topic: ITopic): IStudy[] => {
-
+export const findStudyIdsOfTopic = (topic: Topic): IStudy[] => {
     const studyIds: IStudy[] = [];
 
     const study = topic.study;
@@ -56,33 +56,29 @@ export const findStudyIdsOfTopic = (topic: ITopic): IStudy[] => {
 
 // Retrieving all the studies that contain that topic id
 export const getStudiesFromTopic = (topicHash: number): Promise<IStudy[]> => {
+    return getTopicTree().then(value => {
+        if (value) {
+            const topic = findTopicInTree(topicHash, value);
 
-    return getTopicTree()
-        .then(value => {
-
-            if (value) {
-                const topic = findTopicInTree(topicHash, value);
-
-                if (topic) {
-                    return findStudyIdsOfTopic(topic);
-                }
+            if (topic) {
+                return findStudyIdsOfTopic(topic);
             }
+        }
 
-            return [];
-        });
+        return [];
+    });
 };
 
 // This is called quite often, it will retreive all the topics from the database and parse them into the correct model
-export const getTopicTree = (study?: number): Promise<ITopic[]> => {
-
+export const getTopicTree = (study?: number): Promise<ITopic[] | null> => {
     const topicRepository = getRepository(Topic);
 
-    return topicRepository.find({
-        relations: ["parent", "children", "study"]
-    })
+    return topicRepository
+        .find({
+            relations: ["parent", "children", "study"]
+        })
         .then(topics => {
-
-            const getTreeForStudy = (topicTree: Topic[], study: number): ITopic => {
+            const getTreeForStudy = (topicTree: Topic[], study: number): ITopic | null => {
                 for (const topic of topicTree) {
                     if (topic.study && topic.study.id === study) {
                         return topic;
@@ -98,11 +94,15 @@ export const getTopicTree = (study?: number): Promise<ITopic[]> => {
             };
 
             if (study) {
-                return [getTreeForStudy(topics, study)];
+                const treeForStudy = getTreeForStudy(topics, study);
+                if (treeForStudy) {
+                    return [treeForStudy];
+                }
             } else {
                 return topics;
             }
 
+            return null;
         })
         .catch(err => {
             return null;
