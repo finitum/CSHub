@@ -5,9 +5,8 @@ import logger from "../../utilities/Logger";
 import { DatabaseResultSet, query } from "../../db/database-query";
 
 import { TopicPosts, GetTopicPostsCallBack } from "../../../../cshub-shared/src/api-calls";
-import { getTopicTree } from "../../utilities/TopicsUtils";
+import { getChildHashes, getTopicTree } from "../../utilities/TopicsUtils";
 import { getTopicFromHash } from "../../../../cshub-shared/src/utilities/Topics";
-import { ITopic } from "../../../../cshub-shared/src/entities/topic";
 
 app.get(TopicPosts.getURL, (req: Request, res: Response) => {
     const topicHash = Number(req.params.topichash);
@@ -15,19 +14,6 @@ app.get(TopicPosts.getURL, (req: Request, res: Response) => {
     if (isNaN(topicHash)) {
         res.sendStatus(400);
     }
-
-    const getChildHashes = (inputTopic: ITopic[]): number[] => {
-        const currentTopicHashes: number[] = [];
-
-        for (const topic of inputTopic) {
-            if (typeof topic.children !== "undefined" && topic.children !== null) {
-                currentTopicHashes.push(...getChildHashes(topic.children));
-            }
-            currentTopicHashes.push(topic.hash);
-        }
-
-        return currentTopicHashes;
-    };
 
     const topics = getTopicTree();
     topics.then(topicsResult => {

@@ -54,6 +54,17 @@ export const findStudyIdsOfTopic = (topic: Topic): IStudy[] => {
     return studyIds;
 };
 
+export const getChildHashes = (inputTopic: ITopic[]): number[] => {
+    const currentTopicHashes: number[] = [];
+
+    for (const topic of inputTopic) {
+        currentTopicHashes.push(...getChildHashes(topic.children));
+        currentTopicHashes.push(topic.hash);
+    }
+
+    return currentTopicHashes;
+};
+
 // Retrieving all the studies that contain that topic id
 export const getStudiesFromTopic = (topicHash: number): Promise<IStudy[]> => {
     return getTopicTree().then(value => {
@@ -75,9 +86,32 @@ export const getTopicTree = (study?: number): Promise<ITopic[] | null> => {
 
     return topicRepository
         .find({
-            relations: ["parent", "children", "study"]
+            relations: ["parent", "study"]
         })
         .then(topics => {
+            const parseCurrentLayer = (parent: ITopic | null) => {
+                const topicsWithParent = topics.filter(topic => {
+                    if (parent === null) {
+                        return topic.parent === null;
+                    } else {
+                        return topic.parent && topic.parent.id === parent.id;
+                    }
+                });
+
+                for (const topic of topicsWithParent) {
+                    const children = topics.filter(childTopic => {
+                        return childTopic.parent && childTopic.parent.id === topic.id;
+                    });
+                    topic.children = children;
+
+                    for (const child of children) {
+                        parseCurrentLayer(topic);
+                    }
+                }
+            };
+
+            parseCurrentLayer(null);
+
             const getTreeForStudy = (topicTree: Topic[], study: number): ITopic | null => {
                 for (const topic of topicTree) {
                     if (topic.study && topic.study.id === study) {
@@ -99,7 +133,7 @@ export const getTopicTree = (study?: number): Promise<ITopic[] | null> => {
                     return [treeForStudy];
                 }
             } else {
-                return topics;
+                return topics.filter(topic => topic.parent === null);
             }
 
             return null;

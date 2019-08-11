@@ -7,3 +7,5 @@ app.use(
         return classToPlain(body);
     })
 );
+
+export class AlreadySentError extends Error {}

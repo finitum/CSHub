@@ -19,6 +19,9 @@ export class Requests {
 
     public static readonly STUDIES: string = "/study"; // GET
 
+    public static readonly QUESTIONS: string = "/questions"; // GET
+    public static readonly CHECKANSWERS: string = "/questions/check"; // POST
+
     public static readonly LOGIN: string = "/login"; // POST
     public static readonly CREATEACCOUNT: string = "/createaccount"; // POST
     public static readonly VERIFYTOKEN: string = "/verifytoken"; // POST

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
 import { Question } from "./question";
 import { IAnswer } from "../../../../cshub-shared/src/entities/answer";
 import { Exclude, Expose } from "class-transformer";
@@ -17,6 +17,9 @@ export class Answer implements IAnswer {
         nullable: false
     })
     question!: Question;
+
+    @RelationId((answer: Answer) => answer.question)
+    questionId!: number;
 
     // If multiple choice: has a text + notion if it's correct
     @Expose()
