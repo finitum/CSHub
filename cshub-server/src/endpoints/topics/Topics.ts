@@ -5,29 +5,29 @@ import logger from "../../utilities/Logger";
 
 import {Topics, GetTopicsCallBack} from "../../../../cshub-shared/src/api-calls";
 import {getTopicTree} from "../../utilities/TopicsUtils";
-import {DatabaseResultSet, query} from "../../db/database-query";
-import {ServerError} from "../../../../cshub-shared/src/models/ServerError";
+import {getRepository} from "typeorm";
+import {CacheVersion} from "../../db/entities/cacheversion";
 
 app.get(Topics.getURL, (req: Request, res: Response) => {
 
     const topicVersion: number = +req.header(Topics.topicVersionHeader);
     logger.info("Received TopicVersion: " + topicVersion);
 
-    const study: number = +req.query[Topics.studyQueryParam];
-    if (!study) {
-        res.status(400).send(new ServerError("Not a valid study id"));
-        return;
+    let study: number | undefined = undefined;
+    if (req.query[Topics.studyQueryParam]) {
+        study = +req.query[Topics.studyQueryParam];
+        logger.info("Received Study: " + study);
     }
-    logger.info("Received Study: " + study);
 
-    query(`
-        SELECT cacheVersion
-        FROM studies T1
-        INNER JOIN topics t on T1.topTopicId = t.id
-        WHERE T1.id = ?`, study)
-        .then((versionData: DatabaseResultSet) => {
-            const version = versionData.getNumberFromDB("cacheVersion");
+    const repository = getRepository(CacheVersion);
 
+    repository.findOne({
+        where: {
+            type: "TOPICS"
+        }
+    })
+        .then(versionData => {
+            const version = versionData.version;
             if (version === topicVersion) {
                 res.status(304).send(); // Not Modified
             } else {

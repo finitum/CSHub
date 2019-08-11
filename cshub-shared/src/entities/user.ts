@@ -1,6 +1,4 @@
-import { IPost } from "./post";
 import { IStudy } from "./study";
-import { IEdit } from "./edit";
 
 export interface IUser {
     id: number;
@@ -19,11 +17,5 @@ export interface IUser {
 
     lastname: string;
 
-    posts?: IPost[];
-
-    edits?: IEdit[];
-
-    approvedEdits?: IEdit[];
-
-    studies?: IStudy[];
+    studies: IStudy[];
 }

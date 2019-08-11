@@ -1,20 +1,15 @@
-import { IPost } from "./post";
 import { IStudy } from "./study";
 
 export interface ITopic {
     id: number;
 
-    parent?: ITopic;
+    parent: ITopic | null;
 
-    children?: ITopic[];
-
-    posts?: IPost[];
-
-    study?: IStudy;
+    children: ITopic[];
 
     name: string;
 
     hash: number;
 
-    cacheVersion: number;
+    study?: IStudy;
 }

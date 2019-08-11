@@ -9,61 +9,62 @@ import {IPost} from "../../../../cshub-shared/src/entities/post";
 export class Post implements IPost {
 
     @PrimaryGeneratedColumn()
-    id: number;
+    id!: number;
 
     @ManyToOne(type => Topic, topic => topic.posts, {
         nullable: false
     })
     @JoinColumn({name: "topic"})
     @Index()
-    topic: Topic;
-
-    @ManyToOne(type => User, user => user.posts, {
-        nullable: false
-    })
-    @JoinColumn({name: "author"})
-    author: User;
+    topic!: Topic;
 
     @Column({
         type: "datetime",
         default: () => "CURRENT_TIMESTAMP"
     })
-    datetime: Date;
+    datetime!: Date;
 
     @Column({
         type: "varchar",
         length: 127,
         unique: true
     })
-    title: string;
+    title!: string;
 
     @Column({
         unique: true
     })
-    hash: number;
+    hash!: number;
 
     @Column()
     @Index()
-    postVersion: number;
+    postVersion!: number;
 
     @Column({
         type: "int", // Otherwise it overrides the value
         default: false
     })
     @Index()
-    deleted: boolean;
+    deleted!: boolean;
 
     @Column({
         type: "int", // Otherwise it overrides the value
         default: true
     })
     @Index()
-    wip: boolean;
+    wip!: boolean;
 
     @Column({
         type: "int", // Otherwise it overrides the value
         default: false
     })
     @Index()
-    isIndex: boolean;
+    isIndex!: boolean;
+
+    // Just for statistics
+    @ManyToOne(type => User, user => user.posts, {
+        nullable: false
+    })
+    @JoinColumn({name: "author"})
+    author?: User;
 }

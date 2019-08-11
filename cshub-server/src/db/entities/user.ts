@@ -3,6 +3,7 @@ import {Post} from "./post";
 import {Study} from "./study";
 import {Edit} from "./edit";
 import {IUser} from "../../../../cshub-shared/src/entities/user";
+import {Question} from "./question";
 
 @Entity({
     name: "users"
@@ -10,77 +11,82 @@ import {IUser} from "../../../../cshub-shared/src/entities/user";
 export class User implements IUser {
 
     @PrimaryGeneratedColumn()
-    id: number;
+    id!: number;
 
     @Column({
         type: "text"
     })
-    email: string;
-
-    @Column({
-        type: "text"
-    })
-    password: string;
+    email!: string;
 
     @Column({
         type: "blob",
         nullable: true
     })
-    avatar: string;
+    avatar!: string;
 
     @Column({
         type: "int", // Otherwise it overrides the value
         default: false
     })
-    admin: boolean;
+    admin!: boolean;
+
+    @Column({
+        type: "int", // Otherwise it overrides the value
+        default: false
+    })
+    blocked!: boolean;
+
+    @Column({
+        type: "int", // Otherwise it overrides the value
+        default: false
+    })
+    verified!: boolean;
+
+    @Column({
+        type: "text"
+    })
+    firstname!: string;
+
+    @Column({
+        type: "text"
+    })
+    lastname!: string;
+
+    @ManyToMany(type => Study, study => study.admins)
+    studies!: Study[];
+
+    // Not sent to client
+    @Column({
+        type: "text"
+    })
+    password!: string;
 
     @Column({
         type: "datetime",
         default: () => "CURRENT_TIMESTAMP"
     })
-    created: Date;
-
-    @Column({
-        type: "int", // Otherwise it overrides the value
-        default: false
-    })
-    blocked: boolean;
-
-    @Column({
-        type: "int", // Otherwise it overrides the value
-        default: false
-    })
-    verified: boolean;
-
-    @Column({
-        type: "text"
-    })
-    firstname: string;
-
-    @Column({
-        type: "text"
-    })
-    lastname: string;
+    created!: Date;
 
     @Column({
         nullable: true
     })
-    verifyhash: number;
+    verifyhash?: number;
 
     @Column({
         nullable: true
     })
-    passresethash: number;
+    passresethash?: number;
 
+    // Just to make the model complete
     @OneToMany(type => Post, post => post.author)
-    posts: Post[];
+    posts?: Post[];
 
     @ManyToMany(type => Edit, edit => edit.editusers)
-    edits: Edit[];
+    edits?: Edit[];
 
     @ManyToOne(type => Edit, edit => edit.approvedBy)
-    approvedEdits: Edit[];
+    approvedEdits?: Edit[];
 
-    @ManyToMany(type => Study, study => study.admins)
-    studies: Study[];
+    @ManyToOne(type => Question, question => question.approvedBy)
+    approvedQuestions?: Edit[];
 }

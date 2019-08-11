@@ -2,6 +2,7 @@ import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGener
 import {Post} from "./post";
 import {Study} from "./study";
 import {ITopic} from "../../../../cshub-shared/src/entities/topic";
+import {Question} from "./question";
 
 @Entity({
     name: "topics"
@@ -9,7 +10,7 @@ import {ITopic} from "../../../../cshub-shared/src/entities/topic";
 export class Topic implements ITopic {
 
     @PrimaryGeneratedColumn()
-    id: number;
+    id!: number;
 
     @ManyToOne(type => Topic, topic => topic.children, {
         nullable: true,
@@ -17,31 +18,30 @@ export class Topic implements ITopic {
         onUpdate: "RESTRICT"
     })
     @JoinColumn({ name: "parentid" })
-    parent: Topic;
+    parent!: Topic | null;
 
     @OneToMany(type => Topic, topic => topic.parent)
-    children: Topic[];
-
-    @OneToMany(type => Post, post => post.topic)
-    posts: Post[];
-
-    @OneToOne(type => Study, study => study.topTopic, {
-        nullable: true
-    })
-    study: Study;
+    children!: Topic[];
 
     @Column({
         type: "text"
     })
-    name: string;
+    name!: string;
 
     @Column({
         unique: true
     })
-    hash: number;
+    hash!: number;
 
-    @Column({
+    @OneToOne(type => Study, study => study.topTopic, {
         nullable: true
     })
-    cacheVersion: number;
+    study?: Study;
+
+    // Not sent to client
+    @OneToMany(type => Post, post => post.topic)
+    posts?: Post[];
+
+    @OneToMany(type => Question, question => question.topic)
+    questions?: Question[];
 }

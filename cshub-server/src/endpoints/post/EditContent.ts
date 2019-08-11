@@ -22,7 +22,7 @@ app.get(EditContent.getURL, (req: Request, res: Response) => {
         const editRepository = getRepository(Edit);
 
         editRepository.find({
-            relations: ["user"],
+            relations: ["editusers"],
             where: {
                 post: {
                     hash: postHash

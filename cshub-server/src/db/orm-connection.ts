@@ -11,6 +11,9 @@ import {Study} from "./entities/study";
 import tunnel from "tunnel-ssh";
 import fs from "fs";
 import logger from "../utilities/Logger";
+import {Answer} from "./entities/answer";
+import {Question} from "./entities/question";
+import {CacheVersion} from "./entities/cacheversion";
 
 class CustomLogger implements Logger {
     log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {
@@ -48,7 +51,7 @@ const options: ConnectionOptions = {
     multipleStatements: true,
     logger: new CustomLogger(),
     entities: [
-        User, Topic, Post, Edit, Study
+        User, Topic, Post, Edit, Study, Answer, Question, CacheVersion
     ],
     synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
 };

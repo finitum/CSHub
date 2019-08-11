@@ -1,7 +1,6 @@
 import "./ChangeAvatar";
 import "./ChangePassword";
 import "./CreateAccount";
-import "./Dashboard";
 import "./ForgotPassword";
 import "./ForgotPasswordMail";
 import "./AllUsers";

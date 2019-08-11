@@ -21,50 +21,52 @@ import Delta from "quill-delta";
 export class Edit implements IEdit {
 
     @PrimaryGeneratedColumn()
-    id: number;
-
-    @ManyToOne(type => Post, post => post.id)
-    @JoinColumn({name: "post"})
-    @Index()
-    post: Post;
+    id!: number;
 
     @ManyToMany(type => User, user => user.edits)
     @JoinTable({name: "editusers"})
-    editusers: User[];
+    editusers!: User[];
 
     @Column({
         type: "longtext"
     })
-    content: Delta;
+    content!: Delta;
 
     @Column({
         type: "int", // Otherwise it overrides the value
         default: false
     })
-    approved: boolean;
-
-    @ManyToOne(type => User, user => user.approvedEdits, {
-        nullable: true
-    })
-    @JoinColumn({name: "approvedBy"})
-    approvedBy: User;
+    approved!: boolean;
 
     @Column({
         type: "datetime",
         default: () => "CURRENT_TIMESTAMP"
     })
     @Index()
-    datetime: Date;
+    datetime!: Date;
 
     @Column({
         type: "longtext",
         nullable: true
     })
-    htmlContent: string;
+    htmlContent!: string;
+
+    // Not sent to client
+    @ManyToOne(type => Post, post => post.id)
+    @JoinColumn({name: "post"})
+    @Index()
+    post?: Post;
 
     @Column({
         type: "longtext",
         nullable: true
     })
-    indexwords: string;
+    indexwords?: string;
+
+    // Just for statistics
+    @ManyToOne(type => User, user => user.approvedEdits, {
+        nullable: true
+    })
+    @JoinColumn({name: "approvedBy"})
+    approvedBy?: User;
 }

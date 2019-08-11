@@ -40,7 +40,7 @@ export const getHTMLFromDelta = (delta: Delta, callback: (html: string, indexWor
         const markdownParser = new MarkdownLatexQuill(quillWindow);
         markdownParser.registerQuill();
         quill.setContents(delta);
-        const html = getHTML(quill, document, window);
+        const html = getHTML(quill, document);
 
         const filteredArr: string[] =
             html

@@ -27,7 +27,7 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack> => {
 
     return postRepository
         .findOne({
-            relations: ["author", "topic"],
+            relations: ["topic"],
             where: {
                 hash: postHash
             }

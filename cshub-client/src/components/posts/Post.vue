@@ -357,14 +357,6 @@ export default class Post extends Vue {
     /**
      * Computed properties
      */
-    get userOwnsThisPostComputed(): boolean {
-        if (this.post && userState.userModel) {
-            return userState.userModel.id === this.post.author.id;
-        } else {
-            return false;
-        }
-    }
-
     get userAdminComputed(): boolean {
         return this.userIsLoggedIn && userState.isAdmin;
     }
@@ -594,20 +586,6 @@ export default class Post extends Vue {
         this.$router.push(this.previousTopicURL);
     }
 
-    private getParentTopic(child: ITopic, topics: ITopic[]): ITopic | null {
-        for (const topic of topics) {
-            if (topic.children !== undefined && topic.children.findIndex(x => x.id === child.id) !== -1) {
-                return topic;
-            } else if (topic.children !== undefined && topic.children.length > 0) {
-                const currTopic = this.getParentTopic(child, topic.children);
-                if (currTopic !== null) {
-                    return currTopic;
-                }
-            }
-        }
-        return null;
-    }
-
     private enableEdit() {
         this.$router.push(`${this.currentPostURLComputed}/edit`);
     }
@@ -617,7 +595,7 @@ export default class Post extends Vue {
     }
 
     private getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
-        const parentTopic = this.getParentTopic(child, dataState.topics);
+        const parentTopic = child.parent;
 
         const currTopic: IBreadCrumbType = {
             text: child.name,

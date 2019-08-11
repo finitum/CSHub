@@ -9,21 +9,22 @@ import {IStudy} from "../../../../cshub-shared/src/entities/study";
 export class Study implements IStudy {
 
     @PrimaryGeneratedColumn()
-    id: number;
+    id!: number;
 
     @Column({
         type: "text"
     })
-    name: string;
+    name!: string;
 
     @OneToOne(type => Topic, topic => topic.study, {
         nullable: false
     })
     @JoinColumn()
-    topTopic: Topic;
+    topTopic!: Topic;
 
+    // Not sent to client
     @ManyToMany(type => User, user => user.studies)
     @JoinTable()
-    admins: User[];
+    admins?: User[];
 
 }
