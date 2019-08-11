@@ -2,7 +2,7 @@ import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColum
 import { Study } from "./study";
 import { Edit } from "./edit";
 import { IUser } from "../../../../cshub-shared/src/entities/user";
-import { Question } from "./question";
+import { Question } from "./practice/question";
 import { Exclude, Expose } from "class-transformer";
 
 @Exclude()

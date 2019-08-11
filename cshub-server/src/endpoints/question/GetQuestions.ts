@@ -9,7 +9,7 @@ import {
     GetQuestionsCallback
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/GetQuestions";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
-import { Question } from "../../db/entities/question";
+import { Question } from "../../db/entities/practice/question";
 import { findTopicInTree, getChildHashes, getTopicTree } from "../../utilities/TopicsUtils";
 
 app.get(GetQuestions.getURL, (req: Request, res: Response) => {

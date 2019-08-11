@@ -1,5 +1,14 @@
-import { QuestionType } from "../../../cshub-server/src/db/entities/question";
-import { Answer } from "../../../cshub-server/src/db/entities/answer";
+import { IAnswer } from "./answer";
+
+// If:
+// - multiple choice: has a list of answers (multiple can be correct)
+// - open (number): has only a single answer, which will be checked
+// - open (string): has only a single answer, which won't be checked
+export enum QuestionType {
+    CLOSED = "CLOSED",
+    OPENNUMBER = "OPENNUMBER",
+    OPENTEXT = "OPENTEXT"
+}
 
 export interface IQuestion {
     id: number;
@@ -10,5 +19,5 @@ export interface IQuestion {
 
     onlyOneAnswer: boolean;
 
-    answers: Answer[];
+    answers: IAnswer[];
 }

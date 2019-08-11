@@ -10,9 +10,13 @@ import {
     CheckAnswersCallback,
     CheckedAnswerType
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/CheckAnswers";
-import { Question, QuestionType } from "../../db/entities/question";
+import { Question } from "../../db/entities/practice/question";
 import logger from "../../utilities/Logger";
 import { AlreadySentError } from "../utils";
+import { QuestionType } from "../../../../cshub-shared/src/entities/question";
+import { ClosedAnswer } from "../../db/entities/practice/closed-answer";
+import { OpenTextAnswer } from "../../db/entities/practice/open-text-answer";
+import { OpenNumberAnswer } from "../../db/entities/practice/open-number-answer";
 
 app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
     const checkAnswers = req.body as CheckAnswers;
@@ -30,7 +34,13 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 throw new AlreadySentError();
             }
 
-            const correctAnswers = question.answers
+            if (!(question.answers[0] instanceof ClosedAnswer)) {
+                logger.error(`Wrong answer type for answerid ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            const correctAnswers = (question.answers as ClosedAnswer[])
                 .filter(answer => {
                     const correctAnswer = answer.correct;
                     if (correctAnswer === undefined) {
@@ -89,7 +99,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     }
 
-    function checkOpenTextQuestion(clientAnswer: AnswerType, question: Question): CheckedAnswerType {
+    function checkOpenNumberQuestion(clientAnswer: AnswerType, question: Question): CheckedAnswerType {
         if (clientAnswer.type === QuestionType.OPENNUMBER) {
             if (question.answers.length !== 1) {
                 logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
@@ -97,8 +107,16 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 throw new AlreadySentError();
             }
 
-            const correctAnswer = question.answers[0].openAnswerNumber;
-            const precision = question.answers[0].precision;
+            if (!(question.answers[0] instanceof OpenNumberAnswer)) {
+                logger.error(`Wrong answer type for answerid ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            const answers = question.answers as OpenNumberAnswer[];
+
+            const correctAnswer = answers[0].openAnswerNumber;
+            const precision = answers[0].precision;
             if (!correctAnswer || !precision) {
                 logger.error(`No precision or answer number found for ${question.id}`);
                 res.status(500).send();
@@ -124,7 +142,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     }
 
-    function checkOpenNumberQuestion(clientAnswer: AnswerType, question: Question): CheckedAnswerType {
+    function checkOpenTextQuestion(clientAnswer: AnswerType, question: Question): CheckedAnswerType {
         if (clientAnswer.type === QuestionType.OPENTEXT) {
             if (question.answers.length !== 1) {
                 logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
@@ -132,7 +150,13 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 throw new AlreadySentError();
             }
 
-            const correctAnswer = question.answers[0].openAnswerText;
+            if (!(question.answers[0] instanceof OpenTextAnswer)) {
+                logger.error(`Wrong answer type for answerid ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            const correctAnswer = (question.answers as OpenTextAnswer[])[0].openAnswerText;
             if (!correctAnswer) {
                 logger.error(`No answer text found for ${question.id}`);
                 res.status(500).send();

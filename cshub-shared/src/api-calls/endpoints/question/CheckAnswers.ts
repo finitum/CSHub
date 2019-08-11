@@ -1,6 +1,6 @@
 import { IApiRequest } from "../../../models";
 import { Requests } from "../../Requests";
-import { QuestionType } from "../../../../../cshub-server/src/db/entities/question";
+import { QuestionType } from "../../../entities/question";
 
 export interface CheckedAnswerType extends ToCheckAnswerType {
     explanation: string;

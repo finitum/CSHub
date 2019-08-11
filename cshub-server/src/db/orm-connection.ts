@@ -11,9 +11,12 @@ import { Study } from "./entities/study";
 import tunnel from "tunnel-ssh";
 import fs from "fs";
 import logger from "../utilities/Logger";
-import { Answer } from "./entities/answer";
-import { Question } from "./entities/question";
 import { CacheVersion } from "./entities/cacheversion";
+import { Answer } from "./entities/practice/answer";
+import { Question } from "./entities/practice/question";
+import { OpenNumberAnswer } from "./entities/practice/open-number-answer";
+import { OpenTextAnswer } from "./entities/practice/open-text-answer";
+import { ClosedAnswer } from "./entities/practice/closed-answer";
 
 class CustomLogger implements Logger {
     log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {
@@ -50,7 +53,19 @@ const options: ConnectionOptions = {
     database: Settings.DATABASE.NAME,
     multipleStatements: true,
     logger: new CustomLogger(),
-    entities: [User, Topic, Post, Edit, Study, Answer, Question, CacheVersion],
+    entities: [
+        User,
+        Topic,
+        Post,
+        Edit,
+        Study,
+        Answer,
+        Question,
+        CacheVersion,
+        OpenNumberAnswer,
+        OpenTextAnswer,
+        ClosedAnswer
+    ],
     synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
 };
 
