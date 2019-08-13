@@ -27,17 +27,13 @@ export class Question implements IQuestion {
     questionType!: QuestionType;
 
     @Expose()
-    @Column()
-    onlyOneAnswer!: boolean;
-
-    @Expose()
     @OneToMany(type => Answer, answer => answer.question)
     answers!: Answer[];
 
     @Column({
         type: "text"
     })
-    explanation!: string; // string for now, will be some sort of reference later (for more complex explanations)
+    explanation!: string;
 
     @ManyToOne(type => Topic, topic => topic.questions, {
         nullable: false
@@ -57,6 +53,9 @@ export class Question implements IQuestion {
         nullable: true
     })
     replacesQuestion?: Question;
+
+    @RelationId((question: Question) => question.replacesQuestion)
+    replacesQuestionId?: number;
 
     // Just for statistics
     @ManyToOne(type => User, user => user.approvedQuestions, {

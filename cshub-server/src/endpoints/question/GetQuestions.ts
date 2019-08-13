@@ -15,7 +15,7 @@ import { findTopicInTree, getChildHashes, getTopicTree } from "../../utilities/T
 app.get(GetQuestions.getURL, (req: Request, res: Response) => {
     const topicQueryParam = req.query[GetQuestions.topicQueryParam];
     if (!topicQueryParam) {
-        res.status(404).send(new ServerError("Topic query param not found", false));
+        res.status(400).send(new ServerError("Topic query param not found", false));
         return;
     }
 

@@ -1,7 +1,6 @@
 import { app } from "../../";
 import { Request, Response } from "express";
 import { DatabaseResultSet, query } from "../../db/database-query";
-import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
 import { PostSettings, PostSettingsCallback, PostSettingsEditType } from "../../../../cshub-shared/src/api-calls";
 import { hasAccessToPostRequest } from "../../auth/validateRights/PostAccess";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
@@ -12,6 +11,7 @@ app.put(PostSettings.getURL, async (req: Request, res: Response) => {
 
     if (typeof action === "undefined" || isNaN(postHash)) {
         res.sendStatus(400);
+        return;
     }
 
     hasAccessToPostRequest(postHash, req).then(async access => {

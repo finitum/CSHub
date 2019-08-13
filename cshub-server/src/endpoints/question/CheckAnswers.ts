@@ -5,9 +5,9 @@ import { app } from "../../";
 import { getRepository, In } from "typeorm";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import {
-    AnswerType,
     CheckAnswers,
     CheckAnswersCallback,
+    CheckAnswerType,
     CheckedAnswerType
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/CheckAnswers";
 import { Question } from "../../db/entities/practice/question";
@@ -26,8 +26,8 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         return;
     }
 
-    function checkClosedQuestion(clientAnswer: AnswerType, question: Question): CheckedAnswerType {
-        if (clientAnswer.type === QuestionType.CLOSED) {
+    function checkClosedQuestion(clientAnswer: CheckAnswerType, question: Question): CheckedAnswerType {
+        if (clientAnswer.type === question.questionType) {
             if (question.answers.length === 0) {
                 logger.error(`No answers found for ${question.id}`);
                 res.status(500).send();
@@ -59,7 +59,10 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 explanation: question.explanation
             };
 
-            if (clientAnswer.onlyOneAnswer && question.onlyOneAnswer) {
+            if (
+                clientAnswer.type === QuestionType.SINGLECLOSED &&
+                question.questionType === QuestionType.SINGLECLOSED
+            ) {
                 const userAnswer = clientAnswer.answerId;
 
                 if (correctAnswers.length !== 1) {
@@ -71,20 +74,21 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 return {
                     ...sharedPart,
                     correctAnswer: {
-                        type: QuestionType.CLOSED,
-                        onlyOneAnswer: true,
+                        type: QuestionType.SINGLECLOSED,
                         answerId: correctAnswers[0]
                     },
                     correct: userAnswer === correctAnswers[0]
                 };
-            } else if (!clientAnswer.onlyOneAnswer && !question.onlyOneAnswer) {
+            } else if (
+                clientAnswer.type === QuestionType.MULTICLOSED &&
+                question.questionType === QuestionType.MULTICLOSED
+            ) {
                 const userAnswers = clientAnswer.answerIds;
 
                 return {
                     ...sharedPart,
                     correctAnswer: {
-                        type: QuestionType.CLOSED,
-                        onlyOneAnswer: false,
+                        type: QuestionType.MULTICLOSED,
                         answerIds: correctAnswers
                     },
                     correct: correctAnswers.every(correctAnswer => userAnswers.includes(correctAnswer))
@@ -99,7 +103,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     }
 
-    function checkOpenNumberQuestion(clientAnswer: AnswerType, question: Question): CheckedAnswerType {
+    function checkOpenNumberQuestion(clientAnswer: CheckAnswerType, question: Question): CheckedAnswerType {
         if (clientAnswer.type === QuestionType.OPENNUMBER) {
             if (question.answers.length !== 1) {
                 logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
@@ -142,7 +146,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     }
 
-    function checkOpenTextQuestion(clientAnswer: AnswerType, question: Question): CheckedAnswerType {
+    function checkOpenTextQuestion(clientAnswer: CheckAnswerType, question: Question): CheckedAnswerType {
         if (clientAnswer.type === QuestionType.OPENTEXT) {
             if (question.answers.length !== 1) {
                 logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
@@ -179,9 +183,10 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     }
 
-    const parseAnswer = (question: Question, clientAnswer: AnswerType): CheckedAnswerType => {
+    const parseAnswer = (question: Question, clientAnswer: CheckAnswerType): CheckedAnswerType => {
         switch (question.questionType) {
-            case QuestionType.CLOSED:
+            case QuestionType.SINGLECLOSED:
+            case QuestionType.MULTICLOSED:
                 return checkClosedQuestion(clientAnswer, question);
             case QuestionType.OPENNUMBER:
                 return checkOpenNumberQuestion(clientAnswer, question);

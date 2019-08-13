@@ -12,4 +12,10 @@ export class OpenNumberAnswer extends Answer {
 
     @Column()
     precision!: number;
+
+    constructor(openAnswerNumber: number, precision: number) {
+        super();
+        this.openAnswerNumber = openAnswerNumber;
+        this.precision = precision;
+    }
 }

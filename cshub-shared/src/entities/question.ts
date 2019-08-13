@@ -5,7 +5,8 @@ import { IAnswer } from "./answer";
 // - open (number): has only a single answer, which will be checked
 // - open (string): has only a single answer, which won't be checked
 export enum QuestionType {
-    CLOSED = "CLOSED",
+    SINGLECLOSED = "CLOSED",
+    MULTICLOSED = "MULTICLOSED",
     OPENNUMBER = "OPENNUMBER",
     OPENTEXT = "OPENTEXT"
 }
@@ -16,8 +17,6 @@ export interface IQuestion {
     question: string;
 
     questionType: QuestionType;
-
-    onlyOneAnswer: boolean;
 
     answers: IAnswer[];
 }

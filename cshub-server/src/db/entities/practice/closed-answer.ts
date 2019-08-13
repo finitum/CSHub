@@ -11,4 +11,10 @@ export class ClosedAnswer extends Answer {
 
     @Column()
     correct!: boolean;
+
+    constructor(closedAnswerText: string, correct: boolean) {
+        super();
+        this.closedAnswerText = closedAnswerText;
+        this.correct = correct;
+    }
 }

@@ -5,22 +5,16 @@ import { QuestionType } from "../../../entities/question";
 export interface CheckedAnswerType extends ToCheckAnswerType {
     explanation: string;
     correct: boolean | null;
-    correctAnswer: AnswerType;
+    correctAnswer: CheckAnswerType;
 }
 
-export class CheckAnswersCallback {
-    constructor(public answers: CheckedAnswerType[]) {}
-}
-
-export type AnswerType =
+export type CheckAnswerType =
     | {
-          type: QuestionType.CLOSED;
-          onlyOneAnswer: true;
+          type: QuestionType.SINGLECLOSED;
           answerId: number;
       }
     | {
-          type: QuestionType.CLOSED;
-          onlyOneAnswer: false;
+          type: QuestionType.MULTICLOSED;
           answerIds: number[];
       }
     | {
@@ -32,9 +26,13 @@ export type AnswerType =
           text: string;
       };
 
+export class CheckAnswersCallback {
+    constructor(public answers: CheckedAnswerType[]) {}
+}
+
 interface ToCheckAnswerType {
     questionId: number;
-    answer: AnswerType;
+    answer: CheckAnswerType;
 }
 
 export class CheckAnswers implements IApiRequest {
