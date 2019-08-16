@@ -7,7 +7,7 @@
             }}</v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn v-if="notificationButtonEnabled" color="red darken-1" flat @click.native="doButtonClick">{{
+                <v-btn v-if="notificationButtonEnabled" color="red darken-1" text @click.native="doButtonClick">{{
                     notificationDialogComputed.button.text
                 }}</v-btn>
                 <v-btn

@@ -10,10 +10,10 @@ export interface ISettings {
     };
     USESSH: boolean;
     SSH: {
-        HOST: string,
-        USER: string,
-        PORT: number,
-        PRIVATEKEYLOCATION: string,
+        HOST: string;
+        USER: string;
+        PORT: number;
+        PRIVATEKEYLOCATION: string;
     };
     DOMAIN: string;
     SITEADDRESS: string;
@@ -26,7 +26,7 @@ export interface ISettings {
         USEGMAIL: boolean;
         GMAILSETTINGS: {
             PASSWORD: string;
-            MAILADDRESS: string
+            MAILADDRESS: string;
         };
         APIKEY: string;
         NOREPLYADDRESS: string;
@@ -35,7 +35,6 @@ export interface ISettings {
     };
     APIADDRESS: string;
     LOGLEVEL: string;
-
 }
 
 export const Settings: ISettings = {
@@ -46,14 +45,14 @@ export const Settings: ISettings = {
         USER: process.env.DATABASE_USER ? process.env.DATABASE_USER : "xxx",
         PASSWORD: process.env.DATABASE_PASSWORD ? process.env.DATABASE_PASSWORD : "xxx",
         NAME: process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "CSHubTest",
-        PORT: process.env.PORT ? Number(process.env.PORT) : 3306,
+        PORT: process.env.PORT ? Number(process.env.PORT) : 3306
     },
     USESSH: process.env.USESSH ? process.env.USESSH === "true" : true,
     SSH: {
         HOST: process.env.SSH_HOST ? process.env.SSH_HOST : "cshub",
         USER: process.env.SSH_USER ? process.env.SSH_USER : "xxx",
         PORT: process.env.SSH_PORT ? Number(process.env.SSH_PORT) : 22,
-        PRIVATEKEYLOCATION: process.env.SSH_PRIVATEKEYLOCATION ? process.env.SSH_PRIVATEKEYLOCATION : "xxx",
+        PRIVATEKEYLOCATION: process.env.SSH_PRIVATEKEYLOCATION ? process.env.SSH_PRIVATEKEYLOCATION : "xxx"
     },
     DOMAIN: process.env.DOMAIN ? process.env.DOMAIN : "192.168.x.x",
     SITEADDRESS: process.env.SITEADDRESS ? process.env.SITEADDRESS : "192.168.xxx",
@@ -66,7 +65,9 @@ export const Settings: ISettings = {
         USEGMAIL: process.env.MAIL_USEGMAIL ? process.env.MAIL_USEGMAIL === "true" : false,
         GMAILSETTINGS: {
             PASSWORD: process.env.MAIL_GMAILSETTINGS_PASSWORD ? process.env.MAIL_GMAILSETTINGS_PASSWORD : "xxxx",
-            MAILADDRESS: process.env.MAIL_GMAILSETTINGS_MAILADDRESS ? process.env.MAIL_GMAILSETTINGS_MAILADDRESS : "xxx@gmail.com"
+            MAILADDRESS: process.env.MAIL_GMAILSETTINGS_MAILADDRESS
+                ? process.env.MAIL_GMAILSETTINGS_MAILADDRESS
+                : "xxx@gmail.com"
         },
         APIKEY: process.env.MAIL_APIKEY ? process.env.MAIL_APIKEY : "xxxx",
         NOREPLYADDRESS: process.env.MAIL_APIKEY ? process.env.MAIL_APIKEY : "no-reply@xxx.nl",

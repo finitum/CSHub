@@ -41,7 +41,10 @@ export class DataUpdatedHandler {
                             try {
                                 edit.prevServerGeneratedId = this.postHistoryHandler.getPreviousServerIDOfUser(edit);
                             } catch {
-                                const response = new ServerDataUpdated("Wrong previous state!");
+                                const response = new ServerDataUpdated({
+                                    error: true,
+                                    message: "Wrong previous state!"
+                                });
                                 currSocket.emit(response.URL, response);
                                 next();
                                 return;
@@ -57,7 +60,10 @@ export class DataUpdatedHandler {
                                 edit.delta = this.postHistoryHandler.transformArray(edit, false);
                             } catch {
                                 logger.error("Invalid transform");
-                                const response = new ServerDataUpdated("Invalid transform!");
+                                const response = new ServerDataUpdated({
+                                    error: true,
+                                    message: "Invalid transform!"
+                                });
                                 currSocket.emit(response.URL, response);
                                 next();
                                 return;
@@ -89,7 +95,10 @@ export class DataUpdatedHandler {
 
                             const roomId = `POST_${edit.postHash}`;
 
-                            const response = new ServerDataUpdated(serverEdit);
+                            const response = new ServerDataUpdated({
+                                error: false,
+                                edit: serverEdit
+                            });
                             io.to(roomId).emit(response.URL, response);
                         }
                     }
