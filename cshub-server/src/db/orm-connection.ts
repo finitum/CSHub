@@ -17,6 +17,7 @@ import { Question } from "./entities/practice/question";
 import { OpenNumberAnswer } from "./entities/practice/open-number-answer";
 import { OpenTextAnswer } from "./entities/practice/open-text-answer";
 import { ClosedAnswer } from "./entities/practice/closed-answer";
+import {app} from "../index";
 
 class CustomLogger implements Logger {
     log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {
@@ -30,10 +31,10 @@ class CustomLogger implements Logger {
     logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner): any {
         logger.verbose(query);
     }
-
     logQueryError(error: string, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
         logger.error(`Query error: ${error} for query ${query}`);
     }
+
 
     logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
         logger.error(`Slow query, takes ${time} for ${query}`);
@@ -89,5 +90,9 @@ if (Settings.USESSH) {
         createConnection(options).catch(reason => logger.error(reason));
     });
 } else {
-    createConnection(options).catch(reason => logger.error(reason));
+    createConnection(options)
+        .then(() => {
+            app.emit("db-connect");
+        })
+        .catch(reason => logger.error(reason));
 }
