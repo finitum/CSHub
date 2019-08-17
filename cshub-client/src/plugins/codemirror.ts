@@ -4,6 +4,7 @@ import "codemirror/addon/runmode/runmode";
 import "codemirror/mode/cypher/cypher";
 import "codemirror/mode/htmlembedded/htmlembedded";
 import "codemirror/mode/xml/xml";
+import "codemirror/mode/htmlmixed/htmlmixed";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/sql/sql";
 import "codemirror/mode/css/css";
