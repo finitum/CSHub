@@ -6,10 +6,13 @@ import { app } from "../../";
 import { GetStudiesCallback, Studies, AllStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
 import { HideStudies, UnhideStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/HideStudies";
 import { RenameStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/RenameStudies";
+import { CreateStudies, CreateStudiesCallback } from "../../../../cshub-shared/src/api-calls/endpoints/study/CreateStudies";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { Study } from "../../db/entities/study";
 import logger from "../../utilities/Logger";
 import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
+import { Topic } from "../../db/entities/topic";
+import {generateRandomTopicHash} from "../../utilities/TopicsUtils";
 
 // returns only the visible studies (hidden==false)
 app.get(Studies.getURL, (req: Request, res: Response) => {
@@ -52,6 +55,43 @@ app.get(AllStudies.getURL, (req: Request, res: Response) => {
         });
 });
 
+app.post(CreateStudies.postURL, async (req: Request, res: Response) => {
+    const studyRepository = getRepository(Study);
+    const topicRepository = getRepository(Topic);
+    const createStudiesRequest: CreateStudies = req.body as CreateStudies;
+
+    const authenticated = checkTokenValidityFromRequest(req);
+    if (authenticated === false) {
+        return res.sendStatus(401);
+    } else if (!authenticated.user.admin) {
+        return res.sendStatus(403);
+    }
+
+    if (createStudiesRequest.name.length < 3 || createStudiesRequest.name.length > 20){
+        return res.status(409).json(new ServerError("Invalid length"));
+    }
+
+
+
+    try {
+        const topic = await topicRepository.save({
+            name: createStudiesRequest.name,
+            hash: await generateRandomTopicHash(),
+            parent: null
+        });
+
+        const study = await studyRepository.save({
+            name: createStudiesRequest.name,
+            topTopic: topic,
+            hidden: createStudiesRequest.hidden
+        });
+
+        return res.status(201).json(new CreateStudiesCallback(study));
+    } catch (e) {
+        return res.sendStatus(500);
+    }
+});
+
 app.post(HideStudies.postURL, async (req: Request, res: Response) => {
     const studyRepository = getRepository(Study);
     const hideStudiesRequest: HideStudies = req.body as HideStudies;
@@ -72,7 +112,7 @@ app.post(HideStudies.postURL, async (req: Request, res: Response) => {
                 .json(new ServerError("You may not hide the last visible study! There must always be one visible study"));
         }
         await studyRepository.update(hideStudiesRequest.study.id, { hidden: true });
-    } catch(e) {
+    } catch (e) {
         return res.sendStatus(500);
     }
     return res.sendStatus(201);

@@ -22,6 +22,7 @@ export class Requests {
     public static readonly HIDESTUDIES: string = "/study/hide"; // POST
     public static readonly UNHIDESTUDIES: string = "/study/unhide"; // POST
     public static readonly RENAMESTUDIES: string = "/study/rename"; // POST
+    public static readonly CREATESTUDIES: string = "/study"; // POST
 
     public static readonly QUESTIONS: string = "/questions"; // GET
     public static readonly UNPUBLISHEDQUESTIONS: string = "/questions/unpublished"; // GET

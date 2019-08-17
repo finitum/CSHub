@@ -22,10 +22,23 @@
                             <v-card-text>
                                 <v-container>
                                     <v-row>
-<!--                                        <v-col cols="12" sm="6" md="4">-->
-<!--                                            <v-text-field v-model="editedItem.name" label="Dessert name"></v-text-field>-->
-<!--                                        </v-col>-->
-
+                                        <v-col>
+                                            <v-text-field
+                                                label="Study name"
+                                                hint="Computer Science"
+                                                persistent-hint
+                                                required
+                                                v-model="editStudyName"
+                                                :counter="maxStudyNameLength"
+                                                :maxlength="maxStudyNameLength"
+                                                :rules="[StudyNameRule(editStudyName)]"
+                                            ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col>
+                                            <v-switch v-model="editHideSwitch" label="Hidden"></v-switch>
+                                        </v-col>
                                     </v-row>
                                 </v-container>
                             </v-card-text>
@@ -53,7 +66,7 @@
             </template>
 
             <template v-slot:item.name="props">
-                <td v-if="!isEditingName" class="pa-0" @click="isEditingName = true">{{ props.item.name }}</td>
+                <td v-if="!isEditingName" class="pa-0" @click="editingStart(props.item)">{{ props.item.name }}</td>
                 <v-text-field
                     v-else
                     v-model="props.item.name"
@@ -64,6 +77,9 @@
                     append-icon="fas fa-check"
                     @keyup.enter="editingDone(props.item)"
                     @click:append="editingDone(props.item)"
+                    :counter="maxStudyNameLength"
+                    :maxlength="maxStudyNameLength"
+                    :rules="[StudyNameRule(props.item.name)]"
                 >
                 </v-text-field>
             </template>
@@ -84,6 +100,7 @@ import { ApiWrapper, logStringConsole } from "../../utilities";
 import { AllStudies, GetStudiesCallback } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
 import { HideStudies, UnhideStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/HideStudies";
 import { RenameStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/RenameStudies";
+import { CreateStudies, CreateStudiesCallback } from "../../../../cshub-shared/src/api-calls/endpoints/study/CreateStudies";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
 
 @Component({
@@ -108,6 +125,11 @@ export default class StudyTable extends Vue {
     private amountItems: number = 0;
     private selectedItem: IStudy | null = null;
     private isEditingName = false;
+    private editHideSwitch: boolean = false;
+    private editStudyName: string = "";
+    private readonly maxStudyNameLength: number = 20;
+    private readonly minStudyNameLength: number = 3;
+    private oldname: string = "";
 
     /*
      * Lifecycle hooks
@@ -137,11 +159,6 @@ export default class StudyTable extends Vue {
         });
     }
 
-    private editItem(item: IStudy) {
-        this.selectedItem = item;
-        this.editDialog = true;
-    }
-
     private async hideItem(item: IStudy) {
         if (item.hidden) {
             await ApiWrapper.sendPostRequest(new UnhideStudies(item), (response: null, status) => {
@@ -164,22 +181,52 @@ export default class StudyTable extends Vue {
         }
     }
 
+    private StudyNameRule(name: string) {
+        return name.length >= this.minStudyNameLength ? true : `Length must be more than ${this.minStudyNameLength}`;
+    }
+
     private close() {
         this.selectedItem = null;
         this.editDialog = false;
     }
 
     private editingDone(item: IStudy) {
+        if (this.StudyNameRule(item.name) !== true) {
+            item.name = this.oldname;
+        }
+
         this.isEditingName = false;
         this.rename(item);
     }
+
+    private editingStart(item: IStudy) {
+        this.oldname = item.name;
+        this.isEditingName = true;
+    }
+
 
     private get formTitle() {
         return this.selectedItem === null ? "New Item" : "Edit Item";
     }
 
-    private save() {
+    private async save() {
+        if (this.StudyNameRule(this.editStudyName) !== true) {
+            return;
+        }
+
+        await ApiWrapper.sendPostRequest(
+            new CreateStudies(this.editStudyName, this.editHideSwitch),
+            (response: CreateStudiesCallback, status) => {
+                if (status === 201) {
+                    this.items.push(response.study);
+                } else {
+                    logStringConsole("Unexpected status code: " + status, "TopicCreate.vue");
+                }
+        });
+
         this.close();
+        this.editStudyName = "";
+        this.editHideSwitch = false;
     }
 }
 </script>
