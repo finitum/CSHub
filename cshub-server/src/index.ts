@@ -8,6 +8,12 @@ import { CORSMiddleware } from "./utilities/CORSMiddleware";
 import http from "http";
 import express from "express";
 
+import { query } from "./db/database-query";
+import { generateRandomTopicHash } from "./utilities/TopicsUtils";
+import { getRepository } from "typeorm";
+import { Topic } from "./db/entities/topic";
+import { Study } from "./db/entities/study";
+
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 
@@ -30,9 +36,6 @@ export const server = http.createServer(app).listen(Settings.PORT);
 // Here all the connectors will be defined
 import "./endpoints";
 import "./realtime-edit";
-import {getCurrentConnection, query} from "./db/database-query";
-import { generateRandomTopicHash } from "./utilities/TopicsUtils";
-import {QueryFailedError} from "typeorm";
 
 logger.info("Express server started with settings:");
 logger.info(JSON.stringify(Settings));
@@ -42,52 +45,31 @@ logger.info(JSON.stringify(Settings));
 // The default topic doesn't seem strictly necessary but no studies can exist without
 // a root topic.
 app.on("db-connect", async () => {
-    const DefaultTopicName = "DefaultTopic";
-    const DefaultStudyName = "DefaultStudy";
+    const defaultTopicName = "DefaultTopic";
+    const defaultStudyName = "DefaultStudy";
 
-    // check if a DefaultTopic exists
-    const DefaultTopicExists =
-        (await query(
-            `
-            SELECT * FROM topics
-            WHERE name = ?
-            `,
-            DefaultTopicName
-        )).getLength() > 0;
+    const studyRepository = getRepository(Study);
+    const topicRepository = getRepository(Topic);
 
-    let id;
-    if (!DefaultTopicExists) {
+    if ((await topicRepository.count()) === 0 || (await studyRepository.count()) === 0) {
+        logger.info("Inserting default topic and study!");
+
+        // If so, create new topic
         const hash = await generateRandomTopicHash();
-        id = (await query(
-            `
-        INSERT INTO topics
-        SET  name     = ?,
-             parentid = ?,
-             hash     = ?
-        `,
-            DefaultTopicName,
-            null,
-            hash
-        )).getInsertId();
-    } else {
-        id = (await query(
-            `
-            SELECT id FROM topics WHERE name = ?
-            `,
-            DefaultTopicName
-        )).getStringFromDB("id", 0);
+
+        const newTopic = new Topic();
+        newTopic.name = defaultTopicName;
+        newTopic.parentId = null;
+        newTopic.hash = hash;
+
+        const inserted = await topicRepository.save(newTopic);
+
+        const study = new Study();
+        study.name = defaultStudyName;
+        study.topTopicId = inserted.id;
+
+        await studyRepository.save(study);
     }
-
-    await query(
-        `
-        REPLACE INTO studies
-        SET  name       = ?,
-             topTopicId = ?
-        `,
-        DefaultStudyName,
-        id
-    );
-
 });
 
 setInterval(() => {

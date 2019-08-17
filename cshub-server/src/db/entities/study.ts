@@ -1,4 +1,13 @@
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    JoinTable,
+    ManyToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+    RelationId
+} from "typeorm";
 import { Topic } from "./topic";
 import { User } from "./user";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
@@ -25,6 +34,9 @@ export class Study implements IStudy {
     })
     @JoinColumn()
     topTopic!: Topic;
+
+    @RelationId((study: Study) => study.topTopic)
+    topTopicId!: number;
 
     // Not sent to client
     @ManyToMany(type => User, user => user.studies)

@@ -4,10 +4,8 @@ import { app } from "../../";
 import logger from "../../utilities/Logger";
 
 import { SubmitPost, CreatePostCallback, SubmitPostResponse } from "../../../../cshub-shared/src/api-calls";
-import { getTopicFromHash } from "../../../../cshub-shared/src/utilities/Topics";
-
 import { validateMultipleInputs } from "../../utilities/StringUtils";
-import { generateRandomTopicHash, getTopicTree } from "../../utilities/TopicsUtils";
+import { findTopicInTree, generateRandomTopicHash, getTopicTree } from "../../utilities/TopicsUtils";
 import { DatabaseResultSet, query } from "../../db/database-query";
 import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
 import { hasAccessToTopicRequest } from "../../auth/validateRights/PostAccess";
@@ -84,7 +82,7 @@ app.post(SubmitPost.getURL, (req: Request, res: Response) => {
                         })
                         .then(topicHash => {
                             if (typeof topicHash !== "undefined") {
-                                const requestTopic = getTopicFromHash(submitPostRequest.postTopicHash, topics);
+                                const requestTopic = findTopicInTree(submitPostRequest.postTopicHash, topics);
 
                                 if (requestTopic) {
                                     query(

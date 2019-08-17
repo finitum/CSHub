@@ -1,6 +1,4 @@
-import { getTopicFromHash } from "../../../cshub-shared/src/utilities/Topics";
 import { getRandomNumberLarge } from "../../../cshub-shared/src/utilities/Random";
-import { ITopic } from "../../../cshub-shared/src/entities/topic";
 import { IStudy } from "../../../cshub-shared/src/entities/study";
 import { getRepository } from "typeorm";
 import { Topic } from "../db/entities/topic";
@@ -11,7 +9,7 @@ export const generateRandomTopicHash = (): Promise<number> => {
     // Right now, using getTopicTree each time is terribly inefficient, but in the future we want to optimize this one. So just use this one for now and the optimizations will be in this method so not much refactoring has to be done.
     return getTopicTree().then(topics => {
         if (topics) {
-            const topic = getTopicFromHash(hash, topics);
+            const topic = findTopicInTree(hash, topics);
             if (topic === null) {
                 return hash;
             } else {
@@ -23,7 +21,7 @@ export const generateRandomTopicHash = (): Promise<number> => {
     });
 };
 
-export const findTopicInTree = (topicHash: number, topics: ITopic[]): ITopic | null => {
+export const findTopicInTree = (topicHash: number, topics: Topic[]): Topic | null => {
     for (const topic of topics) {
         if (topic.hash === topicHash) {
             return topic;
@@ -54,7 +52,7 @@ export const findStudyIdsOfTopic = (topic: Topic): IStudy[] => {
     return studyIds;
 };
 
-export const getChildHashes = (inputTopic: ITopic[]): number[] => {
+export const getChildHashes = (inputTopic: Topic[]): number[] => {
     const currentTopicHashes: number[] = [];
 
     for (const topic of inputTopic) {
@@ -81,7 +79,7 @@ export const getStudiesFromTopic = (topicHash: number): Promise<IStudy[]> => {
 };
 
 // This is called quite often, it will retreive all the topics from the database and parse them into the correct model
-export const getTopicTree = (study?: number): Promise<ITopic[] | null> => {
+export const getTopicTree = (study?: number): Promise<Topic[] | null> => {
     const topicRepository = getRepository(Topic);
 
     return topicRepository
@@ -89,7 +87,7 @@ export const getTopicTree = (study?: number): Promise<ITopic[] | null> => {
             relations: ["parent", "study"]
         })
         .then(topics => {
-            const parseCurrentLayer = (parent: ITopic | null) => {
+            const parseCurrentLayer = (parent: Topic | null) => {
                 const topicsWithParent = topics.filter(topic => {
                     if (parent === null) {
                         return topic.parent === null;
@@ -116,7 +114,7 @@ export const getTopicTree = (study?: number): Promise<ITopic[] | null> => {
 
             parseCurrentLayer(null);
 
-            const getTreeForStudy = (topicTree: Topic[], study: number): ITopic | null => {
+            const getTreeForStudy = (topicTree: Topic[], study: number): Topic | null => {
                 for (const topic of topicTree) {
                     if (topic.study && topic.study.id === study) {
                         return topic;

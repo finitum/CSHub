@@ -31,24 +31,25 @@ app.use((req: Request, res: Response, next: Function) => {
 export type ValidationType = false | IJWTToken;
 
 export const checkTokenValidityFromJWT = (jwt: string): ValidationType => {
+    if (!jwt) {
+        return false;
+    }
+
     // This checks the incoming JWT token, validates it, checks if it's still valid.
     // If valid, create a new one (so no cookie stealing)
     // If invalid, remove the cookie
-    if (jwt !== null || jwt !== undefined) {
-        const tokenObj = validateAccessToken(jwt);
+    const tokenObj = validateAccessToken(jwt);
 
-        if (
-            tokenObj !== undefined &&
-            dayjs(tokenObj.expirydate * 1000).isAfter(dayjs()) &&
-            tokenObj.user.verified &&
-            !tokenObj.user.blocked
-        ) {
-            return tokenObj;
-        } else {
-            return false;
-        }
+    if (
+        tokenObj !== undefined &&
+        dayjs(tokenObj.expirydate * 1000).isAfter(dayjs()) &&
+        tokenObj.user.verified &&
+        !tokenObj.user.blocked
+    ) {
+        return tokenObj;
+    } else {
+        return false;
     }
-    return false;
 };
 
 export const checkTokenValidityFromRequest = (req: Request): ValidationType => {
@@ -56,5 +57,10 @@ export const checkTokenValidityFromRequest = (req: Request): ValidationType => {
         return false;
     }
 
-    return checkTokenValidityFromJWT(req.cookies["token"]);
+    const cookie = req.cookies["token"];
+    if (cookie === undefined) {
+        return false;
+    }
+
+    return checkTokenValidityFromJWT(cookie);
 };

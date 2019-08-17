@@ -217,9 +217,13 @@ export default class NavDrawer extends Vue {
     margin: -0.5em -0.5em -0.5em -0.5em;
 }
 
-.tree >>> .v-treeview-node__root,
-.v-treeview-node__children {
-    padding-left: 16px;
+.tree >>> .v-treeview-node__toggle {
+    margin-left: 16px;
+    margin-right: 0;
+}
+
+.tree >>> .v-treeview-node__label {
+    margin-left: 0;
 }
 
 @media print {

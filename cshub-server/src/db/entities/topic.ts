@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, RelationId} from "typeorm";
 import { Post } from "./post";
 import { Study } from "./study";
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
@@ -22,6 +22,9 @@ export class Topic implements ITopic {
     })
     @JoinColumn({ name: "parentid" })
     parent!: Topic | null;
+
+    @RelationId((topic: Topic) => topic.parent)
+    parentId!: number | null;
 
     @Expose()
     @OneToMany(type => Topic, topic => topic.parent)
