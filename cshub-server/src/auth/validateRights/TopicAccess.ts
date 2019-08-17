@@ -15,8 +15,12 @@ export const canCreateTopicJWT = (parentHash: number, jwt: string): Promise<bool
     const tokenResult = checkTokenValidityFromJWT(jwt);
 
     return getStudiesFromTopic(parentHash).then(studies => {
-
         if (tokenResult) {
+            // if a user is an admin, immediately allow
+            if (tokenResult.user.admin) {
+                return true;
+            }
+
             for (const study of studies) {
                 const studyIndex = tokenResult.user.studies.findIndex(value => value.id === study.id);
                 if (studyIndex !== -1) {
