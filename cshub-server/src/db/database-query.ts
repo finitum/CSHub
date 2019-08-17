@@ -2,7 +2,7 @@ import logger from "../utilities/Logger";
 import { Connection, getConnection } from "typeorm";
 import { ConnectionNotFoundError } from "typeorm/error/ConnectionNotFoundError";
 
-const getCurrentConnection = (): Connection | null => {
+export const getCurrentConnection = (): Connection | null => {
     try {
         return getConnection();
     } catch (err) {
