@@ -14,13 +14,12 @@ export const canCreateTopicRequest = (parentHash: number, req: Request): Promise
 export const canCreateTopicJWT = (parentHash: number, jwt: string): Promise<boolean> => {
     const tokenResult = checkTokenValidityFromJWT(jwt);
 
+    if (tokenResult && tokenResult.user.admin) {
+        return Promise.resolve(true);
+    }
+
     return getStudiesFromTopic(parentHash).then(studies => {
         if (tokenResult) {
-            // if a user is an admin, immediately allow
-            if (tokenResult.user.admin) {
-                return true;
-            }
-
             for (const study of studies) {
                 const studyIndex = tokenResult.user.studies.findIndex(value => value.id === study.id);
                 if (studyIndex !== -1) {

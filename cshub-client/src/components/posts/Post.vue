@@ -303,7 +303,6 @@ import {
     PostVersionTypes,
     Requests
 } from "../../../../cshub-shared/src/api-calls";
-import { getTopicFromHash } from "../../../../cshub-shared/src/utilities/Topics";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
 import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities";
@@ -314,6 +313,7 @@ import { colorize } from "../../utilities/codemirror-colorize";
 import PostSaveEditDialog from "./PostSaveEditDialog.vue";
 import { IPost } from "../../../../cshub-shared/src/entities/post";
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
+import { getTopicFromHash } from "../../utilities/Topics";
 
 interface IBreadCrumbType {
     topic: boolean;
@@ -548,27 +548,21 @@ export default class Post extends Vue {
     }
 
     private hidePost() {
-        ApiWrapper.sendPutRequest(
-            new PostSettings(this.postHash, PostSettingsEditType.HIDE),
-            () => {
-                logStringConsole("Removed post");
-                this.$router.push(Routes.INDEX);
-            }
-        );
+        ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.HIDE), () => {
+            logStringConsole("Removed post");
+            this.$router.push(Routes.INDEX);
+        });
     }
 
     private wipPost() {
-        ApiWrapper.sendPutRequest(
-            new PostSettings(this.postHash, PostSettingsEditType.WIP),
-            () => {
-                logStringConsole("WIPPED post");
-                if (this.post) {
-                    this.post.wip = !this.post.wip;
-                }
-
-                // this.$router.push(Routes.WIPPOSTS);
+        ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.WIP), () => {
+            logStringConsole("WIPPED post");
+            if (this.post) {
+                this.post.wip = !this.post.wip;
             }
-        );
+
+            // this.$router.push(Routes.WIPPOSTS);
+        });
     }
 
     private returnToPostMenu() {

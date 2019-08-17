@@ -19,13 +19,13 @@ import isEqual from "lodash/isEqual";
 import PostList from "../../components/posts/PostList.vue";
 
 import { TopicPosts, GetTopicPostsCallBack } from "../../../../cshub-shared/src/api-calls/index";
-import { getTopicFromHash } from "../../../../cshub-shared/src/utilities/Topics";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
 import { dataState, uiState } from "../../store";
 
 import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities/index";
 import { CacheTypes } from "../../utilities/cache-types";
+import { getTopicFromHash } from "../../utilities/Topics";
 
 @Component({
     name: "PostView",

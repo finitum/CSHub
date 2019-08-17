@@ -5,8 +5,7 @@ import logger from "../../utilities/Logger";
 import { DatabaseResultSet, query } from "../../db/database-query";
 
 import { TopicPosts, GetTopicPostsCallBack } from "../../../../cshub-shared/src/api-calls";
-import { getChildHashes, getTopicTree } from "../../utilities/TopicsUtils";
-import { getTopicFromHash } from "../../../../cshub-shared/src/utilities/Topics";
+import { findTopicInTree, getChildHashes, getTopicTree } from "../../utilities/TopicsUtils";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 
 app.get(TopicPosts.getURL, (req: Request, res: Response) => {
@@ -27,7 +26,7 @@ app.get(TopicPosts.getURL, (req: Request, res: Response) => {
 
                 // Can't be 0 anymore, due to studies
                 if (topicHash !== 0) {
-                    const currTopic = getTopicFromHash(topicHash, topicsResult);
+                    const currTopic = findTopicInTree(topicHash, topicsResult);
                     topicHashes = getChildHashes(currTopic ? [currTopic] : []);
                 } else {
                     res.status(400).send(new ServerError("Naah, topic 0 does not exist mate"));
