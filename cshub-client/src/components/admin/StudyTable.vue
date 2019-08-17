@@ -9,9 +9,8 @@
         >
             <template v-slot:top>
                 <v-toolbar flat>
-
                     <v-spacer></v-spacer>
-                    <v-dialog v-model="edit_dialog" max-width="500px">
+                    <v-dialog v-model="editDialog" max-width="500px">
                         <template v-slot:activator="{ on }">
                             <v-btn color="primary" dark class="mb-2" v-on="on">New Item</v-btn>
                         </template>
@@ -19,29 +18,6 @@
                             <v-card-title>
                                 <span class="headline">{{ formTitle }}</span>
                             </v-card-title>
-
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-<!--                                        <v-col cols="12" sm="6" md="4">-->
-<!--                                            <v-text-field v-model="editedItem.name" label="Dessert name"></v-text-field>-->
-<!--                                        </v-col>-->
-<!--                                        <v-col cols="12" sm="6" md="4">-->
-<!--                                            <v-text-field v-model="editedItem.calories" label="Calories"></v-text-field>-->
-<!--                                        </v-col>-->
-<!--                                        <v-col cols="12" sm="6" md="4">-->
-<!--                                            <v-text-field v-model="editedItem.fat" label="Fat (g)"></v-text-field>-->
-<!--                                        </v-col>-->
-<!--                                        <v-col cols="12" sm="6" md="4">-->
-<!--                                            <v-text-field v-model="editedItem.carbs" label="Carbs (g)"></v-text-field>-->
-<!--                                        </v-col>-->
-<!--                                        <v-col cols="12" sm="6" md="4">-->
-<!--                                            <v-text-field v-model="editedItem.protein" label="Protein (g)"></v-text-field>-->
-<!--                                        </v-col>-->
-                                    </v-row>3
-                                </v-container>
-                            </v-card-text>
-
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
@@ -64,8 +40,23 @@
                 </v-icon>
             </template>
 
+            <template v-slot:item.name="props">
+                <td v-if="!isEditingName" class="pa-0" @click="isEditingName = true">{{ props.item.name }}</td>
+                <v-text-field
+                    v-else
+                    v-model="props.item.name"
+                    class="pt-0"
+                    single-line
+                    hide-details
+                    autofocus
+                    append-icon="fas fa-check"
+                    @click:append="isEditingName = false"
+                >
+                </v-text-field>
+            </template>
+
             <template v-slot:item.hidden="{ item }">
-                <td>{{ item.hidden.toString() }}</td>
+                <td class="pa-0">{{ item.hidden.toString() }}</td>
             </template>
         </v-data-table>
     </div>
@@ -99,9 +90,10 @@ export default class StudyTable extends Vue {
         { text: "Actions", value: "action", sortable: false }
     ];
     private loading = true;
-    private edit_dialog = false;
+    private editDialog = false;
     private amountItems: number = 0;
     private selectedItem: IStudy | null = null;
+    private isEditingName = false;
 
     /*
      * Lifecycle hooks
@@ -111,7 +103,7 @@ export default class StudyTable extends Vue {
         this.getData();
     }
 
-    private getData(){
+    private getData() {
         ApiWrapper.sendGetRequest(new Studies(), (callback: GetStudiesCallback) => {
             this.items = callback.studies;
             this.amountItems = callback.studies.length;
@@ -121,7 +113,7 @@ export default class StudyTable extends Vue {
 
     private editItem(item: IStudy) {
         this.selectedItem = item;
-        this.edit_dialog = true;
+        this.editDialog = true;
     }
 
     private async hideItem(item: IStudy) {
@@ -148,7 +140,7 @@ export default class StudyTable extends Vue {
 
     private close() {
         this.selectedItem = null;
-        this.edit_dialog = false;
+        this.editDialog = false;
     }
 
     private get formTitle() {
