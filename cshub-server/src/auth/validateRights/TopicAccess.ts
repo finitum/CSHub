@@ -6,7 +6,6 @@ export const canCreateTopicRequest = (parentHash: number, req: Request): Promise
     if (req.cookies === null) {
         return Promise.reject(false);
     }
-
     return canCreateTopicJWT(parentHash, req.cookies["token"]);
 };
 
@@ -16,6 +15,7 @@ export const canCreateTopicJWT = (parentHash: number, jwt: string): Promise<bool
     const tokenResult = checkTokenValidityFromJWT(jwt);
 
     return getStudiesFromTopic(parentHash).then(studies => {
+
         if (tokenResult) {
             for (const study of studies) {
                 const studyIndex = tokenResult.user.studies.findIndex(value => value.id === study.id);
