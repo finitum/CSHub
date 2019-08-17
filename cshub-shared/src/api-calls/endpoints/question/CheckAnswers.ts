@@ -35,7 +35,7 @@ interface ToCheckAnswerType {
     answer: CheckAnswerType;
 }
 
-export class CheckAnswers implements IApiRequest {
+export class CheckAnswers implements IApiRequest<CheckAnswersCallback> {
     public static getURL: string = Requests.CHECKANSWERS;
 
     public URL: string = CheckAnswers.getURL;

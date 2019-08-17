@@ -4,22 +4,27 @@ import { IPost } from "../../../entities/post";
 
 export enum PostVersionTypes {
     UPDATEDPOST,
-    RETRIEVEDCONTENT,
     POSTDELETED
 }
 
 export class GetPostContentCallBack {
     constructor(
-        public postVersionType: PostVersionTypes,
-        public content?: {
-            html: string;
-            approved: boolean;
-        },
-        public postUpdated?: IPost
+        public data:
+            | {
+                  type: PostVersionTypes.UPDATEDPOST;
+                  content: {
+                      html: string;
+                      approved: boolean;
+                  };
+                  postUpdated: IPost;
+              }
+            | {
+                  type: PostVersionTypes.POSTDELETED;
+              }
     ) {}
 }
 
-export class PostContent implements IApiRequest {
+export class PostContent implements IApiRequest<GetPostContentCallBack> {
     public static getURL: string = Requests.POSTCONTENT;
     public URL: string = PostContent.getURL;
 

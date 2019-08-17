@@ -6,7 +6,7 @@ export class GetTopicPostsCallBack {
     constructor(public postHashes: number[]) {}
 }
 
-export class TopicPosts implements IApiRequest {
+export class TopicPosts implements IApiRequest<GetTopicPostsCallBack> {
     public static getURL: string = Requests.TOPICPOSTS;
     public URL: string = TopicPosts.getURL;
 

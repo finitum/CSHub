@@ -12,7 +12,7 @@ export class ChangePasswordCallback {
     constructor(public response: ChangePasswordResponseTypes) {}
 }
 
-export class ChangePassword implements IApiRequest {
+export class ChangePassword implements IApiRequest<ChangePasswordCallback> {
     public static getURL: string = Requests.CHANGEPASSWORD;
     public URL: string = ChangePassword.getURL;
 

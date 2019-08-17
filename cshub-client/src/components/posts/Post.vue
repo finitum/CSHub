@@ -30,7 +30,6 @@
                                         color="primary"
                                         min-width="88"
                                         class="mr-1 my-1"
-                                        tile
                                         depressed
                                         small
                                         dark
@@ -41,7 +40,6 @@
                                     <v-btn
                                         color="secondary"
                                         depressed
-                                        tile
                                         min-width="88"
                                         small
                                         class="ma-1 angleLighten3Dark"
@@ -58,7 +56,6 @@
                                             color="primary"
                                             min-width="88"
                                             depressed
-                                            tile
                                             class="my-1 mr-2 d-inline-block"
                                             small
                                             dark
@@ -91,7 +88,6 @@
                                                     min-width="88"
                                                     color="red"
                                                     depressed
-                                                    tile
                                                     class="my-1 mr-2 d-inline-block"
                                                     small
                                                     v-on="on"
@@ -131,7 +127,6 @@
                                                     color="orange"
                                                     depressed
                                                     class="my-1 mr-2 d-inline-block"
-                                                    tile
                                                     small
                                                     v-on="on"
                                                     @click="enableEdit"
@@ -148,7 +143,6 @@
                                                     min-width="88"
                                                     depressed
                                                     class="my-1 mr-2 d-inline-block"
-                                                    tile
                                                     small
                                                     color="green"
                                                     v-on="on"
@@ -165,7 +159,6 @@
                                                 <v-btn
                                                     min-width="88"
                                                     depressed
-                                                    tile
                                                     class="my-1 mr-2 d-inline-block"
                                                     small
                                                     color="blue"
@@ -183,7 +176,6 @@
                                                 <v-btn
                                                     min-width="88"
                                                     depressed
-                                                    tile
                                                     small
                                                     class="my-1 mr-2 d-inline-block"
                                                     color="primary"
@@ -199,7 +191,6 @@
                                         <v-btn
                                             depressed
                                             small
-                                            tile
                                             min-width="88"
                                             color="secondary"
                                             class="my-1 mr-2 d-inline-block angleLighten3Dark"
@@ -252,17 +243,16 @@
                                 ></div>
                             </div>
                         </v-card-text>
+                        <v-card-text v-else-if="fullPostComputed && !loadingIcon && editModeComputed">
+                            <Quill
+                                key="editQuill"
+                                ref="editQuill"
+                                style="margin-bottom: 20px"
+                                :editor-setup="{ allowEdit: true, showToolbar: true, postHash }"
+                            ></Quill>
+                        </v-card-text>
                     </v-flex>
                 </v-layout>
-                <Quill
-                    v-if="fullPostComputed && !loadingIcon && editModeComputed"
-                    key="editQuill"
-                    ref="editQuill"
-                    style="margin-bottom: 20px"
-                    :editor-setup="{ allowEdit: true, showToolbar: true, postHash }"
-                    @markdownPreviewToggle="markDownToggled"
-                ></Quill>
-
                 <div v-if="loadingIcon">
                     <v-progress-circular
                         :size="150"
@@ -309,7 +299,6 @@ import {
     PostContent,
     PostData,
     PostSettings,
-    PostSettingsCallback,
     PostSettingsEditType,
     PostVersionTypes,
     Requests
@@ -386,7 +375,7 @@ export default class Post extends Vue {
     }
 
     get topics(): ITopic[] {
-        return dataState.topics;
+        return dataState.topTopic ? dataState.topTopic.children : [];
     }
 
     get isOnAdminDashboard(): boolean {
@@ -561,7 +550,7 @@ export default class Post extends Vue {
     private hidePost() {
         ApiWrapper.sendPutRequest(
             new PostSettings(this.postHash, PostSettingsEditType.HIDE),
-            (callback: PostSettingsCallback) => {
+            () => {
                 logStringConsole("Removed post");
                 this.$router.push(Routes.INDEX);
             }
@@ -571,7 +560,7 @@ export default class Post extends Vue {
     private wipPost() {
         ApiWrapper.sendPutRequest(
             new PostSettings(this.postHash, PostSettingsEditType.WIP),
-            (callback: PostSettingsCallback) => {
+            () => {
                 logStringConsole("WIPPED post");
                 if (this.post) {
                     this.post.wip = !this.post.wip;
@@ -645,12 +634,12 @@ export default class Post extends Vue {
         });
     }
 
-    private getContentRequest(cachedValue: IPost) {
+    private getContentRequest(knownPost: IPost) {
         const timeOut = setTimeout(() => {
             this.loadingIcon = true;
         }, 250);
 
-        const postVersion: number = typeof cachedValue.htmlContent !== "string" ? -1 : cachedValue.postVersion;
+        const postVersion: number = typeof knownPost.htmlContent !== "string" ? -1 : knownPost.postVersion;
 
         ApiWrapper.sendGetRequest(
             new PostContent(this.postHash, postVersion),
@@ -660,49 +649,48 @@ export default class Post extends Vue {
 
                 let hasBeenUpdated = false;
 
-                if (callbackContent === null) {
-                    this.post = {
-                        ...cachedValue
-                    };
-                } else if (callbackContent.postVersionType === PostVersionTypes.POSTDELETED) {
-                    this.$router.push(Routes.INDEX);
-                } else if (callbackContent.postVersionType === PostVersionTypes.UPDATEDPOST) {
-                    if (callbackContent.postUpdated && callbackContent.content) {
-                        this.post = {
-                            ...callbackContent.postUpdated
-                        };
-                        this.post.htmlContent = callbackContent.content.html;
-                        hasBeenUpdated = true;
-                    }
-                } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
-                    if (callbackContent.content) {
-                        this.post = {
-                            ...cachedValue
-                        };
-                        this.post.htmlContent = callbackContent.content.html;
-                        hasBeenUpdated = true;
+                let currentPost: IPost = {
+                    ...knownPost
+                };
+
+                if (callbackContent !== null) {
+                    switch (callbackContent.data.type) {
+                        case PostVersionTypes.UPDATEDPOST:
+                            currentPost = {
+                                ...callbackContent.data.postUpdated
+                            };
+                            currentPost.htmlContent = callbackContent.data.content.html;
+                            hasBeenUpdated = true;
+                            break;
+                        case PostVersionTypes.POSTDELETED:
+                            this.$router.push(Routes.INDEX);
+                            currentPost = {
+                                ...knownPost
+                            };
+                            break;
                     }
                 }
 
-                if (this.post) {
-                    const topicFromHash = getTopicFromHash(this.post.topic.hash, dataState.topics);
+                const children = dataState.topTopic ? dataState.topTopic.children : [];
+                const topicFromHash = getTopicFromHash(currentPost.topic.hash, children);
 
-                    if (topicFromHash) {
-                        this.topicNames = this.getTopicListWhereFinalChildIs(topicFromHash);
-                        this.topicNames.push({
-                            text: this.post.title,
-                            to: this.$route.fullPath,
-                            topic: true
-                        });
-                    }
+                if (topicFromHash) {
+                    this.topicNames = this.getTopicListWhereFinalChildIs(topicFromHash);
+                    this.topicNames.push({
+                        text: this.post!.title,
+                        to: this.$route.fullPath,
+                        topic: true
+                    });
                 }
 
-                if (hasBeenUpdated && this.post) {
+                if (hasBeenUpdated) {
                     this.$forceUpdate();
-                    localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, this.post).then(() => {
+                    localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, currentPost).then(() => {
                         logStringConsole("Changed post in cache", "getContentRequest");
                     });
                 }
+
+                this.post = currentPost;
 
                 this.scrollToHash();
             },
@@ -710,8 +698,8 @@ export default class Post extends Vue {
                 clearTimeout(timeOut);
                 this.loadingIcon = false;
 
-                if (cachedValue !== null && this.post) {
-                    this.post.htmlContent = cachedValue.htmlContent;
+                if (knownPost !== null) {
+                    this.post = knownPost;
                 }
                 this.$forceUpdate();
 

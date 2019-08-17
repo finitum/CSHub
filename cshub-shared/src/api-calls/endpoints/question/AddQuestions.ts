@@ -2,10 +2,6 @@ import { IApiRequest } from "../../../models";
 import { Requests } from "../../Requests";
 import { QuestionType } from "../../../entities/question";
 
-export class AddQuestionsCallback {
-    constructor() {}
-}
-
 export type NewAnswerType =
     | {
           type: QuestionType.SINGLECLOSED;
@@ -34,7 +30,7 @@ export type NewQuestion = {
     topicHash: number;
 } & NewAnswerType;
 
-export class AddQuestions implements IApiRequest {
+export class AddQuestions implements IApiRequest<void> {
     public static getURL: string = Requests.ADDQUESTIONS;
 
     public URL: string = AddQuestions.getURL;

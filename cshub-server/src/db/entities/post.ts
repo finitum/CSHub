@@ -42,7 +42,9 @@ export class Post implements IPost {
     hash!: number;
 
     @Expose()
-    @Column({ default: 0 })
+    @Column({
+        default: 0
+    })
     @Index()
     postVersion!: number;
 

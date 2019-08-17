@@ -13,7 +13,7 @@ export class CreatePostCallback {
     constructor(public response: SubmitPostResponse, public postHash?: number) {}
 }
 
-export class SubmitPost implements IApiRequest {
+export class SubmitPost implements IApiRequest<CreatePostCallback> {
     public static getURL: string = Requests.SUBMITPOST;
     public URL: string = SubmitPost.getURL;
 

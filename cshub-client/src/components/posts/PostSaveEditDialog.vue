@@ -137,7 +137,7 @@ export default class PostSaveEditDialog extends Vue {
     }
 
     get topics(): ITopic[] {
-        return dataState.topics;
+        return dataState.topTopic ? dataState.topTopic.children : [];
     }
 
     /**

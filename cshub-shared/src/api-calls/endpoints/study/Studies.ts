@@ -4,11 +4,16 @@ import { Requests } from "../../Requests";
 import { IStudy } from "../../../entities/study";
 
 export class GetStudiesCallback {
-    constructor(public studies?: IStudy[]) {}
+    constructor(public studies: IStudy[]) {}
 }
 
-export class Studies implements IApiRequest {
+export class Studies implements IApiRequest<GetStudiesCallback> {
     public static getURL: string = Requests.STUDIES;
 
     public URL: string = Studies.getURL;
+
+    /**
+     * @see IApiRequest.response
+     */
+    response?: GetStudiesCallback;
 }

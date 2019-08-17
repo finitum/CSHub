@@ -91,13 +91,11 @@ app.post(SubmitPost.getURL, (req: Request, res: Response) => {
                                         `
                                   INSERT INTO posts
                                   SET topic   = ?,
-                                      author  = ?,
                                       title   = ?,
                                       hash    = ?,
                                       isIndex = ?
                                 `,
                                         requestTopic.id,
-                                        userObj.user.id,
                                         submitPostRequest.postTitle,
                                         topicHash,
                                         submitPostRequest.isIndex ? 1 : 0

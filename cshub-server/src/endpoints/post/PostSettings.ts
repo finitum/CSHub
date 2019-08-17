@@ -1,7 +1,7 @@
 import { app } from "../../";
 import { Request, Response } from "express";
 import { DatabaseResultSet, query } from "../../db/database-query";
-import { PostSettings, PostSettingsCallback, PostSettingsEditType } from "../../../../cshub-shared/src/api-calls";
+import { PostSettings, PostSettingsEditType } from "../../../../cshub-shared/src/api-calls";
 import { hasAccessToPostRequest } from "../../auth/validateRights/PostAccess";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 
@@ -62,7 +62,7 @@ const wipPost = async (res: Response, postHash: number) => {
         !isCurrentlyWip,
         postHash
     ).then(() => {
-        res.json(new PostSettingsCallback());
+        res.json();
     });
 };
 
@@ -77,6 +77,6 @@ const deletePost = (res: Response, postHash: number) => {
     `,
         postHash
     ).then(() => {
-        res.json(new PostSettingsCallback());
+        res.json();
     });
 };

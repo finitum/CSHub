@@ -73,7 +73,7 @@ export default class TopicCreate extends Vue {
      * Computed properties
      */
     get topics(): ITopic[] {
-        return dataState.topics;
+        return dataState.topTopic ? [dataState.topTopic] : [];
     }
 
     /**

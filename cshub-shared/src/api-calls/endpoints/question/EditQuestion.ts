@@ -2,11 +2,7 @@ import { IApiRequest } from "../../../models";
 import { Requests } from "../../Requests";
 import { NewQuestion } from "./AddQuestions";
 
-export class EditQuestionCallback {
-    constructor([]) {}
-}
-
-export class EditQuestion implements IApiRequest {
+export class EditQuestion implements IApiRequest<void> {
     public static getURL: string = Requests.EDITQUESTION;
     public URL: string = EditQuestion.getURL;
 

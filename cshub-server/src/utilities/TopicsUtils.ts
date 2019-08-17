@@ -98,6 +98,10 @@ export const getTopicTree = (study?: number): Promise<ITopic[] | null> => {
                     }
                 });
 
+                if (parent) {
+                    parent.children = topicsWithParent;
+                }
+
                 for (const topic of topicsWithParent) {
                     const children = topics.filter(childTopic => {
                         return childTopic.parent && childTopic.parent.id === topic.id;
@@ -105,7 +109,7 @@ export const getTopicTree = (study?: number): Promise<ITopic[] | null> => {
                     topic.children = children;
 
                     for (const child of children) {
-                        parseCurrentLayer(topic);
+                        parseCurrentLayer(child);
                     }
                 }
             };

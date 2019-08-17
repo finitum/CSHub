@@ -143,7 +143,7 @@ export class DataList {
         return query(
             `
           INSERT INTO editusers
-          SET edit = (
+          SET editsId = (
             SELECT id
             FROM edits
             WHERE post = (
@@ -153,8 +153,8 @@ export class DataList {
             )
               AND approved = 0
           ),
-              user = ?
-          ON DUPLICATE KEY UPDATE user=user;
+              usersId = ?
+          ON DUPLICATE KEY UPDATE usersId=usersId;
         `,
             postHash,
             userId

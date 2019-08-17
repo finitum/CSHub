@@ -6,7 +6,7 @@ export class GetQuestionsCallback {
     constructor(public questions: IQuestion[]) {}
 }
 
-export class GetQuestions implements IApiRequest {
+export class GetQuestions implements IApiRequest<GetQuestionsCallback> {
     public static getURL: string = Requests.QUESTIONS;
 
     public static readonly topicQueryParam = "topic";

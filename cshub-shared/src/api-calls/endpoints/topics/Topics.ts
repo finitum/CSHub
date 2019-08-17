@@ -4,10 +4,10 @@ import { Requests } from "../../Requests";
 import { ITopic } from "../../../entities/topic";
 
 export class GetTopicsCallBack {
-    constructor(public version: number, public topics?: ITopic[]) {}
+    constructor(public version: number, public topTopic: ITopic) {}
 }
 
-export class Topics implements IApiRequest {
+export class Topics implements IApiRequest<GetTopicsCallBack> {
     public static getURL: string = Requests.TOPICS;
 
     public static readonly topicVersionHeader = "X-Topic-Version";
@@ -22,4 +22,9 @@ export class Topics implements IApiRequest {
         this.headers[Topics.topicVersionHeader] = topicVersion.toString(10);
         this.params[Topics.studyQueryParam] = study.toString(10);
     }
+
+    /**
+     * @see IApiRequest.response
+     */
+    response?: GetTopicsCallBack;
 }

@@ -9,7 +9,6 @@ import { ClosedAnswer } from "../../db/entities/practice/closed-answer";
 import { OpenNumberAnswer } from "../../db/entities/practice/open-number-answer";
 import { OpenTextAnswer } from "../../db/entities/practice/open-text-answer";
 import {
-    AddQuestionsCallback,
     NewQuestion
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestions";
 import logger from "../../utilities/Logger";
@@ -152,7 +151,7 @@ export const insertQuestions = (
             });
 
             repository.save(parsedQuestions);
-            res.json(new AddQuestionsCallback());
+            res.json();
         })
         .catch(reason => {
             if (!(reason instanceof AlreadySentError)) {

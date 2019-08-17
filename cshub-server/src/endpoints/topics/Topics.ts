@@ -40,7 +40,13 @@ app.get(Topics.getURL, (req: Request, res: Response) => {
                         logger.error(`No topics found`);
                         res.status(500).send();
                     } else {
-                        res.json(new GetTopicsCallBack(versionData ? versionData.version : 0, result));
+                        if (result.length > 1) {
+                            logger.error("More than 1 top topic?");
+                            res.status(500).send();
+                            return;
+                        }
+
+                        res.json(new GetTopicsCallBack(versionData ? versionData.version : 0, result[0]));
                     }
                 });
             }

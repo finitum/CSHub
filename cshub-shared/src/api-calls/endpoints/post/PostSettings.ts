@@ -6,9 +6,7 @@ export enum PostSettingsEditType {
     WIP
 }
 
-export class PostSettingsCallback {}
-
-export class PostSettings implements IApiRequest {
+export class PostSettings implements IApiRequest<void> {
     public static getURL: string = Requests.POSTSETTINGS;
     public URL: string = PostSettings.getURL;
 

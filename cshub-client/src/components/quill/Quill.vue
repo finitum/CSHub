@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
     <v-container grid-list-xl style="max-width: 100%;">
         <v-layout row wrap>
             <v-flex :xs6="showMarkdownPreview">
@@ -74,7 +74,7 @@
                                 </v-tooltip>
 
                                 <v-tooltip bottom>
-                                    <template v-slot:activator="{ on }">
+                                    <template v-slot:activator="{ on: tooltip }">
                                         <v-menu
                                             v-model="otherPeoplesMenu"
                                             :close-on-content-click="false"
@@ -82,14 +82,13 @@
                                             offset-x
                                         >
                                             <v-btn
-                                                slot="activator"
                                                 dark
                                                 text
                                                 :ripple="false"
                                                 small
                                                 class="quillIcon"
                                                 style="margin: 0"
-                                                v-on="on"
+                                                v-on="tooltip"
                                             >
                                                 <v-icon :color="darkMode ? 'white' : 'black'">fas fa-users</v-icon>
                                             </v-btn>
@@ -312,7 +311,9 @@ export default class QuillEditor extends Vue {
                             }
                         }
                     } else {
-                        const index = this.lastFewEdits.findIndex(x => x.userGeneratedId === editOrError.edit.userGeneratedId);
+                        const index = this.lastFewEdits.findIndex(
+                            x => x.userGeneratedId === editOrError.edit.userGeneratedId
+                        );
 
                         if (index !== -1) {
                             this.lastFewEdits.splice(index, 1);
@@ -355,7 +356,10 @@ export default class QuillEditor extends Vue {
                     user: userState.userModel,
                     userName: "", // doesn't matter /\
                     postHash: this.editorSetup.postHash,
-                    selection: new RangeStatic(),
+                    selection: {
+                        index: 0,
+                        length: 0
+                    },
                     active: true
                 };
             }
@@ -389,12 +393,10 @@ export default class QuillEditor extends Vue {
     }
 
     private setupQuill(delta: Delta | undefined, selects: IRealtimeSelect[]) {
-        if (delta) {
+        if (!delta) {
             this.$router.push(Routes.INDEX);
         } else {
-            if (delta) {
-                this.initialValue = delta;
-            }
+            this.initialValue = delta;
 
             (window as any).katex = katex;
 
@@ -470,8 +472,6 @@ export default class QuillEditor extends Vue {
     private setMarkdownPreview(): void {
         this.showMarkdownPreview = !this.showMarkdownPreview;
 
-        this.$emit("markdownPreviewToggle", this.showMarkdownPreview);
-
         if (this.showMarkdownPreview) {
             this.markdownHTMLPreview = getHTML(this.editor, document);
         }
@@ -542,8 +542,6 @@ export default class QuillEditor extends Vue {
         if (this.initialValue) {
             this.editor.setContents(this.initialValue);
         }
-
-        this.$emit("markdownPreviewToggle", this.showMarkdownPreview);
 
         // Show the editor again
         if (this.editorSetup.allowEdit) {

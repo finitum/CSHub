@@ -5,7 +5,7 @@ export class GetUnverifiedPostsCallBack {
     constructor(public postHashes: number[]) {}
 }
 
-export class GetUnverifiedPosts implements IApiRequest {
+export class GetUnverifiedPosts implements IApiRequest<GetUnverifiedPostsCallBack> {
     public static getURL: string = Requests.GETUNVERIFIEDPOSTS;
 
     public static readonly studyQueryParam = "studyNr";

@@ -125,7 +125,7 @@ export const getCookie = (name: string): string => {
 
 export class ApiWrapper {
     public static sendPostRequest(
-        request: IApiRequest,
+        request: IApiRequest<any>,
         callback?: (...args: any) => void,
         error?: (err: AxiosError) => void
     ) {
@@ -152,7 +152,7 @@ export class ApiWrapper {
     }
 
     public static sendPutRequest(
-        request: IApiRequest,
+        request: IApiRequest<any>,
         callback?: (...args: any) => void,
         error?: (err: AxiosError) => void
     ) {
@@ -178,8 +178,11 @@ export class ApiWrapper {
             });
     }
 
+    /**
+     * @deprecated
+     */
     public static sendGetRequest(
-        request: IApiRequest,
+        request: IApiRequest<any>,
         callback?: (...args: any) => void,
         error?: (err: AxiosError) => void
     ) {
@@ -201,6 +204,17 @@ export class ApiWrapper {
                 if (error) {
                     error(err);
                 }
+            });
+    }
+
+    public static get<T>(request: IApiRequest<T>): Promise<T> {
+        return axiosApi
+            .get<T>(request.URL, {
+                headers: request.headers,
+                params: request.params
+            })
+            .then(response => {
+                return response.data;
             });
     }
 }

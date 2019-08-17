@@ -45,7 +45,7 @@
             <v-treeview
                 dense
                 :active.sync="activeTopicHash"
-                :items="topics"
+                :items="topTopicChildren"
                 item-key="hash"
                 class="tree"
                 activatable
@@ -77,14 +77,9 @@
 
 <script lang="ts">
 import Vue from "vue";
-import localForage from "localforage";
-import { AxiosError } from "axios";
 import { Route } from "vue-router";
 
-import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities";
-import { CacheTypes } from "../../utilities/cache-types";
-
-import { GetTopicsCallBack, Topics } from "../../../../cshub-shared/src/api-calls";
+import { logStringConsole } from "../../utilities";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
 import NavDrawerItem from "./NavDrawerItem.vue";
@@ -107,9 +102,6 @@ export default class NavDrawer extends Vue {
      * Data
      */
     private activeTopicHash: number[] = [];
-    private topics: ITopic[] = [];
-
-    private studies: Array<{ text: string; value: number }> = [];
 
     private navigationLocations = Routes;
 
@@ -134,6 +126,23 @@ export default class NavDrawer extends Vue {
 
     get userStudyAdminComputed(): boolean {
         return this.userAdminComputed || userState.studyAdmins.length > 0;
+    }
+
+    get studies(): Array<{ text: string; value: number }> {
+        if (dataState.studies) {
+            return dataState.studies.map(value => {
+                return {
+                    text: value.name,
+                    value: value.id
+                };
+            });
+        } else {
+            return [];
+        }
+    }
+
+    get topTopicChildren(): ITopic[] {
+        return dataState.topTopic ? dataState.topTopic.children : [];
     }
 
     get studyNr(): number | undefined {
@@ -179,86 +188,6 @@ export default class NavDrawer extends Vue {
     private mounted() {
         logStringConsole("Git SHA: " + process.env.VUE_APP_VERSION, "NavDrawer.vue");
         logStringConsole("Build Date: " + process.env.VUE_APP_BUILDDATE, "NavDrawer.vue");
-
-        type topicCache = {
-            version: number;
-            topics: ITopic[];
-        };
-
-        ApiWrapper.sendGetRequest(new Studies(), (callback: GetStudiesCallback) => {
-            const studies = callback.studies;
-            if (studies) {
-                this.studies = studies.map(value => {
-                    return {
-                        text: value.name,
-                        value: value.id
-                    };
-                });
-            }
-
-            localForage.getItem<topicCache>(CacheTypes.TOPICS).then((value: topicCache) => {
-                let topicCurrentVersion = -1;
-
-                if (value !== null) {
-                    topicCurrentVersion = value.version;
-                }
-
-                if (this.studies.length > 0) {
-                    const studyLocalStorage = localStorage.getItem(LocalStorageData.STUDY);
-
-                    let studynr: number;
-                    if (!studyLocalStorage || isNaN(Number(studyLocalStorage))) {
-                        studynr = this.studies[0].value;
-                    } else {
-                        if (this.studies.findIndex(currStudy => currStudy.value === +studyLocalStorage) === -1) {
-                            studynr = this.studies[0].value;
-                        } else {
-                            studynr = +studyLocalStorage;
-                        }
-                    }
-
-                    this.studyNr = studynr;
-
-                    // Sends a get request to the server, and sets the correct store value after receiving the topics in the GetTopicsCallBack
-                    ApiWrapper.sendGetRequest(
-                        new Topics(topicCurrentVersion, studynr),
-                        (callbackData: GetTopicsCallBack) => {
-                            if (callbackData !== null && callbackData.topics) {
-                                this.topics = callbackData.topics;
-                                dataState.setTopics(callbackData.topics);
-
-                                const topicData: topicCache = {
-                                    version: callbackData.version,
-                                    topics: callbackData.topics
-                                };
-
-                                localForage.setItem(CacheTypes.TOPICS, topicData).then(() => {
-                                    logStringConsole("Added topics to cache", "NavDrawer");
-                                });
-                            } else {
-                                this.topics = value.topics;
-                                dataState.setTopics(value.topics);
-                            }
-
-                            if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
-                                this.activeTopicHash = [+this.$router.currentRoute.params.hash];
-                            }
-                        },
-                        (err: AxiosError) => {
-                            logStringConsole("Set topics from cache", "NavDrawer mounted error axios, error:" + err);
-                            this.topics = value.topics;
-                            dataState.setTopics(value.topics);
-                        }
-                    );
-                } else {
-                    uiState.setNotificationDialog({
-                        on: true,
-                        header: "No studies were found :(",
-                        text: "Our request for studies returned nothing, so we can't continue now"
-                    });
-                }
-            });
-        });
     }
 
     /**

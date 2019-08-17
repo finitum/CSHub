@@ -5,7 +5,7 @@ export class WIPPostsCallBack {
     constructor(public postHashes: number[]) {}
 }
 
-export class WIPPosts implements IApiRequest {
+export class WIPPosts implements IApiRequest<WIPPostsCallBack> {
     public static getURL: string = Requests.WIPPOSTS;
 
     public static readonly studyQueryParam = "studyNr";

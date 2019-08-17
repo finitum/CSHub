@@ -6,9 +6,7 @@ export enum QuestionSettingsEditType {
     DELETE
 }
 
-export class QuestionSettingsCallback {}
-
-export class QuestionSettings implements IApiRequest {
+export class QuestionSettings implements IApiRequest<void> {
     public static getURL: string = Requests.QUESTIONSETTINGS;
     public URL: string = QuestionSettings.getURL;
 

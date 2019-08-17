@@ -1,9 +1,6 @@
 import { app } from "../../";
 import { Request, Response } from "express";
-import { DatabaseResultSet, query } from "../../db/database-query";
-import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
-import { PostSettings, PostSettingsCallback, PostSettingsEditType } from "../../../../cshub-shared/src/api-calls";
-import { hasAccessToPostRequest, hasAccessToTopicRequest } from "../../auth/validateRights/PostAccess";
+import { hasAccessToTopicRequest } from "../../auth/validateRights/PostAccess";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import {
     QuestionSettings,

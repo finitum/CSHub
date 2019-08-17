@@ -1,7 +1,7 @@
 import { IApiRequest } from "../../../models";
 import { Requests } from "../../Requests";
 
-export class SquashEdits implements IApiRequest {
+export class SquashEdits implements IApiRequest<void> {
     public static getURL: string = Requests.SQUASHEDITS;
     public URL: string = SquashEdits.getURL;
 

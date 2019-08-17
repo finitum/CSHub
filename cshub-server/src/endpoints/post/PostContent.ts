@@ -2,7 +2,6 @@ import { app } from "../../.";
 import logger from "../../utilities/Logger";
 import { Request, Response } from "express";
 import {
-    GetPostCallBack,
     PostContent,
     GetPostContentCallBack,
     PostVersionTypes
@@ -41,23 +40,31 @@ app.get(PostContent.getURL, (req: Request, res: Response) => {
     )
         .then((post: DatabaseResultSet) => {
             if (post.convertRowsToResultObjects().length === 0) {
-                res.json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
+                res.json(
+                    new GetPostContentCallBack({
+                        type: PostVersionTypes.POSTDELETED
+                    })
+                );
             } else if (post.getNumberFromDB("postVersion") !== postVersion) {
                 getContent().then((returnContent: ContentReturn) => {
                     getPostData(postHash).then(data => {
                         if (data !== null && returnContent.state !== postState.DELETED) {
                             res.json(
-                                new GetPostContentCallBack(
-                                    PostVersionTypes.UPDATEDPOST,
-                                    {
+                                new GetPostContentCallBack({
+                                    type: PostVersionTypes.UPDATEDPOST,
+                                    content: {
                                         html: returnContent.content,
                                         approved: returnContent.state === postState.ONLINE
                                     },
-                                    data.post
-                                )
+                                    postUpdated: data.post
+                                })
                             );
                         } else {
-                            res.status(410).json(new GetPostContentCallBack(PostVersionTypes.POSTDELETED));
+                            res.status(410).json(
+                                new GetPostContentCallBack({
+                                    type: PostVersionTypes.POSTDELETED
+                                })
+                            );
                         }
                     });
                 });

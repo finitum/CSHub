@@ -6,7 +6,7 @@ export class GetUnpublishedQuestionsCallback {
     constructor(public questions: IQuestion[]) {}
 }
 
-export class GetUnpublishedQuestions implements IApiRequest {
+export class GetUnpublishedQuestions implements IApiRequest<GetUnpublishedQuestionsCallback> {
     public static getURL: string = Requests.UNPUBLISHEDQUESTIONS;
     public URL: string = GetUnpublishedQuestions.getURL;
 

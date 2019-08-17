@@ -6,7 +6,7 @@ export class AllUsersCallBack {
     constructor(public users: IUser[], public totalItems: number) {}
 }
 
-export class AllUsers implements IApiRequest {
+export class AllUsers implements IApiRequest<AllUsersCallBack> {
     public static getURL: string = Requests.ALLUSERS;
     public URL: string = AllUsers.getURL;
 

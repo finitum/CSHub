@@ -16,6 +16,8 @@ const PostView = () => import("../posts/PostView.vue");
 const PostCreate = () => import("../posts/PostCreate.vue");
 const PostsSearch = () => import("../posts/PostsSearch.vue");
 
+const Practice = () => import("../../components/practice/Practice.vue");
+
 import TopicCreate from "../posts/TopicCreate.vue";
 
 import { userBeforeEnter } from "./guards/userDashboardGuard";
@@ -28,6 +30,7 @@ import { dataState } from "../../store";
 import { AxiosError } from "axios";
 import { ApiWrapper, logStringConsole } from "../../utilities";
 import { uiState } from "../../store";
+import { setupRequiredDataGuard } from "./guards/setupRequiredDataGuard";
 
 Vue.use(Router);
 
@@ -84,6 +87,11 @@ const router = new Router({
             component: PostView
         },
         {
+            path: `${Routes.TOPIC}/:hash/practice`,
+            name: "topicpractice",
+            component: Practice
+        },
+        {
             path: Routes.SEARCH,
             name: "search",
             component: PostsSearch
@@ -131,31 +139,41 @@ const router = new Router({
 });
 
 router.beforeEach((to: Route, from: Route, next) => {
-    if (!userState.hasCheckedToken) {
-        ApiWrapper.sendGetRequest(
-            new VerifyToken(),
-            (verified: VerifyUserTokenCallback) => {
-                if (!dataState.hasConnection) {
-                    dataState.setConnection(true);
-                }
+    setupRequiredDataGuard().then(shouldWeContinue => {
+        if (shouldWeContinue) {
+            if (!userState.hasCheckedToken) {
+                ApiWrapper.sendGetRequest(
+                    new VerifyToken(),
+                    (verified: VerifyUserTokenCallback) => {
+                        if (!dataState.hasConnection) {
+                            dataState.setConnection(true);
+                        }
 
-                if (verified.response) {
-                    logStringConsole("User is logged in", "isLoggedIn after API");
-                    userState.setUserModel(verified.response);
-                } else {
-                    logStringConsole("User is not logged in", "isLoggedIn after API");
-                }
-                next();
-                userState.setHasCheckedToken(true);
-            },
-            (err: AxiosError) => {
-                dataState.setConnection(false);
+                        if (verified.response) {
+                            logStringConsole("User is logged in", "isLoggedIn after API");
+                            userState.setUserModel(verified.response);
+                        } else {
+                            logStringConsole("User is not logged in", "isLoggedIn after API");
+                        }
+                        next();
+                        userState.setHasCheckedToken(true);
+                    },
+                    (err: AxiosError) => {
+                        dataState.setConnection(false);
+                        next();
+                    }
+                );
+            } else {
                 next();
             }
-        );
-    } else {
-        next();
-    }
+        } else {
+            uiState.setNotificationDialog({
+                on: true,
+                header: "No studies / topics found :(",
+                text: "Our request for studies or topics returned nothing, so we can't continue now, please report this"
+            });
+        }
+    });
 });
 
 router.afterEach((to: Route, from: Route) => {

@@ -22,7 +22,7 @@ import { TopicPosts, GetTopicPostsCallBack } from "../../../../cshub-shared/src/
 import { getTopicFromHash } from "../../../../cshub-shared/src/utilities/Topics";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
-import { dataState } from "../../store";
+import { dataState, uiState } from "../../store";
 
 import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities/index";
 import { CacheTypes } from "../../utilities/cache-types";
@@ -43,9 +43,9 @@ export default class PostView extends Vue {
      * Computed properties
      */
     get currentTopicNameComputed(): string {
-        if (dataState.topics !== null) {
+        if (dataState.topTopic !== null) {
             if (this.currentTopicHash > 0) {
-                const topicFromHash = getTopicFromHash(this.currentTopicHash, dataState.topics);
+                const topicFromHash = getTopicFromHash(this.currentTopicHash, dataState.topTopic.children);
 
                 if (topicFromHash) {
                     return topicFromHash.name;
@@ -106,7 +106,18 @@ export default class PostView extends Vue {
         } else if (this.$router.currentRoute.fullPath === Routes.INDEX) {
             this.currentTopicHash = 0;
             this.isFullPost = false;
-            this.getTopicRequest(0);
+
+            const topTopic = dataState.topTopic;
+
+            if (topTopic) {
+                this.getTopicRequest(topTopic.hash);
+            } else {
+                uiState.setNotificationDialog({
+                    header: "Error!",
+                    text: "We have not found a topic?",
+                    on: true
+                });
+            }
         }
     }
 
