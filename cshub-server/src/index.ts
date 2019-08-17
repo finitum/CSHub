@@ -30,9 +30,8 @@ export const server = http.createServer(app).listen(Settings.PORT);
 // Here all the connectors will be defined
 import "./endpoints";
 import "./realtime-edit";
-import {getCurrentConnection, query} from "./db/database-query";
+import { query } from "./db/database-query";
 import { generateRandomTopicHash } from "./utilities/TopicsUtils";
-import {QueryFailedError} from "typeorm";
 
 logger.info("Express server started with settings:");
 logger.info(JSON.stringify(Settings));

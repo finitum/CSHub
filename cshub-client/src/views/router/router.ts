@@ -31,6 +31,7 @@ import { AxiosError } from "axios";
 import { ApiWrapper, logStringConsole } from "../../utilities";
 import { uiState } from "../../store";
 import { setupRequiredDataGuard } from "./guards/setupRequiredDataGuard";
+import StudyEditor from "../user/StudyEditor.vue";
 
 Vue.use(Router);
 
@@ -122,6 +123,12 @@ const router = new Router({
             path: Routes.ADMINDASHBOARD,
             name: "admin",
             component: AdminDashboard,
+            beforeEnter: adminBeforeEnter
+        },
+        {
+            path: Routes.STUDYEDITOR,
+            name: "studyeditor",
+            component: StudyEditor,
             beforeEnter: adminBeforeEnter
         },
         {
