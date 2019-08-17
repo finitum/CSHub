@@ -4,6 +4,7 @@ import { getRepository } from "typeorm";
 import { app } from "../../";
 
 import { GetStudiesCallback, Studies } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
+import { HideStudies, UnhideStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/HideStudies";
 import { Study } from "../../db/entities/study";
 import logger from "../../utilities/Logger";
 
@@ -21,4 +22,18 @@ app.get(Studies.getURL, (req: Request, res: Response) => {
             logger.error(reason);
             res.sendStatus(500);
         });
+});
+
+app.post(HideStudies.postURL, async (req: Request, res: Response) => {
+    const studyRepository = getRepository(Study);
+    // await studyRepository.delete({});
+
+    return res.sendStatus(201);
+});
+
+app.post(UnhideStudies.postURL, async (req: Request, res: Response) => {
+
+    const studyRepository = getRepository(Study);
+    // await studyRepository.delete({});
+    return res.sendStatus(201);
 });

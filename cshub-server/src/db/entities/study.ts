@@ -42,4 +42,11 @@ export class Study implements IStudy {
     @ManyToMany(type => User, user => user.studies)
     @JoinTable()
     admins?: User[];
+
+    @Expose()
+    @Column({
+        type: "boolean",
+        default: false
+    })
+    hidden!: boolean;
 }

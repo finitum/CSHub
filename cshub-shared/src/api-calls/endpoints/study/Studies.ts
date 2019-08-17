@@ -8,7 +8,7 @@ export class GetStudiesCallback {
 }
 
 export class Studies implements IApiRequest<GetStudiesCallback> {
-    public static getURL: string = Requests.STUDIES;
+    public static getURL: string = Requests.GETSTUDIES;
 
     public URL: string = Studies.getURL;
 

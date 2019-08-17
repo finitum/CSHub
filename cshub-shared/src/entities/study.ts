@@ -6,4 +6,6 @@ export interface IStudy {
     name: string;
 
     topTopic: ITopic;
+
+    hidden: boolean;
 }

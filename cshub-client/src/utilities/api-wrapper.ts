@@ -178,6 +178,34 @@ export class ApiWrapper {
             });
     }
 
+    public static sendDeleteRequest(
+        request: IApiRequest<any>,
+        callback?: (...args: any) => void,
+        error?: (err: AxiosError) => void
+    ) {
+        axiosApi
+            .delete(request.URL, {
+                data: request,
+                withCredentials: true,
+                headers: request.headers,
+                params: request.params
+            })
+            .then((response: AxiosResponse<any>) => {
+                if (callback) {
+                    if (response === undefined) {
+                        callback(null, null);
+                    } else {
+                        callback(response.data, response.status);
+                    }
+                }
+            })
+            .catch((err: AxiosError) => {
+                if (error) {
+                    error(err);
+                }
+            });
+    }
+
     /**
      * @deprecated
      */

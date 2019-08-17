@@ -1,17 +1,5 @@
 <template>
     <div>
-        <v-dialog v-model="confirm_dialog" max-width="500px">
-            <v-card>
-                <v-card-title class="headline">Are you sure you want to delete this item?</v-card-title>
-                <v-card-text>This will be permanent</v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" text @click="confirm_dialog = false">Yes</v-btn>
-                    <v-btn color="green darken-1" text @click="confirm_dialog = false">No</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
         <v-data-table
             :headers="headers"
             :items="items"
@@ -20,7 +8,7 @@
             class="elevation-1"
         >
             <template v-slot:top>
-                <v-toolbar flat color="white">
+                <v-toolbar flat>
 
                     <v-spacer></v-spacer>
                     <v-dialog v-model="edit_dialog" max-width="500px">
@@ -50,7 +38,7 @@
 <!--                                        <v-col cols="12" sm="6" md="4">-->
 <!--                                            <v-text-field v-model="editedItem.protein" label="Protein (g)"></v-text-field>-->
 <!--                                        </v-col>-->
-                                    </v-row>
+                                    </v-row>3
                                 </v-container>
                             </v-card-text>
 
@@ -63,13 +51,21 @@
                     </v-dialog>
                 </v-toolbar>
             </template>
+
             <template v-slot:item.action="{ item }">
                 <v-icon small class="mr-2" @click="editItem(item)">
                     fas fa-edit
                 </v-icon>
-                <v-icon small @click="deleteItem(item)">
-                    fas fa-trash-alt
+                <v-icon v-if="item.hidden" small @click="hideItem(item)">
+                    fas fa-eye
                 </v-icon>
+                <v-icon v-else small @click="hideItem(item)">
+                    fas fa-eye-slash
+                </v-icon>
+            </template>
+
+            <template v-slot:item.hidden="{ item }">
+                <td>{{ item.hidden.toString() }}</td>
             </template>
         </v-data-table>
     </div>
@@ -79,9 +75,10 @@
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
 
-import { ApiWrapper } from "../../utilities";
+import { ApiWrapper, logStringConsole } from "../../utilities";
 
 import { Studies, GetStudiesCallback } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
+import { HideStudies, UnhideStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/HideStudies";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
 
 @Component({
@@ -98,20 +95,23 @@ export default class StudyTable extends Vue {
         { text: "Study name", value: "name" },
         { text: "Top topic id", value: "topTopic.id" },
         { text: "Top topic name", value: "topTopic.name" },
-        { text: "Actions", value: "action", sortable: false}
+        { text: "Hidden", value: "hidden" },
+        { text: "Actions", value: "action", sortable: false }
     ];
     private loading = true;
     private edit_dialog = false;
-    private confirm_dialog = false;
     private amountItems: number = 0;
-    private editedItem: IStudy | null = null;
-    private editedIndex: number = -1;
+    private selectedItem: IStudy | null = null;
 
     /*
      * Lifecycle hooks
      */
     private mounted() {
         this.loading = true;
+        this.getData();
+    }
+
+    private getData(){
         ApiWrapper.sendGetRequest(new Studies(), (callback: GetStudiesCallback) => {
             this.items = callback.studies;
             this.amountItems = callback.studies.length;
@@ -120,25 +120,42 @@ export default class StudyTable extends Vue {
     }
 
     private editItem(item: IStudy) {
-        // this.editedIndex = this.items.indexOf(item);
-        // this.editedItem = Object.assign({}, item);
+        this.selectedItem = item;
         this.edit_dialog = true;
     }
 
-    private deleteItem(item: IStudy) {
-        this.confirm_dialog = true;
+    private async hideItem(item: IStudy) {
+        if (item.hidden) {
+            await ApiWrapper.sendPostRequest(new UnhideStudies(item), (response: null, status) => {
+                if (status === 201) {
+                    item.hidden = false;
+                    return;
+                } else {
+                    logStringConsole("Unexpected status code: " + status, "TopicCreate.vue");
+                }
+            });
+        } else {
+            await ApiWrapper.sendPostRequest(new HideStudies(item), (response: null, status) => {
+                if (status === 201) {
+                    item.hidden = true;
+                    return;
+                } else {
+                    logStringConsole("Unexpected status code: " + status, "TopicCreate.vue");
+                }
+            });
+        }
     }
 
     private close() {
+        this.selectedItem = null;
         this.edit_dialog = false;
     }
 
     private get formTitle() {
-        return this.editedIndex === -1 ? "New Item" : "Edit Item";
+        return this.selectedItem === null ? "New Item" : "Edit Item";
     }
 
     private save() {
-
         this.close();
     }
 
