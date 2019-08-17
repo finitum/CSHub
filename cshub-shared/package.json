@@ -20,14 +20,14 @@
   },
   "dependencies": {
     "eslint": "^6.1.0",
-    "katex": "^0.10.1",
+    "katex": "^0.11.0",
     "markdown-it": "latest",
     "markdown-it-katex": "latest",
     "parchment": "^1.1.4",
     "typescript": "^3.5.3"
   },
   "resolutions": {
-    "**/katex": "0.10.1"
+    "**/katex": "0.10.2"
   },
   "gitSHA": "a28155c13fcb9b682c9ef64318233d1b93b9b234",
   "main": ".eslintrc.js",
