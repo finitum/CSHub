@@ -1,3 +1,7 @@
 .v-treeview-node__label {
     font-size: inherit !important;
 }
+
+.v-input__control {
+    flex-grow: 1 !important;
+}
