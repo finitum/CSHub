@@ -18,8 +18,10 @@ export class Requests {
     public static readonly SUBMITTOPIC: string = "/topics"; // POST
 
     public static readonly GETSTUDIES: string = "/study"; // GET
+    public static readonly GETALLSTUDIES: string = "/study/all"; // GET
     public static readonly HIDESTUDIES: string = "/study/hide"; // POST
     public static readonly UNHIDESTUDIES: string = "/study/unhide"; // POST
+    public static readonly RENAMESTUDIES: string = "/study/rename"; // POST
 
     public static readonly QUESTIONS: string = "/questions"; // GET
     public static readonly UNPUBLISHEDQUESTIONS: string = "/questions/unpublished"; // GET

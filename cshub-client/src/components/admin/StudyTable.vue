@@ -18,6 +18,18 @@
                             <v-card-title>
                                 <span class="headline">{{ formTitle }}</span>
                             </v-card-title>
+
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+<!--                                        <v-col cols="12" sm="6" md="4">-->
+<!--                                            <v-text-field v-model="editedItem.name" label="Dessert name"></v-text-field>-->
+<!--                                        </v-col>-->
+
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
+
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
@@ -50,7 +62,8 @@
                     hide-details
                     autofocus
                     append-icon="fas fa-check"
-                    @click:append="isEditingName = false"
+                    @keyup.enter="editingDone(props.item)"
+                    @click:append="editingDone(props.item)"
                 >
                 </v-text-field>
             </template>
@@ -68,8 +81,9 @@ import { Component } from "vue-property-decorator";
 
 import { ApiWrapper, logStringConsole } from "../../utilities";
 
-import { Studies, GetStudiesCallback } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
+import { AllStudies, GetStudiesCallback } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
 import { HideStudies, UnhideStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/HideStudies";
+import { RenameStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/RenameStudies";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
 
 @Component({
@@ -104,10 +118,22 @@ export default class StudyTable extends Vue {
     }
 
     private getData() {
-        ApiWrapper.sendGetRequest(new Studies(), (callback: GetStudiesCallback) => {
+        ApiWrapper.sendGetRequest(new AllStudies(), (callback: GetStudiesCallback) => {
             this.items = callback.studies;
             this.amountItems = callback.studies.length;
             this.loading = false;
+        });
+    }
+
+    private async rename(item: IStudy) {
+        await ApiWrapper.sendPostRequest(new RenameStudies(item), (response: null, status) => {
+            if (status === 201) {
+                return;
+            } else if (status === 406) {
+                return alert("name too long");
+            } else {
+                logStringConsole("Unexpected status code: " + status, "TopicCreate.vue");
+            }
         });
     }
 
@@ -122,7 +148,7 @@ export default class StudyTable extends Vue {
                 if (status === 201) {
                     item.hidden = false;
                     return;
-                } else {
+                }else {
                     logStringConsole("Unexpected status code: " + status, "TopicCreate.vue");
                 }
             });
@@ -143,6 +169,11 @@ export default class StudyTable extends Vue {
         this.editDialog = false;
     }
 
+    private editingDone(item: IStudy) {
+        this.isEditingName = false;
+        this.rename(item);
+    }
+
     private get formTitle() {
         return this.selectedItem === null ? "New Item" : "Edit Item";
     }
@@ -150,9 +181,6 @@ export default class StudyTable extends Vue {
     private save() {
         this.close();
     }
-
-    // @Watch("dialog")
-    // private open
 }
 </script>
 

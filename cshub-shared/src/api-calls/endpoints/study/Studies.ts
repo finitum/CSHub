@@ -17,3 +17,14 @@ export class Studies implements IApiRequest<GetStudiesCallback> {
      */
     response?: GetStudiesCallback;
 }
+
+export class AllStudies implements IApiRequest<GetStudiesCallback> {
+    public static getURL: string = Requests.GETALLSTUDIES;
+
+    public URL: string = AllStudies.getURL;
+
+    /**
+     * @see IApiRequest.response
+     */
+    response?: GetStudiesCallback;
+}

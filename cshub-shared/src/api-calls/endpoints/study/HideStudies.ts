@@ -14,7 +14,7 @@ export class HideStudies implements IApiRequest<void> {
 export class UnhideStudies implements IApiRequest<void> {
     public static postURL: string = Requests.UNHIDESTUDIES;
 
-    public URL: string = HideStudies.postURL;
+    public URL: string = UnhideStudies.postURL;
 
     constructor(public study: IStudy) {}
 }
