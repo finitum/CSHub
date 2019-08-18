@@ -8,9 +8,7 @@ import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 import { ClosedAnswer } from "../../db/entities/practice/closed-answer";
 import { OpenNumberAnswer } from "../../db/entities/practice/open-number-answer";
 import { OpenTextAnswer } from "../../db/entities/practice/open-text-answer";
-import {
-    NewQuestion
-} from "../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestions";
+import { NewQuestion } from "../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestion";
 import logger from "../../utilities/Logger";
 import { Request, Response } from "express";
 import { validateMultipleInputs } from "../../utilities/StringUtils";
@@ -22,14 +20,11 @@ export const validateNewQuestion = (question: NewQuestion, res: Response) => {
         },
         {
             input: question.explanation
-        },
-        {
-            input: question.topicHash
         }
     );
 
     if (!questionValidation.valid) {
-        res.status(400).send(new ServerError("Bad input my friend"));
+        res.sendStatus(400);
         throw new AlreadySentError();
     }
 
@@ -37,8 +32,6 @@ export const validateNewQuestion = (question: NewQuestion, res: Response) => {
 
     switch (question.type) {
         case QuestionType.SINGLECLOSED:
-            hasError = validateMultipleInputs({ input: question.answerText }).valid;
-            break;
         case QuestionType.MULTICLOSED:
             for (const answer of question.answers) {
                 if (
@@ -56,6 +49,10 @@ export const validateNewQuestion = (question: NewQuestion, res: Response) => {
                 }
             }
 
+            if (question.type === QuestionType.SINGLECLOSED) {
+                hasError = question.answers.filter(answer => answer.correct).length !== 1;
+            }
+
             break;
         case QuestionType.OPENNUMBER:
             hasError = validateMultipleInputs({ input: question.precision }, { input: question.number }).valid;
@@ -66,7 +63,7 @@ export const validateNewQuestion = (question: NewQuestion, res: Response) => {
     }
 
     if (hasError) {
-        res.status(400).send(new ServerError("Bad input my friend"));
+        res.sendStatus(400);
         throw new AlreadySentError();
     }
 };
@@ -120,7 +117,7 @@ export const insertQuestions = (
                 const newQuestion = new Question();
                 newQuestion.questionType = question.type;
                 newQuestion.question = question.question;
-                newQuestion.topicId = topic.id;
+                newQuestion.topic = topic;
                 newQuestion.explanation = question.explanation;
 
                 if (updateQuestion !== false) {
@@ -129,8 +126,6 @@ export const insertQuestions = (
 
                 switch (question.type) {
                     case QuestionType.SINGLECLOSED:
-                        newQuestion.answers = [new ClosedAnswer(question.answerText, true)];
-                        break;
                     case QuestionType.MULTICLOSED:
                         newQuestion.answers = [];
 

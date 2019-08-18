@@ -56,6 +56,7 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
                     DELETE
                     FROM edits
                     WHERE post = (
+D
                         SELECT id
                         FROM posts
                         WHERE hash = ?

@@ -91,7 +91,9 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                         type: QuestionType.MULTICLOSED,
                         answerIds: correctAnswers
                     },
-                    correct: correctAnswers.every(correctAnswer => userAnswers.includes(correctAnswer))
+                    correct:
+                        userAnswers.length === correctAnswers.length && // if the length is the same and every correct answer is found in the user's answers, it's correct
+                        correctAnswers.every(correctAnswer => userAnswers.includes(correctAnswer))
                 };
             } else {
                 res.status(400).send(new ServerError("Uuuh we don't agree on the amount of answers!"));

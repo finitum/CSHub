@@ -2,17 +2,15 @@ import { IApiRequest } from "../../../models";
 import { Requests } from "../../Requests";
 import { QuestionType } from "../../../entities/question";
 
+export interface ClosedAnswerType {
+    answerText: string;
+    correct: boolean;
+}
+
 export type NewAnswerType =
     | {
-          type: QuestionType.SINGLECLOSED;
-          answerText: string;
-      }
-    | {
-          type: QuestionType.MULTICLOSED;
-          answers: {
-              answerText: string;
-              correct: boolean;
-          }[];
+          type: QuestionType.MULTICLOSED | QuestionType.SINGLECLOSED;
+          answers: ClosedAnswerType[];
       }
     | {
           type: QuestionType.OPENNUMBER;
@@ -27,14 +25,13 @@ export type NewAnswerType =
 export type NewQuestion = {
     question: string;
     explanation: string;
-    topicHash: number;
 } & NewAnswerType;
 
-export class AddQuestions implements IApiRequest<void> {
+export class AddQuestion implements IApiRequest<void> {
     public static getURL: string = Requests.ADDQUESTIONS;
 
-    public URL: string = AddQuestions.getURL;
+    public URL: string = AddQuestion.getURL;
 
     // topicHash is used here instead of topicHash in question, so we only have to check once :)
-    constructor(public questions: NewQuestion[], public topicHash: number) {}
+    constructor(public question: NewQuestion, public topicHash: number) {}
 }

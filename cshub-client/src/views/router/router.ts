@@ -17,6 +17,7 @@ const PostCreate = () => import("../posts/PostCreate.vue");
 const PostsSearch = () => import("../posts/PostsSearch.vue");
 
 const Practice = () => import("../../components/practice/Practice.vue");
+const MultipleChoiceEditor = () => import("../../components/practice/editors/MultipleChoiceEditor.vue");
 
 import TopicCreate from "../posts/TopicCreate.vue";
 
@@ -31,7 +32,6 @@ import { AxiosError } from "axios";
 import { ApiWrapper, logStringConsole } from "../../utilities";
 import { uiState } from "../../store";
 import { setupRequiredDataGuard } from "./guards/setupRequiredDataGuard";
-import MultipleChoiceEditor from "../../components/practice/editors/MultipleChoiceEditor.vue";
 
 Vue.use(Router);
 

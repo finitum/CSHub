@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
+import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, RelationId} from "typeorm";
 import { Topic } from "../topic";
 import { User } from "../user";
 import { IQuestion, QuestionType } from "../../../../../cshub-shared/src/entities/question";
@@ -49,17 +49,18 @@ export class Question implements IQuestion {
     active!: boolean;
 
     // not the nicest solution, but it works. This marks which question will be set to inactive if this question is accepted
-    @OneToOne(type => Question, question => question.id, {
+    @OneToOne(type => Question, question => question.replacedByQuestion, {
         nullable: true
     })
-    replacesQuestion?: Question;
+    @JoinColumn()
+    replacesQuestion?: Question | null;
+
+    // not the nicest solution, but it works. This marks which question will be set to inactive if this question is accepted
+    @OneToOne(type => Question, question => question.replacesQuestion, {
+        nullable: true
+    })
+    replacedByQuestion?: Question | null;
 
     @RelationId((question: Question) => question.replacesQuestion)
-    replacesQuestionId?: number;
-
-    // Just for statistics
-    @ManyToOne(type => User, user => user.approvedQuestions, {
-        nullable: true
-    })
-    approvedBy?: User;
+    replacesQuestionId?: number | null;
 }

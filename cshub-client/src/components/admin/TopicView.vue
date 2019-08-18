@@ -22,10 +22,11 @@
             </template>
 
             <template slot="toggle" slot-scope="{ node }">
-                <span v-if="!node.isLeaf">
+                <span v-if="node.children.length > 0">
                     <v-icon v-if="node.isExpanded">fas fa-chevron-down</v-icon>
                     <v-icon v-if="!node.isExpanded">fas fa-chevron-right</v-icon>
                 </span>
+                <span v-else> </span>
             </template>
         </sl-vue-tree>
     </div>
@@ -111,14 +112,11 @@ export default class TopicView extends Vue {
             childFragments.push(this.createTreeViewFragment(child));
         }
 
-        const isLeaf = clonedTopic.children.length === 0;
-
         delete clonedTopic.children;
         delete clonedTopic.parent;
 
         return {
             title: clonedTopic.name,
-            isLeaf,
             children: childFragments,
             data: clonedTopic
         };

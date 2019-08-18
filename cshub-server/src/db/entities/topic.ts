@@ -1,4 +1,13 @@
-import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, RelationId} from "typeorm";
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+    RelationId
+} from "typeorm";
 import { Post } from "./post";
 import { Study } from "./study";
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";

@@ -1,6 +1,6 @@
 import "./GetQuestions";
 import "./CheckAnswers";
 import "./GetUnpublishedQuestions";
-import "./AddQuestions";
+import "./AddQuestion";
 import "./EditQuestion";
 import "./QuestionSettings";

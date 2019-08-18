@@ -21,58 +21,62 @@ app.put(QuestionSettings.getURL, async (req: Request, res: Response) => {
 
     const questionRepository = getRepository(Question);
 
-    questionRepository
-        .findOne({
-            where: {
-                id: questionId
-            },
-            relations: ["topic"]
-        })
-        .then(question => {
-            if (question === undefined) {
-                res.sendStatus(404);
-                throw new AlreadySentError();
-            }
+    const question = await questionRepository.findOne({
+        where: {
+            id: questionId
+        },
+        relations: ["topic", "replacesQuestion"]
+    });
 
-            return hasAccessToTopicRequest(question.topic.hash, req);
-        })
-        .then(topicAccess => {
-            switch (action) {
-                case QuestionSettingsEditType[QuestionSettingsEditType.APPROVE].toLowerCase():
-                    if (topicAccess.canSave) {
-                        questionRepository
-                            .createQueryBuilder()
-                            .update()
-                            .set({
-                                active: true
-                            })
-                            .where("id = :id", { id: questionId })
-                            .execute();
-                    } else {
-                        res.status(403).send();
-                    }
-                    break;
-                case QuestionSettingsEditType[QuestionSettingsEditType.DELETE].toLowerCase():
-                    if (topicAccess.canSave) {
-                        questionRepository
-                            .createQueryBuilder()
-                            .update()
-                            .set({
-                                active: false
-                            })
-                            .where("id = :id", { id: questionId })
-                            .execute();
-                    } else {
-                        res.status(403).send();
-                    }
-                    break;
-                default:
-                    res.status(400).json(new ServerError("Did not understand the PostSettingsEditType"));
+    if (question === undefined) {
+        res.sendStatus(404);
+        throw new AlreadySentError();
+    }
+
+    const access = await hasAccessToTopicRequest(question.topic.hash, req);
+
+    switch (action) {
+        case QuestionSettingsEditType[QuestionSettingsEditType.APPROVE].toLowerCase():
+            if (access.canSave) {
+                await questionRepository
+                    .createQueryBuilder()
+                    .update()
+                    .set({
+                        active: true,
+                        replacesQuestionId: null
+                    })
+                    .where("id = :id", { id: questionId })
+                    .execute();
+
+                if (question.replacesQuestion) {
+                    await questionRepository
+                        .createQueryBuilder()
+                        .update()
+                        .set({
+                            active: false
+                        })
+                        .where("id = :id", { id: question.replacesQuestion.id })
+                        .execute();
+                }
+            } else {
+                res.status(403).send();
             }
-        })
-        .catch(err => {
-            if (!(err instanceof AlreadySentError)) {
-                res.status(500).send(new ServerError("Server die oopsie"));
+            break;
+        case QuestionSettingsEditType[QuestionSettingsEditType.DELETE].toLowerCase():
+            if (access.canSave) {
+                questionRepository
+                    .createQueryBuilder()
+                    .update()
+                    .set({
+                        active: false
+                    })
+                    .where("id = :id", { id: questionId })
+                    .execute();
+            } else {
+                res.status(403).send();
             }
-        });
+            break;
+        default:
+            res.status(400).json(new ServerError("Did not understand the PostSettingsEditType"));
+    }
 });
