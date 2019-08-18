@@ -54,15 +54,7 @@
             </template>
 
             <template v-slot:item.action="{ item }">
-                <v-icon small class="mr-2" @click="editItem(item)">
-                    fas fa-edit
-                </v-icon>
-                <v-icon v-if="item.hidden" small @click="hideItem(item)">
-                    fas fa-eye
-                </v-icon>
-                <v-icon v-else small @click="hideItem(item)">
-                    fas fa-eye-slash
-                </v-icon>
+
             </template>
 
             <template v-slot:item.name="props">
@@ -85,7 +77,15 @@
             </template>
 
             <template v-slot:item.hidden="{ item }">
-                <td class="pa-0">{{ item.hidden.toString() }}</td>
+                <td class="pa-0">
+                    <v-icon v-if="item.hidden" small @click="hideItem(item)">
+                        fas fa-eye
+                    </v-icon>
+                    <v-icon v-else small @click="hideItem(item)">
+                        fas fa-eye-slash
+                    </v-icon>
+                    {{ item.hidden.toString() }}
+                </td>
             </template>
         </v-data-table>
     </div>
@@ -100,7 +100,10 @@ import { ApiWrapper, logStringConsole } from "../../utilities";
 import { AllStudies, GetStudiesCallback } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
 import { HideStudies, UnhideStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/HideStudies";
 import { RenameStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/RenameStudies";
-import { CreateStudies, CreateStudiesCallback } from "../../../../cshub-shared/src/api-calls/endpoints/study/CreateStudies";
+import {
+    CreateStudies,
+    CreateStudiesCallback
+} from "../../../../cshub-shared/src/api-calls/endpoints/study/CreateStudies";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
 
 @Component({
@@ -118,7 +121,6 @@ export default class StudyTable extends Vue {
         { text: "Top topic id", value: "topTopic.id" },
         { text: "Top topic name", value: "topTopic.name" },
         { text: "Hidden", value: "hidden" },
-        { text: "Actions", value: "action", sortable: false }
     ];
     private loading = true;
     private editDialog = false;
