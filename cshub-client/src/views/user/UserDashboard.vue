@@ -128,7 +128,6 @@ import {
 } from "../../../../cshub-shared/src/api-calls";
 import { ChangeAvatar, ChangeAvatarCallback } from "../../../../cshub-shared/src/api-calls";
 import { uiState } from "../../store";
-import { IPost } from "../../../../cshub-shared/src/entities/post";
 import { IUser } from "../../../../cshub-shared/src/entities/user";
 
 @Component({

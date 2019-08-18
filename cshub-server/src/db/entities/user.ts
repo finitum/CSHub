@@ -89,10 +89,4 @@ export class User implements IUser {
     // Just to make the model complete
     @ManyToMany(type => Edit, edit => edit.editusers)
     edits?: Edit[];
-
-    @ManyToOne(type => Edit, edit => edit.approvedBy)
-    approvedEdits?: Edit[];
-
-    @ManyToOne(type => Question, question => question.approvedBy)
-    approvedQuestions?: Edit[];
 }

@@ -60,11 +60,4 @@ export class Edit implements IEdit {
         nullable: true
     })
     indexwords?: string;
-
-    // Just for statistics
-    @ManyToOne(type => User, user => user.approvedEdits, {
-        nullable: true
-    })
-    @JoinColumn({ name: "approvedBy" })
-    approvedBy?: User;
 }

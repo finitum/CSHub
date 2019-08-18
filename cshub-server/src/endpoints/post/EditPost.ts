@@ -34,7 +34,7 @@ app.put(EditPost.getURL, (req: Request, res: Response) => {
                         `
                     DELETE T1
                     FROM editusers T1
-                             INNER JOIN edits T2 on T1.edit = T2.id
+                             INNER JOIN edits T2 on T1.editsId = T2.id
                     WHERE T2.post = (
                         SELECT id
                         FROM posts
