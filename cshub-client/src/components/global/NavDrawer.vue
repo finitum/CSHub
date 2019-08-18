@@ -79,7 +79,7 @@
 import Vue from "vue";
 import { Route } from "vue-router";
 
-import { logStringConsole } from "../../utilities";
+import {ApiWrapper, logStringConsole} from "../../utilities";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
 import NavDrawerItem from "./NavDrawerItem.vue";
@@ -93,6 +93,7 @@ import { LocalStorageData } from "../../store/localStorageData";
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
 import { getTopTopic, parseTopTopic } from "../../views/router/guards/setupRequiredDataGuard";
 import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
+import {Logout} from "../../../../cshub-shared/src/api-calls/endpoints/user";
 
 @Component({
     name: "NavDrawer",
@@ -202,7 +203,7 @@ export default class NavDrawer extends Vue {
      */
     private logout() {
         logStringConsole("Logging user out");
-        document.cookie = "token=xxx";
+        ApiWrapper.post(new Logout());
         userState.clearUserModel();
         uiState.setNavbar({ open: false });
         this.$router.push(Routes.INDEX);

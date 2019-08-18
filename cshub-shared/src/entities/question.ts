@@ -16,7 +16,7 @@ export interface IQuestion {
 
     question: string;
 
-    questionType: QuestionType;
+    type: QuestionType;
 
     answers: IAnswer[];
 }

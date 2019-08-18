@@ -26,6 +26,7 @@ export class Requests {
     public static readonly CREATESTUDIES: string = "/study"; // POST
 
     public static readonly QUESTIONS: string = "/questions"; // GET
+    public static readonly FULLQUESTIONS: string = "/questions/full"; // GET
     public static readonly UNPUBLISHEDQUESTIONS: string = "/questions/unpublished"; // GET
     public static readonly ADDQUESTIONS: string = "/questions"; // POST
     public static readonly EDITQUESTION: string = "/questions/:id"; // PUT
@@ -33,6 +34,7 @@ export class Requests {
     public static readonly QUESTIONSETTINGS: string = "/questions/:id/:action"; // PUT, action = approve,delete
 
     public static readonly LOGIN: string = "/login"; // POST
+    public static readonly LOGOUT: string = "/logout"; // POST
     public static readonly CREATEACCOUNT: string = "/createaccount"; // POST
     public static readonly VERIFYTOKEN: string = "/verifytoken"; // POST
 

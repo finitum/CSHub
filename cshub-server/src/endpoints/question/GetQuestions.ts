@@ -4,10 +4,7 @@ import { app } from "../../";
 import logger from "../../utilities/Logger";
 
 import { getRepository, In } from "typeorm";
-import {
-    GetQuestions,
-    GetQuestionsCallback
-} from "../../../../cshub-shared/src/api-calls/endpoints/question/GetQuestions";
+import { GetQuestions, GetQuestionsCallback } from "../../../../cshub-shared/src/api-calls/endpoints/question";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { Question } from "../../db/entities/practice/question";
 import { findTopicInTree, getChildHashes, getTopicTree } from "../../utilities/TopicsUtils";
@@ -45,12 +42,13 @@ app.get(GetQuestions.getURL, (req: Request, res: Response) => {
                     const repository = getRepository(Question);
 
                     repository
-                        .find({
-                            where: {
-                                topicId: In(childHashes)
-                            },
-                            relations: ["answers"]
-                        })
+                        .createQueryBuilder("question")
+                        .leftJoin("question.topic", "topic")
+                        .where("topic.hash IN (:...childHashes)", { childHashes })
+                        .leftJoinAndSelect("question.answers", "answers")
+                        .orderBy("RAND()")
+                        .take(amount)
+                        .getMany()
                         .then(questions => {
                             res.json(new GetQuestionsCallback(questions));
                         })

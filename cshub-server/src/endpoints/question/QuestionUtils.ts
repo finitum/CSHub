@@ -8,12 +8,12 @@ import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 import { ClosedAnswer } from "../../db/entities/practice/closed-answer";
 import { OpenNumberAnswer } from "../../db/entities/practice/open-number-answer";
 import { OpenTextAnswer } from "../../db/entities/practice/open-text-answer";
-import { NewQuestion } from "../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestion";
+import { FullQuestion } from "../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestion";
 import logger from "../../utilities/Logger";
 import { Request, Response } from "express";
 import { validateMultipleInputs } from "../../utilities/StringUtils";
 
-export const validateNewQuestion = (question: NewQuestion, res: Response) => {
+export const validateNewQuestion = (question: FullQuestion, res: Response) => {
     const questionValidation = validateMultipleInputs(
         {
             input: question.question
@@ -55,10 +55,10 @@ export const validateNewQuestion = (question: NewQuestion, res: Response) => {
 
             break;
         case QuestionType.OPENNUMBER:
-            hasError = validateMultipleInputs({ input: question.precision }, { input: question.number }).valid;
+            hasError = !validateMultipleInputs({ input: question.precision }, { input: question.number }).valid;
             break;
         case QuestionType.OPENTEXT:
-            hasError = validateMultipleInputs({ input: question.answer }).valid;
+            hasError = !validateMultipleInputs({ input: question.answer }).valid;
             break;
     }
 
@@ -70,9 +70,9 @@ export const validateNewQuestion = (question: NewQuestion, res: Response) => {
 
 export const insertQuestions = (
     questions:
-        | NewQuestion[]
+        | FullQuestion[]
         | {
-              editedQuestion: NewQuestion;
+              editedQuestion: FullQuestion;
               originalId: number;
           },
     topicHash: number,
@@ -115,7 +115,7 @@ export const insertQuestions = (
 
             const parsedQuestions = questions.map(question => {
                 const newQuestion = new Question();
-                newQuestion.questionType = question.type;
+                newQuestion.type = question.type;
                 newQuestion.question = question.question;
                 newQuestion.topic = topic;
                 newQuestion.explanation = question.explanation;
@@ -124,10 +124,11 @@ export const insertQuestions = (
                     newQuestion.replacesQuestionId = updateQuestion;
                 }
 
+                newQuestion.answers = [];
+
                 switch (question.type) {
                     case QuestionType.SINGLECLOSED:
                     case QuestionType.MULTICLOSED:
-                        newQuestion.answers = [];
 
                         for (const answer of question.answers) {
                             newQuestion.answers.push(new ClosedAnswer(answer.answerText, answer.correct));

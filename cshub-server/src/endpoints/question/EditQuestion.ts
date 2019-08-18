@@ -10,7 +10,7 @@ import { AlreadySentError } from "../utils";
 app.post(EditQuestion.getURL, (req: Request, res: Response) => {
     const editQuestion = req.body as EditQuestion;
 
-    if (editQuestion.question === null || req.params.id === undefined || !editQuestion.question.topicHash) {
+    if (editQuestion.question === null || req.params.id === undefined || !editQuestion.topicHash) {
         res.status(400).send(new ServerError("No question!"));
         return;
     }
@@ -22,7 +22,7 @@ app.post(EditQuestion.getURL, (req: Request, res: Response) => {
                 editedQuestion: editQuestion.question,
                 originalId: req.params.id
             },
-            editQuestion.question.topicHash,
+            editQuestion.topicHash,
             req,
             res
         );

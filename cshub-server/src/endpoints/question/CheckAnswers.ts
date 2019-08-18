@@ -27,7 +27,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
     }
 
     function checkClosedQuestion(clientAnswer: CheckAnswerType, question: Question): CheckedAnswerType {
-        if (clientAnswer.type === question.questionType) {
+        if (clientAnswer.type === question.type) {
             if (question.answers.length === 0) {
                 logger.error(`No answers found for ${question.id}`);
                 res.status(500).send();
@@ -61,7 +61,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
 
             if (
                 clientAnswer.type === QuestionType.SINGLECLOSED &&
-                question.questionType === QuestionType.SINGLECLOSED
+                question.type === QuestionType.SINGLECLOSED
             ) {
                 const userAnswer = clientAnswer.answerId;
 
@@ -81,7 +81,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 };
             } else if (
                 clientAnswer.type === QuestionType.MULTICLOSED &&
-                question.questionType === QuestionType.MULTICLOSED
+                question.type === QuestionType.MULTICLOSED
             ) {
                 const userAnswers = clientAnswer.answerIds;
 
@@ -186,7 +186,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
     }
 
     const parseAnswer = (question: Question, clientAnswer: CheckAnswerType): CheckedAnswerType => {
-        switch (question.questionType) {
+        switch (question.type) {
             case QuestionType.SINGLECLOSED:
             case QuestionType.MULTICLOSED:
                 return checkClosedQuestion(clientAnswer, question);

@@ -7,7 +7,7 @@ export interface ClosedAnswerType {
     correct: boolean;
 }
 
-export type NewAnswerType =
+export type FullAnswerType =
     | {
           type: QuestionType.MULTICLOSED | QuestionType.SINGLECLOSED;
           answers: ClosedAnswerType[];
@@ -22,10 +22,10 @@ export type NewAnswerType =
           answer: string;
       };
 
-export type NewQuestion = {
+export type FullQuestion = {
     question: string;
     explanation: string;
-} & NewAnswerType;
+} & FullAnswerType;
 
 export class AddQuestion implements IApiRequest<void> {
     public static getURL: string = Requests.ADDQUESTIONS;
@@ -33,5 +33,5 @@ export class AddQuestion implements IApiRequest<void> {
     public URL: string = AddQuestion.getURL;
 
     // topicHash is used here instead of topicHash in question, so we only have to check once :)
-    constructor(public question: NewQuestion, public topicHash: number) {}
+    constructor(public question: FullQuestion, public topicHash: number) {}
 }

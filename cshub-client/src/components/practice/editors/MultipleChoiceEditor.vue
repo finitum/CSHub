@@ -12,7 +12,7 @@
                     ></v-checkbox>
                     <v-textarea
                         v-model="question"
-                        v-validate="'required|min:1'"
+                        v-validate="'required|min:2'"
                         :error-messages="errors.collect('question')"
                         name="question"
                         filled
@@ -26,7 +26,7 @@
                     ></v-textarea>
                     <v-textarea
                         v-model="explanation"
-                        v-validate="'required|min:1'"
+                        v-validate="'required|min:2'"
                         :error-messages="errors.collect('explanation')"
                         required
                         name="explanation"
@@ -51,7 +51,7 @@
 
                             <v-textarea
                                 v-model="answer.answerText"
-                                v-validate="'required|min:1'"
+                                v-validate="'required|min:2'"
                                 :label="`Answer ${i + 1}`"
                                 outlined
                                 auto-grow
@@ -114,7 +114,7 @@ import { QuestionType } from "../../../../../cshub-shared/src/entities/question"
 import {
     AddQuestion,
     ClosedAnswerType,
-    NewQuestion
+    FullQuestion
 } from "../../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestion";
 import { mixins } from "vue-class-component";
 import EditorMixin from "./EditorMixin";
@@ -146,7 +146,7 @@ export default class MultipleChoiceEditor extends mixins(EditorMixin) {
                 this.answers[this.radioAnswer].correct = true;
             }
 
-            const question: NewQuestion = {
+            const question: FullQuestion = {
                 question: this.question,
                 explanation: this.explanation,
                 type: this.multipleCorrect ? QuestionType.MULTICLOSED : QuestionType.SINGLECLOSED,

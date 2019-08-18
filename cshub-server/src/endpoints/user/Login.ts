@@ -4,13 +4,17 @@ import { app } from "../../index";
 import logger from "../..//utilities/Logger";
 import { Settings } from "../../settings";
 
-import { Login, LoginCallBack, LoginResponseTypes } from "../../../../cshub-shared/src/api-calls/index";
+import { Login, LoginCallBack, LoginResponseTypes, Logout } from "../../../../cshub-shared/src/api-calls/index";
 
 import { sign } from "../../auth/JWTHandler";
 import { customValidator } from "../../utilities/StringUtils";
 import { hashPassword } from "../../auth/HashPassword";
 import { getRepository } from "typeorm";
 import { User } from "../../db/entities/user";
+
+app.post(Logout.getURL, (req: Request, res: Response) => {
+    res.clearCookie("token").send();
+});
 
 app.post(Login.getURL, (req: Request, res: Response) => {
     const loginRequest = req.body as Login;

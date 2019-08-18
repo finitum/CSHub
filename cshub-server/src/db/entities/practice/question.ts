@@ -1,6 +1,14 @@
-import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, RelationId} from "typeorm";
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+    RelationId
+} from "typeorm";
 import { Topic } from "../topic";
-import { User } from "../user";
 import { IQuestion, QuestionType } from "../../../../../cshub-shared/src/entities/question";
 import { Exclude, Expose } from "class-transformer";
 import { Answer } from "./answer";
@@ -24,10 +32,13 @@ export class Question implements IQuestion {
     @Column({
         type: "text"
     })
-    questionType!: QuestionType;
+    type!: QuestionType;
 
     @Expose()
-    @OneToMany(type => Answer, answer => answer.question)
+    @OneToMany(type => Answer, answer => answer.question, {
+        nullable: false,
+        cascade: true
+    })
     answers!: Answer[];
 
     @Column({
