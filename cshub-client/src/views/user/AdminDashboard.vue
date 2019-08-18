@@ -10,6 +10,11 @@
                 Studies
                 <v-icon>fas fa-graduation-cap</v-icon>
             </v-tab>
+
+            <v-tab>
+                Topics
+                <v-icon>fas fa-book-open</v-icon>
+            </v-tab>
         </v-tabs>
 
         <v-tabs-items v-model="tabs">
@@ -19,6 +24,15 @@
                     <v-layout justify-center align-center>
                         <v-flex>
                             <UserTable></UserTable>
+                        </v-flex>
+                    </v-layout>
+                </v-container>
+            </v-tab-item>
+            <v-tab-item>
+                <v-container fluid fill-height class="pa-5 pt-10">
+                    <v-layout justify-center align-center>
+                        <v-flex>
+                            <StudyTable></StudyTable>
                         </v-flex>
                     </v-layout>
                 </v-container>

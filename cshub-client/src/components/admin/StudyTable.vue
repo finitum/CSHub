@@ -12,11 +12,11 @@
                     <v-spacer></v-spacer>
                     <v-dialog v-model="editDialog" max-width="500px">
                         <template v-slot:activator="{ on }">
-                            <v-btn color="primary" dark class="mb-2" v-on="on">New Item</v-btn>
+                            <v-btn color="primary" dark class="mb-2" v-on="on">Create Study</v-btn>
                         </template>
                         <v-card>
                             <v-card-title>
-                                <span class="headline">{{ formTitle }}</span>
+                                <span class="headline">Create Study</span>
                             </v-card-title>
 
                             <v-card-text>
@@ -204,11 +204,6 @@ export default class StudyTable extends Vue {
     private editingStart(item: IStudy) {
         this.oldname = item.name;
         this.isEditingName = true;
-    }
-
-
-    private get formTitle() {
-        return this.selectedItem === null ? "New Item" : "Edit Item";
     }
 
     private async save() {
