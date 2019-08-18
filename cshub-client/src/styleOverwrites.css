@@ -9,3 +9,7 @@
 .fullHeight {
     height: 100%;
 }
+
+.theme--light.v-tabs-items {
+    background-color: unset !important;
+}

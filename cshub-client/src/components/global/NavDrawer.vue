@@ -126,7 +126,7 @@ export default class NavDrawer extends Vue {
     }
 
     get userStudyAdminComputed(): boolean {
-        return this.userAdminComputed || userState.studyAdmins.length > 0;
+        return userState.isStudyAdmin;
     }
 
     get studies(): Array<{ text: string; value: number }> {

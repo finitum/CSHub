@@ -4,9 +4,9 @@ import router from "../router";
 import { Routes } from "../../../../../cshub-shared/src/Routes";
 
 export const adminBeforeEnter = (to: Route, from: Route, next: () => any) => {
-    if (userState.isLoggedIn && userState.isAdmin) {
+    if (userState.isLoggedIn && userState.isStudyAdmin) {
         next();
-    } else if (!userState.isAdmin && userState.isLoggedIn) {
+    } else if (!userState.isStudyAdmin && userState.isLoggedIn) {
         router.push(Routes.INDEX);
     } else {
         router.push(Routes.LOGIN);

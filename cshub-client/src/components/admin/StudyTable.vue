@@ -205,7 +205,9 @@ export default class StudyTable extends Vue {
         }
 
         const response = await ApiWrapper.post(new CreateStudies(this.newStudyName, this.newStudyHideSwitch));
-        this.items.push(response.study);
+        if (response) {
+            this.items.push(response.study);
+        }
 
         this.close();
         this.newStudyName = "";

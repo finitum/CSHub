@@ -2,52 +2,32 @@
     <div>
         <!-- Badly aligned :( -->
         <!-- see https://github.com/vuetifyjs/vuetify/issues/8294 -->
-        <v-tabs v-model="tabs" icons-and-text>
-            <v-tab v-if="userAdminComputed">
+        <v-tabs icons-and-text vertical>
+            <v-tab v-if="userAdminComputed" class="ml-0">
                 Users
                 <v-icon>fas fa-users</v-icon>
             </v-tab>
 
-            <v-tab v-if="userAdminComputed">
+            <v-tab v-if="userAdminComputed" class="ml-0">
                 Studies
                 <v-icon>fas fa-graduation-cap</v-icon>
             </v-tab>
 
-            <v-tab>
+            <v-tab v-if="userStudyAdminComputed" class="ml-0">
                 Topics
                 <v-icon>fas fa-book-open</v-icon>
             </v-tab>
-        </v-tabs>
 
-        <v-tabs-items v-model="tabs">
-            <v-tab-item>
-                <v-container fluid fill-height class="pa-5 pt-10">
-                    <v-layout justify-center align-center>
-                        <v-flex>
-                            <UserTable></UserTable>
-                        </v-flex>
-                    </v-layout>
-                </v-container>
+            <v-tab-item v-if="userAdminComputed">
+                <UserTable class="mt-2"></UserTable>
             </v-tab-item>
-            <v-tab-item>
-                <v-container fluid fill-height class="pa-5 pt-10">
-                    <v-layout justify-center align-center>
-                        <v-flex>
-                            <StudyTable></StudyTable>
-                        </v-flex>
-                    </v-layout>
-                </v-container>
+            <v-tab-item v-if="userAdminComputed">
+                <StudyTable class="mt-2"></StudyTable>
             </v-tab-item>
-            <v-tab-item>
-                <v-container fluid fill-height class="pa-5 pt-10">
-                    <v-layout justify-center align-center>
-                        <v-flex>
-                            <TopicView></TopicView>
-                        </v-flex>
-                    </v-layout>
-                </v-container>
+            <v-tab-item v-if="userStudyAdminComputed">
+                <TopicView class="mt-2"></TopicView>
             </v-tab-item>
-        </v-tabs-items>
+        </v-tabs>
     </div>
 </template>
 
@@ -59,6 +39,8 @@ import UserTable from "../../components/admin/UserTable.vue";
 import StudyTable from "../../components/admin/StudyTable.vue";
 import TopicView from "../../components/admin/TopicView.vue";
 import { userState } from "../../store";
+import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
+import { Routes } from "../../../../cshub-shared/src/Routes";
 
 @Component({
     name: "AdminDashboard",
@@ -69,6 +51,22 @@ export default class AdminDashboard extends Vue {
 
     get userAdminComputed(): boolean {
         return userState.isAdmin;
+    }
+
+    get userStudyAdminComputed(): boolean {
+        return userState.isStudyAdmin;
+    }
+
+    private mounted() {
+        EventBus.$on(STUDY_CHANGED, () => {
+            if (!this.userStudyAdminComputed) {
+                this.$router.push(Routes.INDEX);
+            }
+        });
+    }
+
+    private destroyed() {
+        EventBus.$off(STUDY_CHANGED);
     }
 
     public metaInfo(): any {
