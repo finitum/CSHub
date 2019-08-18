@@ -35,4 +35,9 @@ export class PostContent implements IApiRequest<GetPostContentCallBack> {
         this.URL = this.URL.replace(/:hash/, postHash.toString());
         this.headers[PostContent.postVersionHeader] = postVersion;
     }
+
+    /**
+     * @see IApiRequest.response
+     */
+    response?: GetPostContentCallBack;
 }

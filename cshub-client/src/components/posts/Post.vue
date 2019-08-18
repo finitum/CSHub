@@ -631,78 +631,74 @@ export default class Post extends Vue {
         });
     }
 
-    private getContentRequest(knownPost: IPost) {
+    private async getContentRequest(knownPost: IPost) {
         const timeOut = setTimeout(() => {
             this.loadingIcon = true;
         }, 250);
 
         const postVersion: number = typeof knownPost.htmlContent !== "string" ? -1 : knownPost.postVersion;
 
-        ApiWrapper.sendGetRequest(
-            new PostContent(this.postHash, postVersion),
-            (callbackContent: GetPostContentCallBack) => {
-                clearTimeout(timeOut);
-                this.loadingIcon = false;
+        try {
+            const content = await ApiWrapper.get(new PostContent(this.postHash, postVersion));
 
-                let hasBeenUpdated = false;
+            clearTimeout(timeOut);
+            this.loadingIcon = false;
 
-                let currentPost: IPost = {
-                    ...knownPost
-                };
+            let hasBeenUpdated = false;
 
-                if (callbackContent !== null) {
-                    switch (callbackContent.data.type) {
-                        case PostVersionTypes.UPDATEDPOST:
-                            currentPost = {
-                                ...callbackContent.data.postUpdated
-                            };
-                            currentPost.htmlContent = callbackContent.data.content.html;
-                            hasBeenUpdated = true;
-                            break;
-                        case PostVersionTypes.POSTDELETED:
-                            this.$router.push(Routes.INDEX);
-                            currentPost = {
-                                ...knownPost
-                            };
-                            break;
-                    }
+            let currentPost: IPost = {
+                ...knownPost
+            };
+
+            if (content !== null) {
+                switch (content.data.type) {
+                    case PostVersionTypes.UPDATEDPOST:
+                        currentPost = {
+                            ...content.data.postUpdated
+                        };
+                        currentPost.htmlContent = content.data.content.html;
+                        hasBeenUpdated = true;
+                        break;
+                    case PostVersionTypes.POSTDELETED:
+                        this.$router.push(Routes.INDEX);
+                        currentPost = {
+                            ...knownPost
+                        };
+                        break;
                 }
-
-                const children = dataState.topTopic ? dataState.topTopic.children : [];
-                const topicFromHash = getTopicFromHash(currentPost.topic.hash, children);
-
-                if (topicFromHash) {
-                    this.topicNames = this.getTopicListWhereFinalChildIs(topicFromHash);
-                    this.topicNames.push({
-                        text: this.post!.title,
-                        to: this.$route.fullPath,
-                        topic: true
-                    });
-                }
-
-                if (hasBeenUpdated) {
-                    this.$forceUpdate();
-                    localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, currentPost).then(() => {
-                        logStringConsole("Changed post in cache", "getContentRequest");
-                    });
-                }
-
-                this.post = currentPost;
-
-                this.scrollToHash();
-            },
-            (err: AxiosError) => {
-                clearTimeout(timeOut);
-                this.loadingIcon = false;
-
-                if (knownPost !== null) {
-                    this.post = knownPost;
-                }
-                this.$forceUpdate();
-
-                this.scrollToHash();
             }
-        );
+
+            const children = dataState.topTopic ? dataState.topTopic.children : [];
+            const topicFromHash = getTopicFromHash(currentPost.topic.hash, children);
+
+            if (topicFromHash) {
+                this.topicNames = this.getTopicListWhereFinalChildIs(topicFromHash);
+                this.topicNames.push({
+                    text: this.post!.title,
+                    to: this.$route.fullPath,
+                    topic: true
+                });
+            }
+
+            if (hasBeenUpdated) {
+                this.$forceUpdate();
+                localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, currentPost).then(() => {
+                    logStringConsole("Changed post in cache", "getContentRequest");
+                });
+            }
+
+            this.post = currentPost;
+
+            this.scrollToHash();
+        } catch (err) {
+            clearTimeout(timeOut);
+            this.loadingIcon = false;
+            this.post = knownPost;
+
+            this.$forceUpdate();
+
+            this.scrollToHash();
+        }
     }
 
     private scrollToHash() {

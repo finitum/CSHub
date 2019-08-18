@@ -45,9 +45,7 @@ axiosApi.interceptors.response.use(
         };
 
         if (error.response) {
-            if (error.response.status === 304) {
-                // Do nothing
-            } else if (error.response.status === 401 || error.response.status === 403) {
+            if (error.response.status === 401 || error.response.status === 403) {
                 const isLoggedIn = userState.isLoggedIn;
                 const tokenVal = getCookie("token");
 
@@ -243,12 +241,17 @@ export class ApiWrapper {
             });
     }
 
+    private static validateStatus(status: number) {
+        return status < 400;
+    }
+
     public static put<T>(request: IApiRequest<T>): Promise<T | null> {
         return axiosApi
             .put<T>(request.URL, request, {
                 withCredentials: true,
                 headers: request.headers,
-                params: request.params
+                params: request.params,
+                validateStatus: this.validateStatus
             })
             .then(response => {
                 if (response) {
@@ -264,7 +267,8 @@ export class ApiWrapper {
             .post<T>(request.URL, request, {
                 withCredentials: true,
                 headers: request.headers,
-                params: request.params
+                params: request.params,
+                validateStatus: this.validateStatus
             })
             .then(response => {
                 if (response) {
@@ -279,9 +283,14 @@ export class ApiWrapper {
         return axiosApi
             .get<T>(request.URL, {
                 headers: request.headers,
-                params: request.params
+                params: request.params,
+                validateStatus: this.validateStatus
             })
             .then(response => {
+                if (response.status === 304) {
+                    return null;
+                }
+
                 if (response) {
                     return response.data;
                 }

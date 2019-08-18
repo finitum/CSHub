@@ -99,7 +99,13 @@ import { RenameStudies } from "../../../../cshub-shared/src/api-calls/endpoints/
 import { CreateStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/CreateStudies";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
 import { dataState } from "../../store";
-import { getAndSetStudyNr, getStudies } from "../../views/router/guards/setupRequiredDataGuard";
+import {
+    getAndSetStudyNr,
+    getStudies,
+    getTopTopic,
+    parseTopTopic
+} from "../../views/router/guards/setupRequiredDataGuard";
+import {EventBus, STUDY_CHANGED} from "../../utilities/EventBus";
 
 @Component({
     name: "studyTable"
@@ -171,7 +177,13 @@ export default class StudyTable extends Vue {
 
         const studies = await getStudies(true);
         dataState.setStudies(studies);
-        await getAndSetStudyNr(studies);
+        const study = await getAndSetStudyNr(studies);
+
+        getTopTopic(study, true).then(topTopic => {
+            parseTopTopic(topTopic);
+            dataState.setTopics(topTopic);
+            EventBus.$emit(STUDY_CHANGED);
+        });
     }
 
     private studyNameRule(name: string) {
