@@ -3,12 +3,12 @@
         <!-- Badly aligned :( -->
         <!-- see https://github.com/vuetifyjs/vuetify/issues/8294 -->
         <v-tabs v-model="tabs" icons-and-text>
-            <v-tab>
+            <v-tab v-if="userAdminComputed">
                 Users
                 <v-icon>fas fa-users</v-icon>
             </v-tab>
 
-            <v-tab>
+            <v-tab v-if="userAdminComputed">
                 Studies
                 <v-icon>fas fa-graduation-cap</v-icon>
             </v-tab>
@@ -58,6 +58,7 @@ import { Component } from "vue-property-decorator";
 import UserTable from "../../components/admin/UserTable.vue";
 import StudyTable from "../../components/admin/StudyTable.vue";
 import TopicView from "../../components/admin/TopicView.vue";
+import { userState } from "../../store";
 
 @Component({
     name: "AdminDashboard",
@@ -66,9 +67,9 @@ import TopicView from "../../components/admin/TopicView.vue";
 export default class AdminDashboard extends Vue {
     private tabs = null;
 
-    /**
-     * Lifecycle hooks
-     */
+    get userAdminComputed(): boolean {
+        return userState.isAdmin;
+    }
 
     public metaInfo(): any {
         return {

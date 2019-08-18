@@ -22,7 +22,7 @@
             ></NavDrawerItem>
 
             <NavDrawerItem
-                v-if="userLoggedInComputed && userAdminComputed"
+                v-if="userLoggedInComputed && userStudyAdminComputed"
                 :to="navigationLocations.ADMINDASHBOARD"
                 icon="fas fa-users"
                 text="Admin dashboard"
@@ -90,8 +90,8 @@ import { userState } from "../../store";
 
 import { Component, Watch } from "vue-property-decorator";
 import { LocalStorageData } from "../../store/localStorageData";
-import { GetStudiesCallback, Studies } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
+import { getTopTopic, parseTopTopic } from "../../views/router/guards/setupRequiredDataGuard";
 
 @Component({
     name: "NavDrawer",
@@ -153,6 +153,11 @@ export default class NavDrawer extends Vue {
         if (study) {
             localStorage.setItem(LocalStorageData.STUDY, study.toString(10));
             uiState.setStudyNr(study);
+
+            const topTopic = getTopTopic(study, true).then(topTopic => {
+                parseTopTopic(topTopic);
+                dataState.setTopics(topTopic);
+            });
         }
     }
 

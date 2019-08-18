@@ -48,8 +48,6 @@ import { dataState } from "../../store";
     components: { SlVueTree }
 })
 export default class TopicView extends Vue {
-    private nodes: ISlTreeNodeModel<ITopic>[] = [];
-
     private isEditingName: false | number = false;
 
     private oldTopicName: string = "";
@@ -57,10 +55,12 @@ export default class TopicView extends Vue {
     private readonly maxTopicNameLength: number = 20;
     private readonly minTopicNameLength: number = 3;
 
-    private mounted() {
+    get nodes(): ISlTreeNodeModel<ITopic>[] {
         const topTopic = dataState.topTopic;
         if (topTopic) {
-            this.nodes = topTopic.children.map(child => this.createTreeViewFragment(child));
+            return topTopic.children.map(child => this.createTreeViewFragment(child));
+        } else {
+            return [];
         }
     }
 
@@ -83,7 +83,6 @@ export default class TopicView extends Vue {
     }
 
     private createTreeViewFragment(topic: ITopic): ISlTreeNodeModel<ITopic> {
-
         const clonedTopic = cloneDeep(topic);
 
         const childFragments: ISlTreeNodeModel<ITopic>[] = [];

@@ -101,8 +101,8 @@ export function getAndSetStudyNr(studies: IStudy[]): Promise<number> {
     return Promise.resolve(studynr);
 }
 
-async function getTopTopic(studyNr: number): Promise<ITopic> {
-    if (dataState.topTopic) {
+export async function getTopTopic(studyNr: number, forceUpdate = false): Promise<ITopic> {
+    if (dataState.topTopic && !forceUpdate) {
         return Promise.resolve(dataState.topTopic);
     }
 
@@ -142,7 +142,7 @@ async function getTopTopic(studyNr: number): Promise<ITopic> {
     }
 }
 
-function parseTopTopic(topTopic: ITopic) {
+export function parseTopTopic(topTopic: ITopic) {
     for (const child of topTopic.children) {
         child.parent = topTopic;
         parseTopTopic(child);
