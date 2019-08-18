@@ -106,7 +106,7 @@ import {
 } from "../../../../cshub-shared/src/api-calls/endpoints/study/CreateStudies";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
 import { dataState } from "../../store";
-import {getAndSetStudyNr, getStudies} from "../../views/router/guards/setupRequiredDataGuard";
+import { getAndSetStudyNr, getStudies } from "../../views/router/guards/setupRequiredDataGuard";
 
 @Component({
     name: "studyTable"
@@ -147,16 +147,19 @@ export default class StudyTable extends Vue {
 
     private async getData() {
         const response = await ApiWrapper.get(new AllStudies());
-        this.items = response.studies;
-        this.loading = false;
+
+        if (response !== null) {
+            this.items = response.studies;
+            this.loading = false;
+        }
     }
 
     private async rename(item: IStudy) {
         await ApiWrapper.put(new RenameStudies(item.id, item.name));
 
-        const studies = await ApiWrapper.get(new Studies());
-        if (studies.studies.length > 0) {
-            dataState.setStudies(studies.studies);
+        const studies = await getStudies(true);
+        if (studies.length > 0) {
+            dataState.setStudies(studies);
         }
     }
 
@@ -169,9 +172,9 @@ export default class StudyTable extends Vue {
             item.hidden = true;
         }
 
-        const studies = await getStudies();
+        const studies = await getStudies(true);
         dataState.setStudies(studies);
-        getAndSetStudyNr(studies);
+        await getAndSetStudyNr(studies);
     }
 
     private studyNameRule(name: string) {

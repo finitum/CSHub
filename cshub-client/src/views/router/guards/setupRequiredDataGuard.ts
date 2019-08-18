@@ -36,8 +36,8 @@ export const setupRequiredDataGuard = (): Promise<boolean> => {
         });
 };
 
-export async function getStudies(): Promise<IStudy[]> {
-    if (dataState.studies) {
+export async function getStudies(forceUpdate = false): Promise<IStudy[]> {
+    if (dataState.studies && !forceUpdate) {
         return Promise.resolve(dataState.studies);
     }
 

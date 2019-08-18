@@ -5,3 +5,7 @@
 .v-input__control {
     flex-grow: 1 !important;
 }
+
+.fullHeight {
+    height: 100%;
+}

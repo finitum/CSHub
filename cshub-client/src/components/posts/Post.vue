@@ -243,7 +243,10 @@
                                 ></div>
                             </div>
                         </v-card-text>
-                        <v-card-text v-else-if="fullPostComputed && !loadingIcon && editModeComputed">
+                        <v-card-text
+                            v-else-if="fullPostComputed && !loadingIcon && editModeComputed"
+                            class="fullHeight"
+                        >
                             <Quill
                                 key="editQuill"
                                 ref="editQuill"
@@ -905,9 +908,5 @@ export default class Post extends Vue {
 
 .fixedPadding {
     padding: 10px 10px 10px 30px;
-}
-
-.fullHeight {
-    height: 100%;
 }
 </style>

@@ -92,6 +92,7 @@ import { Component, Watch } from "vue-property-decorator";
 import { LocalStorageData } from "../../store/localStorageData";
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
 import { getTopTopic, parseTopTopic } from "../../views/router/guards/setupRequiredDataGuard";
+import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
 
 @Component({
     name: "NavDrawer",
@@ -154,9 +155,10 @@ export default class NavDrawer extends Vue {
             localStorage.setItem(LocalStorageData.STUDY, study.toString(10));
             uiState.setStudyNr(study);
 
-            const topTopic = getTopTopic(study, true).then(topTopic => {
+            getTopTopic(study, true).then(topTopic => {
                 parseTopTopic(topTopic);
                 dataState.setTopics(topTopic);
+                EventBus.$emit(STUDY_CHANGED);
             });
         }
     }

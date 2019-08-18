@@ -26,7 +26,7 @@ import { dataState, uiState } from "../../store";
 import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities/index";
 import { CacheTypes } from "../../utilities/cache-types";
 import { getTopicFromHash } from "../../utilities/Topics";
-import { getTopTopic, parseTopTopic } from "../router/guards/setupRequiredDataGuard";
+import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
 
 @Component({
     name: "PostView",
@@ -59,25 +59,12 @@ export default class PostView extends Vue {
         return "";
     }
 
-    get studyNr(): number | undefined {
-        return uiState.studyNr;
-    }
-
     /**
      * Watchers
      */
     @Watch("$route")
     private routeChanged(to: Route, from: Route) {
         this.doOnRouteChange();
-    }
-
-    @Watch("studyNr")
-    private studyNrChanged(studyNr: number) {
-        if (this.$route.fullPath === Routes.INDEX) {
-            this.doOnRouteChange();
-        } else {
-            this.$router.push(Routes.INDEX);
-        }
     }
 
     /**
@@ -100,6 +87,18 @@ export default class PostView extends Vue {
 
     private mounted() {
         this.doOnRouteChange();
+
+        EventBus.$on(STUDY_CHANGED, () => {
+            if (this.$route.fullPath === Routes.INDEX) {
+                this.doOnRouteChange();
+            } else {
+                this.$router.push(Routes.INDEX);
+            }
+        });
+    }
+
+    private destroyed() {
+        EventBus.$off(STUDY_CHANGED);
     }
 
     /**

@@ -23,6 +23,7 @@ import { Topic } from "../../db/entities/topic";
 import { generateRandomTopicHash } from "../../utilities/TopicsUtils";
 import { AlreadySentError } from "../utils";
 import { CacheVersion } from "../../db/entities/cacheversion";
+import { query } from "../../db/database-query";
 
 // returns only the visible studies (hidden==false)
 app.get(Studies.getURL, async (req: Request, res: Response) => {
@@ -122,6 +123,12 @@ app.post(CreateStudies.postURL, async (req: Request, res: Response) => {
             hidden: createStudiesRequest.hidden
         });
 
+        await query(`
+            UPDATE cacheversion
+            SET version = version + 1
+            WHERE type = 'STUDIES'
+        `);
+
         return res.status(201).json(new CreateStudiesCallback(study));
     } catch (e) {
         return res.sendStatus(500);
@@ -145,6 +152,12 @@ app.put(HideStudies.postURL, async (req: Request, res: Response) => {
 
         await studyRepository.update(id, { hidden: true });
 
+        await query(`
+            UPDATE cacheversion
+            SET version = version + 1
+            WHERE type = 'STUDIES'
+        `);
+
         res.sendStatus(201);
     } catch (err) {
         if (!(err instanceof AlreadySentError)) {
@@ -161,6 +174,12 @@ app.put(UnhideStudies.postURL, async (req: Request, res: Response) => {
         const id = checkRequest(req, res);
 
         await studyRepository.update(id, { hidden: false });
+
+        await query(`
+            UPDATE cacheversion
+            SET version = version + 1
+            WHERE type = 'STUDIES'
+        `);
 
         res.sendStatus(201);
     } catch (err) {
@@ -189,6 +208,12 @@ app.put(RenameStudies.postURL, async (req: Request, res: Response) => {
         }
 
         await studyRepository.update(id, { name: renameStudiesRequest.newName });
+
+        await query(`
+            UPDATE cacheversion
+            SET version = version + 1
+            WHERE type = 'STUDIES'
+        `);
 
         res.sendStatus(201);
     } catch (err) {

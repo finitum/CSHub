@@ -18,6 +18,7 @@ import { ApiWrapper, logObjectConsole } from "../../utilities";
 
 import { WIPPosts, WIPPostsCallBack } from "../../../../cshub-shared/src/api-calls";
 import { uiState } from "../../store";
+import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
 
 @Component({
     name: "WIPPostsView",
@@ -34,6 +35,14 @@ export default class WIPPostsView extends Vue {
      */
     private mounted() {
         this.getHashes();
+
+        EventBus.$on(STUDY_CHANGED, () => {
+            this.getHashes();
+        });
+    }
+
+    private destroyed() {
+        EventBus.$off(STUDY_CHANGED);
     }
 
     public metaInfo(): any {
@@ -49,9 +58,7 @@ export default class WIPPostsView extends Vue {
         const studyId = uiState.studyNr;
         if (studyId) {
             ApiWrapper.sendGetRequest(new WIPPosts(studyId), (callbackData: WIPPostsCallBack) => {
-                for (const post of callbackData.postHashes) {
-                    this.postHashes.push(post);
-                }
+                this.postHashes = callbackData.postHashes;
                 logObjectConsole(callbackData.postHashes, "WIP dashboard posthashes");
             });
         }
