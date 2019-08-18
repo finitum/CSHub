@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- replace by vuetify variant if it every gets implemented -->
-        <sl-vue-tree ref="slVueTree" v-model="nodes">
+        <sl-vue-tree ref="slVueTree" v-model="nodes" >
             <template slot="title" slot-scope="{ node }">
                 <div v-if="isEditingName !== node.data.id" class="d-inline-block" @click="editingStart(node.data)">
                     {{ node.title }}
@@ -16,8 +16,8 @@
                     append-icon="fas fa-check"
                     :counter="maxTopicNameLength"
                     :rules="[topicNameRule(node.data.name)]"
-                    @keyup.enter="editingDone(node.data)"
-                    @click:append="editingDone(node.data)"
+                    @keyup.enter="editingDone(node.data); node.title = node.data.name;"
+                    @click:append="editingDone(node.data); node.title = node.data.name;"
                 ></v-text-field>
             </template>
 
@@ -41,7 +41,11 @@ import SlVueTree, { ISlTreeNodeModel } from "sl-vue-tree";
 import "sl-vue-tree/dist/sl-vue-tree-minimal.css";
 
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
-import { dataState } from "../../store";
+import { RenameTopic } from "../../../../cshub-shared/src/api-calls/endpoints/topics/EditTopics";
+import { dataState, uiState} from "../../store";
+import { ApiWrapper } from "../../utilities";
+import { getTopTopic } from "../../views/router/guards/setupRequiredDataGuard";
+
 
 @Component({
     name: "TopicView",
@@ -85,7 +89,17 @@ export default class TopicView extends Vue {
         }
 
         this.isEditingName = false;
-        // this.rename(item);
+        this.rename(item);
+    }
+
+    private async rename(item: ITopic) {
+        await ApiWrapper.put(new RenameTopic(item.id, item.name));
+
+        const study = uiState.studyNr;
+        if (study) {
+            const topic = await getTopTopic(study, true);
+            dataState.setTopics(topic);
+        }
     }
 
     private createTreeViewFragment(topic: ITopic): ISlTreeNodeModel<ITopic> {
