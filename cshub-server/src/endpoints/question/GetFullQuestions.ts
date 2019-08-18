@@ -9,14 +9,10 @@ import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { Question } from "../../db/entities/practice/question";
 import { findTopicInTree, getChildHashes, getTopicTree } from "../../utilities/TopicsUtils";
 import {
-    FullQuestionWithId,
     GetFullQuestions,
     GetFullQuestionsCallback
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/GetFullQuestions";
-import { QuestionType } from "../../../../cshub-shared/src/entities/question";
-import { ClosedAnswer } from "../../db/entities/practice/closed-answer";
-import { OpenNumberAnswer } from "../../db/entities/practice/open-number-answer";
-import { OpenTextAnswer } from "../../db/entities/practice/open-text-answer";
+import { parseAndValidateQuestion } from "./QuestionUtils";
 
 app.get(GetFullQuestions.getURL, (req: Request, res: Response) => {
     const topicQueryParam = req.query[GetQuestions.topicQueryParam];
@@ -48,51 +44,7 @@ app.get(GetFullQuestions.getURL, (req: Request, res: Response) => {
                         .then(questions => {
                             res.json(
                                 new GetFullQuestionsCallback(
-                                    questions.map(question => {
-                                        let answerType: FullAnswerType;
-
-                                        switch (question.type) {
-                                            case QuestionType.SINGLECLOSED:
-                                            case QuestionType.MULTICLOSED:
-                                                answerType = {
-                                                    type: question.type,
-                                                    answers: question.answers.map(answer => {
-                                                        const answerCast = answer as ClosedAnswer;
-                                                        return {
-                                                            answerText: answerCast.closedAnswerText,
-                                                            correct: answerCast.correct
-                                                        };
-                                                    })
-                                                };
-                                                break;
-                                            case QuestionType.OPENNUMBER:
-                                                const openNumber = question.answers[0] as OpenNumberAnswer;
-                                                answerType = {
-                                                    type: QuestionType.OPENNUMBER,
-                                                    number: openNumber.openAnswerNumber,
-                                                    precision: openNumber.precision
-                                                };
-                                                break;
-                                            case QuestionType.OPENTEXT:
-                                                const openText = question.answers[0] as OpenTextAnswer;
-                                                answerType = {
-                                                    type: QuestionType.OPENTEXT,
-                                                    answer: openText.openAnswerText
-                                                };
-                                                break;
-                                            default:
-                                                throw new Error("");
-                                        }
-
-                                        const fullQuestion: FullQuestionWithId = {
-                                            id: question.id,
-                                            question: question.question,
-                                            explanation: question.explanation,
-                                            ...answerType
-                                        };
-
-                                        return fullQuestion;
-                                    })
+                                    questions.map(question => parseAndValidateQuestion(question, res))
                                 )
                             );
                         })

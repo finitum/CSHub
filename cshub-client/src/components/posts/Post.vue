@@ -56,7 +56,7 @@
                                             color="primary"
                                             min-width="88"
                                             depressed
-                                            class="my-1 mr-2 d-inline-block"
+                                            class="my-1 mr-4 d-inline-block"
                                             small
                                             dark
                                             @click="returnToPostMenu"
@@ -64,7 +64,7 @@
                                             <v-icon>fas fa-chevron-left</v-icon>
                                         </v-btn>
 
-                                        <v-breadcrumbs :items="topicNames" class="d-inline-block pa-0 mr-2 my-1">
+                                        <v-breadcrumbs :items="topicNames" class="d-inline-block pa-0 mr-4 my-1">
                                             <template v-slot:item="props">
                                                 <v-breadcrumbs-item
                                                     v-if="props.item.topic"
@@ -88,7 +88,7 @@
                                                     min-width="88"
                                                     color="red"
                                                     depressed
-                                                    class="my-1 mr-2 d-inline-block"
+                                                    class="my-1 mr-4 d-inline-block"
                                                     small
                                                     v-on="on"
                                                     @click="hidePost()"
@@ -108,7 +108,7 @@
                                                     min-width="88"
                                                     color="purple"
                                                     depressed
-                                                    class="my-1 mr-2 d-inline-block"
+                                                    class="my-1 mr-4 d-inline-block"
                                                     small
                                                     v-on="on"
                                                     @click="wipPost()"
@@ -126,7 +126,7 @@
                                                     min-width="88"
                                                     color="orange"
                                                     depressed
-                                                    class="my-1 mr-2 d-inline-block"
+                                                    class="my-1 mr-4 d-inline-block"
                                                     small
                                                     v-on="on"
                                                     @click="enableEdit"
@@ -142,7 +142,7 @@
                                                 <v-btn
                                                     min-width="88"
                                                     depressed
-                                                    class="my-1 mr-2 d-inline-block"
+                                                    class="my-1 mr-4 d-inline-block"
                                                     small
                                                     color="green"
                                                     v-on="on"
@@ -159,7 +159,7 @@
                                                 <v-btn
                                                     min-width="88"
                                                     depressed
-                                                    class="my-1 mr-2 d-inline-block"
+                                                    class="my-1 mr-4 d-inline-block"
                                                     small
                                                     color="blue"
                                                     v-on="on"
@@ -177,7 +177,7 @@
                                                     min-width="88"
                                                     depressed
                                                     small
-                                                    class="my-1 mr-2 d-inline-block"
+                                                    class="my-1 mr-4 d-inline-block"
                                                     color="primary"
                                                     v-on="on"
                                                     @click="viewEditDialog"
@@ -193,7 +193,7 @@
                                             small
                                             min-width="88"
                                             color="secondary"
-                                            class="my-1 mr-2 d-inline-block angleLighten3Dark"
+                                            class="my-1 mr-4 d-inline-block angleLighten3Dark"
                                             @click="showTopMenu = false"
                                         >
                                             <v-icon>fas fa-angle-up</v-icon>
@@ -674,7 +674,7 @@ export default class Post extends Vue {
             if (topicFromHash) {
                 this.topicNames = this.getTopicListWhereFinalChildIs(topicFromHash);
                 this.topicNames.push({
-                    text: this.post!.title,
+                    text: currentPost.title,
                     to: this.$route.fullPath,
                     topic: true
                 });

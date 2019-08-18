@@ -9,14 +9,13 @@ import {
     CheckAnswersCallback,
     CheckAnswerType,
     CheckedAnswerType
-} from "../../../../cshub-shared/src/api-calls/endpoints/question/CheckAnswers";
+} from "../../../../cshub-shared/src/api-calls/endpoints/question";
 import { Question } from "../../db/entities/practice/question";
 import logger from "../../utilities/Logger";
 import { AlreadySentError } from "../utils";
 import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 import { ClosedAnswer } from "../../db/entities/practice/closed-answer";
-import { OpenTextAnswer } from "../../db/entities/practice/open-text-answer";
-import { OpenNumberAnswer } from "../../db/entities/practice/open-number-answer";
+import { parseAndValidateQuestion } from "./QuestionUtils";
 
 app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
     const checkAnswers = req.body as CheckAnswers;
@@ -28,29 +27,16 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
 
     function checkClosedQuestion(clientAnswer: CheckAnswerType, question: Question): CheckedAnswerType {
         if (clientAnswer.type === question.type) {
-            if (question.answers.length === 0) {
-                logger.error(`No answers found for ${question.id}`);
-                res.status(500).send();
-                throw new AlreadySentError();
-            }
+            const parsedQuestion = parseAndValidateQuestion(question, res);
 
-            if (!(question.answers[0] instanceof ClosedAnswer)) {
-                logger.error(`Wrong answer type for answerid ${question.id}`);
-                res.status(500).send();
+            if (parsedQuestion.type !== QuestionType.SINGLECLOSED && parsedQuestion.type !== QuestionType.MULTICLOSED) {
+                logger.error("Incompatible types!");
+                res.sendStatus(500);
                 throw new AlreadySentError();
             }
 
             const correctAnswers = (question.answers as ClosedAnswer[])
-                .filter(answer => {
-                    const correctAnswer = answer.correct;
-                    if (correctAnswer === undefined) {
-                        logger.error(`Don't know if answer ${answer.id} is correct`);
-                        res.status(500).send();
-                        throw new AlreadySentError();
-                    }
-
-                    return correctAnswer;
-                })
+                .filter(answer => answer.correct)
                 .map(answer => answer.id);
 
             let sharedPart = {
@@ -59,17 +45,8 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 explanation: question.explanation
             };
 
-            if (
-                clientAnswer.type === QuestionType.SINGLECLOSED &&
-                question.type === QuestionType.SINGLECLOSED
-            ) {
+            if (clientAnswer.type === QuestionType.SINGLECLOSED && question.type === QuestionType.SINGLECLOSED) {
                 const userAnswer = clientAnswer.answerId;
-
-                if (correctAnswers.length !== 1) {
-                    logger.error(`Not just 1 answer for ${question.id}`);
-                    res.status(500).send();
-                    throw new AlreadySentError();
-                }
 
                 return {
                     ...sharedPart,
@@ -79,10 +56,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                     },
                     correct: userAnswer === correctAnswers[0]
                 };
-            } else if (
-                clientAnswer.type === QuestionType.MULTICLOSED &&
-                question.type === QuestionType.MULTICLOSED
-            ) {
+            } else if (clientAnswer.type === QuestionType.MULTICLOSED && question.type === QuestionType.MULTICLOSED) {
                 const userAnswers = clientAnswer.answerIds;
 
                 return {
@@ -107,29 +81,17 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
 
     function checkOpenNumberQuestion(clientAnswer: CheckAnswerType, question: Question): CheckedAnswerType {
         if (clientAnswer.type === QuestionType.OPENNUMBER) {
-            if (question.answers.length !== 1) {
-                logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
-                res.status(500).send();
+            const parsedQuestion = parseAndValidateQuestion(question, res);
+
+            if (parsedQuestion.type !== QuestionType.OPENNUMBER) {
+                logger.error("Incompatible types!");
+                res.sendStatus(500);
                 throw new AlreadySentError();
             }
 
-            if (!(question.answers[0] instanceof OpenNumberAnswer)) {
-                logger.error(`Wrong answer type for answerid ${question.id}`);
-                res.status(500).send();
-                throw new AlreadySentError();
-            }
+            const precision = parsedQuestion.precision;
 
-            const answers = question.answers as OpenNumberAnswer[];
-
-            const correctAnswer = answers[0].openAnswerNumber;
-            const precision = answers[0].precision;
-            if (!correctAnswer || !precision) {
-                logger.error(`No precision or answer number found for ${question.id}`);
-                res.status(500).send();
-                throw new AlreadySentError();
-            }
-
-            const correctAnswerRounded = correctAnswer.toPrecision(precision);
+            const correctAnswerRounded = parsedQuestion.number.toPrecision(precision);
             const userAnswerRounded = clientAnswer.number.toPrecision(precision);
 
             return {
@@ -137,7 +99,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 answer: clientAnswer,
                 correctAnswer: {
                     type: QuestionType.OPENNUMBER,
-                    number: correctAnswer
+                    number: parsedQuestion.number
                 },
                 correct: correctAnswerRounded === userAnswerRounded,
                 explanation: question.explanation
@@ -150,22 +112,11 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
 
     function checkOpenTextQuestion(clientAnswer: CheckAnswerType, question: Question): CheckedAnswerType {
         if (clientAnswer.type === QuestionType.OPENTEXT) {
-            if (question.answers.length !== 1) {
-                logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
-                res.status(500).send();
-                throw new AlreadySentError();
-            }
+            const parsedQuestion = parseAndValidateQuestion(question, res);
 
-            if (!(question.answers[0] instanceof OpenTextAnswer)) {
-                logger.error(`Wrong answer type for answerid ${question.id}`);
-                res.status(500).send();
-                throw new AlreadySentError();
-            }
-
-            const correctAnswer = (question.answers as OpenTextAnswer[])[0].openAnswerText;
-            if (!correctAnswer) {
-                logger.error(`No answer text found for ${question.id}`);
-                res.status(500).send();
+            if (parsedQuestion.type !== QuestionType.OPENTEXT) {
+                logger.error("Incompatible types!");
+                res.sendStatus(500);
                 throw new AlreadySentError();
             }
 
@@ -174,7 +125,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 answer: clientAnswer,
                 correctAnswer: {
                     type: QuestionType.OPENTEXT,
-                    text: correctAnswer
+                    text: parsedQuestion.answer
                 },
                 correct: null,
                 explanation: question.explanation
@@ -186,6 +137,8 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
     }
 
     const parseAnswer = (question: Question, clientAnswer: CheckAnswerType): CheckedAnswerType => {
+        const questionParsed = parseAndValidateQuestion(question, res);
+
         switch (question.type) {
             case QuestionType.SINGLECLOSED:
             case QuestionType.MULTICLOSED:

@@ -8,10 +8,129 @@ import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 import { ClosedAnswer } from "../../db/entities/practice/closed-answer";
 import { OpenNumberAnswer } from "../../db/entities/practice/open-number-answer";
 import { OpenTextAnswer } from "../../db/entities/practice/open-text-answer";
-import { FullQuestion } from "../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestion";
+import { FullAnswerType, FullQuestion } from "../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestion";
 import logger from "../../utilities/Logger";
 import { Request, Response } from "express";
 import { validateMultipleInputs } from "../../utilities/StringUtils";
+import { FullQuestionWithId } from "../../../../cshub-shared/src/api-calls/endpoints/question/GetFullQuestions";
+
+export const parseAndValidateQuestion = (question: Question, res: Response): FullQuestionWithId => {
+    let answerType: FullAnswerType;
+    switch (question.type) {
+        case QuestionType.SINGLECLOSED:
+        case QuestionType.MULTICLOSED:
+            if (question.answers.length === 0) {
+                logger.error(`No answers found for ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            if (!(question.answers[0] instanceof ClosedAnswer)) {
+                logger.error(`Wrong answer type for answerid ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            const correctAnswers = (question.answers as ClosedAnswer[])
+                .filter(answer => {
+                    const correctAnswer = answer.correct;
+                    if (correctAnswer === undefined) {
+                        logger.error(`Don't know if answer ${answer.id} is correct`);
+                        res.status(500).send();
+                        throw new AlreadySentError();
+                    }
+
+                    return correctAnswer;
+                })
+                .map(answer => answer.id);
+
+            if (question.type === QuestionType.SINGLECLOSED) {
+                if (correctAnswers.length !== 1) {
+                    logger.error(`Not just 1 answer for ${question.id}`);
+                    res.status(500).send();
+                    throw new AlreadySentError();
+                }
+            }
+
+            answerType = {
+                type: question.type,
+                answers: question.answers.map(answer => {
+                    const answerCast = answer as ClosedAnswer;
+                    return {
+                        answerText: answerCast.closedAnswerText,
+                        correct: answerCast.correct
+                    };
+                })
+            };
+            break;
+        case QuestionType.OPENNUMBER:
+            if (question.answers.length !== 1) {
+                logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            if (!(question.answers[0] instanceof OpenNumberAnswer)) {
+                logger.error(`Wrong answer type for answerid ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            const answers = question.answers as OpenNumberAnswer[];
+
+            const openAnswerNumber = answers[0].openAnswerNumber;
+            const precision = answers[0].precision;
+            if (!openAnswerNumber || !precision) {
+                logger.error(`No precision or answer number found for ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            answerType = {
+                type: QuestionType.OPENNUMBER,
+                number: openAnswerNumber,
+                precision: precision
+            };
+            break;
+        case QuestionType.OPENTEXT:
+            if (question.answers.length !== 1) {
+                logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            if (!(question.answers[0] instanceof OpenTextAnswer)) {
+                logger.error(`Wrong answer type for answerid ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            const correctAnswer = (question.answers as OpenTextAnswer[])[0].openAnswerText;
+            if (!correctAnswer) {
+                logger.error(`No answer text found for ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            const openText = question.answers[0] as OpenTextAnswer;
+            answerType = {
+                type: QuestionType.OPENTEXT,
+                answer: openText.openAnswerText
+            };
+            break;
+        default:
+            logger.error("Missing switch case");
+            res.status(500).send();
+            throw new AlreadySentError();
+    }
+
+    return {
+        id: question.id,
+        question: question.question,
+        explanation: question.explanation,
+        ...answerType
+    };
+};
 
 export const validateNewQuestion = (question: FullQuestion, res: Response) => {
     const questionValidation = validateMultipleInputs(
@@ -129,7 +248,6 @@ export const insertQuestions = (
                 switch (question.type) {
                     case QuestionType.SINGLECLOSED:
                     case QuestionType.MULTICLOSED:
-
                         for (const answer of question.answers) {
                             newQuestion.answers.push(new ClosedAnswer(answer.answerText, answer.correct));
                         }

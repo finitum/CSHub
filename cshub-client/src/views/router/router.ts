@@ -17,8 +17,7 @@ const PostCreate = () => import("../posts/PostCreate.vue");
 const PostsSearch = () => import("../posts/PostsSearch.vue");
 
 const Practice = () => import("../../components/practice/Practice.vue");
-const MultipleChoiceEditor = () => import("../../components/practice/editors/MultipleChoiceEditor.vue");
-const OpenNumberEditor = () => import("../../components/practice/editors/OpenNumberEditor.vue");
+const Editors = () => import("../../components/practice/editors/Editors.vue");
 
 import TopicCreate from "../posts/TopicCreate.vue";
 
@@ -96,7 +95,7 @@ const router = new Router({
         {
             path: `${Routes.TOPIC}/:hash/practice/create`,
             name: "topicpracticecreate",
-            component: OpenNumberEditor
+            component: Editors
         },
         {
             path: Routes.SEARCH,

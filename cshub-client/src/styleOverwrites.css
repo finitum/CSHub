@@ -10,10 +10,10 @@
     height: 100%;
 }
 
-.adminDashboard .v-tabs-items {
+.v-tabs-items {
     background-color: unset !important;
 }
 
-.adminDashboard .v-tabs > .v-tabs-bar {
+.v-tabs > .v-tabs-bar {
     background-color: unset !important;
 }

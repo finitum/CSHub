@@ -1,10 +1,34 @@
 <template>
     <div>
-        <transition name="topicHeader">
-            <v-subheader v-if="!isFullPost"> Posts in {{ currentTopicNameComputed }} </v-subheader>
-        </transition>
-        <PostList v-if="postHashes.length > 0" :post-hashes-prop="postHashes"></PostList>
-        <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
+        <PostList
+            v-if="postHashes.length > 0"
+            v-show="isFullPost"
+            key="postList"
+            :post-hashes-prop="postHashes"
+        ></PostList>
+
+        <v-tabs v-show="!isFullPost" icons-and-text :vertical="$vuetify.breakpoint.mdAndUp">
+            <v-tab class="ml-0">
+                Posts
+                <v-icon>fas fa-newspaper</v-icon>
+            </v-tab>
+
+            <v-tab class="ml-0">
+                Practice
+                <v-icon>fas fa-question</v-icon>
+            </v-tab>
+
+            <v-tab-item>
+                <transition name="topicHeader">
+                    <v-subheader v-if="!isFullPost"> Posts in {{ currentTopicNameComputed }} </v-subheader>
+                </transition>
+                <PostList v-if="postHashes.length > 0" key="postList" :post-hashes-prop="postHashes"></PostList>
+                <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
+            </v-tab-item>
+            <v-tab-item>
+                <Editors></Editors>
+            </v-tab-item>
+        </v-tabs>
     </div>
 </template>
 
@@ -27,10 +51,11 @@ import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities/
 import { CacheTypes } from "../../utilities/cache-types";
 import { getTopicFromHash } from "../../utilities/Topics";
 import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
+import Editors from "../../components/practice/editors/Editors.vue";
 
 @Component({
     name: "PostView",
-    components: { PostList }
+    components: { Editors, PostList }
 })
 export default class PostView extends Vue {
     /**
