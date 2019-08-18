@@ -124,6 +124,9 @@ export const getCookie = (name: string): string => {
 };
 
 export class ApiWrapper {
+    /**
+     * @deprecated
+     */
     public static sendPostRequest(
         request: IApiRequest<any>,
         callback?: (...args: any) => void,
@@ -151,6 +154,9 @@ export class ApiWrapper {
             });
     }
 
+    /**
+     * @deprecated
+     */
     public static sendPutRequest(
         request: IApiRequest<any>,
         callback?: (...args: any) => void,
@@ -235,14 +241,50 @@ export class ApiWrapper {
             });
     }
 
-    public static get<T>(request: IApiRequest<T>): Promise<T> {
+    public static put<T>(request: IApiRequest<T>): Promise<T | null> {
+        return axiosApi
+            .put<T>(request.URL, request, {
+                withCredentials: true,
+                headers: request.headers,
+                params: request.params
+            })
+            .then(response => {
+                if (response) {
+                    return response.data;
+                }
+
+                return null;
+            });
+    }
+
+    public static post<T>(request: IApiRequest<T>): Promise<T | null> {
+        return axiosApi
+            .post<T>(request.URL, request, {
+                withCredentials: true,
+                headers: request.headers,
+                params: request.params
+            })
+            .then(response => {
+                if (response) {
+                    return response.data;
+                }
+
+                return null;
+            });
+    }
+
+    public static get<T>(request: IApiRequest<T>): Promise<T | null> {
         return axiosApi
             .get<T>(request.URL, {
                 headers: request.headers,
                 params: request.params
             })
             .then(response => {
-                return response.data;
+                if (response) {
+                    return response.data;
+                }
+
+                return null;
             });
     }
 }

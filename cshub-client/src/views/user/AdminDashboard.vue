@@ -1,5 +1,7 @@
 <template>
     <div>
+        <!-- Badly aligned :( -->
+        <!-- see https://github.com/vuetifyjs/vuetify/issues/8294 -->
         <v-tabs v-model="tabs" icons-and-text>
             <v-tab>
                 Users
@@ -19,7 +21,6 @@
 
         <v-tabs-items v-model="tabs">
             <v-tab-item>
-
                 <v-container fluid fill-height class="pa-5 pt-10">
                     <v-layout justify-center align-center>
                         <v-flex>
@@ -41,23 +42,12 @@
                 <v-container fluid fill-height class="pa-5 pt-10">
                     <v-layout justify-center align-center>
                         <v-flex>
-                            <StudyTable></StudyTable>
+                            <TopicView></TopicView>
                         </v-flex>
                     </v-layout>
                 </v-container>
             </v-tab-item>
         </v-tabs-items>
-
-<!--        <v-subheader>-->
-<!--            Users-->
-<!--        </v-subheader>-->
-<!--        <v-container fluid fill-height>-->
-<!--            <v-layout justify-center align-center>-->
-<!--                <v-flex>-->
-<!--                    <UserTable></UserTable>-->
-<!--                </v-flex>-->
-<!--            </v-layout>-->
-<!--        </v-container>-->
     </div>
 </template>
 
@@ -67,10 +57,11 @@ import { Component } from "vue-property-decorator";
 
 import UserTable from "../../components/admin/UserTable.vue";
 import StudyTable from "../../components/admin/StudyTable.vue";
+import TopicView from "../../components/admin/TopicView.vue";
 
 @Component({
     name: "AdminDashboard",
-    components: { UserTable, StudyTable }
+    components: { TopicView, UserTable, StudyTable }
 })
 export default class AdminDashboard extends Vue {
     private tabs = null;

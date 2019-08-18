@@ -4,13 +4,13 @@
             :headers="headers"
             :items="items"
             :loading="loading"
-            :server-items-length="amountItems"
+            :server-items-length="items.length"
             class="elevation-1"
         >
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-spacer></v-spacer>
-                    <v-dialog v-model="editDialog" max-width="500px">
+                    <v-dialog v-model="newStudyDialog" max-width="500px">
                         <template v-slot:activator="{ on }">
                             <v-btn color="primary" dark class="mb-2" v-on="on">Create Study</v-btn>
                         </template>
@@ -24,20 +24,19 @@
                                     <v-row>
                                         <v-col>
                                             <v-text-field
+                                                v-model="newStudyName"
                                                 label="Study name"
-                                                hint="Computer Science"
+                                                hint="e.g. Computer Science"
                                                 persistent-hint
                                                 required
-                                                v-model="editStudyName"
                                                 :counter="maxStudyNameLength"
-                                                :maxlength="maxStudyNameLength"
-                                                :rules="[StudyNameRule(editStudyName)]"
+                                                :rules="[studyNameRule(newStudyName)]"
                                             ></v-text-field>
                                         </v-col>
                                     </v-row>
                                     <v-row>
                                         <v-col>
-                                            <v-switch v-model="editHideSwitch" label="Hidden"></v-switch>
+                                            <v-switch v-model="newStudyHideSwitch" label="Hidden"></v-switch>
                                         </v-col>
                                     </v-row>
                                 </v-container>
@@ -53,12 +52,10 @@
                 </v-toolbar>
             </template>
 
-            <template v-slot:item.action="{ item }">
-
-            </template>
-
             <template v-slot:item.name="props">
-                <td v-if="!isEditingName" class="pa-0" @click="editingStart(props.item)">{{ props.item.name }}</td>
+                <div v-if="isEditingName !== props.item.id" class="pa-0" @click="editingStart(props.item)">
+                    {{ props.item.name }}
+                </div>
                 <v-text-field
                     v-else
                     v-model="props.item.name"
@@ -67,17 +64,16 @@
                     hide-details
                     autofocus
                     append-icon="fas fa-check"
+                    :counter="maxStudyNameLength"
+                    :rules="[studyNameRule(props.item.name)]"
                     @keyup.enter="editingDone(props.item)"
                     @click:append="editingDone(props.item)"
-                    :counter="maxStudyNameLength"
-                    :maxlength="maxStudyNameLength"
-                    :rules="[StudyNameRule(props.item.name)]"
                 >
                 </v-text-field>
             </template>
 
             <template v-slot:item.hidden="{ item }">
-                <td class="pa-0">
+                <div class="pa-0">
                     <v-icon v-if="item.hidden" small @click="hideItem(item)">
                         fas fa-eye
                     </v-icon>
@@ -85,7 +81,7 @@
                         fas fa-eye-slash
                     </v-icon>
                     {{ item.hidden.toString() }}
-                </td>
+                </div>
             </template>
         </v-data-table>
     </div>
@@ -97,7 +93,11 @@ import { Component } from "vue-property-decorator";
 
 import { ApiWrapper, logStringConsole } from "../../utilities";
 
-import { AllStudies, GetStudiesCallback } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
+import {
+    AllStudies,
+    GetStudiesCallback,
+    Studies
+} from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
 import { HideStudies, UnhideStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/HideStudies";
 import { RenameStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/RenameStudies";
 import {
@@ -105,6 +105,8 @@ import {
     CreateStudiesCallback
 } from "../../../../cshub-shared/src/api-calls/endpoints/study/CreateStudies";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
+import { dataState } from "../../store";
+import {getAndSetStudyNr, getStudies} from "../../views/router/guards/setupRequiredDataGuard";
 
 @Component({
     name: "studyTable"
@@ -120,18 +122,20 @@ export default class StudyTable extends Vue {
         { text: "Study name", value: "name" },
         { text: "Top topic id", value: "topTopic.id" },
         { text: "Top topic name", value: "topTopic.name" },
-        { text: "Hidden", value: "hidden" },
+        { text: "Hidden", value: "hidden" }
     ];
+
     private loading = true;
-    private editDialog = false;
-    private amountItems: number = 0;
-    private selectedItem: IStudy | null = null;
-    private isEditingName = false;
-    private editHideSwitch: boolean = false;
-    private editStudyName: string = "";
+    private newStudyDialog = false;
+    private isEditingName: false | number = false; // not editing or id
+
+    private newStudyHideSwitch: boolean = false;
+
+    private newStudyName: string = "";
+    private oldStudyName: string = "";
+
     private readonly maxStudyNameLength: number = 20;
     private readonly minStudyNameLength: number = 3;
-    private oldname: string = "";
 
     /*
      * Lifecycle hooks
@@ -141,60 +145,46 @@ export default class StudyTable extends Vue {
         this.getData();
     }
 
-    private getData() {
-        ApiWrapper.sendGetRequest(new AllStudies(), (callback: GetStudiesCallback) => {
-            this.items = callback.studies;
-            this.amountItems = callback.studies.length;
-            this.loading = false;
-        });
+    private async getData() {
+        const response = await ApiWrapper.get(new AllStudies());
+        this.items = response.studies;
+        this.loading = false;
     }
 
     private async rename(item: IStudy) {
-        await ApiWrapper.sendPostRequest(new RenameStudies(item), (response: null, status) => {
-            if (status === 201) {
-                return;
-            } else if (status === 406) {
-                return alert("name too long");
-            } else {
-                logStringConsole("Unexpected status code: " + status, "TopicCreate.vue");
-            }
-        });
+        await ApiWrapper.put(new RenameStudies(item.id, item.name));
+
+        const studies = await ApiWrapper.get(new Studies());
+        if (studies.studies.length > 0) {
+            dataState.setStudies(studies.studies);
+        }
     }
 
     private async hideItem(item: IStudy) {
         if (item.hidden) {
-            await ApiWrapper.sendPostRequest(new UnhideStudies(item), (response: null, status) => {
-                if (status === 201) {
-                    item.hidden = false;
-                    return;
-                }else {
-                    logStringConsole("Unexpected status code: " + status, "TopicCreate.vue");
-                }
-            });
+            await ApiWrapper.put(new UnhideStudies(item.id));
+            item.hidden = false;
         } else {
-            await ApiWrapper.sendPostRequest(new HideStudies(item), (response: null, status) => {
-                if (status === 201) {
-                    item.hidden = true;
-                    return;
-                } else {
-                    logStringConsole("Unexpected status code: " + status, "TopicCreate.vue");
-                }
-            });
+            await ApiWrapper.put(new HideStudies(item.id));
+            item.hidden = true;
         }
+
+        const studies = await getStudies();
+        dataState.setStudies(studies);
+        getAndSetStudyNr(studies);
     }
 
-    private StudyNameRule(name: string) {
+    private studyNameRule(name: string) {
         return name.length >= this.minStudyNameLength ? true : `Length must be more than ${this.minStudyNameLength}`;
     }
 
     private close() {
-        this.selectedItem = null;
-        this.editDialog = false;
+        this.newStudyDialog = false;
     }
 
     private editingDone(item: IStudy) {
-        if (this.StudyNameRule(item.name) !== true) {
-            item.name = this.oldname;
+        if (this.studyNameRule(item.name) !== true) {
+            item.name = this.oldStudyName;
         }
 
         this.isEditingName = false;
@@ -202,28 +192,21 @@ export default class StudyTable extends Vue {
     }
 
     private editingStart(item: IStudy) {
-        this.oldname = item.name;
-        this.isEditingName = true;
+        this.oldStudyName = item.name;
+        this.isEditingName = item.id;
     }
 
     private async save() {
-        if (this.StudyNameRule(this.editStudyName) !== true) {
+        if (this.studyNameRule(this.newStudyName) !== true) {
             return;
         }
 
-        await ApiWrapper.sendPostRequest(
-            new CreateStudies(this.editStudyName, this.editHideSwitch),
-            (response: CreateStudiesCallback, status) => {
-                if (status === 201) {
-                    this.items.push(response.study);
-                } else {
-                    logStringConsole("Unexpected status code: " + status, "TopicCreate.vue");
-                }
-        });
+        const response = await ApiWrapper.post(new CreateStudies(this.newStudyName, this.newStudyHideSwitch));
+        this.items.push(response.study);
 
         this.close();
-        this.editStudyName = "";
-        this.editHideSwitch = false;
+        this.newStudyName = "";
+        this.newStudyHideSwitch = false;
     }
 }
 </script>

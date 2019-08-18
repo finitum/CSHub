@@ -32,7 +32,12 @@ app.get(Topics.getURL, (req: Request, res: Response) => {
             }
         })
         .then(versionData => {
-            if (versionData && versionData.version === version) {
+            if (!versionData) {
+                const cacheVersion = new CacheVersion();
+                cacheVersion.version = 0;
+                cacheVersion.type = "TOPICS";
+                repository.save(cacheVersion);
+            } else if (versionData && versionData.version === version) {
                 res.status(304).send(); // Not Modified
             } else {
                 getTopicTree(study).then(result => {

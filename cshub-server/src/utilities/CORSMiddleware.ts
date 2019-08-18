@@ -8,7 +8,7 @@ export const CORSMiddleware = (req: Request, res: Response, next: Function) => {
     res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
     res.header(
         "Access-Control-Allow-Headers",
-        "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, version, x-topic-version, x-post-version, x-exclude-last-edit, x-include-last-edit"
+        "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, version, x-topic-version, x-post-version, x-exclude-last-edit, x-include-last-edit, x-studies-version"
     );
 
     next();

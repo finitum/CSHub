@@ -28,6 +28,7 @@
     "register-service-worker": "^1.0.0",
     "rxjs": "^6.3.3",
     "sass-loader": "^7.2.0",
+    "sl-vue-tree": "^1.8.4",
     "socket.io-client": "^2.2.0",
     "vee-validate": "^2.1.2",
     "vue": "^2.6.10",

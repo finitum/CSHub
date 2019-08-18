@@ -16,11 +16,9 @@ export const setupRequiredDataGuard = (): Promise<boolean> => {
     return getStudies()
         .then(studies => {
             dataState.setStudies(studies);
-            return getStudyNr(studies);
+            return getAndSetStudyNr(studies);
         })
         .then(studynr => {
-            localStorage.setItem(LocalStorageData.STUDY, studynr.toString(10));
-            uiState.setStudyNr(studynr);
             return getTopTopic(studynr);
         })
         .then(topTopic => {
@@ -38,22 +36,52 @@ export const setupRequiredDataGuard = (): Promise<boolean> => {
         });
 };
 
-function getStudies(): Promise<IStudy[]> {
+export async function getStudies(): Promise<IStudy[]> {
     if (dataState.studies) {
         return Promise.resolve(dataState.studies);
-    } else {
-        return ApiWrapper.get(new Studies()).then(value => {
-            const studies = value.studies;
-            if (studies.length > 0) {
-                return studies;
-            } else {
+    }
+
+    type studyCache = {
+        version: number;
+        studies: IStudy[];
+    };
+
+    const studyCache = await localForage.getItem<studyCache>(CacheTypes.STUDIES);
+    let studyCurrentVersion = -1;
+
+    if (studyCache !== null) {
+        studyCurrentVersion = studyCache.version;
+    }
+
+    try {
+        const studies = await ApiWrapper.get(new Studies(studyCurrentVersion));
+
+        if (studies !== null) {
+            if (studies.studies.length === 0) {
                 throw new Error("0 studies returned by server!");
             }
-        });
+
+            const studyData: studyCache = {
+                version: studies.version,
+                studies: studies.studies
+            };
+
+            localForage.setItem(CacheTypes.STUDIES, studyData);
+
+            return studyData.studies;
+        } else {
+            return studyCache.studies;
+        }
+    } catch (err) {
+        if (studyCache !== null) {
+            return studyCache.studies;
+        } else {
+            throw new Error();
+        }
     }
 }
 
-function getStudyNr(studies: IStudy[]): Promise<number> {
+export function getAndSetStudyNr(studies: IStudy[]): Promise<number> {
     const studyLocalStorage = localStorage.getItem(LocalStorageData.STUDY);
 
     let studynr: number;
@@ -67,46 +95,51 @@ function getStudyNr(studies: IStudy[]): Promise<number> {
         }
     }
 
+    localStorage.setItem(LocalStorageData.STUDY, studynr.toString(10));
+    uiState.setStudyNr(studynr);
+
     return Promise.resolve(studynr);
 }
 
-function getTopTopic(studyNr: number): Promise<ITopic> {
+async function getTopTopic(studyNr: number): Promise<ITopic> {
+    if (dataState.topTopic) {
+        return Promise.resolve(dataState.topTopic);
+    }
+
     type topicCache = {
         version: number;
         topTopic: ITopic;
     };
 
-    let cachedValue: topicCache | null = null;
+    const topicCache = await localForage.getItem<topicCache>(CacheTypes.TOPICS + studyNr);
+    let topicCurrentVersion = -1;
 
-    return localForage
-        .getItem<topicCache>(CacheTypes.TOPICS)
-        .then((value: topicCache) => {
-            let topicCurrentVersion = -1;
+    if (topicCache !== null) {
+        topicCurrentVersion = topicCache.version;
+    }
 
-            if (value !== null) {
-                topicCurrentVersion = value.version;
-                cachedValue = value;
-            }
+    try {
+        const topics = await ApiWrapper.get(new Topics(topicCurrentVersion, studyNr));
 
-            return ApiWrapper.get(new Topics(topicCurrentVersion, studyNr));
-        })
-        .then(response => {
+        if (topics !== null) {
             const topicData: topicCache = {
-                version: response.version,
-                topTopic: response.topTopic
+                version: topics.version,
+                topTopic: topics.topTopic
             };
 
-            localForage.setItem(CacheTypes.TOPICS, topicData);
+            localForage.setItem(CacheTypes.TOPICS + studyNr, topicData);
 
-            return response.topTopic;
-        })
-        .catch(reason => {
-            if (cachedValue !== null) {
-                return cachedValue.topTopic;
-            } else {
-                throw new Error();
-            }
-        });
+            return topics.topTopic;
+        } else {
+            return topicCache.topTopic;
+        }
+    } catch (err) {
+        if (topicCache !== null) {
+            return topicCache.topTopic;
+        } else {
+            throw new Error();
+        }
+    }
 }
 
 function parseTopTopic(topTopic: ITopic) {

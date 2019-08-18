@@ -1,14 +1,15 @@
 import { IApiRequest } from "../../../models";
 
 import { Requests } from "../../Requests";
-import { IStudy } from "../../../entities/study";
 
 export class HideStudies implements IApiRequest<void> {
     public static postURL: string = Requests.HIDESTUDIES;
 
     public URL: string = HideStudies.postURL;
 
-    constructor(public study: IStudy) {}
+    constructor(studyId: number) {
+        this.URL = this.URL.replace(/:id/, studyId.toString());
+    }
 }
 
 export class UnhideStudies implements IApiRequest<void> {
@@ -16,5 +17,7 @@ export class UnhideStudies implements IApiRequest<void> {
 
     public URL: string = UnhideStudies.postURL;
 
-    constructor(public study: IStudy) {}
+    constructor(studyId: number) {
+        this.URL = this.URL.replace(/:id/, studyId.toString());
+    }
 }
