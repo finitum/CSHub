@@ -31,8 +31,6 @@ app.post(SubmitPost.getURL, async (req: Request, res: Response) => {
     const postRepository = getRepository(Post);
     const topicRepository = getRepository(Topic);
 
-    console.log(userObj, inputsValidation)
-
     if (!inputsValidation.valid) {
         return res.status(400).json(new CreatePostCallback(SubmitPostResponse.INVALIDINPUT));
     } else if (!userObj) {
@@ -55,7 +53,7 @@ app.post(SubmitPost.getURL, async (req: Request, res: Response) => {
     // Check if a post with the same title already exists
     const numPostsWithSameTitle = await postRepository.count({ title: submitPostRequest.postTitle });
     if (numPostsWithSameTitle > 0) {
-        return res.status(409).json(new CreatePostCallback(SubmitPostResponse.TITLEALREADYINUSE));
+        return res.status(409).json(new ServerError("Post with name already exists"));
     }
 
     const topic = await topicRepository.find({ hash: submitPostRequest.postTopicHash });
@@ -66,7 +64,7 @@ app.post(SubmitPost.getURL, async (req: Request, res: Response) => {
     const isIndexResult = await postRepository.find({ isIndex: true, topic: topic[0] });
 
     if (isIndexResult.length > 0 && submitPostRequest.isIndex) {
-        return res.status(409).json(new CreatePostCallback(SubmitPostResponse.ALREADYHASINDEX));
+        return res.status(409).json(new ServerError("This topic already has an index"));
     }
 
     const topicHash = await generateRandomTopicHash();

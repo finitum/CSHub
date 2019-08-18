@@ -11,6 +11,9 @@ import Delta from "quill-delta/dist/Delta";
 import { getHTMLFromDelta } from "../../utilities/EditsHandler";
 import { hasAccessToPostRequest } from "../../auth/validateRights/PostAccess";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
+import { getRepository } from "typeorm";
+import { Edit } from "../../db/entities/edit";
+import { Post } from "../../db/entities/post";
 
 app.put(EditPost.getURL, async (req: Request, res: Response) => {
     const editPostRequest: EditPost = req.body as EditPost;
@@ -68,38 +71,38 @@ D
 
         return res.sendStatus(200);
     } else {
-        return query(
-            `
-                    SELECT content, approved
-                    FROM edits
-                    WHERE post = (
-                        SELECT id
-                        FROM posts
-                        WHERE hash = ?
-                    )
-                    ORDER BY datetime
-                `,
-            postHash
-        )
-            .then((edits: DatabaseResultSet) => {
-                const rows = edits.convertRowsToResultObjects();
-                const lastRow = rows[rows.length - 1];
-                if (lastRow.getNumberFromDB("approved") !== 0) {
-                    res.sendStatus(204);
-                } else {
-                    let delta = new Delta(JSON.parse(rows[0].getStringFromDB("content")));
+        const editsRepository = getRepository(Edit);
+        const postsRepository = getRepository(Post);
+        const post = await postsRepository.find({
+            hash: postHash
+        });
 
-                    for (let i = 1; i < rows.length; i++) {
-                        const currRow = rows[i];
-                        delta = delta.compose(new Delta(JSON.parse(currRow.getStringFromDB("content"))));
-                    }
+        try {
+            if (post.length == 0) {
+                return res.sendStatus(500);
+            }
 
-                    getHTMLFromDelta(delta, (html, indexWords) => {
-                        query(
-                            `
+            const edits = (await editsRepository.find({ post: post[0] })).sort(
+                (a: Edit, b: Edit) => +a.datetime - +b.datetime
+            );
+
+            console.log(edits);
+
+            if (edits[edits.length - 1].approved) {
+                return res.sendStatus(204);
+            }
+
+            let delta = new Delta(edits[0].content);
+
+            for (let i = 1; i < edits.length; i++) {
+                delta = delta.compose(new Delta(edits[i].content));
+            }
+
+            getHTMLFromDelta(delta, async (html, indexWords) => {
+                await query(
+                    `
                             UPDATE edits, posts
                             SET edits.approved    = 1,
-                                edits.approvedBy  = ?,
                                 edits.htmlContent = ?,
                                 edits.indexWords  = ?,
                                 edits.datetime    = NOW(),
@@ -118,24 +121,21 @@ D
                             ORDER BY edits.datetime DESC
                             LIMIT 1
                         `,
-                            userObj.user.id,
-                            html,
-                            indexWords,
-                            editPostRequest.postTitle,
-                            editPostRequest.postTopicHash,
-                            postHash,
-                            postHash
-                        ).then(() => {
-                            logger.info("Edited post succesfully");
-                            res.sendStatus(200);
-                        });
-                    });
-                }
-            })
-            .catch(err => {
-                logger.error(`Editing failed`);
-                logger.error(err);
-                res.status(500).send();
+                    html,
+                    indexWords,
+                    editPostRequest.postTitle,
+                    editPostRequest.postTopicHash,
+                    postHash,
+                    postHash
+                )
+
+                logger.info("Edited post succesfully");
+                return res.sendStatus(200);
             });
+        } catch (err) {
+            logger.error(`Editing failed`);
+            logger.error(err);
+            return res.sendStatus(500);
+        }
     }
 });
