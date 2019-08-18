@@ -16,8 +16,14 @@
                     append-icon="fas fa-check"
                     :counter="maxTopicNameLength"
                     :rules="[topicNameRule(node.data.name)]"
-                    @keyup.enter="editingDone(node.data); node.title = node.data.name;"
-                    @click:append="editingDone(node.data); node.title = node.data.name;"
+                    @keyup.enter="
+                        editingDone(node.data);
+                        node.title = node.data.name;
+                    "
+                    @click:append="
+                        editingDone(node.data);
+                        node.title = node.data.name;
+                    "
                 ></v-text-field>
             </template>
 
