@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="adminDashboard">
         <!-- Badly aligned :( -->
         <!-- see https://github.com/vuetifyjs/vuetify/issues/8294 -->
         <v-tabs icons-and-text vertical>
@@ -19,13 +19,13 @@
             </v-tab>
 
             <v-tab-item v-if="userAdminComputed">
-                <UserTable class="mt-2"></UserTable>
+                <UserTable class="mt-2 pa-2"></UserTable>
             </v-tab-item>
             <v-tab-item v-if="userAdminComputed">
-                <StudyTable class="mt-2"></StudyTable>
+                <StudyTable class="mt-2 pa-2"></StudyTable>
             </v-tab-item>
             <v-tab-item v-if="userStudyAdminComputed">
-                <TopicView class="mt-2"></TopicView>
+                <TopicView class="mt-2 pa-2"></TopicView>
             </v-tab-item>
         </v-tabs>
     </div>

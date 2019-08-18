@@ -48,6 +48,8 @@ import { dataState } from "../../store";
     components: { SlVueTree }
 })
 export default class TopicView extends Vue {
+    private updatedNodes: ISlTreeNodeModel<ITopic>[] = [];
+
     private isEditingName: false | number = false;
 
     private oldTopicName: string = "";
@@ -62,6 +64,10 @@ export default class TopicView extends Vue {
         } else {
             return [];
         }
+    }
+
+    set nodes(nodes: ISlTreeNodeModel<ITopic>[]) {
+        this.updatedNodes = nodes;
     }
 
     private topicNameRule(name: string) {

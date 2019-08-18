@@ -91,19 +91,12 @@
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
 
-import { ApiWrapper, logStringConsole } from "../../utilities";
+import { ApiWrapper } from "../../utilities";
 
-import {
-    AllStudies,
-    GetStudiesCallback,
-    Studies
-} from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
+import { AllStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
 import { HideStudies, UnhideStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/HideStudies";
 import { RenameStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/RenameStudies";
-import {
-    CreateStudies,
-    CreateStudiesCallback
-} from "../../../../cshub-shared/src/api-calls/endpoints/study/CreateStudies";
+import { CreateStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/CreateStudies";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
 import { dataState } from "../../store";
 import { getAndSetStudyNr, getStudies } from "../../views/router/guards/setupRequiredDataGuard";
@@ -168,8 +161,12 @@ export default class StudyTable extends Vue {
             await ApiWrapper.put(new UnhideStudies(item.id));
             item.hidden = false;
         } else {
-            await ApiWrapper.put(new HideStudies(item.id));
-            item.hidden = true;
+            try {
+                await ApiWrapper.put(new HideStudies(item.id));
+                item.hidden = true;
+            } catch (err) {
+                // Noop
+            }
         }
 
         const studies = await getStudies(true);

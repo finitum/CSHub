@@ -10,6 +10,10 @@
     height: 100%;
 }
 
-.theme--light.v-tabs-items {
+.adminDashboard .v-tabs-items {
+    background-color: unset !important;
+}
+
+.adminDashboard .v-tabs > .v-tabs-bar {
     background-color: unset !important;
 }
