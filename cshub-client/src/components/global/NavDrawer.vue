@@ -29,13 +29,6 @@
             ></NavDrawerItem>
 
             <NavDrawerItem
-                v-if="userLoggedInComputed && userAdminComputed"
-                :to="navigationLocations.STUDYEDITOR"
-                icon="fas fa-graduation-cap"
-                text="Study editor"
-            ></NavDrawerItem>
-
-            <NavDrawerItem
                 v-if="!userLoggedInComputed"
                 icon="fas fa-sign-in-alt"
                 text="Login"
