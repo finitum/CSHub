@@ -1,40 +1,42 @@
 <template>
     <div>
-        <!-- replace by vuetify variant if it every gets implemented -->
-        <sl-vue-tree ref="slVueTree" v-model="nodes" >
-            <template slot="title" slot-scope="{ node }">
-                <div v-if="isEditingName !== node.data.id" class="d-inline-block" @click="editingStart(node.data)">
-                    {{ node.title }}
-                </div>
-                <v-text-field
-                    v-else
-                    v-model="node.data.name"
-                    class="pt-0 d-inline-block"
-                    single-line
-                    hide-details
-                    autofocus
-                    append-icon="fas fa-check"
-                    :counter="maxTopicNameLength"
-                    :rules="[topicNameRule(node.data.name)]"
-                    @keyup.enter="
-                        editingDone(node.data);
-                        node.title = node.data.name;
-                    "
-                    @click:append="
-                        editingDone(node.data);
-                        node.title = node.data.name;
-                    "
-                ></v-text-field>
-            </template>
+        <v-card>
+            <!-- replace by vuetify variant if it every gets implemented -->
+            <sl-vue-tree ref="slVueTree" v-model="nodes" @drop="onDropHandler()">
+                <template slot="title" slot-scope="{ node }">
+                    <div v-if="isEditingName !== node.data.id" class="d-inline-block" @click="editingStart(node.data)">
+                        {{ node.title }}
+                    </div>
+                    <v-text-field
+                        v-else
+                        v-model="node.data.name"
+                        class="pt-0 d-inline-block"
+                        single-line
+                        hide-details
+                        autofocus
+                        append-icon="fas fa-check"
+                        :counter="maxTopicNameLength"
+                        :rules="[topicNameRule(node.data.name)]"
+                        @keyup.enter="
+                            editingDone(node.data);
+                            node.title = node.data.name;
+                        "
+                        @click:append="
+                            editingDone(node.data);
+                            node.title = node.data.name;
+                        "
+                    ></v-text-field>
+                </template>
 
-            <template slot="toggle" slot-scope="{ node }">
-                <span v-if="node.children.length > 0">
-                    <v-icon v-if="node.isExpanded">fas fa-chevron-down</v-icon>
-                    <v-icon v-if="!node.isExpanded">fas fa-chevron-right</v-icon>
-                </span>
-                <span v-else> </span>
-            </template>
-        </sl-vue-tree>
+                <template slot="toggle" slot-scope="{ node }">
+                    <span v-if="node.children.length > 0">
+                        <v-icon v-if="node.isExpanded">fas fa-chevron-down</v-icon>
+                        <v-icon v-if="!node.isExpanded">fas fa-chevron-right</v-icon>
+                    </span>
+                    <span v-else> </span>
+                </template>
+            </sl-vue-tree>
+        </v-card>
     </div>
 </template>
 
@@ -48,11 +50,10 @@ import SlVueTree, { ISlTreeNodeModel } from "sl-vue-tree";
 import "sl-vue-tree/dist/sl-vue-tree-minimal.css";
 
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
-import { RenameTopic } from "../../../../cshub-shared/src/api-calls/endpoints/topics/EditTopics";
-import { dataState, uiState} from "../../store";
+import { RenameTopic, RestructureTopics } from "../../../../cshub-shared/src/api-calls/endpoints/topics/EditTopics";
+import { dataState, uiState } from "../../store";
 import { ApiWrapper } from "../../utilities";
 import { getTopTopic } from "../../views/router/guards/setupRequiredDataGuard";
-
 
 @Component({
     name: "TopicView",
@@ -69,6 +70,10 @@ export default class TopicView extends Vue {
     private readonly minTopicNameLength: number = 3;
 
     get nodes(): ISlTreeNodeModel<ITopic>[] {
+        return this.getNodes();
+    }
+
+    private getNodes(): ISlTreeNodeModel<ITopic>[] {
         const topTopic = dataState.topTopic;
         if (topTopic) {
             return topTopic.children.map(child => this.createTreeViewFragment(child));
@@ -79,6 +84,46 @@ export default class TopicView extends Vue {
 
     set nodes(nodes: ISlTreeNodeModel<ITopic>[]) {
         this.updatedNodes = nodes;
+    }
+
+    private async collectNodes(node: ISlTreeNodeModel<ITopic>): Promise<ITopic | undefined> {
+        if (typeof node.data === "undefined") {
+            return;
+        }
+
+        const newnode: ITopic = {
+            id: node.data.id,
+            name: node.data.name,
+            children: [],
+            hash: node.data.hash,
+            parent: null
+        };
+
+        if (node.children) {
+            for (const child of node.children) {
+                const newchild = await this.collectNodes(child);
+                if (newchild) {
+                    newnode.children.push(newchild);
+                }
+            }
+        }
+        return newnode;
+    }
+
+    private async onDropHandler() {
+        let result: ITopic[] = [];
+        for (const node of this.updatedNodes) {
+            const topicTree = await this.collectNodes(node);
+            if (topicTree) {
+                result.push(topicTree);
+            }
+        }
+
+        if (uiState.studyNr) {
+            await ApiWrapper.put(new RestructureTopics(uiState.studyNr, result));
+        } else {
+            this.nodes = this.getNodes();
+        }
     }
 
     private topicNameRule(name: string) {
