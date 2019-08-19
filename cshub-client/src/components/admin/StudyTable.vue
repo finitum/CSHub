@@ -105,7 +105,7 @@ import {
     getTopTopic,
     parseTopTopic
 } from "../../views/router/guards/setupRequiredDataGuard";
-import {EventBus, STUDY_CHANGED} from "../../utilities/EventBus";
+import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
 
 @Component({
     name: "studyTable"

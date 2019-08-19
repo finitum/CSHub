@@ -8,3 +8,4 @@ import "./Login";
 import "./Profile";
 import "./VerifyMail";
 import "./VerifyToken";
+import "./UserAdminPage";

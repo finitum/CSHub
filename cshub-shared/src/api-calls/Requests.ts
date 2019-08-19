@@ -41,6 +41,10 @@ export class Requests {
 
     public static readonly ALLUSERS: string = "/users/:page"; // GET
     public static readonly VERIFYMAIL: string = "/user/verifymail"; // GET
+    public static readonly VERIFYUSER: string = "/user/verify"; // PUT
+    public static readonly BLOCKUSER: string = "/user/block"; // PUT
+    public static readonly SETADMINUSER: string = "/user/admin"; // PUT
+    public static readonly SETSTUDYADMINUSER: string = "/user/studyadmin"; // PUT
     public static readonly FORGOTPASSWORDMAIL: string = "/user/forgotpasswordmail"; // POST
     public static readonly FORGOTPASSWORD: string = "/user/forgotpassword"; // POST
     public static readonly CHANGEPASSWORD: string = "/user/changepassword"; // POST

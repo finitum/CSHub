@@ -7,7 +7,6 @@ import { SubmitPost, CreatePostCallback, SubmitPostResponse } from "../../../../
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { validateMultipleInputs } from "../../utilities/StringUtils";
 import { findTopicInTree, generateRandomTopicHash, getTopicTree } from "../../utilities/TopicsUtils";
-import { DatabaseResultSet, query } from "../../db/database-query";
 import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
 import { hasAccessToTopicRequest } from "../../auth/validateRights/PostAccess";
 import { getRepository } from "typeorm";
