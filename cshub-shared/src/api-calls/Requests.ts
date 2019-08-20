@@ -38,6 +38,7 @@ export class Requests {
     public static readonly LOGOUT: string = "/logout"; // POST
     public static readonly CREATEACCOUNT: string = "/createaccount"; // POST
     public static readonly VERIFYTOKEN: string = "/verifytoken"; // POST
+    public static readonly REFRESHTOKEN: string = "/refreshtoken"; // GET
 
     public static readonly ALLUSERS: string = "/users/:page"; // GET
     public static readonly VERIFYMAIL: string = "/user/verifymail"; // GET

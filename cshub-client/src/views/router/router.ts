@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Router, { Route } from "vue-router";
 
-import { VerifyToken, VerifyUserTokenCallback } from "../../../../cshub-shared/src/api-calls";
+import {RefreshToken, VerifyToken, VerifyUserTokenCallback} from "../../../../cshub-shared/src/api-calls";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
 const LoginScreen = () => import("../user/LoginScreen.vue");
@@ -158,6 +158,9 @@ router.beforeEach((to: Route, from: Route, next) => {
                         if (verified.response) {
                             logStringConsole("User is logged in", "isLoggedIn after API");
                             userState.setUserModel(verified.response);
+
+                            // TODO: Determine if this is the best place for refreshing tokens
+                            ApiWrapper.sendGetRequest(new RefreshToken());
                         } else {
                             logStringConsole("User is not logged in", "isLoggedIn after API");
                         }
