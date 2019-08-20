@@ -2,6 +2,7 @@ import { getRandomNumberLarge } from "../../../cshub-shared/src/utilities/Random
 import { IStudy } from "../../../cshub-shared/src/entities/study";
 import { getRepository } from "typeorm";
 import { Topic } from "../db/entities/topic";
+import { ITopic } from "../../../cshub-shared/src/entities/topic";
 
 export const generateRandomTopicHash = (): Promise<number> => {
     const hash = getRandomNumberLarge();
@@ -52,7 +53,7 @@ export const findStudyIdsOfTopic = (topic: Topic): IStudy[] => {
     return studyIds;
 };
 
-export const getChildHashes = (inputTopic: Topic[]): number[] => {
+export const getChildHashes = (inputTopic: ITopic[]): number[] => {
     const currentTopicHashes: number[] = [];
 
     for (const topic of inputTopic) {

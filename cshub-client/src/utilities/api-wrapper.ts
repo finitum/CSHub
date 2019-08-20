@@ -5,6 +5,7 @@ import { dataState, userState, uiState } from "../store";
 import { Requests } from "../../../cshub-shared/src/api-calls";
 import { Routes } from "../../../cshub-shared/src/Routes";
 import { ServerError } from "../../../cshub-shared/src/models/ServerError";
+import { logObjectConsole } from "./debugConsole";
 
 const axiosApi = axios.create({
     baseURL: process.env.VUE_APP_API_URL || (window as any).appConfig.VUE_APP_API_URL,
@@ -101,6 +102,8 @@ axiosApi.interceptors.response.use(
                     header: `Error!`,
                     text: `There was an error, but no idea what it could be`
                 });
+
+                logObjectConsole(error);
             }
         }
 

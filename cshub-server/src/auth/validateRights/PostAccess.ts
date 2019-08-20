@@ -28,8 +28,8 @@ export const hasAccessToTopicJWT = (topicHash: number, jwt: string): Promise<Pos
     return getStudiesFromTopic(topicHash).then(studies => {
         if (tokenResult) {
             for (const study of studies) {
-                const studyIndex = tokenResult.user.studies.findIndex(value => value.id === study.id);
-                if (studyIndex !== -1) {
+                const isStudyAdmin = tokenResult.user.studies.map(currStudy => currStudy.id).includes(study.id);
+                if (isStudyAdmin) {
                     return { canEdit: true, canSave: true };
                 }
             }

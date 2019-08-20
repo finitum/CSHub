@@ -6,7 +6,10 @@ import {
     OneToMany,
     OneToOne,
     PrimaryGeneratedColumn,
-    RelationId, Tree, TreeChildren, TreeParent
+    RelationId,
+    Tree,
+    TreeChildren,
+    TreeParent
 } from "typeorm";
 import { Post } from "./post";
 import { Study } from "./study";
@@ -29,7 +32,6 @@ export class Topic implements ITopic {
         onDelete: "RESTRICT",
         onUpdate: "RESTRICT"
     })
-
     @JoinColumn({ name: "parentid" })
     parent!: Topic | null;
 

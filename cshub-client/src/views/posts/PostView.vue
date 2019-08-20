@@ -2,12 +2,12 @@
     <div>
         <PostList
             v-if="postHashes.length > 0"
-            v-show="isFullPost"
+            v-show="isFullPost || isIndex"
             key="postList"
             :post-hashes-prop="postHashes"
         ></PostList>
 
-        <v-tabs v-show="!isFullPost" icons-and-text :vertical="$vuetify.breakpoint.mdAndUp">
+        <v-tabs v-show="!isFullPost && !isIndex" icons-and-text :vertical="$vuetify.breakpoint.mdAndUp">
             <v-tab class="ml-0">
                 Posts
                 <v-icon>fas fa-newspaper</v-icon>
@@ -84,6 +84,10 @@ export default class PostView extends Vue {
         return "";
     }
 
+    get isIndex(): boolean {
+        return this.$route.fullPath === Routes.INDEX;
+    }
+
     /**
      * Watchers
      */
@@ -114,7 +118,7 @@ export default class PostView extends Vue {
         this.doOnRouteChange();
 
         EventBus.$on(STUDY_CHANGED, () => {
-            if (this.$route.fullPath === Routes.INDEX) {
+            if (this.isIndex) {
                 this.doOnRouteChange();
             } else {
                 this.$router.push(Routes.INDEX);
@@ -141,7 +145,7 @@ export default class PostView extends Vue {
             this.currentTopicHash = currentHash;
             this.isFullPost = false;
             this.getTopicRequest(currentHash);
-        } else if (this.$router.currentRoute.fullPath === Routes.INDEX) {
+        } else if (this.isIndex) {
             this.currentTopicHash = 0;
             this.isFullPost = false;
 

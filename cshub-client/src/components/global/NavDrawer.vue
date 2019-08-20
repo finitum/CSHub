@@ -63,13 +63,6 @@
                     icon="fas fa-pen"
                     text="Create new post"
                 ></NavDrawerItem>
-
-                <NavDrawerItem
-                    v-if="userStudyAdminComputed"
-                    :to="`${navigationLocations.TOPICCREATE}`"
-                    icon="fas fa-folder-plus"
-                    text="Add a topic"
-                ></NavDrawerItem>
             </div>
         </v-list>
     </v-navigation-drawer>

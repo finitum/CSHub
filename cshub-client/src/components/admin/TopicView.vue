@@ -1,42 +1,47 @@
 <template>
     <div>
-        <v-card>
-            <!-- replace by vuetify variant if it every gets implemented -->
-            <sl-vue-tree ref="slVueTree" v-model="nodes" @drop="onDropHandler()">
-                <template slot="title" slot-scope="{ node }">
-                    <div v-if="isEditingName !== node.data.id" class="d-inline-block" @click="editingStart(node.data)">
-                        {{ node.title }}
-                    </div>
-                    <v-text-field
-                        v-else
-                        v-model="node.data.name"
-                        class="pt-0 d-inline-block"
-                        single-line
-                        hide-details
-                        autofocus
-                        append-icon="fas fa-check"
-                        :counter="maxTopicNameLength"
-                        :rules="[topicNameRule(node.data.name)]"
-                        @keyup.enter="
-                            editingDone(node.data);
-                            node.title = node.data.name;
-                        "
-                        @click:append="
-                            editingDone(node.data);
-                            node.title = node.data.name;
-                        "
-                    ></v-text-field>
-                </template>
+        <v-btn color="primary" dark class="mb-2 mr-2" @click="save">Save</v-btn>
+        <v-btn color="primary" dark class="mb-2 mr-2" @click="getNodes">Refresh</v-btn>
+        <v-btn color="primary" dark class="mb-2">Create topic</v-btn>
 
-                <template slot="toggle" slot-scope="{ node }">
-                    <span v-if="node.children.length > 0">
-                        <v-icon v-if="node.isExpanded">fas fa-chevron-down</v-icon>
-                        <v-icon v-if="!node.isExpanded">fas fa-chevron-right</v-icon>
-                    </span>
-                    <span v-else> </span>
-                </template>
-            </sl-vue-tree>
-        </v-card>
+        <!-- replace by vuetify variant if it ever gets implemented -->
+        <sl-vue-tree ref="slVueTree" v-model="nodes">
+            <template slot="title" slot-scope="{ node }">
+                <div v-if="isEditingName !== node.data.id" class="d-inline-block" @click="isEditingName = node.data.id">
+                    {{ node.title }}
+                </div>
+                <v-text-field
+                    v-else
+                    v-model="node.data.name"
+                    v-validate="'required|min:3|max:40'"
+                    minlength="3"
+                    maxlength="40"
+                    class="pt-0 d-inline-block"
+                    single-line
+                    :error-messages="errors.collect('nodename')"
+                    name="nodename"
+                    hide-details
+                    autofocus="fas fa-check
+                    append-icon"
+                    @keyup.enter="
+                        isEditingName = false;
+                        node.title = node.data.name;
+                    "
+                    @click:append="
+                        isEditingName = false;
+                        node.title = node.data.name;
+                    "
+                ></v-text-field>
+            </template>
+
+            <template slot="toggle" slot-scope="{ node }">
+                <span v-if="node.children.length > 0">
+                    <v-icon v-if="node.isExpanded">fas fa-chevron-down</v-icon>
+                    <v-icon v-if="!node.isExpanded">fas fa-chevron-right</v-icon>
+                </span>
+                <span v-else> </span>
+            </template>
+        </sl-vue-tree>
     </div>
 </template>
 
@@ -44,16 +49,17 @@
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
 
-import { cloneDeep } from "lodash";
+import { cloneDeep, clone } from "lodash";
 
 import SlVueTree, { ISlTreeNodeModel } from "sl-vue-tree";
 import "sl-vue-tree/dist/sl-vue-tree-minimal.css";
 
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
-import { RenameTopic, RestructureTopics } from "../../../../cshub-shared/src/api-calls/endpoints/topics/EditTopics";
+import { RestructureTopics } from "../../../../cshub-shared/src/api-calls/endpoints/topics";
 import { dataState, uiState } from "../../store";
 import { ApiWrapper } from "../../utilities";
-import { getTopTopic } from "../../views/router/guards/setupRequiredDataGuard";
+import { getTopTopic, parseTopTopic } from "../../views/router/guards/setupRequiredDataGuard";
+import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
 
 @Component({
     name: "TopicView",
@@ -66,27 +72,31 @@ export default class TopicView extends Vue {
 
     private oldTopicName: string = "";
 
-    private readonly maxTopicNameLength: number = 20;
+    private readonly maxTopicNameLength: number = 40;
     private readonly minTopicNameLength: number = 3;
 
     get nodes(): ISlTreeNodeModel<ITopic>[] {
-        return this.getNodes();
-    }
-
-    private getNodes(): ISlTreeNodeModel<ITopic>[] {
-        const topTopic = dataState.topTopic;
-        if (topTopic) {
-            return topTopic.children.map(child => this.createTreeViewFragment(child));
-        } else {
-            return [];
-        }
+        return this.updatedNodes;
     }
 
     set nodes(nodes: ISlTreeNodeModel<ITopic>[]) {
         this.updatedNodes = nodes;
     }
 
-    private async collectNodes(node: ISlTreeNodeModel<ITopic>): Promise<ITopic | undefined> {
+    private mounted() {
+        this.getNodes();
+    }
+
+    private getNodes() {
+        const topTopic = dataState.topTopic;
+        if (topTopic) {
+            this.nodes = topTopic.children.map(child => this.createTreeViewFragment(child));
+        } else {
+            this.nodes = [];
+        }
+    }
+
+    private async collectNodes(parent: ITopic, node: ISlTreeNodeModel<ITopic>): Promise<ITopic | undefined> {
         if (typeof node.data === "undefined") {
             return;
         }
@@ -96,61 +106,67 @@ export default class TopicView extends Vue {
             name: node.data.name,
             children: [],
             hash: node.data.hash,
-            parent: null
+            parent: parent
         };
 
         if (node.children) {
             for (const child of node.children) {
-                const newchild = await this.collectNodes(child);
-                if (newchild) {
-                    newnode.children.push(newchild);
+                const currentChildren = await this.collectNodes(newnode, child);
+                if (currentChildren) {
+                    newnode.children.push(currentChildren);
                 }
             }
         }
+
         return newnode;
     }
 
-    private async onDropHandler() {
-        let result: ITopic[] = [];
-        for (const node of this.updatedNodes) {
-            const topicTree = await this.collectNodes(node);
+    private async save() {
+        const topTopic = clone(dataState.topTopic);
+
+        if (!topTopic) {
+            uiState.setNotificationDialog({
+                header: "Something's gone terribly wrong :(",
+                text: "Please tell the devs you saw this message",
+                on: true
+            });
+            return;
+        }
+
+        topTopic.children = [];
+
+        for (const node of this.nodes) {
+            const topicTree = await this.collectNodes(topTopic, node);
             if (topicTree) {
-                result.push(topicTree);
+                topTopic.children.push(topicTree);
             }
         }
 
-        if (uiState.studyNr) {
-            await ApiWrapper.put(new RestructureTopics(uiState.studyNr, result));
-        } else {
-            this.nodes = this.getNodes();
+        try {
+            if (uiState.studyNr) {
+                const fullCopy = cloneDeep(topTopic);
+                this.makeJsonifiable(fullCopy);
+
+                await ApiWrapper.put(new RestructureTopics(uiState.studyNr, fullCopy, []));
+
+                getTopTopic(uiState.studyNr, true).then(topTopic => {
+                    parseTopTopic(topTopic);
+                    dataState.setTopics(topTopic);
+                    EventBus.$emit(STUDY_CHANGED);
+                });
+            } else {
+                this.getNodes();
+            }
+        } catch (err) {
+            this.getNodes();
         }
     }
 
-    private topicNameRule(name: string) {
-        return name.length >= this.minTopicNameLength ? true : `Length must be more than ${this.minTopicNameLength}`;
-    }
+    private makeJsonifiable(topic: ITopic) {
+        delete topic.parent;
 
-    private editingStart(item: ITopic) {
-        this.oldTopicName = item.name;
-        this.isEditingName = item.id;
-    }
-
-    private editingDone(item: ITopic) {
-        if (this.topicNameRule(item.name) !== true) {
-            item.name = this.oldTopicName;
-        }
-
-        this.isEditingName = false;
-        this.rename(item);
-    }
-
-    private async rename(item: ITopic) {
-        await ApiWrapper.put(new RenameTopic(item.id, item.name));
-
-        const study = uiState.studyNr;
-        if (study) {
-            const topic = await getTopTopic(study, true);
-            dataState.setTopics(topic);
+        for (const child of topic.children) {
+            this.makeJsonifiable(child);
         }
     }
 

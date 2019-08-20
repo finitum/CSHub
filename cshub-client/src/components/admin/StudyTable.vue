@@ -93,10 +93,10 @@ import { Component } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../utilities";
 
-import { AllStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
-import { HideStudies, UnhideStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/HideStudies";
-import { RenameStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/RenameStudies";
-import { CreateStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/CreateStudies";
+import { AllStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study";
+import { HideStudies, UnhideStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study";
+import { RenameStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study";
+import { CreateStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
 import { dataState } from "../../store";
 import {
