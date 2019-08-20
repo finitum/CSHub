@@ -5,5 +5,4 @@ export * from "./ForgotPassword";
 export * from "./ForgotPasswordMail";
 export * from "./AllUsers";
 export * from "./Login";
-export * from "./RefreshToken";
 export * from "./VerifyToken";
