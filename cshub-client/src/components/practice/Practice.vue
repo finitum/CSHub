@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-expansion-panels>
+        <v-expansion-panels v-model="currentOption">
             <EditorAccordion title="Practice" subtitle="Practice a bunch of questions">
                 <v-select
                     v-model="amountOfQuestions"
@@ -11,14 +11,27 @@
                 <v-btn small color="primary" @click="startPractice">Start</v-btn>
             </EditorAccordion>
             <EditorAccordion
+                v-if="isLoggedIn"
                 title="Add new questions"
                 subtitle="Upon adding new questions, they will be reviewed by admins before they become public.
                             There are multiple types of questions which you can add"
             >
                 <Editors></Editors>
             </EditorAccordion>
-            <EditorAccordion title="Edit"></EditorAccordion>
-            <EditorAccordion title="Review"></EditorAccordion>
+            <EditorAccordion
+                v-if="isLoggedIn"
+                title="Edit"
+                subtitle="Edit existing questions to make all the questions even better!"
+            >
+                <QuestionList :key="$route.fullPath" :unpublished="false"></QuestionList>
+            </EditorAccordion>
+            <EditorAccordion
+                v-if="isStudyAdmin"
+                title="Review"
+                subtitle="Hi admin, please review these new questions :)"
+            >
+                <QuestionList :key="$route.fullPath" :unpublished="true"></QuestionList>
+            </EditorAccordion>
         </v-expansion-panels>
     </div>
 </template>
@@ -30,15 +43,26 @@ import EditorAccordion from "./editors/EditorAccordion.vue";
 import Editors from "./editors/Editors.vue";
 import { ApiWrapper } from "../../utilities";
 import { GetQuestions } from "../../../../cshub-shared/src/api-calls/endpoints/question";
-import { practiceState } from "../../store";
+import { practiceState, userState } from "../../store";
+import QuestionList from "./QuestionList.vue";
 
 @Component({
     name: "Practice",
-    components: { Editors, EditorAccordion }
+    components: { QuestionList, Editors, EditorAccordion }
 })
 export default class Practice extends Vue {
     private amountOfQuestions: number | string = 10;
     private amountOfQuestionsOptions = [5, 10, 15, 20, 25, 50, "All"];
+
+    private currentOption = 0;
+
+    get isStudyAdmin(): boolean {
+        return userState.isStudyAdmin;
+    }
+
+    get isLoggedIn(): boolean {
+        return userState.isLoggedIn;
+    }
 
     private async startPractice() {
         const amountOfQuestions: number | undefined =

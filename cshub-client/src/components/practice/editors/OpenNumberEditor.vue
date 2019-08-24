@@ -36,7 +36,6 @@
                     v-validate="'required|decimal'"
                     label="Answer"
                     outlined
-                    auto-grow
                     type="number"
                     name="answer"
                     :error-messages="errors.collect('answer')"
@@ -49,44 +48,41 @@
                     v-validate="'required|decimal'"
                     label="Precision"
                     outlined
-                    auto-grow
                     type="number"
                     name="precision"
                     :error-messages="errors.collect('precision')"
-                    class="mr-0"
                     hide-details
                 >
                 </v-text-field>
             </v-form>
         </v-col>
         <v-col cols="6">
-            <b>Question:</b>
-            <p v-html="renderMarkdown(question)"></p>
-            <b>Explanation:</b>
-            <p v-html="renderMarkdown(explanation)"></p>
-            <b>Answer:</b>
-            <p>{{ answer }}</p>
-            <b>Precision:</b>
-            <p>{{ precision }}</p>
+            <OpenNumberViewer
+                :question="question"
+                :explanation="explanation"
+                :answer="answer"
+                :precision="precision"
+            ></OpenNumberViewer>
         </v-col>
     </v-row>
 </template>
 
 <script lang="ts">
+import Vue from "vue";
 import { Component } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../../utilities";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
 import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
-import { mixins } from "vue-class-component";
-import EditorMixin from "./EditorMixin";
 import { FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
+import OpenNumberViewer from "../viewers/OpenNumberViewer.vue";
 
 @Component({
     name: OpenNumberEditor.name,
+    components: { OpenNumberViewer },
     inject: ["$validator"]
 })
-export default class OpenNumberEditor extends mixins(EditorMixin) {
+export default class OpenNumberEditor extends Vue {
     private question = "";
     private explanation = "";
 

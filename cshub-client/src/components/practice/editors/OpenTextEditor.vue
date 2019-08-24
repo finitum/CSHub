@@ -36,42 +36,35 @@
                     v-validate="'required|min:2'"
                     label="Answer"
                     outlined
-                    auto-grow
-                    type="number"
                     name="answer"
                     :error-messages="errors.collect('answer')"
-                    class="mb-4"
                     hide-details
                 >
                 </v-text-field>
             </v-form>
         </v-col>
         <v-col cols="6">
-            <b>Question:</b>
-            <p v-html="renderMarkdown(question)"></p>
-            <b>Explanation:</b>
-            <p v-html="renderMarkdown(explanation)"></p>
-            <b>Answer:</b>
-            <p>{{ answer }}</p>
+            <OpenTextViewer :question="question" :explanation="explanation" :answer="answer"></OpenTextViewer>
         </v-col>
     </v-row>
 </template>
 
 <script lang="ts">
+import Vue from "vue";
 import { Component } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../../utilities";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
 import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
-import { mixins } from "vue-class-component";
-import EditorMixin from "./EditorMixin";
 import { FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
+import OpenTextViewer from "../viewers/OpenTextViewer.vue";
 
 @Component({
     name: OpenTextEditor.name,
+    components: { OpenTextViewer },
     inject: ["$validator"]
 })
-export default class OpenTextEditor extends mixins(EditorMixin) {
+export default class OpenTextEditor extends Vue {
     private question = "";
     private explanation = "";
 

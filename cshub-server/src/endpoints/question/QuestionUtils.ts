@@ -28,7 +28,7 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
                 throw new AlreadySentError();
             }
 
-            if (!(question.answers[0] instanceof ClosedAnswer)) {
+            if (!question.answers[0].isClosedAnswer()) {
                 logger.error(`Wrong answer type for answerid ${question.id}`);
                 res.status(500).send();
                 throw new AlreadySentError();
@@ -73,7 +73,7 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
                 throw new AlreadySentError();
             }
 
-            if (!(question.answers[0] instanceof OpenNumberAnswer)) {
+            if (!question.answers[0].isOpenNumberAnswer()) {
                 logger.error(`Wrong answer type for answerid ${question.id}`);
                 res.status(500).send();
                 throw new AlreadySentError();
@@ -102,7 +102,7 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
                 throw new AlreadySentError();
             }
 
-            if (!(question.answers[0] instanceof OpenTextAnswer)) {
+            if (!question.answers[0].isOpenTextAnswer()) {
                 logger.error(`Wrong answer type for answerid ${question.id}`);
                 res.status(500).send();
                 throw new AlreadySentError();

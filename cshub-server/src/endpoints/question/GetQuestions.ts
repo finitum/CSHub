@@ -44,8 +44,7 @@ app.get(GetQuestions.getURL, (req: Request, res: Response) => {
                         .createQueryBuilder("question")
                         .select("question.id", "id")
                         .leftJoin("question.topic", "topic")
-                        .where("topic.hash IN (:...childHashes)", { childHashes })
-                        .leftJoinAndSelect("question.answers", "answers")
+                        .where("topic.hash IN (:...childHashes) AND question.active = 1", { childHashes })
                         .orderBy("RAND()")
                         .take(amount)
                         .getRawMany()
@@ -67,37 +66,40 @@ app.get(GetQuestions.getURL, (req: Request, res: Response) => {
         });
 });
 
-app.get(GetUnpublishedQuestions.getURL, (req: Request, res: Response) => {
-    const studyQueryParam = req.query[GetUnpublishedQuestions.studyQueryParam];
-    if (!studyQueryParam) {
-        res.status(400).send(new ServerError("Study query param not found", false));
+app.get(GetUnpublishedQuestions.getURL, async (req: Request, res: Response) => {
+    const topicQueryParam = req.query[GetUnpublishedQuestions.topicQueryParam];
+    if (!topicQueryParam) {
+        res.status(400).send(new ServerError("Topic query param not found", false));
         return;
     }
+    const topicHash = +topicQueryParam;
 
-    getTopicTree(studyQueryParam)
-        .then(value => {
-            if (value) {
-                const childHashes = getChildHashes(value);
+    const topicTree = await getTopicTree();
+    if (topicTree) {
+        const topic = findTopicInTree(topicHash, topicTree);
 
-                const repository = getRepository(Question);
+        if (topic) {
+            const childHashes = getChildHashes([topic]);
 
-                repository
-                    .find({
-                        select: ["id"],
-                        where: {
-                            topicId: In(childHashes)
-                        },
-                        relations: ["answers"]
-                    })
-                    .then(questions => {
-                        res.json(new GetQuestionsCallback(questions.map(question => question.id)));
-                    })
-                    .catch(() => {
-                        res.status(500).send(new ServerError("Server did oopsie"));
-                    });
-            }
-        })
-        .catch(() => {
-            res.status(500).send(new ServerError("Server did oopsie"));
-        });
+            const repository = getRepository(Question);
+
+            repository
+                .find({
+                    select: ["id"],
+                    where: {
+                        topicId: In(childHashes),
+                        active: false
+                    }
+                })
+                .then(questions => {
+                    res.json(new GetQuestionsCallback(questions.map(question => question.id)));
+                })
+                .catch(() => {
+                    res.status(500).send(new ServerError("Server did oopsie"));
+                });
+        }
+
+    }
+
+
 });

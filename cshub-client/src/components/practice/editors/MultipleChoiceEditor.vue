@@ -20,7 +20,7 @@
                     rows="2"
                     label="Question"
                     value="Bla"
-                    class="mb-4"
+                    class="mt-4"
                     hide-details
                 ></v-textarea>
                 <v-textarea
@@ -34,12 +34,12 @@
                     rows="3"
                     label="Explanation"
                     value="Bla"
-                    class="mb-4"
+                    class="mt-4"
                     hide-details
                 ></v-textarea>
 
                 <v-radio-group v-model="radioAnswer">
-                    <v-row v-for="(answer, i) of answers" :key="i" align="center" class="mb-4 ml-0 mr-0">
+                    <v-row v-for="(answer, i) of answers" :key="i" align="center" class="mt-4 ml-0 mr-0">
                         <v-checkbox
                             v-if="multipleCorrect"
                             v-model="answer.correct"
@@ -73,47 +73,28 @@
             </v-form>
         </v-col>
         <v-col cols="6">
-            <b>Question:</b>
-            <p v-html="renderMarkdown(question)"></p>
-            <b>Explanation:</b>
-            <p v-html="renderMarkdown(explanation)"></p>
-
-            <v-radio-group v-model="radioAnswer">
-                <div v-for="(answer, i) of answers" :key="answer.id">
-                    <v-checkbox
-                        v-if="multipleCorrect"
-                        v-model="answer.correct"
-                        readonly
-                        hide-details
-                        class="shrink mr-2 mt-0"
-                    >
-                        <template v-slot:label>
-                            <p class="ma-0 questionContent" v-html="renderMarkdown(answer.answerText)"></p>
-                        </template>
-                    </v-checkbox>
-                    <v-radio v-else :value="i" readonly hide-details>
-                        <template v-slot:label>
-                            <p class="ma-0 questionContent" v-html="renderMarkdown(answer.answerText)"></p>
-                        </template>
-                    </v-radio>
-                </div>
-            </v-radio-group>
+            <MultipleChoiceViewer
+                :multiple-correct="multipleCorrect"
+                :question="question"
+                :explanation="explanation"
+                :answers="answers"
+            ></MultipleChoiceViewer>
         </v-col>
     </v-row>
 </template>
 
 <script lang="ts">
+import Vue from "vue";
 import { Component } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../../utilities";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
 import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
-import { mixins } from "vue-class-component";
-import EditorMixin from "./EditorMixin";
 import {
     FullClosedAnswerType,
     FullQuestion
 } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
+import MultipleChoiceViewer from "../viewers/MultipleChoiceViewer.vue";
 
 const emptyAnswer = (): FullClosedAnswerType => {
     return {
@@ -124,15 +105,43 @@ const emptyAnswer = (): FullClosedAnswerType => {
 
 @Component({
     name: "MultipleChoiceEditor",
+    components: { MultipleChoiceViewer },
     inject: ["$validator"]
 })
-export default class MultipleChoiceEditor extends mixins(EditorMixin) {
+export default class MultipleChoiceEditor extends Vue {
     private multipleCorrect = false;
     private question = "";
     private explanation = "";
 
-    private answers: FullClosedAnswerType[] = [emptyAnswer(), emptyAnswer()];
-    private radioAnswer: number = 0;
+    private privAnswers: FullClosedAnswerType[] = [emptyAnswer(), emptyAnswer()];
+    private privRadioAnswer: number = 0;
+
+    get answers(): FullClosedAnswerType[] {
+        const answers = this.privAnswers;
+
+        if (!this.multipleCorrect) {
+            answers[this.radioAnswer].correct = true;
+        }
+
+        return answers;
+    }
+
+    set answers(answers: FullClosedAnswerType[]) {
+        this.privAnswers = answers;
+    }
+
+    get radioAnswer(): number {
+        return this.privRadioAnswer;
+    }
+
+    set radioAnswer(value: number) {
+        this.privRadioAnswer = value;
+
+        if (!this.multipleCorrect) {
+            this.privAnswers.forEach(answer => (answer.correct = false));
+            this.privAnswers[value].correct = true;
+        }
+    }
 
     private async submit() {
         let valid = await this.$validator.validateAll();
@@ -142,14 +151,14 @@ export default class MultipleChoiceEditor extends mixins(EditorMixin) {
                 this.answers[this.radioAnswer].correct = true;
             }
 
-            const question: FullQuestion = {
+            const questionObj: FullQuestion = {
                 question: this.question,
                 explanation: this.explanation,
                 type: this.multipleCorrect ? QuestionType.MULTICLOSED : QuestionType.SINGLECLOSED,
                 answers: this.answers
             };
 
-            await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
+            await ApiWrapper.post(new AddQuestion(questionObj, +this.$route.params.hash));
         }
     }
 

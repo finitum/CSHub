@@ -15,6 +15,11 @@ export class GetFullQuestion implements IApiRequest<GetFullQuestionCallback> {
     constructor(questionId: number) {
         this.URL = this.URL.replace(/:id/, questionId.toString());
     }
+
+    /**
+     * @see IApiRequest.response
+     */
+    response?: GetFullQuestionCallback;
 }
 
 export class GetQuestionCallback {
@@ -22,11 +27,16 @@ export class GetQuestionCallback {
 }
 
 export class GetQuestion implements IApiRequest<GetQuestionCallback> {
-    public static getURL: string = Requests.FULLQUESTION;
+    public static getURL: string = Requests.QUESTION;
 
-    public URL: string = GetFullQuestion.getURL;
+    public URL: string = GetQuestion.getURL;
 
     constructor(questionId: number) {
         this.URL = this.URL.replace(/:id/, questionId.toString());
     }
+
+    /**
+     * @see IApiRequest.response
+     */
+    response?: GetQuestionCallback;
 }
