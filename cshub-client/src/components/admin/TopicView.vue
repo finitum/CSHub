@@ -2,17 +2,17 @@
     <div>
         <v-btn color="primary" dark class="mb-2 mr-2" @click="save">Save</v-btn>
         <v-btn color="primary" dark class="mb-2 mr-2" @click="getNodes">Refresh</v-btn>
-        <v-btn color="primary" dark class="mb-2">Create topic</v-btn>
+        <v-btn color="primary" dark class="mb-2" @click="create">Create topic</v-btn>
 
         <!-- replace by vuetify variant if it ever gets implemented -->
         <sl-vue-tree ref="slVueTree" v-model="nodes">
             <template slot="title" slot-scope="{ node }">
-                <div v-if="isEditingName !== node.data.id" class="d-inline-block" @click="isEditingName = node.data.id">
+                <div v-if="isEditingName !== node.data.id" class="d-inline-block" @click="startEditing(node)">
                     {{ node.title }}
                 </div>
                 <v-text-field
                     v-else
-                    v-model="node.data.name"
+                    v-model="currentlyEditedTitle"
                     v-validate="'required|min:3|max:40'"
                     minlength="3"
                     maxlength="40"
@@ -21,16 +21,9 @@
                     :error-messages="errors.collect('nodename')"
                     name="nodename"
                     hide-details
-                    autofocus="fas fa-check
-                    append-icon"
-                    @keyup.enter="
-                        isEditingName = false;
-                        node.title = node.data.name;
-                    "
-                    @click:append="
-                        isEditingName = false;
-                        node.title = node.data.name;
-                    "
+                    append-icon="fas fa-check"
+                    @keyup.enter="stopEditing(node)"
+                    @click:append="stopEditing(node)"
                 ></v-text-field>
             </template>
 
@@ -51,11 +44,11 @@ import { Component } from "vue-property-decorator";
 
 import { cloneDeep, clone } from "lodash";
 
-import SlVueTree, { ISlTreeNodeModel } from "sl-vue-tree";
+import SlVueTree, { ICursorPosition, ISlTreeNode, ISlTreeNodeModel } from "sl-vue-tree";
 import "sl-vue-tree/dist/sl-vue-tree-minimal.css";
 
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
-import { RestructureTopics } from "../../../../cshub-shared/src/api-calls/endpoints/topics";
+import { NewTopicData, RestructureTopics } from "../../../../cshub-shared/src/api-calls/endpoints/topics";
 import { dataState, uiState } from "../../store";
 import { ApiWrapper } from "../../utilities";
 import { getTopTopic, parseTopTopic } from "../../views/router/guards/setupRequiredDataGuard";
@@ -66,25 +59,56 @@ import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
     components: { SlVueTree }
 })
 export default class TopicView extends Vue {
-    private updatedNodes: ISlTreeNodeModel<ITopic>[] = [];
+    private nodes: ISlTreeNodeModel<ITopic>[] = [];
 
     private isEditingName: false | number = false;
+    private currentlyEditedTitle = "";
 
     private oldTopicName: string = "";
 
     private readonly maxTopicNameLength: number = 40;
     private readonly minTopicNameLength: number = 3;
 
-    get nodes(): ISlTreeNodeModel<ITopic>[] {
-        return this.updatedNodes;
-    }
-
-    set nodes(nodes: ISlTreeNodeModel<ITopic>[]) {
-        this.updatedNodes = nodes;
+    get tree(): SlVueTree<ITopic> {
+        return this.$refs.slVueTree as SlVueTree<ITopic>;
     }
 
     private mounted() {
         this.getNodes();
+    }
+
+    private create() {
+        const firstNode = this.tree.getFirstNode();
+        const insertPosition: ICursorPosition<ITopic> = {
+            node: firstNode,
+            placement: "before"
+        };
+
+        const newNode: ISlTreeNodeModel<ITopic> = {
+            title: "New topic"
+        };
+        (this.tree as any).insert(insertPosition, newNode);
+    }
+
+    private startEditing(node: ISlTreeNode<ITopic>) {
+        this.isEditingName = node.data ? node.data.id : false;
+        this.currentlyEditedTitle = node.title;
+    }
+
+    private stopEditing(node: ISlTreeNode<ITopic>) {
+        const data = node.data;
+
+        if (data) {
+            data.name = this.currentlyEditedTitle;
+        }
+
+        // Types of lib are bad, so we can do te cast (node.path as any)
+        this.tree.updateNode(node.path as any, {
+            title: this.currentlyEditedTitle,
+            data
+        });
+
+        this.isEditingName = false;
     }
 
     private getNodes() {
@@ -96,29 +120,42 @@ export default class TopicView extends Vue {
         }
     }
 
-    private async collectNodes(parent: ITopic, node: ISlTreeNodeModel<ITopic>): Promise<ITopic | undefined> {
-        if (typeof node.data === "undefined") {
+    private async collectNodes(
+        parent: ITopic,
+        node: ISlTreeNodeModel<ITopic>,
+        isSaving: false | NewTopicData[] = false
+    ): Promise<ITopic | undefined> {
+        if (node.data === undefined) {
             return;
         }
 
-        const newnode: ITopic = {
-            id: node.data.id,
-            name: node.data.name,
-            children: [],
-            hash: node.data.hash,
-            parent: parent
-        };
+        if (node.data.id === undefined && isSaving) {
+            const newTopic: NewTopicData = {
+                name: node.title,
+                parentHash: parent.hash
+            };
 
-        if (node.children) {
-            for (const child of node.children) {
-                const currentChildren = await this.collectNodes(newnode, child);
-                if (currentChildren) {
-                    newnode.children.push(currentChildren);
+            isSaving.push(newTopic);
+        } else {
+            const newnode: ITopic = {
+                id: node.data.id,
+                name: node.data.name,
+                children: [],
+                hash: node.data.hash,
+                parent: parent
+            };
+
+            if (node.children) {
+                for (const child of node.children) {
+                    const currentChildren = await this.collectNodes(newnode, child, isSaving);
+                    if (currentChildren) {
+                        newnode.children.push(currentChildren);
+                    }
                 }
             }
-        }
 
-        return newnode;
+            return newnode;
+        }
     }
 
     private async save() {
@@ -133,10 +170,11 @@ export default class TopicView extends Vue {
             return;
         }
 
+        const newTopics: NewTopicData[] = [];
         topTopic.children = [];
 
         for (const node of this.nodes) {
-            const topicTree = await this.collectNodes(topTopic, node);
+            const topicTree = await this.collectNodes(topTopic, node, newTopics);
             if (topicTree) {
                 topTopic.children.push(topicTree);
             }
@@ -147,7 +185,7 @@ export default class TopicView extends Vue {
                 const fullCopy = cloneDeep(topTopic);
                 this.makeJsonifiable(fullCopy);
 
-                await ApiWrapper.put(new RestructureTopics(uiState.studyNr, fullCopy, []));
+                await ApiWrapper.put(new RestructureTopics(uiState.studyNr, fullCopy, newTopics));
 
                 getTopTopic(uiState.studyNr, true).then(topTopic => {
                     parseTopTopic(topTopic);

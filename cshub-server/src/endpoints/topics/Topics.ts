@@ -7,6 +7,7 @@ import { Topics, GetTopicsCallBack } from "../../../../cshub-shared/src/api-call
 import { getTopicTree } from "../../utilities/TopicsUtils";
 import { getRepository } from "typeorm";
 import { CacheVersion } from "../../db/entities/cacheversion";
+import { Topic } from "../../db/entities/topic";
 
 app.get(Topics.getURL, async (req: Request, res: Response) => {
     let version = -1;
@@ -31,6 +32,14 @@ app.get(Topics.getURL, async (req: Request, res: Response) => {
         }
     });
 
+    const makeJsonifiable = (topic: Topic) => {
+        delete topic.parent;
+
+        for (const child of topic.children) {
+            makeJsonifiable(child);
+        }
+    };
+
     if (!versionData) {
         const cacheVersion = new CacheVersion();
         cacheVersion.version = 0;
@@ -51,7 +60,11 @@ app.get(Topics.getURL, async (req: Request, res: Response) => {
                 return;
             }
 
-            res.json(new GetTopicsCallBack(versionData ? versionData.version : 0, topicTree[0]));
+            const topTopic = topicTree[0];
+
+            makeJsonifiable(topTopic);
+
+            res.json(new GetTopicsCallBack(versionData ? versionData.version : 0, topTopic));
         }
     }
 });

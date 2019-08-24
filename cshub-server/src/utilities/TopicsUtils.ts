@@ -106,8 +106,10 @@ export const getTopicTree = (study?: number): Promise<Topic[] | null> => {
                         return childTopic.parent && childTopic.parent.id === topic.id;
                     });
                     topic.children = children;
+                    topic.parent = parent;
 
                     for (const child of children) {
+                        child.parent = topic;
                         parseCurrentLayer(child);
                     }
                 }
