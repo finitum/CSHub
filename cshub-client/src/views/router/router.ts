@@ -16,9 +16,6 @@ const PostView = () => import("../posts/PostView.vue");
 const PostCreate = () => import("../posts/PostCreate.vue");
 const PostsSearch = () => import("../posts/PostsSearch.vue");
 
-const Practice = () => import("../../components/practice/Practice.vue");
-const Editors = () => import("../../components/practice/editors/Editors.vue");
-
 import { userBeforeEnter } from "./guards/userDashboardGuard";
 import { adminBeforeEnter } from "./guards/adminDashboardGuard";
 import { onlyIfNotLoggedIn } from "./guards/onlyIfNotLoggedInGuard";
@@ -84,16 +81,6 @@ const router = new Router({
             path: `${Routes.TOPIC}/:hash`,
             name: "topic",
             component: PostView
-        },
-        {
-            path: `${Routes.TOPIC}/:hash/practice`,
-            name: "topicpractice",
-            component: Practice
-        },
-        {
-            path: `${Routes.TOPIC}/:hash/practice/create`,
-            name: "topicpracticecreate",
-            component: Editors
         },
         {
             path: Routes.SEARCH,

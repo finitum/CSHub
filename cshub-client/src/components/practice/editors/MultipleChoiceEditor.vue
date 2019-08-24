@@ -107,15 +107,15 @@ import { Component } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../../utilities";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
-import {
-    AddQuestion,
-    ClosedAnswerType,
-    FullQuestion
-} from "../../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestion";
+import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
 import { mixins } from "vue-class-component";
 import EditorMixin from "./EditorMixin";
+import {
+    FullClosedAnswerType,
+    FullQuestion
+} from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 
-const emptyAnswer = (): ClosedAnswerType => {
+const emptyAnswer = (): FullClosedAnswerType => {
     return {
         correct: false,
         answerText: ""
@@ -131,7 +131,7 @@ export default class MultipleChoiceEditor extends mixins(EditorMixin) {
     private question = "";
     private explanation = "";
 
-    private answers: ClosedAnswerType[] = [emptyAnswer(), emptyAnswer()];
+    private answers: FullClosedAnswerType[] = [emptyAnswer(), emptyAnswer()];
     private radioAnswer: number = 0;
 
     private async submit() {

@@ -26,7 +26,7 @@
                 <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
             </v-tab-item>
             <v-tab-item>
-                <Editors></Editors>
+                <Practice></Practice>
             </v-tab-item>
         </v-tabs>
     </div>
@@ -52,10 +52,11 @@ import { CacheTypes } from "../../utilities/cache-types";
 import { getTopicFromHash } from "../../utilities/Topics";
 import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
 import Editors from "../../components/practice/editors/Editors.vue";
+import Practice from "../../components/practice/Practice.vue";
 
 @Component({
     name: "PostView",
-    components: { Editors, PostList }
+    components: { Practice, Editors, PostList }
 })
 export default class PostView extends Vue {
     /**

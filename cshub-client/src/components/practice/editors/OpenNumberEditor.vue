@@ -77,9 +77,10 @@ import { Component } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../../utilities";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
-import { AddQuestion, FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
+import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
 import { mixins } from "vue-class-component";
 import EditorMixin from "./EditorMixin";
+import { FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 
 @Component({
     name: OpenNumberEditor.name,

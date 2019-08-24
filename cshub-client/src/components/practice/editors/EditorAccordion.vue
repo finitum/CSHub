@@ -3,7 +3,7 @@
         <v-expansion-panel :value="true">
             <v-expansion-panel-header class="pb-0">
                 <v-layout column>
-                    <h4 class="display-1 mb-1" style="font-size: 1.75rem !important">{{ title }}</h4>
+                    <h4 class="display-1 mb-1" style="font-size: 1.4rem !important">{{ title }}</h4>
                     <p class="mb-2 subtitle-1">{{ subtitle }}</p>
                 </v-layout>
             </v-expansion-panel-header>

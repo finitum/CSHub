@@ -1,9 +1,8 @@
 import { IApiRequest } from "../../../models";
 import { Requests } from "../../Requests";
-import { IQuestion } from "../../../entities/question";
 
 export class GetQuestionsCallback {
-    constructor(public questions: IQuestion[]) {}
+    constructor(public questionIds: number[]) {}
 }
 
 export class GetQuestions implements IApiRequest<GetQuestionsCallback> {
@@ -23,4 +22,27 @@ export class GetQuestions implements IApiRequest<GetQuestionsCallback> {
             this.params[GetQuestions.questionAmountQueryParam] = amount.toString(10);
         }
     }
+
+    /**
+     * @see IApiRequest.response
+     */
+    response?: GetQuestionsCallback;
+}
+
+export class GetUnpublishedQuestions implements IApiRequest<GetQuestionsCallback> {
+    public static getURL: string = Requests.UNPUBLISHEDQUESTIONS;
+    public URL: string = GetUnpublishedQuestions.getURL;
+
+    public static readonly studyQueryParam = "study";
+
+    public params: { [key: string]: string } = {};
+
+    constructor(study: number) {
+        this.params[GetUnpublishedQuestions.studyQueryParam] = study.toString(10);
+    }
+
+    /**
+     * @see IApiRequest.response
+     */
+    response?: GetQuestionsCallback;
 }

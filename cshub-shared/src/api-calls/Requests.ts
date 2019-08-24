@@ -26,7 +26,8 @@ export class Requests {
     public static readonly CREATESTUDIES: string = "/study"; // POST
 
     public static readonly QUESTIONS: string = "/questions"; // GET
-    public static readonly FULLQUESTIONS: string = "/questions/full"; // GET
+    public static readonly QUESTION: string = "/questions/:id"; // GET
+    public static readonly FULLQUESTION: string = "/questions/:id/full"; // GET
     public static readonly UNPUBLISHEDQUESTIONS: string = "/questions/unpublished"; // GET
     public static readonly ADDQUESTIONS: string = "/questions"; // POST
     public static readonly EDITQUESTION: string = "/questions/:id"; // PUT

@@ -1,45 +1,62 @@
 <template>
     <div>
-        <v-card class="mx-auto my-4" max-width="420">
-            <v-card-text>
-                <p class="display-1 text--primary">Practice questions</p>
-                <p>Practice a bunch of questions</p>
-            </v-card-text>
-            <v-card-actions>
-                <v-btn text color="deep-purple accent-4">Learn More</v-btn>
-            </v-card-actions>
-        </v-card>
-
-        <v-card class="mx-auto my-4" max-width="420">
-            <v-card-text>
-                <p class="display-1 text--primary">Add questions</p>
-                <p>Add questions for this exact topic</p>
-            </v-card-text>
-            <v-card-actions>
-                <v-btn text color="deep-purple accent-4">Learn More</v-btn>
-            </v-card-actions>
-        </v-card>
-
-        <v-card class="mx-auto my-4" max-width="420">
-            <v-card-text>
-                <p class="display-1 text--primary">Edit questions</p>
-                <p>Edit questions</p>
-            </v-card-text>
-            <v-card-actions>
-                <v-btn text color="deep-purple accent-4">Learn More</v-btn>
-            </v-card-actions>
-        </v-card>
+        <v-expansion-panels>
+            <EditorAccordion title="Practice" subtitle="Practice a bunch of questions">
+                <v-select
+                    v-model="amountOfQuestions"
+                    :items="amountOfQuestionsOptions"
+                    filled
+                    label="Amount of questions"
+                ></v-select>
+                <v-btn small color="primary" @click="startPractice">Start</v-btn>
+            </EditorAccordion>
+            <EditorAccordion
+                title="Add new questions"
+                subtitle="Upon adding new questions, they will be reviewed by admins before they become public.
+                            There are multiple types of questions which you can add"
+            >
+                <Editors></Editors>
+            </EditorAccordion>
+            <EditorAccordion title="Edit"></EditorAccordion>
+            <EditorAccordion title="Review"></EditorAccordion>
+        </v-expansion-panels>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
+import EditorAccordion from "./editors/EditorAccordion.vue";
+import Editors from "./editors/Editors.vue";
+import { ApiWrapper } from "../../utilities";
+import { GetQuestions } from "../../../../cshub-shared/src/api-calls/endpoints/question";
+import { practiceState } from "../../store";
 
 @Component({
-    name: "Practice"
+    name: "Practice",
+    components: { Editors, EditorAccordion }
 })
-export default class Practice extends Vue {}
+export default class Practice extends Vue {
+    private amountOfQuestions: number | string = 10;
+    private amountOfQuestionsOptions = [5, 10, 15, 20, 25, 50, "All"];
+
+    private async startPractice() {
+        const amountOfQuestions: number | undefined =
+            this.amountOfQuestions === "All" ? undefined : +this.amountOfQuestions;
+
+        const questions = await ApiWrapper.get(new GetQuestions(+this.$route.params.hash, amountOfQuestions));
+
+        if (questions) {
+            practiceState.setCurrentQuestions(
+                questions.questionIds.map(id => {
+                    return {
+                        questionId: id
+                    };
+                })
+            );
+        }
+    }
+}
 </script>
 
 <style scoped></style>

@@ -1,0 +1,28 @@
+import { QuestionType } from "../../../../entities/question";
+
+export interface FullClosedAnswerType {
+    answerText: string;
+    correct: boolean;
+}
+
+export type FullAnswerType =
+    | {
+          type: QuestionType.MULTICLOSED | QuestionType.SINGLECLOSED;
+          answers: FullClosedAnswerType[];
+      }
+    | {
+          type: QuestionType.OPENNUMBER;
+          number: number;
+          precision: number;
+      }
+    | {
+          type: QuestionType.OPENTEXT;
+          answer: string;
+      };
+
+export type FullQuestion = {
+    question: string;
+    explanation: string;
+} & FullAnswerType;
+
+export type FullQuestionWithId = { id: number } & FullQuestion;

@@ -4,18 +4,17 @@ import { app } from "../../";
 
 import { getRepository, In } from "typeorm";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
-import {
-    CheckAnswers,
-    CheckAnswersCallback,
-    CheckAnswerType,
-    CheckedAnswerType
-} from "../../../../cshub-shared/src/api-calls/endpoints/question";
+import { CheckAnswers, CheckAnswersCallback } from "../../../../cshub-shared/src/api-calls/endpoints/question";
 import { Question } from "../../db/entities/practice/question";
 import logger from "../../utilities/Logger";
 import { AlreadySentError } from "../utils";
 import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 import { ClosedAnswer } from "../../db/entities/practice/closed-answer";
 import { parseAndValidateQuestion } from "./QuestionUtils";
+import {
+    CheckAnswerType,
+    CheckedAnswerType
+} from "../../../../cshub-shared/src/api-calls/endpoints/question/models/CheckAnswer";
 
 app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
     const checkAnswers = req.body as CheckAnswers;

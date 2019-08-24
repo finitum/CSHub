@@ -9,7 +9,7 @@ import {
     RelationId
 } from "typeorm";
 import { Topic } from "../topic";
-import { IQuestion, QuestionType } from "../../../../../cshub-shared/src/entities/question";
+import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
 import { Exclude, Expose } from "class-transformer";
 import { Answer } from "./answer";
 
@@ -17,7 +17,7 @@ import { Answer } from "./answer";
 @Entity({
     name: "question"
 })
-export class Question implements IQuestion {
+export class Question {
     @Expose()
     @PrimaryGeneratedColumn()
     id!: number;

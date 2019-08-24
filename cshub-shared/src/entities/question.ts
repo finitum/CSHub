@@ -1,5 +1,3 @@
-import { IAnswer } from "./answer";
-
 // If:
 // - multiple choice: has a list of answers (multiple can be correct)
 // - open (number): has only a single answer, which will be checked
@@ -9,14 +7,4 @@ export enum QuestionType {
     MULTICLOSED = "MULTICLOSED",
     OPENNUMBER = "OPENNUMBER",
     OPENTEXT = "OPENTEXT"
-}
-
-export interface IQuestion {
-    id: number;
-
-    question: string;
-
-    type: QuestionType;
-
-    answers: IAnswer[];
 }

@@ -8,11 +8,14 @@ import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 import { ClosedAnswer } from "../../db/entities/practice/closed-answer";
 import { OpenNumberAnswer } from "../../db/entities/practice/open-number-answer";
 import { OpenTextAnswer } from "../../db/entities/practice/open-text-answer";
-import { FullAnswerType, FullQuestion } from "../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestion";
 import logger from "../../utilities/Logger";
 import { Request, Response } from "express";
 import { validateMultipleInputs } from "../../utilities/StringUtils";
-import { FullQuestionWithId } from "../../../../cshub-shared/src/api-calls/endpoints/question/GetFullQuestions";
+import {
+    FullAnswerType,
+    FullQuestion,
+    FullQuestionWithId
+} from "../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 
 export const parseAndValidateQuestion = (question: Question, res: Response): FullQuestionWithId => {
     let answerType: FullAnswerType;
