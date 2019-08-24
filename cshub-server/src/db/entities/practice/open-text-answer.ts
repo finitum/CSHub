@@ -1,10 +1,10 @@
 import { ChildEntity, Column } from "typeorm";
 import { Exclude } from "class-transformer";
-import { Answer } from "./answer";
+import { Choice } from "./choice";
 
 @Exclude()
 @ChildEntity()
-export class OpenTextAnswer extends Answer {
+export class OpenTextAnswer extends Choice {
     @Column()
     openAnswerText!: string;
 

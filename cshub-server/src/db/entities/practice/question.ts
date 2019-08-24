@@ -11,7 +11,7 @@ import {
 import { Topic } from "../topic";
 import { IQuestion, QuestionType } from "../../../../../cshub-shared/src/entities/question";
 import { Exclude, Expose } from "class-transformer";
-import { Answer } from "./answer";
+import { Choice } from "./choice";
 
 @Exclude()
 @Entity({
@@ -35,11 +35,11 @@ export class Question implements IQuestion {
     type!: QuestionType;
 
     @Expose()
-    @OneToMany(type => Answer, answer => answer.question, {
+    @OneToMany(type => Choice, answer => answer.question, {
         nullable: false,
         cascade: true
     })
-    answers!: Answer[];
+    answers!: Choice[];
 
     @Column({
         type: "text"

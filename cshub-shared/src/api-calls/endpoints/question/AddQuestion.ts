@@ -20,12 +20,26 @@ export type FullAnswerType =
     | {
           type: QuestionType.OPENTEXT;
           answer: string;
-      };
+      }
+    | {
+          type: QuestionType.DYNAMIC;
+          answer: string;
+    };
 
 export type FullQuestion = {
     question: string;
     explanation: string;
 } & FullAnswerType;
+
+export interface DynamicQuestionVariable {
+    name: string;
+    code: string;
+}
+
+export interface SeedRange {
+    minimum: number;
+    maximum: number;
+}
 
 export class AddQuestion implements IApiRequest<void> {
     public static getURL: string = Requests.ADDQUESTIONS;

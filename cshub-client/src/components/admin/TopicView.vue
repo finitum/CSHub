@@ -121,9 +121,11 @@ export default class TopicView extends Vue {
 
         if (uiState.studyNr) {
             await ApiWrapper.put(new RestructureTopics(uiState.studyNr, result));
+            dataState.setTopics(await getTopTopic(uiState.studyNr, true));
         } else {
             this.nodes = this.getNodes();
         }
+
     }
 
     private topicNameRule(name: string) {

@@ -1,10 +1,10 @@
 import { ChildEntity, Column } from "typeorm";
 import { Exclude, Expose } from "class-transformer";
-import { Answer } from "./answer";
+import { Choice } from "./choice";
 
 @Exclude()
 @ChildEntity()
-export class ClosedAnswer extends Answer {
+export class ClosedAnswer extends Choice {
     @Expose()
     @Column()
     closedAnswerText!: string;

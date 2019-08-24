@@ -1,4 +1,4 @@
-import { IAnswer } from "./answer";
+import { IChoice } from "./answer";
 
 // If:
 // - multiple choice: has a list of answers (multiple can be correct)
@@ -8,7 +8,8 @@ export enum QuestionType {
     SINGLECLOSED = "CLOSED",
     MULTICLOSED = "MULTICLOSED",
     OPENNUMBER = "OPENNUMBER",
-    OPENTEXT = "OPENTEXT"
+    OPENTEXT = "OPENTEXT",
+    DYNAMIC = "DYNAMIC"
 }
 
 export interface IQuestion {
@@ -18,5 +19,5 @@ export interface IQuestion {
 
     type: QuestionType;
 
-    answers: IAnswer[];
+    answers: IChoice[];
 }

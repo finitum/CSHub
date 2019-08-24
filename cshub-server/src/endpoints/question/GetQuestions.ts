@@ -5,6 +5,7 @@ import logger from "../../utilities/Logger";
 
 import { getRepository, In } from "typeorm";
 import { GetQuestions, GetQuestionsCallback } from "../../../../cshub-shared/src/api-calls/endpoints/question";
+import { IQuestion, QuestionType } from "../../../../cshub-shared/src/entities/question";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { Question } from "../../db/entities/practice/question";
 import { findTopicInTree, getChildHashes, getTopicTree } from "../../utilities/TopicsUtils";
@@ -50,7 +51,7 @@ app.get(GetQuestions.getURL, (req: Request, res: Response) => {
                         .take(amount)
                         .getMany()
                         .then(questions => {
-                            res.json(new GetQuestionsCallback(questions));
+                            res.json(new GetQuestionsCallback(questions.map(createDynamicQuestion)));
                         })
                         .catch(() => {
                             res.status(500).send(new ServerError("Server did oopsie"));
@@ -65,3 +66,11 @@ app.get(GetQuestions.getURL, (req: Request, res: Response) => {
             res.status(500).send(new ServerError("Server did oopsie"));
         });
 });
+
+const createDynamicQuestion = (question: IQuestion): IQuestion => {
+    if (question.type !== QuestionType.DYNAMIC) {
+        return question;
+    }
+
+    return question;
+};

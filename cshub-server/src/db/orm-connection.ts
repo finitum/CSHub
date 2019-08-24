@@ -12,7 +12,7 @@ import tunnel from "tunnel-ssh";
 import fs from "fs";
 import logger from "../utilities/Logger";
 import { CacheVersion } from "./entities/cacheversion";
-import { Answer } from "./entities/practice/answer";
+import { Choice } from "./entities/practice/choice";
 import { Question } from "./entities/practice/question";
 import { OpenNumberAnswer } from "./entities/practice/open-number-answer";
 import { OpenTextAnswer } from "./entities/practice/open-text-answer";
@@ -60,7 +60,7 @@ const options: ConnectionOptions = {
         Post,
         Edit,
         Study,
-        Answer,
+        Choice,
         Question,
         CacheVersion,
         OpenNumberAnswer,

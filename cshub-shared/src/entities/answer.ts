@@ -1,4 +1,4 @@
-export interface IAnswer {
+export interface IChoice {
     id: number;
 
     closedAnswerText?: string;

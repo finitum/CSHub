@@ -47,3 +47,4 @@ app.get(Requests.PROFILE, (req: Request, res: Response) => {
         res.status(400).send(new ServerError("The userid in the URL is not a number"));
     }
 });
+

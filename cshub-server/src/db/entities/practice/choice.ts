@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, PrimaryGeneratedColumn, RelationId, TableInheritance } from "typeorm";
 import { Question } from "./question";
-import { IAnswer } from "../../../../../cshub-shared/src/entities/answer";
+import { IChoice } from "../../../../../cshub-shared/src/entities/answer";
 import { Exclude, Expose } from "class-transformer";
 
 @Exclude()
@@ -8,7 +8,7 @@ import { Exclude, Expose } from "class-transformer";
     name: "answer"
 })
 @TableInheritance({ column: { type: "varchar", name: "type" } })
-export abstract class Answer implements IAnswer {
+export abstract class Choice implements IChoice {
     @Expose()
     @PrimaryGeneratedColumn()
     id!: number;
@@ -19,6 +19,6 @@ export abstract class Answer implements IAnswer {
     })
     question!: Question;
 
-    @RelationId((answer: Answer) => answer.question)
+    @RelationId((answer: Choice) => answer.question)
     questionId!: number;
 }
