@@ -4,9 +4,7 @@
         <NotificationDialog></NotificationDialog>
         <Toolbar></Toolbar>
         <v-content id="cshub-content">
-            <transition name="componentChange" :enter-active-class="activeclass">
-                <router-view></router-view>
-            </transition>
+            <router-view :key="$route.fullPath"></router-view>
         </v-content>
     </v-app>
 </template>

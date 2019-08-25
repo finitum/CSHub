@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar id="cshub-toolbar" color="primary" app fixed clipped-left>
+    <v-app-bar id="cshub-toolbar" :color="toolbarColor" app fixed clipped-left>
         <v-app-bar-nav-icon @click.native="drawerComputed = !drawerComputed"></v-app-bar-nav-icon>
         <v-toolbar-title>
             <router-link to="/" style="color: inherit">
@@ -23,15 +23,25 @@
         ></v-text-field>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-            <v-btn v-if="!$vuetify.breakpoint.mdAndUp" icon depressed small color="primary" @click="goToSearch"
-                ><v-icon color="white">fas fa-search</v-icon></v-btn
-            >
-            <v-btn icon depressed small color="primary" @click="showVersionDialog"
-                ><v-icon color="white">fas fa-code-branch</v-icon></v-btn
-            >
-            <v-btn icon depressed small color="primary" @click="darkMode = !darkMode"
-                ><v-icon color="white">{{ darkMode ? "fas fa-sun" : "fas fa-moon" }}</v-icon></v-btn
-            >
+            <template v-if="showExamWarning">
+                <v-btn tile depressed small color="primary" @click="backToQuestions">
+                    You're practicing questions! Go back to the questions <v-icon right>fas fa-backward</v-icon>
+                </v-btn>
+                <v-btn v-if="showExamWarning" tile depressed small color="secondary" @click="quitPractice">
+                    Or quit practicing <v-icon right>fas fa-times</v-icon>
+                </v-btn>
+            </template>
+            <template v-else>
+                <v-btn v-if="!$vuetify.breakpoint.mdAndUp" icon depressed small color="primary" @click="goToSearch">
+                    <v-icon color="white">fas fa-search</v-icon>
+                </v-btn>
+                <v-btn icon depressed small color="primary" @click="showVersionDialog">
+                    <v-icon color="white">fas fa-code-branch</v-icon>
+                </v-btn>
+                <v-btn icon depressed small color="primary" @click="darkMode = !darkMode">
+                    <v-icon color="white">{{ darkMode ? "fas fa-sun" : "fas fa-moon" }}</v-icon>
+                </v-btn>
+            </template>
         </v-toolbar-items>
     </v-app-bar>
 </template>
@@ -42,8 +52,7 @@ import { Component, Watch } from "vue-property-decorator";
 
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
-import { uiState } from "../../store";
-import { dataState } from "../../store";
+import { dataState, practiceState, uiState } from "../../store";
 
 import router from "../../views/router/router";
 
@@ -64,6 +73,14 @@ export default class Toolbar extends Vue {
     /**
      * Computed properties
      */
+    get showExamWarning(): boolean {
+        return practiceState.currentQuestions && this.$route.name !== "currentQuestion" && this.$route.name !== null;
+    }
+
+    get toolbarColor(): string {
+        return this.showExamWarning ? "error" : "primary";
+    }
+
     get drawerComputed(): boolean {
         return uiState.navbar.open;
     }
@@ -92,6 +109,25 @@ export default class Toolbar extends Vue {
     /**
      * Methods
      */
+    private backToQuestions() {
+        const questions = practiceState.currentQuestions;
+        if (questions) {
+            for (let i = 0; i < questions.length; i++) {
+                if (questions[i].answer === null) {
+                    const location = `${Routes.QUESTION}/${i.toString()}`;
+                    this.$router.push(location);
+                    return;
+                }
+            }
+
+            this.$router.push(`${Routes.QUESTION}/0`);
+        }
+    }
+
+    private quitPractice() {
+        practiceState.clear();
+    }
+
     private routeHome() {
         router.push(Routes.INDEX);
     }

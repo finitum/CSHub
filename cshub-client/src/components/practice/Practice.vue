@@ -43,7 +43,7 @@ import EditorAccordion from "./editors/EditorAccordion.vue";
 import Editors from "./editors/Editors.vue";
 import { ApiWrapper } from "../../utilities";
 import { GetQuestions } from "../../../../cshub-shared/src/api-calls/endpoints/question";
-import { practiceState, userState } from "../../store";
+import { practiceState, uiState, userState } from "../../store";
 import QuestionList from "./QuestionList.vue";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
@@ -81,7 +81,16 @@ export default class Practice extends Vue {
                 })
             );
 
-            this.$router.push(Routes.QUESTION.replace(":index", "0"));
+            if (practiceState.currentQuestions && practiceState.currentQuestions.length > 0) {
+                this.$router.push(`${Routes.QUESTION}/0`);
+            } else {
+                uiState.setNotificationDialog({
+                    header: "No questions!",
+                    text: "No questions were found for this topic!",
+                    on: true
+                });
+                this.$router.push(Routes.INDEX);
+            }
         }
     }
 }

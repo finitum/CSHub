@@ -589,7 +589,7 @@ export default class Post extends Vue {
             topic: true
         };
 
-        if (parentTopic !== null) {
+        if (parentTopic) {
             const parentArray: IBreadCrumbType[] = this.getTopicListWhereFinalChildIs(parentTopic);
             return [...parentArray, currTopic];
         } else {

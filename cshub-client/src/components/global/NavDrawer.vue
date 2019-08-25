@@ -72,12 +72,12 @@
 import Vue from "vue";
 import { Route } from "vue-router";
 
-import {ApiWrapper, logStringConsole} from "../../utilities";
+import { ApiWrapper, logStringConsole } from "../../utilities";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
 import NavDrawerItem from "./NavDrawerItem.vue";
 
-import { uiState } from "../../store";
+import { practiceState, uiState } from "../../store";
 import { dataState } from "../../store";
 import { userState } from "../../store";
 
@@ -86,7 +86,7 @@ import { LocalStorageData } from "../../store/localStorageData";
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
 import { getTopTopic, parseTopTopic } from "../../views/router/guards/setupRequiredDataGuard";
 import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
-import {Logout} from "../../../../cshub-shared/src/api-calls/endpoints/user";
+import { Logout } from "../../../../cshub-shared/src/api-calls/endpoints/user";
 
 @Component({
     name: "NavDrawer",

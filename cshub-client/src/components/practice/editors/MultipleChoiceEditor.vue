@@ -38,7 +38,7 @@
                     hide-details
                 ></v-textarea>
 
-                <v-radio-group v-model="radioAnswer">
+                <v-radio-group v-model="radioAnswer" hide-details>
                     <v-row v-for="(answer, i) of answers" :key="i" align="center" class="mt-4 ml-0 mr-0">
                         <v-checkbox
                             v-if="multipleCorrect"
@@ -85,11 +85,11 @@
 
 <script lang="ts">
 import Vue from "vue";
-import {Component, Prop} from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../../utilities";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
-import {AddQuestion, EditQuestion} from "../../../../../cshub-shared/src/api-calls/endpoints/question";
+import { AddQuestion, EditQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
 import {
     FullClosedAnswerType,
     FullQuestion
@@ -100,7 +100,8 @@ import { EventBus, QUESTIONS_CHANGED } from "../../../utilities/EventBus";
 const emptyAnswer = (): FullClosedAnswerType => {
     return {
         correct: false,
-        answerText: ""
+        answerText: "",
+        answerId: 0
     };
 };
 

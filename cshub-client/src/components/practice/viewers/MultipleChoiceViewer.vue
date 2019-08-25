@@ -5,7 +5,7 @@
         <b>Explanation:</b>
         <p v-html="renderMarkdown(explanation)"></p>
 
-        <v-radio-group v-model="radioAnswer">
+        <v-radio-group v-model="radioAnswer" hide-details>
             <div v-for="(answer, i) of answers" :key="answer.id">
                 <v-checkbox
                     v-if="multipleCorrect"

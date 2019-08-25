@@ -1,5 +1,5 @@
 <template>
-    <v-card v-if="question !== null" class="ma-5 pa-5">
+    <div v-if="question !== null">
         <v-card-title style="font-size: 1.25rem" class="pa-0" v-html="renderMarkdown(question.question)"></v-card-title>
 
         <div v-if="type === 'mc'">
@@ -16,7 +16,7 @@
             </v-checkbox>
         </div>
         <div v-if="type === 'sc'">
-            <v-radio-group v-model="scAnswer" class="ml-5 mt-0">
+            <v-radio-group v-model="scAnswer" class="ml-5 mt-0" hide-details>
                 <v-radio v-for="answer of question.answers" :key="answer.id" :value="answer.id" hide-details>
                     <template v-slot:label>
                         <p class="ma-0 questionContent" v-html="renderMarkdown(answer.answer)"></p>
@@ -30,30 +30,26 @@
         <div v-if="type === 'ot'">
             <v-text-field v-model="privOnAnswer" label="Answer" outlined hide-details></v-text-field>
         </div>
-    </v-card>
+    </div>
 </template>
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import EditorAccordion from "./editors/EditorAccordion.vue";
-import Editors from "./editors/Editors.vue";
-import QuestionList from "./QuestionList.vue";
-import { Routes } from "../../../../cshub-shared/src/Routes";
-import { practiceState } from "../../store";
-import { ApiWrapper } from "../../utilities";
-import { GetQuestion } from "../../../../cshub-shared/src/api-calls/endpoints/question";
-import { PracticeQuestion } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/PracticeQuestion";
-import { QuestionType } from "../../../../cshub-shared/src/entities/question";
+import { Routes } from "../../../../../cshub-shared/src/Routes";
+import { practiceState } from "../../../store";
+import { ApiWrapper } from "../../../utilities";
+import { GetQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
+import { PracticeQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/PracticeQuestion";
+import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
 import { mixins } from "vue-class-component";
-import ViewerMixin from "./viewers/ViewerMixin";
-import SCQuestionMixin from "./practice/SCQuestionMixin";
-import MCQuestionMixin from "./practice/MCQuestionMixin";
-import OTQuestionMixin from "./practice/OTQuestionMixin";
-import ONQuestionMixin from "./practice/ONQuestionMixin";
+import ViewerMixin from "../viewers/ViewerMixin";
+import SCQuestionMixin from "./SCQuestionMixin";
+import MCQuestionMixin from "./MCQuestionMixin";
+import OTQuestionMixin from "./OTQuestionMixin";
+import ONQuestionMixin from "./ONQuestionMixin";
 
 @Component({
-    name: CurrentPracticeQuestion.name,
-    components: { QuestionList, Editors, EditorAccordion }
+    name: CurrentPracticeQuestion.name
 })
 export default class CurrentPracticeQuestion extends mixins(
     ViewerMixin,
