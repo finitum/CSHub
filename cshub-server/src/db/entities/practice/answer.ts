@@ -43,6 +43,7 @@ export class Answer {
     openAnswerNumber?: number;
 
     @Column({
+        type: "float",
         nullable: true
     })
     precision?: number;

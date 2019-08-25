@@ -62,7 +62,8 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
                     const answerCast = answer as ClosedAnswer;
                     return {
                         answerText: answerCast.closedAnswerText,
-                        correct: answerCast.correct
+                        correct: answerCast.correct,
+                        answerId: answerCast.id
                     };
                 })
             };
@@ -84,7 +85,7 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
 
             const openAnswerNumber = answers[0].openAnswerNumber;
             const precision = answers[0].precision;
-            if (!openAnswerNumber || !precision) {
+            if (openAnswerNumber === null || precision === null) {
                 logger.error(`No precision or answer number found for ${question.id}`);
                 res.status(500).send();
                 throw new AlreadySentError();

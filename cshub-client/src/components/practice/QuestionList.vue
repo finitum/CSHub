@@ -66,13 +66,15 @@ export default class QuestionList extends Vue {
         EventBus.$off(QUESTIONS_CHANGED);
     }
 
-    private async getData() {
+    private getData() {
         if (this.unpublished) {
-            const questionIds = await ApiWrapper.get(new GetUnpublishedQuestions(+this.$route.params.hash));
-            this.questionIds = questionIds !== null ? questionIds.questionIds : [];
+            ApiWrapper.get(new GetUnpublishedQuestions(+this.$route.params.hash)).then(questionIds => {
+                this.questionIds = questionIds !== null ? questionIds.questionIds : [];
+            });
         } else {
-            const questionIds = await ApiWrapper.get(new GetEditableQuestions(+this.$route.params.hash));
-            this.questionIds = questionIds !== null ? questionIds.questionIds : [];
+            ApiWrapper.get(new GetEditableQuestions(+this.$route.params.hash)).then(questionIds => {
+                this.questionIds = questionIds !== null ? questionIds.questionIds : [];
+            });
         }
     }
 }

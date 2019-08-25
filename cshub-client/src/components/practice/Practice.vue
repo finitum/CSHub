@@ -45,6 +45,7 @@ import { ApiWrapper } from "../../utilities";
 import { GetQuestions } from "../../../../cshub-shared/src/api-calls/endpoints/question";
 import { practiceState, userState } from "../../store";
 import QuestionList from "./QuestionList.vue";
+import { Routes } from "../../../../cshub-shared/src/Routes";
 
 @Component({
     name: "Practice",
@@ -74,10 +75,13 @@ export default class Practice extends Vue {
             practiceState.setCurrentQuestions(
                 questions.questionIds.map(id => {
                     return {
-                        questionId: id
+                        questionId: id,
+                        answer: null
                     };
                 })
             );
+
+            this.$router.push(Routes.QUESTION.replace(":index", "0"));
         }
     }
 }

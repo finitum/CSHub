@@ -3,6 +3,7 @@ import { QuestionType } from "../../../../entities/question";
 export interface FullClosedAnswerType {
     answerText: string;
     correct: boolean;
+    answerId: number;
 }
 
 export type FullAnswerType =

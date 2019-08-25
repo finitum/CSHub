@@ -98,19 +98,21 @@ export default class QuestionListItem extends mixins(QuestionListItemMixin) {
 
     private questionDialog = false;
 
-    private async created() {
-        const question = await ApiWrapper.get(new GetFullQuestion(this.questionId));
-        this.question = question !== null ? question.question : null;
+    private created() {
+        ApiWrapper.get(new GetFullQuestion(this.questionId)).then(question => {
+            this.question = question !== null ? question.question : null;
 
-        if (this.question && this.question.replacesQuestion) {
-            const replacesQuestion = await ApiWrapper.get(new GetFullQuestion(this.question.replacesQuestion));
-            this.replacesQuestion = replacesQuestion !== null ? replacesQuestion.question : null;
-        }
+            if (this.question && this.question.replacesQuestion) {
+                ApiWrapper.get(new GetFullQuestion(this.question.replacesQuestion)).then(replacesQuestion => {
+                    this.replacesQuestion = replacesQuestion !== null ? replacesQuestion.question : null;
+                });
+            }
+        });
     }
 
-    public async approve() {
+    public approve() {
         if (this.question) {
-            await ApiWrapper.put(new QuestionSettings(this.question.id, QuestionSettingsEditType.APPROVE));
+            ApiWrapper.put(new QuestionSettings(this.question.id, QuestionSettingsEditType.APPROVE));
             EventBus.$emit(QUESTIONS_CHANGED);
         }
     }

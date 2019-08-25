@@ -71,7 +71,8 @@ app.put(QuestionSettings.getURL, async (req: Request, res: Response) => {
                     .createQueryBuilder()
                     .update()
                     .set({
-                        active: false
+                        active: false,
+                        deleted: true
                     })
                     .where("id = :id", { id: questionId })
                     .execute();

@@ -17,11 +17,17 @@ import {
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/PracticeQuestion";
 import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 import { AlreadySentError } from "../utils";
+import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
 
 app.get(GetFullQuestion.getURL, (req: Request, res: Response) => {
     const questionId = Number(req.params.id);
     if (isNaN(questionId)) {
         res.status(400).json(new ServerError("Invalid question id!"));
+    }
+
+    const tokenResult = checkTokenValidityFromRequest(req);
+    if (!tokenResult) {
+        res.sendStatus(401);
     }
 
     const repository = getRepository(Question);
@@ -73,7 +79,12 @@ app.get(GetQuestion.getURL, (req: Request, res: Response) => {
                     case QuestionType.SINGLECLOSED:
                         strippedAnswer = {
                             type: parsedQuestion.type,
-                            answers: parsedQuestion.answers.map(parsedQuestion => parsedQuestion.answerText)
+                            answers: parsedQuestion.answers.map(parsedAnswer => {
+                                return {
+                                    answer: parsedAnswer.answerText,
+                                    id: parsedAnswer.answerId
+                                };
+                            })
                         };
                         break;
                     case QuestionType.OPENNUMBER:

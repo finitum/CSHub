@@ -13,7 +13,7 @@ import CodeMirror from "codemirror";
 export default class ViewerMixin extends Vue {
     public markdownParser = getMarkdownParser();
 
-    private mounted() {
+    private created() {
         (window as any).katex = katex;
     }
 

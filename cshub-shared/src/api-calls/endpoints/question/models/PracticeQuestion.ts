@@ -3,7 +3,10 @@ import { QuestionType } from "../../../../entities/question";
 export type PracticeAnswerType =
     | {
           type: QuestionType.MULTICLOSED | QuestionType.SINGLECLOSED;
-          answers: string[];
+          answers: {
+              answer: string;
+              id: number;
+          }[];
       }
     | {
           type: QuestionType.OPENNUMBER | QuestionType.OPENTEXT;
