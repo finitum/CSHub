@@ -5,19 +5,19 @@
                 title="Multiple choice"
                 subtitle="Create a multiple choice question (single or multi answers)."
             >
-                <MultipleChoiceEditor></MultipleChoiceEditor
+                <MultipleChoiceEditor :is-editing="false"></MultipleChoiceEditor
             ></EditorAccordion>
             <EditorAccordion
                 title="Open question - number"
                 subtitle="Create a open numbered question, with a certain precision."
             >
-                <OpenNumberEditor></OpenNumberEditor
+                <OpenNumberEditor :is-editing="false"></OpenNumberEditor
             ></EditorAccordion>
             <EditorAccordion
                 title="Open question - text"
                 subtitle="Create a open text question. Can't be checked by the server"
             >
-                <OpenTextEditor></OpenTextEditor
+                <OpenTextEditor :is-editing="false"></OpenTextEditor
             ></EditorAccordion>
         </v-expansion-panels>
     </div>

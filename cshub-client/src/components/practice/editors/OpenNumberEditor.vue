@@ -69,13 +69,14 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../../utilities";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
-import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
+import { AddQuestion, EditQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
 import { FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import OpenNumberViewer from "../viewers/OpenNumberViewer.vue";
+import { EventBus, QUESTIONS_CHANGED } from "../../../utilities/EventBus";
 
 @Component({
     name: OpenNumberEditor.name,
@@ -83,11 +84,36 @@ import OpenNumberViewer from "../viewers/OpenNumberViewer.vue";
     inject: ["$validator"]
 })
 export default class OpenNumberEditor extends Vue {
-    private question = "";
-    private explanation = "";
+    @Prop({
+        required: false
+    })
+    private propQuestion?: string;
 
-    private answer: number = 0;
-    private precision: number = 0.01;
+    @Prop({
+        required: false
+    })
+    private propExplanation?: string;
+
+    @Prop({
+        required: false
+    })
+    private propAnswer?: number;
+
+    @Prop({
+        required: false
+    })
+    private propPrecision?: number;
+
+    @Prop({
+        required: true
+    })
+    private isEditing!: false | number;
+
+    private question = this.propQuestion || "";
+    private explanation = this.propExplanation || "";
+
+    private answer: number = this.propAnswer || 0;
+    private precision: number = this.propPrecision || 0.01;
 
     private async submit() {
         let valid = await this.$validator.validateAll();
@@ -101,7 +127,13 @@ export default class OpenNumberEditor extends Vue {
                 precision: this.precision
             };
 
-            await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
+            if (this.isEditing) {
+                await ApiWrapper.put(new EditQuestion(question, this.isEditing));
+            } else {
+                await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
+            }
+
+            EventBus.$emit(QUESTIONS_CHANGED);
         }
     }
 }

@@ -85,16 +85,17 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component } from "vue-property-decorator";
+import {Component, Prop} from "vue-property-decorator";
 
 import { ApiWrapper } from "../../../utilities";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
-import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
+import {AddQuestion, EditQuestion} from "../../../../../cshub-shared/src/api-calls/endpoints/question";
 import {
     FullClosedAnswerType,
     FullQuestion
 } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import MultipleChoiceViewer from "../viewers/MultipleChoiceViewer.vue";
+import { EventBus, QUESTIONS_CHANGED } from "../../../utilities/EventBus";
 
 const emptyAnswer = (): FullClosedAnswerType => {
     return {
@@ -109,12 +110,37 @@ const emptyAnswer = (): FullClosedAnswerType => {
     inject: ["$validator"]
 })
 export default class MultipleChoiceEditor extends Vue {
-    private multipleCorrect = false;
-    private question = "";
-    private explanation = "";
+    @Prop({
+        required: false
+    })
+    private propMultipleCorrect?: boolean;
 
-    private privAnswers: FullClosedAnswerType[] = [emptyAnswer(), emptyAnswer()];
-    private privRadioAnswer: number = 0;
+    @Prop({
+        required: false
+    })
+    private propQuestion?: string;
+
+    @Prop({
+        required: false
+    })
+    private propExplanation?: string;
+
+    @Prop({
+        required: false
+    })
+    private propAnswers?: FullClosedAnswerType[];
+
+    @Prop({
+        required: true
+    })
+    private isEditing!: false | number;
+
+    private multipleCorrect = this.propMultipleCorrect || false;
+    private question = this.propQuestion || "";
+    private explanation = this.propExplanation || "";
+
+    private privAnswers: FullClosedAnswerType[] = this.propAnswers || [emptyAnswer(), emptyAnswer()];
+    private privRadioAnswer: number = this.propAnswers ? this.propAnswers.findIndex(answer => answer.correct) : 0;
 
     get answers(): FullClosedAnswerType[] {
         const answers = this.privAnswers;
@@ -158,7 +184,13 @@ export default class MultipleChoiceEditor extends Vue {
                 answers: this.answers
             };
 
-            await ApiWrapper.post(new AddQuestion(questionObj, +this.$route.params.hash));
+            if (this.isEditing) {
+                await ApiWrapper.put(new EditQuestion(questionObj, this.isEditing));
+            } else {
+                await ApiWrapper.post(new AddQuestion(questionObj, +this.$route.params.hash));
+            }
+
+            EventBus.$emit(QUESTIONS_CHANGED);
         }
     }
 

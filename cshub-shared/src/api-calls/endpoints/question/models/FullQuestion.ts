@@ -23,6 +23,7 @@ export type FullAnswerType =
 export type FullQuestion = {
     question: string;
     explanation: string;
+    replacesQuestion?: number;
 } & FullAnswerType;
 
 export type FullQuestionWithId = { id: number } & FullQuestion;

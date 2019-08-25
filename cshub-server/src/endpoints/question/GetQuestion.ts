@@ -29,7 +29,8 @@ app.get(GetFullQuestion.getURL, (req: Request, res: Response) => {
     repository
         .findOne({
             where: {
-                id: questionId
+                id: questionId,
+                deleted: false
             },
             relations: ["answers"]
         })
@@ -57,7 +58,8 @@ app.get(GetQuestion.getURL, (req: Request, res: Response) => {
     repository
         .findOne({
             where: {
-                id: questionId
+                id: questionId,
+                deleted: false
             },
             relations: ["answers"]
         })

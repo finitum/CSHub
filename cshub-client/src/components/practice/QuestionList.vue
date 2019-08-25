@@ -5,11 +5,10 @@
         </h4>
         <div v-else>
             <v-list two-line subheader>
-                <QuestionListItem
-                    v-for="questionId in shownQuestionIds"
-                    :key="questionId"
-                    :question-id="questionId"
-                ></QuestionListItem>
+                <div v-for="questionId in shownQuestionIds" :key="questionId">
+                    <ReviewQuestionListItem v-if="unpublished" :question-id="questionId"></ReviewQuestionListItem>
+                    <EditQuestionListItem v-else :question-id="questionId"></EditQuestionListItem>
+                </div>
             </v-list>
             <v-pagination
                 v-if="questionIds.length > 0"
@@ -24,12 +23,18 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { ApiWrapper } from "../../utilities";
-import { GetQuestions, GetUnpublishedQuestions } from "../../../../cshub-shared/src/api-calls/endpoints/question";
-import QuestionListItem from "./QuestionListItem.vue";
+import {
+    GetEditableQuestions,
+    GetQuestions,
+    GetUnpublishedQuestions
+} from "../../../../cshub-shared/src/api-calls/endpoints/question";
+import { EventBus, QUESTIONS_CHANGED } from "../../utilities/EventBus";
+import ReviewQuestionListItem from "./ReviewQuestionListItem.vue";
+import EditQuestionListItem from "./EditQuestionListItem.vue";
 
 @Component({
     name: QuestionList.name,
-    components: { QuestionListItem }
+    components: { EditQuestionListItem, ReviewQuestionListItem }
 })
 export default class QuestionList extends Vue {
     @Prop({
@@ -47,14 +52,26 @@ export default class QuestionList extends Vue {
         return this.questionIds.slice(start, start + 5);
     }
 
-    private async mounted() {
+    private mounted() {
         setTimeout(() => (this.canShowNoQuestionMessage = true), 500);
 
+        EventBus.$on(QUESTIONS_CHANGED, () => {
+            this.getData();
+        });
+
+        this.getData();
+    }
+
+    private destroyed() {
+        EventBus.$off(QUESTIONS_CHANGED);
+    }
+
+    private async getData() {
         if (this.unpublished) {
             const questionIds = await ApiWrapper.get(new GetUnpublishedQuestions(+this.$route.params.hash));
             this.questionIds = questionIds !== null ? questionIds.questionIds : [];
         } else {
-            const questionIds = await ApiWrapper.get(new GetQuestions(+this.$route.params.hash));
+            const questionIds = await ApiWrapper.get(new GetEditableQuestions(+this.$route.params.hash));
             this.questionIds = questionIds !== null ? questionIds.questionIds : [];
         }
     }

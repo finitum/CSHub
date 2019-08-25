@@ -51,13 +51,14 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../../utilities";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
-import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
+import { AddQuestion, EditQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
 import { FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import OpenTextViewer from "../viewers/OpenTextViewer.vue";
+import { EventBus, QUESTIONS_CHANGED } from "../../../utilities/EventBus";
 
 @Component({
     name: OpenTextEditor.name,
@@ -65,10 +66,30 @@ import OpenTextViewer from "../viewers/OpenTextViewer.vue";
     inject: ["$validator"]
 })
 export default class OpenTextEditor extends Vue {
-    private question = "";
-    private explanation = "";
+    @Prop({
+        required: false
+    })
+    private propQuestion?: string;
 
-    private answer: string = "";
+    @Prop({
+        required: false
+    })
+    private propExplanation?: string;
+
+    @Prop({
+        required: false
+    })
+    private propAnswer?: string;
+
+    @Prop({
+        required: true
+    })
+    private isEditing!: false | number;
+
+    private question = this.propQuestion || "";
+    private explanation = this.propExplanation || "";
+
+    private answer: string = this.propAnswer || "";
 
     private async submit() {
         let valid = await this.$validator.validateAll();
@@ -81,7 +102,13 @@ export default class OpenTextEditor extends Vue {
                 answer: this.answer
             };
 
-            await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
+            if (this.isEditing) {
+                await ApiWrapper.put(new EditQuestion(question, this.isEditing));
+            } else {
+                await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
+            }
+
+            EventBus.$emit(QUESTIONS_CHANGED);
         }
     }
 }

@@ -16,6 +16,7 @@ import {
     FullQuestion,
     FullQuestionWithId
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
+import { Topic } from "../../db/entities/topic";
 
 export const parseAndValidateQuestion = (question: Question, res: Response): FullQuestionWithId => {
     let answerType: FullAnswerType;
@@ -131,6 +132,7 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
         id: question.id,
         question: question.question,
         explanation: question.explanation,
+        replacesQuestion: question.replacesQuestionId,
         ...answerType
     };
 };
@@ -190,90 +192,94 @@ export const validateNewQuestion = (question: FullQuestion, res: Response) => {
     }
 };
 
-export const insertQuestions = (
-    questions:
-        | FullQuestion[]
-        | {
-              editedQuestion: FullQuestion;
-              originalId: number;
-          },
-    topicHash: number,
+export const insertQuestions = async (
+    question: {
+        question: FullQuestion;
+        originalId?: number;
+    },
     req: Request,
-    res: Response
+    res: Response,
+    topicHash?: number
 ) => {
     const repository = getRepository(Question);
 
-    hasAccessToTopicRequest(topicHash, req)
-        .then(access => {
-            if (!access.canEdit) {
-                res.status(403).send(new ServerError("Naaah"));
-                throw new AlreadySentError();
-            }
-        })
-        .then(() => {
-            return getTopicTree();
-        })
-        .then(topics => {
-            if (topics) {
-                const foundTopic = findTopicInTree(topicHash, topics);
-                if (foundTopic) {
-                    return foundTopic;
-                } else {
-                    res.status(400).send(new ServerError("No such topic"));
-                    throw new AlreadySentError();
-                }
-            } else {
-                res.status(500).send(new ServerError("Server did oopsie"));
-                throw new AlreadySentError();
-            }
-        })
-        .then(topic => {
-            let updateQuestion: false | number = false;
+    let updateQuestion: false | Question = false;
 
-            if (!Array.isArray(questions)) {
-                updateQuestion = questions.originalId;
-                questions = [questions.editedQuestion];
-            }
-
-            const parsedQuestions = questions.map(question => {
-                const newQuestion = new Question();
-                newQuestion.type = question.type;
-                newQuestion.question = question.question;
-                newQuestion.topic = topic;
-                newQuestion.explanation = question.explanation;
-
-                if (updateQuestion !== false) {
-                    newQuestion.replacesQuestionId = updateQuestion;
-                }
-
-                newQuestion.answers = [];
-
-                switch (question.type) {
-                    case QuestionType.SINGLECLOSED:
-                    case QuestionType.MULTICLOSED:
-                        for (const answer of question.answers) {
-                            newQuestion.answers.push(new ClosedAnswer(answer.answerText, answer.correct));
-                        }
-
-                        break;
-                    case QuestionType.OPENNUMBER:
-                        newQuestion.answers.push(new OpenNumberAnswer(question.number, question.precision));
-                        break;
-                    case QuestionType.OPENTEXT:
-                        newQuestion.answers.push(new OpenTextAnswer(question.answer));
-                        break;
-                }
-
-                return newQuestion;
-            });
-
-            repository.save(parsedQuestions);
-            res.json();
-        })
-        .catch(reason => {
-            if (!(reason instanceof AlreadySentError)) {
-                logger.error(reason);
-                res.status(500).send(new ServerError("Server did oopsie"));
-            }
+    let finalTopicHash: number;
+    if (question.originalId) {
+        const foundQuestion = await repository.findOne({
+            where: {
+                id: question.originalId
+            },
+            relations: ["topic"]
         });
+
+        if (foundQuestion) {
+            finalTopicHash = foundQuestion.topic.hash;
+            updateQuestion = foundQuestion;
+        } else {
+            res.sendStatus(404);
+            throw new AlreadySentError();
+        }
+    } else {
+        if (!topicHash) {
+            res.status(400).send(new ServerError("No such topic"));
+            throw new AlreadySentError();
+        } else {
+            finalTopicHash = topicHash;
+        }
+    }
+
+    const access = await hasAccessToTopicRequest(finalTopicHash, req);
+    if (!access.canEdit) {
+        res.status(403).send(new ServerError("Naaah"));
+        throw new AlreadySentError();
+    }
+
+    const topics = await getTopicTree();
+
+    let topic: Topic;
+    if (topics) {
+        const foundTopic = findTopicInTree(finalTopicHash, topics);
+        if (foundTopic) {
+            topic = foundTopic;
+        } else {
+            res.status(400).send(new ServerError("No such topic"));
+            throw new AlreadySentError();
+        }
+    } else {
+        res.status(500).send(new ServerError("Server did oopsie"));
+        throw new AlreadySentError();
+    }
+
+    const newQuestion = new Question();
+    newQuestion.type = question.question.type;
+    newQuestion.question = question.question.question;
+    newQuestion.topic = topic;
+    newQuestion.explanation = question.question.explanation;
+
+    if (updateQuestion !== false) {
+        newQuestion.replacesQuestion = updateQuestion;
+    }
+
+    newQuestion.answers = [];
+
+    switch (question.question.type) {
+        case QuestionType.SINGLECLOSED:
+        case QuestionType.MULTICLOSED:
+            for (const answer of question.question.answers) {
+                newQuestion.answers.push(new ClosedAnswer(answer.answerText, answer.correct));
+            }
+
+            break;
+        case QuestionType.OPENNUMBER:
+            newQuestion.answers.push(new OpenNumberAnswer(question.question.number, question.question.precision));
+            break;
+        case QuestionType.OPENTEXT:
+            newQuestion.answers.push(new OpenTextAnswer(question.question.answer));
+            break;
+    }
+
+    await repository.save(newQuestion);
+    res.json();
 };

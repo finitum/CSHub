@@ -7,10 +7,10 @@ import { AddQuestion, EditQuestion } from "../../../../cshub-shared/src/api-call
 import { insertQuestions, validateNewQuestion } from "./QuestionUtils";
 import { AlreadySentError } from "../utils";
 
-app.post(EditQuestion.getURL, (req: Request, res: Response) => {
+app.put(EditQuestion.getURL, (req: Request, res: Response) => {
     const editQuestion = req.body as EditQuestion;
 
-    if (editQuestion.question === null || req.params.id === undefined || !editQuestion.topicHash) {
+    if (editQuestion.question === null || req.params.id === undefined) {
         res.status(400).send(new ServerError("No question!"));
         return;
     }
@@ -19,10 +19,9 @@ app.post(EditQuestion.getURL, (req: Request, res: Response) => {
         validateNewQuestion(editQuestion.question, res);
         insertQuestions(
             {
-                editedQuestion: editQuestion.question,
+                question: editQuestion.question,
                 originalId: req.params.id
             },
-            editQuestion.topicHash,
             req,
             res
         );
@@ -43,7 +42,14 @@ app.post(AddQuestion.getURL, (req: Request, res: Response) => {
 
     try {
         validateNewQuestion(addQuestions.question, res);
-        insertQuestions([addQuestions.question], addQuestions.topicHash, req, res);
+        insertQuestions(
+            {
+                question: addQuestions.question
+            },
+            req,
+            res,
+            addQuestions.topicHash
+        );
     } catch (err) {
         if (!(err instanceof AlreadySentError)) {
             res.status(500).send(new ServerError("Server did oopsie"));
