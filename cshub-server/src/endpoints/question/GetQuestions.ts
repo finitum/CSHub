@@ -5,6 +5,7 @@ import logger from "../../utilities/Logger";
 
 import { getRepository, In } from "typeorm";
 import {
+    GetEditableQuestions,
     GetQuestions,
     GetQuestionsCallback,
     GetUnpublishedQuestions
@@ -44,8 +45,9 @@ app.get(GetQuestions.getURL, (req: Request, res: Response) => {
                         .createQueryBuilder("question")
                         .select("question.id", "id")
                         .leftJoin("question.topic", "topic")
-                        .where("topic.hash IN (:...childHashes)", { childHashes })
-                        .leftJoinAndSelect("question.answers", "answers")
+                        .where("topic.hash IN (:...childHashes) AND question.active = 1 AND question.deleted = 0", {
+                            childHashes
+                        })
                         .orderBy("RAND()")
                         .take(amount)
                         .getRawMany()
@@ -67,37 +69,84 @@ app.get(GetQuestions.getURL, (req: Request, res: Response) => {
         });
 });
 
-app.get(GetUnpublishedQuestions.getURL, (req: Request, res: Response) => {
-    const studyQueryParam = req.query[GetUnpublishedQuestions.studyQueryParam];
-    if (!studyQueryParam) {
-        res.status(400).send(new ServerError("Study query param not found", false));
+app.get(GetEditableQuestions.getURL, async (req: Request, res: Response) => {
+    const topicQueryParam = req.query[GetUnpublishedQuestions.topicQueryParam];
+    if (!topicQueryParam) {
+        res.status(400).send(new ServerError("Topic query param not found", false));
         return;
     }
+    const topicHash = +topicQueryParam;
 
-    getTopicTree(studyQueryParam)
-        .then(value => {
-            if (value) {
-                const childHashes = getChildHashes(value);
+    const topicTree = await getTopicTree();
+    if (topicTree) {
+        const topic = findTopicInTree(topicHash, topicTree);
 
-                const repository = getRepository(Question);
+        if (topic) {
+            const childHashes = getChildHashes([topic]);
 
-                repository
-                    .find({
-                        select: ["id"],
-                        where: {
-                            topicId: In(childHashes)
-                        },
-                        relations: ["answers"]
-                    })
-                    .then(questions => {
-                        res.json(new GetQuestionsCallback(questions.map(question => question.id)));
-                    })
-                    .catch(() => {
-                        res.status(500).send(new ServerError("Server did oopsie"));
-                    });
-            }
-        })
-        .catch(() => {
-            res.status(500).send(new ServerError("Server did oopsie"));
-        });
+            const repository = getRepository(Question);
+
+            repository
+                .createQueryBuilder("question")
+                .select("question.id", "id")
+                .leftJoin("question.topic", "topic")
+                .where("topic.hash IN (:...childHashes)", { childHashes })
+                .andWhere("question.active = 1")
+                .andWhere("question.deleted = 0")
+                .andWhere(qb => {
+                    const subQuery = qb
+                        .subQuery()
+                        .select("replaceQuestion.replacesQuestionId")
+                        .from(Question, "replaceQuestion")
+                        .where("replaceQuestion.replacesQuestionId = question.id")
+                        .andWhere("replaceQuestion.active = 0")
+                        .andWhere("replaceQuestion.deleted = 0")
+                        .getQuery();
+                    return `NOT EXISTS (${subQuery})`;
+                })
+                .getRawMany()
+                .then(questions => {
+                    res.json(new GetQuestionsCallback(questions.map(question => question.id)));
+                })
+                .catch(() => {
+                    res.status(500).send(new ServerError("Server did oopsie"));
+                });
+        }
+    }
+});
+
+app.get(GetUnpublishedQuestions.getURL, async (req: Request, res: Response) => {
+    const topicQueryParam = req.query[GetUnpublishedQuestions.topicQueryParam];
+    if (!topicQueryParam) {
+        res.status(400).send(new ServerError("Topic query param not found", false));
+        return;
+    }
+    const topicHash = +topicQueryParam;
+
+    const topicTree = await getTopicTree();
+    if (topicTree) {
+        const topic = findTopicInTree(topicHash, topicTree);
+
+        if (topic) {
+            const childHashes = getChildHashes([topic]);
+
+            const repository = getRepository(Question);
+
+            repository
+                .find({
+                    select: ["id"],
+                    where: {
+                        topicId: In(childHashes),
+                        active: false,
+                        deleted: false
+                    }
+                })
+                .then(questions => {
+                    res.json(new GetQuestionsCallback(questions.map(question => question.id)));
+                })
+                .catch(() => {
+                    res.status(500).send(new ServerError("Server did oopsie"));
+                });
+        }
+    }
 });

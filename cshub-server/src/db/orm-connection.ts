@@ -14,10 +14,7 @@ import logger from "../utilities/Logger";
 import { CacheVersion } from "./entities/cacheversion";
 import { Answer } from "./entities/practice/answer";
 import { Question } from "./entities/practice/question";
-import { OpenNumberAnswer } from "./entities/practice/open-number-answer";
-import { OpenTextAnswer } from "./entities/practice/open-text-answer";
-import { ClosedAnswer } from "./entities/practice/closed-answer";
-import {app} from "../index";
+import { app } from "../index";
 
 class CustomLogger implements Logger {
     log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {
@@ -34,7 +31,6 @@ class CustomLogger implements Logger {
     logQueryError(error: string, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
         logger.error(`Query error: ${error} for query ${query}`);
     }
-
 
     logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
         logger.error(`Slow query, takes ${time} for ${query}`);
@@ -62,10 +58,7 @@ const options: ConnectionOptions = {
         Study,
         Answer,
         Question,
-        CacheVersion,
-        OpenNumberAnswer,
-        OpenTextAnswer,
-        ClosedAnswer
+        CacheVersion
     ],
     synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
 };

@@ -1,10 +1,11 @@
 import { Module, Mutation, VuexModule } from "vuex-class-modules";
 import { CheckAnswerType } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/CheckAnswer";
 import store from "../store";
+import localforage from "localforage";
 
 export interface QuestionType {
     questionId: number;
-    answer?: CheckAnswerType;
+    answer: CheckAnswerType | null;
 }
 
 export interface IPracticeState {
@@ -20,7 +21,12 @@ class PracticeState extends VuexModule implements IPracticeState {
     }
 
     @Mutation
-    public setCurrentQuestions(value: QuestionType[]) {
+    public clear() {
+        this._currentQuestions = false;
+    }
+
+    @Mutation
+    public setCurrentQuestions(value: QuestionType[] | false) {
         this._currentQuestions = value;
     }
 
@@ -36,3 +42,26 @@ export const practiceStateModule = new PracticeState({
     store,
     name: "practiceStateModule"
 });
+
+const key = "vuex-practicestate";
+
+practiceStateModule.$watch(
+    practiceStateModule => practiceStateModule.currentQuestions,
+    (newValue, oldValue) => {
+        localforage.setItem(key, newValue);
+    },
+    {
+        deep: true,
+        immediate: false
+    }
+);
+
+const setInitialState = async () => {
+    const questions = await localforage.getItem<QuestionType[]>(key);
+    if (questions) {
+        questions.forEach(question => (question.answer = question.answer || null));
+    }
+    practiceStateModule.setCurrentQuestions(questions || false);
+};
+
+setInitialState();

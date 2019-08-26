@@ -59,19 +59,24 @@ export class Question {
     })
     active!: boolean;
 
+    @Column({
+        default: false
+    })
+    deleted!: boolean;
+
     // not the nicest solution, but it works. This marks which question will be set to inactive if this question is accepted
     @OneToOne(type => Question, question => question.replacedByQuestion, {
         nullable: true
     })
     @JoinColumn()
-    replacesQuestion?: Question | null;
+    replacesQuestion?: Question;
 
     // not the nicest solution, but it works. This marks which question will be set to inactive if this question is accepted
     @OneToOne(type => Question, question => question.replacesQuestion, {
         nullable: true
     })
-    replacedByQuestion?: Question | null;
+    replacedByQuestion?: Question;
 
     @RelationId((question: Question) => question.replacesQuestion)
-    replacesQuestionId?: number | null;
+    replacesQuestionId?: number;
 }

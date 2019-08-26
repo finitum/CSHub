@@ -16,6 +16,9 @@ const PostView = () => import("../posts/PostView.vue");
 const PostCreate = () => import("../posts/PostCreate.vue");
 const PostsSearch = () => import("../posts/PostsSearch.vue");
 
+const PracticeQuestion = () => import("../../components/practice/question/PracticeQuestion.vue");
+const CurrentPracticeQuestion = () => import("../../components/practice/question/CurrentPracticeQuestion.vue");
+
 import { userBeforeEnter } from "./guards/userDashboardGuard";
 import { adminBeforeEnter } from "./guards/adminDashboardGuard";
 import { onlyIfNotLoggedIn } from "./guards/onlyIfNotLoggedInGuard";
@@ -81,6 +84,23 @@ const router = new Router({
             path: `${Routes.TOPIC}/:hash`,
             name: "topic",
             component: PostView
+        },
+        {
+            path: `${Routes.QUESTION}`,
+            name: "question",
+            component: PracticeQuestion,
+            children: [
+                {
+                    path: ":index",
+                    name: "currentQuestion",
+                    component: CurrentPracticeQuestion
+                },
+                {
+                    path: "",
+                    name: "questionFallback",
+                    redirect: "0"
+                }
+            ]
         },
         {
             path: Routes.SEARCH,

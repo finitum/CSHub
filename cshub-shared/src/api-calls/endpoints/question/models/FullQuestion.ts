@@ -3,6 +3,7 @@ import { QuestionType } from "../../../../entities/question";
 export interface FullClosedAnswerType {
     answerText: string;
     correct: boolean;
+    answerId: number;
 }
 
 export type FullAnswerType =
@@ -23,6 +24,7 @@ export type FullAnswerType =
 export type FullQuestion = {
     question: string;
     explanation: string;
+    replacesQuestion?: number;
 } & FullAnswerType;
 
 export type FullQuestionWithId = { id: number } & FullQuestion;

@@ -8,12 +8,12 @@ import { colorize } from "../../../utilities/codemirror-colorize";
 import CodeMirror from "codemirror";
 
 @Component({
-    name: EditorMixin.name
+    name: ViewerMixin.name
 })
-export default class EditorMixin extends Vue {
+export default class ViewerMixin extends Vue {
     public markdownParser = getMarkdownParser();
 
-    private mounted() {
+    private created() {
         (window as any).katex = katex;
     }
 

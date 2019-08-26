@@ -36,46 +36,60 @@
                     v-validate="'required|min:2'"
                     label="Answer"
                     outlined
-                    auto-grow
-                    type="number"
                     name="answer"
                     :error-messages="errors.collect('answer')"
-                    class="mb-4"
                     hide-details
                 >
                 </v-text-field>
             </v-form>
         </v-col>
         <v-col cols="6">
-            <b>Question:</b>
-            <p v-html="renderMarkdown(question)"></p>
-            <b>Explanation:</b>
-            <p v-html="renderMarkdown(explanation)"></p>
-            <b>Answer:</b>
-            <p>{{ answer }}</p>
+            <OpenTextViewer :question="question" :explanation="explanation" :answer="answer"></OpenTextViewer>
         </v-col>
     </v-row>
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import Vue from "vue";
+import { Component, Prop } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../../utilities";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
-import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
-import { mixins } from "vue-class-component";
-import EditorMixin from "./EditorMixin";
+import { AddQuestion, EditQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
 import { FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
+import OpenTextViewer from "../viewers/OpenTextViewer.vue";
+import { EventBus, QUESTIONS_CHANGED } from "../../../utilities/EventBus";
 
 @Component({
     name: OpenTextEditor.name,
+    components: { OpenTextViewer },
     inject: ["$validator"]
 })
-export default class OpenTextEditor extends mixins(EditorMixin) {
-    private question = "";
-    private explanation = "";
+export default class OpenTextEditor extends Vue {
+    @Prop({
+        required: false
+    })
+    private propQuestion?: string;
 
-    private answer: string = "";
+    @Prop({
+        required: false
+    })
+    private propExplanation?: string;
+
+    @Prop({
+        required: false
+    })
+    private propAnswer?: string;
+
+    @Prop({
+        required: true
+    })
+    private isEditing!: false | number;
+
+    private question = this.propQuestion || "";
+    private explanation = this.propExplanation || "";
+
+    private answer: string = this.propAnswer || "";
 
     private async submit() {
         let valid = await this.$validator.validateAll();
@@ -88,7 +102,13 @@ export default class OpenTextEditor extends mixins(EditorMixin) {
                 answer: this.answer
             };
 
-            await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
+            if (this.isEditing) {
+                await ApiWrapper.put(new EditQuestion(question, this.isEditing));
+            } else {
+                await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
+            }
+
+            EventBus.$emit(QUESTIONS_CHANGED);
         }
     }
 }

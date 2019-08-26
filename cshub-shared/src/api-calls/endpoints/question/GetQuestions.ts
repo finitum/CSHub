@@ -29,16 +29,35 @@ export class GetQuestions implements IApiRequest<GetQuestionsCallback> {
     response?: GetQuestionsCallback;
 }
 
+export class GetEditableQuestions implements IApiRequest<GetQuestionsCallback> {
+    public static getURL: string = Requests.EDITABLEQUESTIONS;
+
+    public static readonly topicQueryParam = "topic";
+
+    public URL: string = GetEditableQuestions.getURL;
+
+    public params: { [key: string]: string } = {};
+
+    constructor(topic: number) {
+        this.params[GetEditableQuestions.topicQueryParam] = topic.toString(10);
+    }
+
+    /**
+     * @see IApiRequest.response
+     */
+    response?: GetQuestionsCallback;
+}
+
 export class GetUnpublishedQuestions implements IApiRequest<GetQuestionsCallback> {
     public static getURL: string = Requests.UNPUBLISHEDQUESTIONS;
     public URL: string = GetUnpublishedQuestions.getURL;
 
-    public static readonly studyQueryParam = "study";
+    public static readonly topicQueryParam = "topic";
 
     public params: { [key: string]: string } = {};
 
     constructor(study: number) {
-        this.params[GetUnpublishedQuestions.studyQueryParam] = study.toString(10);
+        this.params[GetUnpublishedQuestions.topicQueryParam] = study.toString(10);
     }
 
     /**

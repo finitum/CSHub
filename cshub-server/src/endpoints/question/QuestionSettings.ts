@@ -43,7 +43,7 @@ app.put(QuestionSettings.getURL, async (req: Request, res: Response) => {
                     .update()
                     .set({
                         active: true,
-                        replacesQuestionId: null
+                        replacesQuestion: undefined
                     })
                     .where("id = :id", { id: questionId })
                     .execute();
@@ -53,11 +53,14 @@ app.put(QuestionSettings.getURL, async (req: Request, res: Response) => {
                         .createQueryBuilder()
                         .update()
                         .set({
-                            active: false
+                            active: false,
+                            deleted: true
                         })
                         .where("id = :id", { id: question.replacesQuestion.id })
                         .execute();
                 }
+
+                res.sendStatus(201);
             } else {
                 res.status(403).send();
             }
@@ -68,10 +71,13 @@ app.put(QuestionSettings.getURL, async (req: Request, res: Response) => {
                     .createQueryBuilder()
                     .update()
                     .set({
-                        active: false
+                        active: false,
+                        deleted: true
                     })
                     .where("id = :id", { id: questionId })
                     .execute();
+
+                res.sendStatus(201);
             } else {
                 res.status(403).send();
             }
