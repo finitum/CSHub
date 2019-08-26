@@ -247,12 +247,8 @@
                             v-else-if="fullPostComputed && !loadingIcon && editModeComputed"
                             class="fullHeight"
                         >
-                            <Quill
-                                key="editQuill"
-                                ref="editQuill"
-                                style="margin-bottom: 20px"
-                                :editor-setup="{ allowEdit: true, showToolbar: true, postHash }"
-                            ></Quill>
+                            <TiptapEditor :editor-setup="{ allowEdit: true, showToolbar: true, postHash }"
+                            ></TiptapEditor>
                         </v-card-text>
                     </v-flex>
                 </v-layout>
@@ -293,6 +289,7 @@ import { AxiosError } from "axios";
 import CodeMirror from "codemirror";
 
 import Quill from "../quill/Quill.vue";
+import TiptapEditor from "../tiptap/Tiptap.vue";
 import PostEditsDialog from "./PostEditsDialog.vue";
 
 import {
@@ -326,7 +323,7 @@ interface IBreadCrumbType {
 
 @Component({
     name: "Post",
-    components: { Quill, PostEditsDialog, PostSaveEditDialog }
+    components: { Quill, PostEditsDialog, PostSaveEditDialog, TiptapEditor }
 })
 export default class Post extends Vue {
     /**

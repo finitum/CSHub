@@ -13,12 +13,12 @@
             >
                 <OpenNumberEditor></OpenNumberEditor
             ></EditorAccordion>
-            <EditorAccordion
+            <EditorAccordionxfce
                 title="Open question - text"
                 subtitle="Create a open text question. Can't be checked by the server"
             >
                 <OpenTextEditor></OpenTextEditor
-            ></EditorAccordion>
+            ></EditorAccordionxfce>
         </v-expansion-panels>
     </div>
 </template>
