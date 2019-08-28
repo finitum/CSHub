@@ -36,6 +36,7 @@ export const server = http.createServer(app).listen(Settings.PORT);
 // Here all the connectors will be defined
 import "./endpoints";
 import "./realtime-edit";
+import "./tiptap-realtime-edit";
 
 logger.info("Express server started with settings:");
 logger.info(JSON.stringify(Settings));

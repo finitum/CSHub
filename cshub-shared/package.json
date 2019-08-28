@@ -19,6 +19,7 @@
     "quill-delta": "^4.1.0"
   },
   "dependencies": {
+    "automerge": "^0.12.1",
     "eslint": "^6.1.0",
     "katex": "^0.11.0",
     "markdown-it": "latest",

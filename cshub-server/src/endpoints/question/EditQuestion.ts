@@ -20,7 +20,7 @@ app.put(EditQuestion.getURL, (req: Request, res: Response) => {
         insertQuestions(
             {
                 question: editQuestion.question,
-                originalId: req.params.id
+                originalId: Number(req.params.id)
             },
             req,
             res

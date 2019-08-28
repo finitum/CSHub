@@ -50,7 +50,7 @@
                             </v-btn>
 
                             <v-btn
-                                :class="{ 'is-active': isActive.heading({level: 1}) }"
+                                :class="{ 'is-active': isActive.heading({ level: 1 }) }"
                                 color="secondary"
                                 class="ma-1"
                                 @click="commands.heading"
@@ -62,9 +62,9 @@
 
                             <v-btn
                                 :class="{ 'is-active': isActive.bullet_list() }"
-                                @click="commands.bullet_list"
                                 color="secondary"
                                 class="ma-1"
+                                @click="commands.bullet_list"
                             >
                                 <v-icon>
                                     fas fa-list
@@ -73,9 +73,9 @@
 
                             <v-btn
                                 :class="{ 'is-active': isActive.ordered_list() }"
-                                @click="commands.ordered_list"
                                 color="secondary"
                                 class="ma-1"
+                                @click="commands.ordered_list"
                             >
                                 <v-icon>
                                     fas fa-list-ol
@@ -95,15 +95,14 @@
 
                             <v-btn
                                 :class="{ 'is-active': isActive.blockquote() }"
-                                @click="commands.blockquote"
                                 color="secondary"
                                 class="ma-1"
+                                @click="commands.blockquote"
                             >
                                 <v-icon>
                                     fas fa-quote-right
                                 </v-icon>
                             </v-btn>
-
                         </div>
                     </editor-menu-bar>
                     <v-card class="pa-3">
@@ -116,7 +115,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop} from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import Vue from "vue";
 import { Editor, EditorContent, EditorMenuBar, insertText } from "tiptap";
 import {
@@ -136,21 +135,13 @@ import {
     Italic,
     Link,
     History,
-    TrailingNode,
+    TrailingNode
 } from "tiptap-extensions";
-import {
-    ClientCursorUpdated,
-    ClientDataUpdated,
-    IRealtimeEdit,
-    IRealtimeSelect,
-    ServerCursorUpdated,
-    ServerDataUpdated,
-    TogglePostJoin
-} from "../../../../cshub-shared/src/api-calls/realtime-edit";
+import { TogglePostJoin, AutomergeUpdatePackage } from "../../../../cshub-shared/src/api-calls/tiptap-realtime-edit";
 import { SocketWrapper } from "../../utilities/socket-wrapper";
 import { ITiptapEditSetup } from "./ITiptapEditSetup";
-import {ISendable} from "./Sendable";
 import { Collaboration } from "./Collaboration";
+import { Message } from "automerge";
 
 @Component({ name: "TiptapEditor", components: { EditorContent, EditorMenuBar } })
 export default class TiptapEditor extends Vue {
@@ -186,45 +177,34 @@ export default class TiptapEditor extends Vue {
                 }),
                 new Collaboration({
                     debounce: 250,
-                    onSendable: this.onEditorUpdate,
-                    docId: this.editorSetup.postHash
+                    docId: this.editorSetup.postHash,
+                    update: this.onEditorUpdate
                 })
             ],
             content: ""
         });
 
-        this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
-            console.log(data);
-        });
+        // this.sockets.subscribe(ServerDataUpdated.getURL, (data: ServerDataUpdated) => {
+        //     console.log(data);
+        // });
+        //
+        // this.sockets.subscribe(ServerCursorUpdated.getURL, (data: ServerCursorUpdated) => {
+        //     console.log(data);
+        // });
 
-        this.sockets.subscribe(ServerCursorUpdated.getURL, (data: ServerCursorUpdated) => {
-            console.log(data);
-        });
 
+        // is sent twice for some reason
         SocketWrapper.emitSocket(
-            new TogglePostJoin(
-                this.editorSetup.postHash,
-                true,
-                (serverData: IRealtimeEdit, selects: IRealtimeSelect[]) => {
-                    console.log(serverData, selects);
-                    // this.lastFewEdits.push({
-                    //     postHash: this.editorSetup.postHash,
-                    //     delta: serverData.delta,
-                    //     timestamp: serverData.timestamp,
-                    //     serverGeneratedId: serverData.serverGeneratedId,
-                    //     userGeneratedId: serverData.userGeneratedId
-                    // });
-                    //
-                    // this.setupQuill(serverData.delta, selects);
-                }
-            ),
+            new TogglePostJoin(this.editorSetup.postHash, true, () => {
+                console.log("loaded");
+            }),
             this.$socket
         );
     }
 
-    private onEditorUpdate(sendable: ISendable) {
-        console.log(sendable);
-        // SocketWrapper.emitSocket(new ClientDataUpdated(userEdit), this.$socket);
+    private onEditorUpdate(msg: Message) {
+        console.log(msg);
+        SocketWrapper.emitSocket(new AutomergeUpdatePackage(msg), this.$socket);
     }
 
     private onKeyPress(event: KeyboardEvent) {
@@ -240,8 +220,8 @@ export default class TiptapEditor extends Vue {
         this.editor.destroy();
         SocketWrapper.emitSocket(
             new TogglePostJoin(this.editorSetup.postHash, false, () => {
-                this.sockets.unsubscribe(ServerDataUpdated.getURL);
-                this.sockets.unsubscribe(ServerCursorUpdated.getURL);
+                // this.sockets.unsubscribe(ServerDataUpdated.getURL);
+                // this.sockets.unsubscribe(ServerCursorUpdated.getURL);
             }),
             this.$socket
         );
