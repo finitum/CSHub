@@ -12,7 +12,7 @@ import tunnel from "tunnel-ssh";
 import fs from "fs";
 import logger from "../utilities/Logger";
 import { CacheVersion } from "./entities/cacheversion";
-import { Answer } from "./entities/practice/answer";
+import { Choice } from "./entities/practice/answer";
 import { Question } from "./entities/practice/question";
 import { app } from "../index";
 
@@ -56,7 +56,7 @@ const options: ConnectionOptions = {
         Post,
         Edit,
         Study,
-        Answer,
+        Choice,
         Question,
         CacheVersion
     ],

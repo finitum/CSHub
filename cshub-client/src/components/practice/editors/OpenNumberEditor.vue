@@ -140,7 +140,7 @@ export default class OpenNumberEditor extends Vue {
 </script>
 
 <style>
-.multiple-choice-textarea .v-text-field__slot {
+.dynamic-question-textarea .v-text-field__slot {
     margin-right: 0 !important;
 }
 

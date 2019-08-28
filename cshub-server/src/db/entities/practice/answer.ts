@@ -1,8 +1,8 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
 import { Question } from "./question";
+
 import { Exclude, Expose } from "class-transformer";
 import { ClosedAnswer } from "./closed-answer";
-import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
 import { OpenTextAnswer } from "./open-text-answer";
 import { OpenNumberAnswer } from "./open-number-answer";
 
