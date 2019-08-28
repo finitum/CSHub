@@ -1,11 +1,10 @@
-import {QuestionType} from "../../../../../cshub-shared/src/entities/question";
 <template>
     <v-row>
         <v-col cols="6">
             <v-form @submit="submit">
                 <v-btn color="primary" @click="submit">Submit</v-btn>
 
-                <p class="mt-5">Use ${VariableName} to create dynamically assignable variables in your question.</p>
+                <p class="mt-5">Use $VariableName to create dynamically assignable variables in your question.</p>
 
                 <v-textarea
                     v-model="question"
@@ -137,15 +136,14 @@ import {
     FullAnswerType,
     SeedRange,
 } from "../../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestion";
-import { mixins } from "vue-class-component";
-import EditorMixin from "./EditorMixin";
 import { evaluate } from "mathjs";
+import ViewerMixin from "../viewers/ViewerMixin";
 
 @Component({
     name: "DynamicEditor",
     inject: ["$validator"]
 })
-export default class DynamicEditor extends mixins(EditorMixin) {
+export default class DynamicEditor extends ViewerMixin {
     private question: string = "";
     private variables: DynamicQuestionVariable[] = [];
     private answer: FullAnswerType = {
@@ -200,7 +198,7 @@ export default class DynamicEditor extends mixins(EditorMixin) {
     }
 
     private async questionChanged() {
-        const regex = /\$\{([a-zA-Z_$][a-zA-Z_$0-9]*)\}/g;
+        const regex = /\$([a-zA-Z_$][a-zA-Z_$0-9]*)/g;
         let match: RegExpExecArray | null;
         this.variables = [];
         while ((match = regex.exec(this.question))) {
