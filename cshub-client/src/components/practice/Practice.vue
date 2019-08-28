@@ -25,13 +25,6 @@
             >
                 <QuestionList :key="$route.fullPath" :unpublished="false"></QuestionList>
             </EditorAccordion>
-            <EditorAccordion
-                v-if="isStudyAdmin"
-                title="Review"
-                subtitle="Hi admin, please review these new questions :)"
-            >
-                <QuestionList :key="$route.fullPath" :unpublished="true"></QuestionList>
-            </EditorAccordion>
         </v-expansion-panels>
     </div>
 </template>

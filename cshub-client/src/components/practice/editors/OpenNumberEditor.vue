@@ -77,6 +77,7 @@ import { AddQuestion, EditQuestion } from "../../../../../cshub-shared/src/api-c
 import { FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import OpenNumberViewer from "../viewers/OpenNumberViewer.vue";
 import { EventBus, QUESTIONS_CHANGED } from "../../../utilities/EventBus";
+import { uiState } from "../../../store";
 
 @Component({
     name: OpenNumberEditor.name,
@@ -132,6 +133,12 @@ export default class OpenNumberEditor extends Vue {
             } else {
                 await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
             }
+
+            uiState.setNotificationDialog({
+                header: "Saved",
+                text: "Saved question, it will be reviewed by an admin soon!",
+                on: true
+            });
 
             EventBus.$emit(QUESTIONS_CHANGED);
         }

@@ -22,6 +22,13 @@
             ></NavDrawerItem>
 
             <NavDrawerItem
+                v-if="userStudyAdminComputed"
+                :to="navigationLocations.UNSAVEDQUESTIONS"
+                icon="fas fa-question"
+                text="Unsaved questions"
+            ></NavDrawerItem>
+
+            <NavDrawerItem
                 v-if="userLoggedInComputed && userStudyAdminComputed"
                 :to="navigationLocations.ADMINDASHBOARD"
                 icon="fas fa-users"

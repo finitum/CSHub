@@ -9,14 +9,27 @@ import { QuestionType } from "../../../../../cshub-shared/src/entities/question"
 export default class SCQuestionMixin extends Vue {
     private privScAnswer: number | null = this.getInitialScState();
 
-    get scAnswer(): number | null {
-        return this.privScAnswer;
+    get scAnswer(): number | number[] | null {
+        const privScAnswer = this.privScAnswer;
+
+        if (practiceState.currentCheckedQuestion && privScAnswer) {
+            if (!practiceState.currentCheckedQuestion.correct) {
+                const answer = practiceState.currentCheckedQuestion.correctAnswer;
+                if (answer.type === QuestionType.SINGLECLOSED) {
+                    return [privScAnswer, answer.answerId];
+                }
+            } else {
+                return [privScAnswer];
+            }
+        }
+
+        return privScAnswer;
     }
 
-    set scAnswer(value: number | null) {
-        this.privScAnswer = value;
+    set scAnswer(value: number | number[] | null) {
+        if (value !== null && !Array.isArray(value)) {
+            this.privScAnswer = value;
 
-        if (value !== null) {
             const questionIndex = +this.$route.params.index;
             const currentQuestions = practiceState.currentQuestions;
             practiceState.addAnswer({

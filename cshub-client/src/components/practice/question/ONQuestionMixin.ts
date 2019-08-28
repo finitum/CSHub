@@ -17,7 +17,7 @@ export default class ONQuestionMixin extends Vue {
     @Watch("privOnAnswer", {
         deep: true
     })
-    private onPrivOnAnswersUpdate(value: number | null) {
+    private onPrivOnAnswersUpdate(value: string | null) {
         const questionIndex = +this.$route.params.index;
 
         if (value !== null) {
@@ -27,7 +27,7 @@ export default class ONQuestionMixin extends Vue {
                 questionIndex,
                 answer: {
                     type: QuestionType.OPENNUMBER,
-                    number: value
+                    number: Number(value)
                 }
             });
         }
