@@ -22,7 +22,14 @@
             ></NavDrawerItem>
 
             <NavDrawerItem
-                v-if="userLoggedInComputed && userAdminComputed"
+                v-if="userStudyAdminComputed"
+                :to="navigationLocations.UNSAVEDQUESTIONS"
+                icon="fas fa-question"
+                text="Unsaved questions"
+            ></NavDrawerItem>
+
+            <NavDrawerItem
+                v-if="userLoggedInComputed && userStudyAdminComputed"
                 :to="navigationLocations.ADMINDASHBOARD"
                 icon="fas fa-users"
                 text="Admin dashboard"
@@ -45,7 +52,7 @@
             <v-treeview
                 dense
                 :active.sync="activeTopicHash"
-                :items="topics"
+                :items="topTopicChildren"
                 item-key="hash"
                 class="tree"
                 activatable
@@ -63,13 +70,6 @@
                     icon="fas fa-pen"
                     text="Create new post"
                 ></NavDrawerItem>
-
-                <NavDrawerItem
-                    v-if="userStudyAdminComputed"
-                    :to="`${navigationLocations.TOPICCREATE}`"
-                    icon="fas fa-folder-plus"
-                    text="Add a topic"
-                ></NavDrawerItem>
             </div>
         </v-list>
     </v-navigation-drawer>
@@ -77,26 +77,23 @@
 
 <script lang="ts">
 import Vue from "vue";
-import localForage from "localforage";
-import { AxiosError } from "axios";
 import { Route } from "vue-router";
 
-import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities";
-import { CacheTypes } from "../../utilities/cache-types";
-
-import { GetTopicsCallBack, Topics } from "../../../../cshub-shared/src/api-calls";
+import { ApiWrapper, logStringConsole } from "../../utilities";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
 import NavDrawerItem from "./NavDrawerItem.vue";
 
-import { uiState } from "../../store";
+import { practiceState, uiState } from "../../store";
 import { dataState } from "../../store";
 import { userState } from "../../store";
 
 import { Component, Watch } from "vue-property-decorator";
 import { LocalStorageData } from "../../store/localStorageData";
-import { GetStudiesCallback, Studies } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
+import { getTopTopic, parseTopTopic } from "../../views/router/guards/setupRequiredDataGuard";
+import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
+import { Logout } from "../../../../cshub-shared/src/api-calls/endpoints/user";
 
 @Component({
     name: "NavDrawer",
@@ -107,9 +104,6 @@ export default class NavDrawer extends Vue {
      * Data
      */
     private activeTopicHash: number[] = [];
-    private topics: ITopic[] = [];
-
-    private studies: Array<{ text: string; value: number }> = [];
 
     private navigationLocations = Routes;
 
@@ -133,7 +127,24 @@ export default class NavDrawer extends Vue {
     }
 
     get userStudyAdminComputed(): boolean {
-        return this.userAdminComputed || userState.studyAdmins.length > 0;
+        return userState.isStudyAdmin;
+    }
+
+    get studies(): Array<{ text: string; value: number }> {
+        if (dataState.studies) {
+            return dataState.studies.map(value => {
+                return {
+                    text: value.name,
+                    value: value.id
+                };
+            });
+        } else {
+            return [];
+        }
+    }
+
+    get topTopicChildren(): ITopic[] {
+        return dataState.topTopic ? dataState.topTopic.children : [];
     }
 
     get studyNr(): number | undefined {
@@ -144,6 +155,12 @@ export default class NavDrawer extends Vue {
         if (study) {
             localStorage.setItem(LocalStorageData.STUDY, study.toString(10));
             uiState.setStudyNr(study);
+
+            getTopTopic(study, true).then(topTopic => {
+                parseTopTopic(topTopic);
+                dataState.setTopics(topTopic);
+                EventBus.$emit(STUDY_CHANGED);
+            });
         }
     }
 
@@ -179,86 +196,6 @@ export default class NavDrawer extends Vue {
     private mounted() {
         logStringConsole("Git SHA: " + process.env.VUE_APP_VERSION, "NavDrawer.vue");
         logStringConsole("Build Date: " + process.env.VUE_APP_BUILDDATE, "NavDrawer.vue");
-
-        type topicCache = {
-            version: number;
-            topics: ITopic[];
-        };
-
-        ApiWrapper.sendGetRequest(new Studies(), (callback: GetStudiesCallback) => {
-            const studies = callback.studies;
-            if (studies) {
-                this.studies = studies.map(value => {
-                    return {
-                        text: value.name,
-                        value: value.id
-                    };
-                });
-            }
-
-            localForage.getItem<topicCache>(CacheTypes.TOPICS).then((value: topicCache) => {
-                let topicCurrentVersion = -1;
-
-                if (value !== null) {
-                    topicCurrentVersion = value.version;
-                }
-
-                if (this.studies.length > 0) {
-                    const studyLocalStorage = localStorage.getItem(LocalStorageData.STUDY);
-
-                    let studynr: number;
-                    if (!studyLocalStorage || isNaN(Number(studyLocalStorage))) {
-                        studynr = this.studies[0].value;
-                    } else {
-                        if (this.studies.findIndex(currStudy => currStudy.value === +studyLocalStorage) === -1) {
-                            studynr = this.studies[0].value;
-                        } else {
-                            studynr = +studyLocalStorage;
-                        }
-                    }
-
-                    this.studyNr = studynr;
-
-                    // Sends a get request to the server, and sets the correct store value after receiving the topics in the GetTopicsCallBack
-                    ApiWrapper.sendGetRequest(
-                        new Topics(topicCurrentVersion, studynr),
-                        (callbackData: GetTopicsCallBack) => {
-                            if (callbackData !== null && callbackData.topics) {
-                                this.topics = callbackData.topics;
-                                dataState.setTopics(callbackData.topics);
-
-                                const topicData: topicCache = {
-                                    version: callbackData.version,
-                                    topics: callbackData.topics
-                                };
-
-                                localForage.setItem(CacheTypes.TOPICS, topicData).then(() => {
-                                    logStringConsole("Added topics to cache", "NavDrawer");
-                                });
-                            } else {
-                                this.topics = value.topics;
-                                dataState.setTopics(value.topics);
-                            }
-
-                            if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
-                                this.activeTopicHash = [+this.$router.currentRoute.params.hash];
-                            }
-                        },
-                        (err: AxiosError) => {
-                            logStringConsole("Set topics from cache", "NavDrawer mounted error axios, error:" + err);
-                            this.topics = value.topics;
-                            dataState.setTopics(value.topics);
-                        }
-                    );
-                } else {
-                    uiState.setNotificationDialog({
-                        on: true,
-                        header: "No studies were found :(",
-                        text: "Our request for studies returned nothing, so we can't continue now"
-                    });
-                }
-            });
-        });
     }
 
     /**
@@ -266,7 +203,7 @@ export default class NavDrawer extends Vue {
      */
     private logout() {
         logStringConsole("Logging user out");
-        document.cookie = "token=xxx";
+        ApiWrapper.post(new Logout());
         userState.clearUserModel();
         uiState.setNavbar({ open: false });
         this.$router.push(Routes.INDEX);
@@ -288,9 +225,13 @@ export default class NavDrawer extends Vue {
     margin: -0.5em -0.5em -0.5em -0.5em;
 }
 
-.tree >>> .v-treeview-node__root,
-.v-treeview-node__children {
-    padding-left: 16px;
+.tree >>> .v-treeview-node__toggle {
+    margin-left: 16px;
+    margin-right: 0;
+}
+
+.tree >>> .v-treeview-node__label {
+    margin-left: 0;
 }
 
 @media print {

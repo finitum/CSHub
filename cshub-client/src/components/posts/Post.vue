@@ -30,7 +30,6 @@
                                         color="primary"
                                         min-width="88"
                                         class="mr-1 my-1"
-                                        tile
                                         depressed
                                         small
                                         dark
@@ -41,7 +40,6 @@
                                     <v-btn
                                         color="secondary"
                                         depressed
-                                        tile
                                         min-width="88"
                                         small
                                         class="ma-1 angleLighten3Dark"
@@ -58,8 +56,7 @@
                                             color="primary"
                                             min-width="88"
                                             depressed
-                                            tile
-                                            class="my-1 mr-2 d-inline-block"
+                                            class="my-1 mr-4 d-inline-block"
                                             small
                                             dark
                                             @click="returnToPostMenu"
@@ -67,7 +64,7 @@
                                             <v-icon>fas fa-chevron-left</v-icon>
                                         </v-btn>
 
-                                        <v-breadcrumbs :items="topicNames" class="d-inline-block pa-0 mr-2 my-1">
+                                        <v-breadcrumbs :items="topicNames" class="d-inline-block pa-0 mr-4 my-1">
                                             <template v-slot:item="props">
                                                 <v-breadcrumbs-item
                                                     v-if="props.item.topic"
@@ -91,8 +88,7 @@
                                                     min-width="88"
                                                     color="red"
                                                     depressed
-                                                    tile
-                                                    class="my-1 mr-2 d-inline-block"
+                                                    class="my-1 mr-4 d-inline-block"
                                                     small
                                                     v-on="on"
                                                     @click="hidePost()"
@@ -112,7 +108,7 @@
                                                     min-width="88"
                                                     color="purple"
                                                     depressed
-                                                    class="my-1 mr-2 d-inline-block"
+                                                    class="my-1 mr-4 d-inline-block"
                                                     small
                                                     v-on="on"
                                                     @click="wipPost()"
@@ -130,8 +126,7 @@
                                                     min-width="88"
                                                     color="orange"
                                                     depressed
-                                                    class="my-1 mr-2 d-inline-block"
-                                                    tile
+                                                    class="my-1 mr-4 d-inline-block"
                                                     small
                                                     v-on="on"
                                                     @click="enableEdit"
@@ -147,8 +142,7 @@
                                                 <v-btn
                                                     min-width="88"
                                                     depressed
-                                                    class="my-1 mr-2 d-inline-block"
-                                                    tile
+                                                    class="my-1 mr-4 d-inline-block"
                                                     small
                                                     color="green"
                                                     v-on="on"
@@ -165,8 +159,7 @@
                                                 <v-btn
                                                     min-width="88"
                                                     depressed
-                                                    tile
-                                                    class="my-1 mr-2 d-inline-block"
+                                                    class="my-1 mr-4 d-inline-block"
                                                     small
                                                     color="blue"
                                                     v-on="on"
@@ -183,9 +176,8 @@
                                                 <v-btn
                                                     min-width="88"
                                                     depressed
-                                                    tile
                                                     small
-                                                    class="my-1 mr-2 d-inline-block"
+                                                    class="my-1 mr-4 d-inline-block"
                                                     color="primary"
                                                     v-on="on"
                                                     @click="viewEditDialog"
@@ -199,10 +191,9 @@
                                         <v-btn
                                             depressed
                                             small
-                                            tile
                                             min-width="88"
                                             color="secondary"
-                                            class="my-1 mr-2 d-inline-block angleLighten3Dark"
+                                            class="my-1 mr-4 d-inline-block angleLighten3Dark"
                                             @click="showTopMenu = false"
                                         >
                                             <v-icon>fas fa-angle-up</v-icon>
@@ -217,7 +208,7 @@
                                 >
                                     <v-list-item class="pa-0 postTile">
                                         <v-list-item-avatar>
-                                            <img src="https://picsum.photos/id/339/40/40" class="profileBorder" />
+                                            <img src="https://picsum.photos/40" class="profileBorder" />
                                         </v-list-item-avatar>
                                         <v-list-item-content class="pt-2 d-inline">
                                             <v-list-item-subtitle class="whitespaceInit post-title">
@@ -252,17 +243,19 @@
                                 ></div>
                             </div>
                         </v-card-text>
+                        <v-card-text
+                            v-else-if="fullPostComputed && !loadingIcon && editModeComputed"
+                            class="fullHeight"
+                        >
+                            <Quill
+                                key="editQuill"
+                                ref="editQuill"
+                                style="margin-bottom: 20px"
+                                :editor-setup="{ allowEdit: true, showToolbar: true, postHash }"
+                            ></Quill>
+                        </v-card-text>
                     </v-flex>
                 </v-layout>
-                <Quill
-                    v-if="fullPostComputed && !loadingIcon && editModeComputed"
-                    key="editQuill"
-                    ref="editQuill"
-                    style="margin-bottom: 20px"
-                    :editor-setup="{ allowEdit: true, showToolbar: true, postHash }"
-                    @markdownPreviewToggle="markDownToggled"
-                ></Quill>
-
                 <div v-if="loadingIcon">
                     <v-progress-circular
                         :size="150"
@@ -309,12 +302,10 @@ import {
     PostContent,
     PostData,
     PostSettings,
-    PostSettingsCallback,
     PostSettingsEditType,
     PostVersionTypes,
     Requests
 } from "../../../../cshub-shared/src/api-calls";
-import { getTopicFromHash } from "../../../../cshub-shared/src/utilities/Topics";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
 import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities";
@@ -325,6 +316,7 @@ import { colorize } from "../../utilities/codemirror-colorize";
 import PostSaveEditDialog from "./PostSaveEditDialog.vue";
 import { IPost } from "../../../../cshub-shared/src/entities/post";
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
+import { getTopicFromHash } from "../../utilities/Topics";
 
 interface IBreadCrumbType {
     topic: boolean;
@@ -357,14 +349,6 @@ export default class Post extends Vue {
     /**
      * Computed properties
      */
-    get userOwnsThisPostComputed(): boolean {
-        if (this.post && userState.userModel) {
-            return userState.userModel.id === this.post.author.id;
-        } else {
-            return false;
-        }
-    }
-
     get userAdminComputed(): boolean {
         return this.userIsLoggedIn && userState.isAdmin;
     }
@@ -394,7 +378,7 @@ export default class Post extends Vue {
     }
 
     get topics(): ITopic[] {
-        return dataState.topics;
+        return dataState.topTopic ? dataState.topTopic.children : [];
     }
 
     get isOnAdminDashboard(): boolean {
@@ -567,45 +551,25 @@ export default class Post extends Vue {
     }
 
     private hidePost() {
-        ApiWrapper.sendPutRequest(
-            new PostSettings(this.postHash, PostSettingsEditType.HIDE),
-            (callback: PostSettingsCallback) => {
-                logStringConsole("Removed post");
-                this.$router.push(Routes.INDEX);
-            }
-        );
+        ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.HIDE), () => {
+            logStringConsole("Removed post");
+            this.$router.push(Routes.INDEX);
+        });
     }
 
     private wipPost() {
-        ApiWrapper.sendPutRequest(
-            new PostSettings(this.postHash, PostSettingsEditType.WIP),
-            (callback: PostSettingsCallback) => {
-                logStringConsole("WIPPED post");
-                if (this.post) {
-                    this.post.wip = !this.post.wip;
-                }
-
-                // this.$router.push(Routes.WIPPOSTS);
+        ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.WIP), () => {
+            logStringConsole("WIPPED post");
+            if (this.post) {
+                this.post.wip = !this.post.wip;
             }
-        );
+
+            // this.$router.push(Routes.WIPPOSTS);
+        });
     }
 
     private returnToPostMenu() {
         this.$router.push(this.previousTopicURL);
-    }
-
-    private getParentTopic(child: ITopic, topics: ITopic[]): ITopic | null {
-        for (const topic of topics) {
-            if (topic.children !== undefined && topic.children.findIndex(x => x.id === child.id) !== -1) {
-                return topic;
-            } else if (topic.children !== undefined && topic.children.length > 0) {
-                const currTopic = this.getParentTopic(child, topic.children);
-                if (currTopic !== null) {
-                    return currTopic;
-                }
-            }
-        }
-        return null;
     }
 
     private enableEdit() {
@@ -617,7 +581,7 @@ export default class Post extends Vue {
     }
 
     private getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
-        const parentTopic = this.getParentTopic(child, dataState.topics);
+        const parentTopic = child.parent;
 
         const currTopic: IBreadCrumbType = {
             text: child.name,
@@ -625,7 +589,7 @@ export default class Post extends Vue {
             topic: true
         };
 
-        if (parentTopic !== null) {
+        if (parentTopic) {
             const parentArray: IBreadCrumbType[] = this.getTopicListWhereFinalChildIs(parentTopic);
             return [...parentArray, currTopic];
         } else {
@@ -667,79 +631,74 @@ export default class Post extends Vue {
         });
     }
 
-    private getContentRequest(cachedValue: IPost) {
+    private async getContentRequest(knownPost: IPost) {
         const timeOut = setTimeout(() => {
             this.loadingIcon = true;
         }, 250);
 
-        const postVersion: number = typeof cachedValue.htmlContent !== "string" ? -1 : cachedValue.postVersion;
+        const postVersion: number = typeof knownPost.htmlContent !== "string" ? -1 : knownPost.postVersion;
 
-        ApiWrapper.sendGetRequest(
-            new PostContent(this.postHash, postVersion),
-            (callbackContent: GetPostContentCallBack) => {
-                clearTimeout(timeOut);
-                this.loadingIcon = false;
+        try {
+            const content = await ApiWrapper.get(new PostContent(this.postHash, postVersion));
 
-                let hasBeenUpdated = false;
+            clearTimeout(timeOut);
+            this.loadingIcon = false;
 
-                if (callbackContent === null) {
-                    this.post = {
-                        ...cachedValue
-                    };
-                } else if (callbackContent.postVersionType === PostVersionTypes.POSTDELETED) {
-                    this.$router.push(Routes.INDEX);
-                } else if (callbackContent.postVersionType === PostVersionTypes.UPDATEDPOST) {
-                    if (callbackContent.postUpdated && callbackContent.content) {
-                        this.post = {
-                            ...callbackContent.postUpdated
+            let hasBeenUpdated = false;
+
+            let currentPost: IPost = {
+                ...knownPost
+            };
+
+            if (content !== null) {
+                switch (content.data.type) {
+                    case PostVersionTypes.UPDATEDPOST:
+                        currentPost = {
+                            ...content.data.postUpdated
                         };
-                        this.post.htmlContent = callbackContent.content.html;
+                        currentPost.htmlContent = content.data.content.html;
                         hasBeenUpdated = true;
-                    }
-                } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
-                    if (callbackContent.content) {
-                        this.post = {
-                            ...cachedValue
+                        break;
+                    case PostVersionTypes.POSTDELETED:
+                        this.$router.push(Routes.INDEX);
+                        currentPost = {
+                            ...knownPost
                         };
-                        this.post.htmlContent = callbackContent.content.html;
-                        hasBeenUpdated = true;
-                    }
+                        break;
                 }
-
-                if (this.post) {
-                    const topicFromHash = getTopicFromHash(this.post.topic.hash, dataState.topics);
-
-                    if (topicFromHash) {
-                        this.topicNames = this.getTopicListWhereFinalChildIs(topicFromHash);
-                        this.topicNames.push({
-                            text: this.post.title,
-                            to: this.$route.fullPath,
-                            topic: true
-                        });
-                    }
-                }
-
-                if (hasBeenUpdated && this.post) {
-                    this.$forceUpdate();
-                    localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, this.post).then(() => {
-                        logStringConsole("Changed post in cache", "getContentRequest");
-                    });
-                }
-
-                this.scrollToHash();
-            },
-            (err: AxiosError) => {
-                clearTimeout(timeOut);
-                this.loadingIcon = false;
-
-                if (cachedValue !== null && this.post) {
-                    this.post.htmlContent = cachedValue.htmlContent;
-                }
-                this.$forceUpdate();
-
-                this.scrollToHash();
             }
-        );
+
+            const children = dataState.topTopic ? dataState.topTopic.children : [];
+            const topicFromHash = getTopicFromHash(currentPost.topic.hash, children);
+
+            if (topicFromHash) {
+                this.topicNames = this.getTopicListWhereFinalChildIs(topicFromHash);
+                this.topicNames.push({
+                    text: currentPost.title,
+                    to: this.$route.fullPath,
+                    topic: true
+                });
+            }
+
+            if (hasBeenUpdated) {
+                this.$forceUpdate();
+                localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, currentPost).then(() => {
+                    logStringConsole("Changed post in cache", "getContentRequest");
+                });
+            }
+
+            this.post = currentPost;
+
+            this.scrollToHash();
+        } catch (err) {
+            clearTimeout(timeOut);
+            this.loadingIcon = false;
+            this.post = knownPost;
+
+            this.$forceUpdate();
+
+            this.scrollToHash();
+        }
     }
 
     private scrollToHash() {
@@ -945,9 +904,5 @@ export default class Post extends Vue {
 
 .fixedPadding {
     padding: 10px 10px 10px 30px;
-}
-
-.fullHeight {
-    height: 100%;
 }
 </style>

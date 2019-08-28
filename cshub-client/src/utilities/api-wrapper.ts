@@ -5,6 +5,7 @@ import { dataState, userState, uiState } from "../store";
 import { Requests } from "../../../cshub-shared/src/api-calls";
 import { Routes } from "../../../cshub-shared/src/Routes";
 import { ServerError } from "../../../cshub-shared/src/models/ServerError";
+import { logObjectConsole } from "./debugConsole";
 
 const axiosApi = axios.create({
     baseURL: process.env.VUE_APP_API_URL || (window as any).appConfig.VUE_APP_API_URL,
@@ -45,9 +46,7 @@ axiosApi.interceptors.response.use(
         };
 
         if (error.response) {
-            if (error.response.status === 304) {
-                // Do nothing
-            } else if (error.response.status === 401 || error.response.status === 403) {
+            if (error.response.status === 401 || error.response.status === 403) {
                 const isLoggedIn = userState.isLoggedIn;
                 const tokenVal = getCookie("token");
 
@@ -103,8 +102,12 @@ axiosApi.interceptors.response.use(
                     header: `Error!`,
                     text: `There was an error, but no idea what it could be`
                 });
+
+                logObjectConsole(error);
             }
         }
+
+        return Promise.reject(error);
     }
 );
 
@@ -124,8 +127,11 @@ export const getCookie = (name: string): string => {
 };
 
 export class ApiWrapper {
+    /**
+     * @deprecated
+     */
     public static sendPostRequest(
-        request: IApiRequest,
+        request: IApiRequest<any>,
         callback?: (...args: any) => void,
         error?: (err: AxiosError) => void
     ) {
@@ -151,8 +157,11 @@ export class ApiWrapper {
             });
     }
 
+    /**
+     * @deprecated
+     */
     public static sendPutRequest(
-        request: IApiRequest,
+        request: IApiRequest<any>,
         callback?: (...args: any) => void,
         error?: (err: AxiosError) => void
     ) {
@@ -178,8 +187,39 @@ export class ApiWrapper {
             });
     }
 
+    public static sendDeleteRequest(
+        request: IApiRequest<any>,
+        callback?: (...args: any) => void,
+        error?: (err: AxiosError) => void
+    ) {
+        axiosApi
+            .delete(request.URL, {
+                data: request,
+                withCredentials: true,
+                headers: request.headers,
+                params: request.params
+            })
+            .then((response: AxiosResponse<any>) => {
+                if (callback) {
+                    if (response === undefined) {
+                        callback(null, null);
+                    } else {
+                        callback(response.data, response.status);
+                    }
+                }
+            })
+            .catch((err: AxiosError) => {
+                if (error) {
+                    error(err);
+                }
+            });
+    }
+
+    /**
+     * @deprecated
+     */
     public static sendGetRequest(
-        request: IApiRequest,
+        request: IApiRequest<any>,
         callback?: (...args: any) => void,
         error?: (err: AxiosError) => void
     ) {
@@ -201,6 +241,64 @@ export class ApiWrapper {
                 if (error) {
                     error(err);
                 }
+            });
+    }
+
+    private static validateStatus(status: number) {
+        return status < 400;
+    }
+
+    public static put<T>(request: IApiRequest<T>): Promise<T | null> {
+        return axiosApi
+            .put<T>(request.URL, request, {
+                withCredentials: true,
+                headers: request.headers,
+                params: request.params,
+                validateStatus: this.validateStatus
+            })
+            .then(response => {
+                if (response) {
+                    return response.data;
+                }
+
+                return null;
+            });
+    }
+
+    public static post<T>(request: IApiRequest<T>): Promise<T | null> {
+        return axiosApi
+            .post<T>(request.URL, request, {
+                withCredentials: true,
+                headers: request.headers,
+                params: request.params,
+                validateStatus: this.validateStatus
+            })
+            .then(response => {
+                if (response) {
+                    return response.data;
+                }
+
+                return null;
+            });
+    }
+
+    public static get<T>(request: IApiRequest<T>): Promise<T | null> {
+        return axiosApi
+            .get<T>(request.URL, {
+                headers: request.headers,
+                params: request.params,
+                validateStatus: this.validateStatus
+            })
+            .then(response => {
+                if (response.status === 304) {
+                    return null;
+                }
+
+                if (response) {
+                    return response.data;
+                }
+
+                return null;
             });
     }
 }

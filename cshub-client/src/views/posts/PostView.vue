@@ -1,10 +1,34 @@
 <template>
     <div>
-        <transition name="topicHeader">
-            <v-subheader v-if="!isFullPost"> Posts in {{ currentTopicNameComputed }} </v-subheader>
-        </transition>
-        <PostList v-if="postHashes.length > 0" :post-hashes-prop="postHashes"></PostList>
-        <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
+        <PostList
+            v-if="postHashes.length > 0"
+            v-show="isFullPost || isIndex"
+            key="postList"
+            :post-hashes-prop="postHashes"
+        ></PostList>
+
+        <v-tabs v-show="!isFullPost && !isIndex" icons-and-text :vertical="$vuetify.breakpoint.mdAndUp">
+            <v-tab class="ml-0">
+                Posts
+                <v-icon>fas fa-newspaper</v-icon>
+            </v-tab>
+
+            <v-tab class="ml-0">
+                Practice
+                <v-icon>fas fa-question</v-icon>
+            </v-tab>
+
+            <v-tab-item>
+                <transition name="topicHeader">
+                    <v-subheader v-if="!isFullPost"> Posts in {{ currentTopicNameComputed }} </v-subheader>
+                </transition>
+                <PostList v-if="postHashes.length > 0" key="postList" :post-hashes-prop="postHashes"></PostList>
+                <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
+            </v-tab-item>
+            <v-tab-item>
+                <Practice></Practice>
+            </v-tab-item>
+        </v-tabs>
     </div>
 </template>
 
@@ -19,17 +43,20 @@ import isEqual from "lodash/isEqual";
 import PostList from "../../components/posts/PostList.vue";
 
 import { TopicPosts, GetTopicPostsCallBack } from "../../../../cshub-shared/src/api-calls/index";
-import { getTopicFromHash } from "../../../../cshub-shared/src/utilities/Topics";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
-import { dataState } from "../../store";
+import { dataState, uiState } from "../../store";
 
 import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities/index";
 import { CacheTypes } from "../../utilities/cache-types";
+import { getTopicFromHash } from "../../utilities/Topics";
+import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
+import Editors from "../../components/practice/editors/Editors.vue";
+import Practice from "../../components/practice/Practice.vue";
 
 @Component({
     name: "PostView",
-    components: { PostList }
+    components: { Practice, Editors, PostList }
 })
 export default class PostView extends Vue {
     /**
@@ -43,9 +70,9 @@ export default class PostView extends Vue {
      * Computed properties
      */
     get currentTopicNameComputed(): string {
-        if (dataState.topics !== null) {
+        if (dataState.topTopic !== null) {
             if (this.currentTopicHash > 0) {
-                const topicFromHash = getTopicFromHash(this.currentTopicHash, dataState.topics);
+                const topicFromHash = getTopicFromHash(this.currentTopicHash, dataState.topTopic.children);
 
                 if (topicFromHash) {
                     return topicFromHash.name;
@@ -56,6 +83,10 @@ export default class PostView extends Vue {
         }
 
         return "";
+    }
+
+    get isIndex(): boolean {
+        return this.$route.fullPath === Routes.INDEX;
     }
 
     /**
@@ -86,6 +117,18 @@ export default class PostView extends Vue {
 
     private mounted() {
         this.doOnRouteChange();
+
+        EventBus.$on(STUDY_CHANGED, () => {
+            if (this.isIndex) {
+                this.doOnRouteChange();
+            } else {
+                this.$router.push(Routes.INDEX);
+            }
+        });
+    }
+
+    private destroyed() {
+        EventBus.$off(STUDY_CHANGED);
     }
 
     /**
@@ -103,10 +146,21 @@ export default class PostView extends Vue {
             this.currentTopicHash = currentHash;
             this.isFullPost = false;
             this.getTopicRequest(currentHash);
-        } else if (this.$router.currentRoute.fullPath === Routes.INDEX) {
+        } else if (this.isIndex) {
             this.currentTopicHash = 0;
             this.isFullPost = false;
-            this.getTopicRequest(0);
+
+            const topTopic = dataState.topTopic;
+
+            if (topTopic) {
+                this.getTopicRequest(topTopic.hash);
+            } else {
+                uiState.setNotificationDialog({
+                    header: "Error!",
+                    text: "We have not found a topic?",
+                    on: true
+                });
+            }
         }
     }
 

@@ -5,11 +5,11 @@ export class GetSearchPostsCallback {
     constructor(public hashes: number[]) {}
 }
 
-export class Search implements IApiRequest {
+export class Search implements IApiRequest<GetSearchPostsCallback> {
     public static getURL: string = Requests.SEARCH;
     public URL: string = Search.getURL;
 
-    constructor(query: string) {
-        this.URL += "?query=" + query;
+    constructor(query: string, studyNr: number) {
+        this.URL += `?query=${query}&studyNr=${studyNr}`;
     }
 }

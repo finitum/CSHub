@@ -1,21 +1,29 @@
-import {app} from "../.";
+import { app } from "../.";
 import logger from "../utilities/Logger";
-import {Request, Response} from "express";
-import {Search, GetSearchPostsCallback} from "../../../cshub-shared/src/api-calls";
+import { Request, Response } from "express";
+import { Search, GetSearchPostsCallback } from "../../../cshub-shared/src/api-calls";
 
-import {DatabaseResultSet, query} from "../db/database-query";
-import {checkTokenValidityFromRequest} from "../auth/AuthMiddleware";
-import {ServerError} from "../../../cshub-shared/src/models/ServerError";
+import { DatabaseResultSet, query } from "../db/database-query";
+import { ServerError } from "../../../cshub-shared/src/models/ServerError";
 
 app.get(Search.getURL, (req: Request, res: Response) => {
-
     const search = req.query.query;
+    const studyNr = req.query.studyNr;
 
     if (search.length >= 3) {
-        const user = checkTokenValidityFromRequest(req);
-
-        query(`
-            WITH possibleHashes AS (
+        query(
+            `
+            WITH RECURSIVE studyTopics (id, parentid) AS (
+                SELECT t1.id, t1.parentid
+                FROM topics t1
+                WHERE id = (SELECT topTopicId FROM studies WHERE id = ?)
+    
+                UNION ALL
+    
+                SELECT t2.id, t2.parentid
+                FROM topics t2
+                INNER JOIN studyTopics ON t2.parentid = studyTopics.id
+            ), possibleHashes AS (
                 SELECT hash, title, indexWords
                 FROM edits T1
                 INNER JOIN posts T2 ON T1.post = T2.id
@@ -33,6 +41,7 @@ app.get(Search.getURL, (req: Request, res: Response) => {
                 AND T2.deleted = 0
                 AND T2.isIndex = 0
                 AND T2.wip = 0
+                AND T2.topic IN (SELECT id FROM studyTopics)
                 ORDER BY T2.datetime DESC
             )
 
@@ -51,9 +60,12 @@ app.get(Search.getURL, (req: Request, res: Response) => {
                   LIMIT 5)
             ) AS a
             LIMIT 5
-        `, `%${search}%`, `%${search}%`)
+        `,
+            studyNr,
+            `%${search}%`,
+            `%${search}%`
+        )
             .then((hashes: DatabaseResultSet) => {
-
                 const hashesArray: number[] = [];
 
                 for (const hash of hashes.convertRowsToResultObjects()) {
@@ -62,14 +74,17 @@ app.get(Search.getURL, (req: Request, res: Response) => {
 
                 res.json(new GetSearchPostsCallback(hashesArray));
             })
-            .catch((err) => {
+            .catch(err => {
                 logger.error("Error at GetSearchPosts");
                 logger.error(err);
-                res.status(500).send(new ServerError("The query failed... Please open an issue if this keeps persisting (but first try again in a few minutes)"));
+                res.status(500).send(
+                    new ServerError(
+                        "The query failed... Please open an issue if this keeps persisting (but first try again in a few minutes)"
+                    )
+                );
             });
     } else {
         logger.error("Invalid search query");
         res.status(400).send(new ServerError("Your query is not long enough"));
     }
-
 });

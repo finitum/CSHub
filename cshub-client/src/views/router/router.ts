@@ -9,6 +9,7 @@ const CreateAccount = () => import("../user/CreateUserAccount.vue");
 const AdminDashboard = () => import("../user/AdminDashboard.vue");
 const UserDashboard = () => import("../user/UserDashboard.vue");
 const UnsavedPosts = () => import("../user/UnsavedPosts.vue");
+const UnsavedQuestions = () => import("../UnsavedQuestions.vue");
 const ForgotPasswordComp = () => import("../user/ForgotPasswordComp.vue");
 const WIPPosts = () => import("../user/WIPPostsView.vue");
 
@@ -16,7 +17,8 @@ const PostView = () => import("../posts/PostView.vue");
 const PostCreate = () => import("../posts/PostCreate.vue");
 const PostsSearch = () => import("../posts/PostsSearch.vue");
 
-import TopicCreate from "../posts/TopicCreate.vue";
+const PracticeQuestion = () => import("../../components/practice/question/PracticeQuestion.vue");
+const CurrentPracticeQuestion = () => import("../../components/practice/question/CurrentPracticeQuestion.vue");
 
 import { userBeforeEnter } from "./guards/userDashboardGuard";
 import { adminBeforeEnter } from "./guards/adminDashboardGuard";
@@ -28,6 +30,7 @@ import { dataState } from "../../store";
 import { AxiosError } from "axios";
 import { ApiWrapper, logStringConsole } from "../../utilities";
 import { uiState } from "../../store";
+import { setupRequiredDataGuard } from "./guards/setupRequiredDataGuard";
 
 Vue.use(Router);
 
@@ -84,6 +87,23 @@ const router = new Router({
             component: PostView
         },
         {
+            path: `${Routes.QUESTION}`,
+            name: "question",
+            component: PracticeQuestion,
+            children: [
+                {
+                    path: ":index",
+                    name: "currentQuestion",
+                    component: CurrentPracticeQuestion
+                },
+                {
+                    path: "",
+                    name: "questionFallback",
+                    redirect: "0"
+                }
+            ]
+        },
+        {
             path: Routes.SEARCH,
             name: "search",
             component: PostsSearch
@@ -106,6 +126,12 @@ const router = new Router({
             beforeEnter: userBeforeEnter
         },
         {
+            path: Routes.UNSAVEDQUESTIONS,
+            name: "unsavedquestions",
+            component: UnsavedQuestions,
+            beforeEnter: userBeforeEnter
+        },
+        {
             path: Routes.FORGOTPASSWORD,
             name: "forgotpassword",
             component: ForgotPasswordComp
@@ -117,12 +143,6 @@ const router = new Router({
             beforeEnter: adminBeforeEnter
         },
         {
-            path: Routes.TOPICCREATE,
-            name: "topiccreate",
-            component: TopicCreate,
-            beforeEnter: adminBeforeEnter
-        },
-        {
             path: "*",
             name: "wildcard",
             component: PostView
@@ -131,31 +151,41 @@ const router = new Router({
 });
 
 router.beforeEach((to: Route, from: Route, next) => {
-    if (!userState.hasCheckedToken) {
-        ApiWrapper.sendGetRequest(
-            new VerifyToken(),
-            (verified: VerifyUserTokenCallback) => {
-                if (!dataState.hasConnection) {
-                    dataState.setConnection(true);
-                }
+    setupRequiredDataGuard().then(shouldWeContinue => {
+        if (shouldWeContinue) {
+            if (!userState.hasCheckedToken) {
+                ApiWrapper.sendGetRequest(
+                    new VerifyToken(),
+                    (verified: VerifyUserTokenCallback) => {
+                        if (!dataState.hasConnection) {
+                            dataState.setConnection(true);
+                        }
 
-                if (verified.response) {
-                    logStringConsole("User is logged in", "isLoggedIn after API");
-                    userState.setUserModel(verified.response);
-                } else {
-                    logStringConsole("User is not logged in", "isLoggedIn after API");
-                }
-                next();
-                userState.setHasCheckedToken(true);
-            },
-            (err: AxiosError) => {
-                dataState.setConnection(false);
+                        if (verified.response) {
+                            logStringConsole("User is logged in", "isLoggedIn after API");
+                            userState.setUserModel(verified.response);
+                        } else {
+                            logStringConsole("User is not logged in", "isLoggedIn after API");
+                        }
+                        next();
+                        userState.setHasCheckedToken(true);
+                    },
+                    (err: AxiosError) => {
+                        dataState.setConnection(false);
+                        next();
+                    }
+                );
+            } else {
                 next();
             }
-        );
-    } else {
-        next();
-    }
+        } else {
+            uiState.setNotificationDialog({
+                on: true,
+                header: "No studies / topics found :(",
+                text: "Our request for studies or topics returned nothing, so we can't continue now, please report this"
+            });
+        }
+    });
 });
 
 router.afterEach((to: Route, from: Route) => {

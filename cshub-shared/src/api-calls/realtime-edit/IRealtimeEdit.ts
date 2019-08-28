@@ -5,7 +5,7 @@ import { Dayjs } from "dayjs";
 export interface IRealtimeEdit {
     postHash: number;
     userId?: number;
-    timestamp: Dayjs;
+    timestamp: Dayjs | null;
     delta?: Delta;
     prevServerGeneratedId?: number;
     serverGeneratedId?: number;

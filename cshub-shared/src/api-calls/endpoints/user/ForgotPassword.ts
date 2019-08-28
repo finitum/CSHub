@@ -11,7 +11,7 @@ export class ForgotPasswordCallback {
     constructor(public response: ForgotPasswordResponseTypes) {}
 }
 
-export class ForgotPassword implements IApiRequest {
+export class ForgotPassword implements IApiRequest<ForgotPasswordCallback> {
     public static getURL: string = Requests.FORGOTPASSWORD;
     public URL: string = ForgotPassword.getURL;
 

@@ -12,7 +12,7 @@ export class ForgotPasswordMailCallback {
     constructor(public response: ForgotPasswordMailResponseTypes) {}
 }
 
-export class ForgotPasswordMail implements IApiRequest {
+export class ForgotPasswordMail implements IApiRequest<ForgotPasswordMailCallback> {
     public static getURL: string = Requests.FORGOTPASSWORDMAIL;
     public URL: string = ForgotPasswordMail.getURL;
 

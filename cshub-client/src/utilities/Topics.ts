@@ -1,6 +1,6 @@
-import { ITopic } from "../entities/topic";
-
 // This is a recursive function which will get the topic from its hash, if not, check the children (by calling itself on the children)
+import { ITopic } from "../../../cshub-shared/src/entities/topic";
+
 export const getTopicFromHash = (topicHash: number, topics: ITopic[]): ITopic | null => {
     for (const topic of topics) {
         if (topic.hash === topicHash) {

@@ -6,7 +6,7 @@ export class GetEditContentCallback {
     constructor(public edits: IEdit[]) {}
 }
 
-export class EditContent implements IApiRequest {
+export class EditContent implements IApiRequest<GetEditContentCallback> {
     public static getURL: string = Requests.EDITCONTENT;
     public URL: string = EditContent.getURL;
 

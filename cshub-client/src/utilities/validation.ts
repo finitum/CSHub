@@ -11,4 +11,4 @@ export const emailValidator = {
     }
 };
 
-Vue.use(VeeValidate, { inject: false, delay: 1 });
+Vue.use(VeeValidate, { inject: true, delay: 1 });

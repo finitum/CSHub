@@ -1,16 +1,20 @@
-import {ConnectionOptions, createConnection, Logger, QueryRunner} from "typeorm";
+import { ConnectionOptions, createConnection, Logger, QueryRunner } from "typeorm";
 
-import {Settings} from "../settings";
+import { Settings } from "../settings";
 
-import {User} from "./entities/user";
-import {Topic} from "./entities/topic";
-import {Post} from "./entities/post";
-import {Edit} from "./entities/edit";
-import {Study} from "./entities/study";
+import { User } from "./entities/user";
+import { Topic } from "./entities/topic";
+import { Post } from "./entities/post";
+import { Edit } from "./entities/edit";
+import { Study } from "./entities/study";
 
 import tunnel from "tunnel-ssh";
 import fs from "fs";
 import logger from "../utilities/Logger";
+import { CacheVersion } from "./entities/cacheversion";
+import { Answer } from "./entities/practice/answer";
+import { Question } from "./entities/practice/question";
+import { app } from "../index";
 
 class CustomLogger implements Logger {
     log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {
@@ -24,13 +28,12 @@ class CustomLogger implements Logger {
     logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner): any {
         logger.verbose(query);
     }
-
     logQueryError(error: string, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
         logger.error(`Query error: ${error} for query ${query}`);
     }
 
     logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
-        logger.error( `Slow query, takes ${time} for ${query}`);
+        logger.error(`Slow query, takes ${time} for ${query}`);
     }
 
     logSchemaBuild(message: string, queryRunner?: QueryRunner): any {
@@ -48,7 +51,14 @@ const options: ConnectionOptions = {
     multipleStatements: true,
     logger: new CustomLogger(),
     entities: [
-        User, Topic, Post, Edit, Study
+        User,
+        Topic,
+        Post,
+        Edit,
+        Study,
+        Answer,
+        Question,
+        CacheVersion
     ],
     synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
 };
@@ -70,10 +80,12 @@ if (Settings.USESSH) {
             throw error;
         }
 
-        createConnection(options)
-            .catch(reason => logger.error(reason));
+        createConnection(options).catch(reason => logger.error(reason));
     });
 } else {
     createConnection(options)
+        .then(() => {
+            app.emit("db-connect");
+        })
         .catch(reason => logger.error(reason));
 }

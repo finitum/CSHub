@@ -5,8 +5,6 @@ import { colorize } from "../../utilities/codemirror-colorize";
 import store from "../store";
 import CodeMirror from "codemirror";
 
-import vuetify from "../../plugins/vuetify/vuetify";
-
 export type editDialogType = {
     on: boolean;
     hash: number;

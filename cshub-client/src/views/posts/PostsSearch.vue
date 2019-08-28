@@ -36,7 +36,7 @@ import { Search, GetSearchPostsCallback } from "../../../../cshub-shared/src/api
 
 import PostList from "../../components/posts/PostList.vue";
 
-import { dataState } from "../../store";
+import { dataState, uiState } from "../../store";
 
 import { ApiWrapper } from "../../utilities";
 
@@ -94,9 +94,12 @@ export default class PostsSearch extends Vue {
      * Methods
      */
     private getSearchResults() {
-        ApiWrapper.sendGetRequest(new Search(this.searchQuery), (result: GetSearchPostsCallback) => {
-            this.postHashes = result.hashes;
-        });
+        ApiWrapper.sendGetRequest(
+            new Search(this.searchQuery, uiState.studyNr || 0),
+            (result: GetSearchPostsCallback) => {
+                this.postHashes = result.hashes;
+            }
+        );
     }
 }
 </script>

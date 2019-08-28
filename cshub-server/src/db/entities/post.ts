@@ -1,69 +1,74 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Topic} from "./topic";
-import {User} from "./user";
-import {IPost} from "../../../../cshub-shared/src/entities/post";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Topic } from "./topic";
+import { IPost } from "../../../../cshub-shared/src/entities/post";
+import { Exclude, Expose } from "class-transformer";
 
+@Exclude()
 @Entity({
     name: "posts"
 })
 export class Post implements IPost {
-
+    @Expose()
     @PrimaryGeneratedColumn()
-    id: number;
+    id!: number;
 
+    @Expose()
     @ManyToOne(type => Topic, topic => topic.posts, {
         nullable: false
     })
-    @JoinColumn({name: "topic"})
+    @JoinColumn({ name: "topic" })
     @Index()
-    topic: Topic;
+    topic!: Topic;
 
-    @ManyToOne(type => User, user => user.posts, {
-        nullable: false
-    })
-    @JoinColumn({name: "author"})
-    author: User;
-
+    @Expose()
     @Column({
         type: "datetime",
         default: () => "CURRENT_TIMESTAMP"
     })
-    datetime: Date;
+    datetime!: Date;
 
+    @Expose()
     @Column({
         type: "varchar",
         length: 127,
         unique: true
     })
-    title: string;
+    title!: string;
 
+    @Expose()
     @Column({
         unique: true
     })
-    hash: number;
+    hash!: number;
 
-    @Column()
+    @Expose()
+    @Column({
+        default: 0
+    })
     @Index()
-    postVersion: number;
+    postVersion!: number;
 
+    @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
         default: false
     })
     @Index()
-    deleted: boolean;
+    deleted!: boolean;
 
+    @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
         default: true
     })
     @Index()
-    wip: boolean;
+    wip!: boolean;
 
+    @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
         default: false
     })
     @Index()
-    isIndex: boolean;
+    isIndex!: boolean;
 }

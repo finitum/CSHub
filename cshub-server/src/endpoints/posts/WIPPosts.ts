@@ -1,20 +1,20 @@
-import {app} from "../../";
-import {Request, Response} from "express";
-import {DatabaseResultSet, query} from "../../db/database-query";
-import {GetUnverifiedPostsCallBack, SubmitTopic, WIPPosts} from "../../../../cshub-shared/src/api-calls";
-import {customValidator, validateMultipleInputs} from "../../utilities/StringUtils";
+import { app } from "../../";
+import { Request, Response } from "express";
+import { DatabaseResultSet, query } from "../../db/database-query";
+import { GetUnverifiedPostsCallBack, SubmitTopic, WIPPosts } from "../../../../cshub-shared/src/api-calls";
+import { customValidator, validateMultipleInputs } from "../../utilities/StringUtils";
 
 app.get(WIPPosts.getURL, (req: Request, res: Response) => {
-
     const studyId = +req.query[WIPPosts.studyQueryParam];
 
-    if (!customValidator({input: studyId}).valid) {
+    if (!customValidator({ input: studyId }).valid) {
         res.sendStatus(400);
         return;
     }
 
     // language=MySQL
-    query(`
+    query(
+        `
         WITH RECURSIVE studyTopics (id, parentid) AS (
             SELECT t1.id, t1.parentid
             FROM topics t1
@@ -31,15 +31,15 @@ app.get(WIPPosts.getURL, (req: Request, res: Response) => {
         FROM posts T1
         WHERE T1.wip = 1 AND T1.deleted = 0 AND T1.topic IN (SELECT id FROM studyTopics)
         ORDER BY T1.datetime DESC
-    `, studyId)
-        .then((result: DatabaseResultSet) => {
+    `,
+        studyId
+    ).then((result: DatabaseResultSet) => {
+        const hashes: number[] = [];
 
-            const hashes: number[] = [];
-
-            result.convertRowsToResultObjects().forEach((x) => {
-                hashes.push(x.getNumberFromDB("hash"));
-            });
-
-            res.json(new GetUnverifiedPostsCallBack(hashes));
+        result.convertRowsToResultObjects().forEach(x => {
+            hashes.push(x.getNumberFromDB("hash"));
         });
+
+        res.json(new GetUnverifiedPostsCallBack(hashes));
+    });
 });

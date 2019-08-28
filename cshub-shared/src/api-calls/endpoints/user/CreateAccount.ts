@@ -12,7 +12,7 @@ export class CreateAccountCallBack {
     constructor(public response: CreateAccountResponseTypes) {}
 }
 
-export class CreateAccount implements IApiRequest {
+export class CreateAccount implements IApiRequest<CreateAccountCallBack> {
     public static getURL: string = Requests.CREATEACCOUNT;
     public URL: string = CreateAccount.getURL;
 

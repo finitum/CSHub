@@ -1,86 +1,92 @@
-import {Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {Post} from "./post";
-import {Study} from "./study";
-import {Edit} from "./edit";
-import {IUser} from "../../../../cshub-shared/src/entities/user";
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Study } from "./study";
+import { Edit } from "./edit";
+import { IUser } from "../../../../cshub-shared/src/entities/user";
+import { Question } from "./practice/question";
+import { Exclude, Expose } from "class-transformer";
 
+@Exclude()
 @Entity({
     name: "users"
 })
 export class User implements IUser {
-
+    @Expose()
     @PrimaryGeneratedColumn()
-    id: number;
+    id!: number;
 
+    @Expose()
     @Column({
         type: "text"
     })
-    email: string;
+    email!: string;
 
-    @Column({
-        type: "text"
-    })
-    password: string;
-
+    @Expose()
     @Column({
         type: "blob",
         nullable: true
     })
-    avatar: string;
+    avatar!: string;
 
+    @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
         default: false
     })
-    admin: boolean;
+    admin!: boolean;
+
+    @Expose()
+    @Column({
+        type: "int", // Otherwise it overrides the value
+        default: false
+    })
+    blocked!: boolean;
+
+    @Expose()
+    @Column({
+        type: "int", // Otherwise it overrides the value
+        default: false
+    })
+    verified!: boolean;
+
+    @Expose()
+    @Column({
+        type: "text"
+    })
+    firstname!: string;
+
+    @Expose()
+    @Column({
+        type: "text"
+    })
+    lastname!: string;
+
+    @Expose()
+    @ManyToMany(type => Study, study => study.admins)
+    studies!: Study[];
+
+    // Not sent to client
+    @Column({
+        type: "text"
+    })
+    password!: string;
 
     @Column({
         type: "datetime",
         default: () => "CURRENT_TIMESTAMP"
     })
-    created: Date;
-
-    @Column({
-        type: "int", // Otherwise it overrides the value
-        default: false
-    })
-    blocked: boolean;
-
-    @Column({
-        type: "int", // Otherwise it overrides the value
-        default: false
-    })
-    verified: boolean;
-
-    @Column({
-        type: "text"
-    })
-    firstname: string;
-
-    @Column({
-        type: "text"
-    })
-    lastname: string;
+    created!: Date;
 
     @Column({
         nullable: true
     })
-    verifyhash: number;
+    verifyhash?: number;
 
     @Column({
         nullable: true
     })
-    passresethash: number;
+    passresethash?: number;
 
-    @OneToMany(type => Post, post => post.author)
-    posts: Post[];
-
+    // Just to make the model complete
     @ManyToMany(type => Edit, edit => edit.editusers)
-    edits: Edit[];
-
-    @ManyToOne(type => Edit, edit => edit.approvedBy)
-    approvedEdits: Edit[];
-
-    @ManyToMany(type => Study, study => study.admins)
-    studies: Study[];
+    edits?: Edit[];
 }

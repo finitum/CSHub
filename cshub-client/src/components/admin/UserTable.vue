@@ -8,15 +8,30 @@
             class="elevation-1"
             @update:options="getDataOptions"
         >
-            <template slot="items" slot-scope="props">
-                <td>{{ props.item.id }}</td>
-                <td class="text-xs-right">{{ props.item.firstname }}</td>
-                <td class="text-xs-right">{{ props.item.lastname }}</td>
-                <td class="text-xs-right">{{ props.item.email }}</td>
-                <td class="text-xs-right">{{ props.item.admin }}</td>
-                <td class="text-xs-right">{{ props.item.blocked }}</td>
-                <td class="text-xs-right">{{ props.item.verified }}</td>
+            <template v-slot:item.admin="{ item }">
+                <v-checkbox v-model="item.admin" @change="admin(item)" :disabled="isSelf(item)"></v-checkbox>
             </template>
+
+            <template v-slot:item.blocked="{ item }">
+                <v-checkbox v-model="item.blocked" @change="block(item)" :disabled="isSelf(item)"></v-checkbox>
+            </template>
+
+            <template v-slot:item.verified="{ item }">
+                <v-checkbox v-model="item.verified" @change="verify(item)" :disabled="isSelf(item)"></v-checkbox>
+            </template>
+
+            <template v-slot:item.studies="{ item }">
+                <v-select
+                    v-model="item.studies"
+                    :items="studies"
+                    label="Select"
+                    multiple
+                    persistent-hint
+                    @change="studyAdmin(item)"
+                    :disabled="isSelf(item)"
+                ></v-select>
+            </template>
+
         </v-data-table>
     </div>
 </template>
@@ -27,8 +42,17 @@ import { Component } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../utilities";
 
-import { AllUsers, AllUsersCallBack } from "../../../../cshub-shared/src/api-calls";
+import { AllUsers, AllUsersCallBack, Studies} from "../../../../cshub-shared/src/api-calls";
 import { IUser } from "../../../../cshub-shared/src/entities/user";
+import { IStudy } from "../../../../cshub-shared/src/entities/study";
+import {
+    VerifyUser,
+    BlockUser,
+    SetAdminUser,
+    SetStudyAdminUser
+} from "../../../../cshub-shared/src/api-calls/endpoints/user/UserAdminPage";
+import { dataState, uiState, userState } from "../../store";
+import { getStudies } from "../../views/router/guards/setupRequiredDataGuard";
 
 @Component({
     name: "userTable"
@@ -46,10 +70,24 @@ export default class UserTable extends Vue {
         { text: "Email", value: "email" },
         { text: "Admin", value: "admin" },
         { text: "Blocked", value: "blocked" },
-        { text: "Verified", value: "verified" }
+        { text: "Verified", value: "verified" },
+        { text: "Study admin", value: "studies" }
     ];
     private loading = true;
     private amountItems: number = 0;
+
+    get studies(): Array<{ text: string; value: number }> {
+        if (dataState.studies) {
+            return dataState.studies.map(value => {
+                return {
+                    text: value.name,
+                    value: value.id
+                };
+            });
+        } else {
+            return [];
+        }
+    }
 
     /*
      * Lifecycle hooks
@@ -72,6 +110,36 @@ export default class UserTable extends Vue {
             this.amountItems = callback.totalItems;
             this.loading = false;
         });
+    }
+
+    private async admin(item: IUser) {
+        await ApiWrapper.put(new SetAdminUser(item, item.admin));
+    }
+
+    private async block(item: IUser) {
+        await ApiWrapper.put(new BlockUser(item, item.blocked));
+    }
+
+    private async studyAdmin(item: IUser) {
+        await ApiWrapper.put(new SetStudyAdminUser(item, item.studies));
+    }
+
+    private async verify(item: IUser) {
+        await ApiWrapper.put(new VerifyUser(item, item.verified));
+    }
+
+
+    private isSelf(item: IUser){
+        const Self = userState.userModel;
+        if (Self === null) {
+            return true;
+        }
+
+        if (item.id === Self.id) {
+            return true;
+        }
+
+        return false;
     }
 }
 </script>

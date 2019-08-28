@@ -1,22 +1,20 @@
-import {IRealtimeEdit} from "../../../cshub-shared/src/api-calls/realtime-edit";
-import {DatabaseResultSet, query} from "../db/database-query";
+import { IRealtimeEdit } from "../../../cshub-shared/src/api-calls/realtime-edit";
+import { query } from "../db/database-query";
 import logger from "../utilities/Logger";
 import Delta = require("quill-delta/dist/Delta");
-import {transformFromArray} from "../../../cshub-shared/src/utilities/DeltaHandler";
+import { transformFromArray } from "../../../cshub-shared/src/utilities/DeltaHandler";
 import async from "async";
 
-type queueType = {
-    toAdd: IRealtimeEdit[],
-    fullList: IRealtimeEdit[],
-    isAsyncRunning: boolean
-};
+interface QueueType {
+    toAdd: IRealtimeEdit[];
+    fullList: IRealtimeEdit[];
+    isAsyncRunning: boolean;
+}
 
 export class DataList {
-
-    private readonly editQueues: { [postId: number]: queueType } = {};
+    private readonly editQueues: { [postId: number]: QueueType } = {};
 
     public addPost(postHash: number) {
-
         this.editQueues[postHash] = {
             toAdd: [],
             fullList: [],
@@ -25,7 +23,6 @@ export class DataList {
     }
 
     public addPostEdit(newEdit: IRealtimeEdit) {
-
         const queue = this.getTodoQueue(newEdit.postHash);
 
         if (queue === null) {
@@ -40,12 +37,14 @@ export class DataList {
 
                 async.whilst(
                     () => queue.toAdd.length !== 0,
-                    (next) => {
+                    next => {
                         logger.verbose("Handling edit");
                         this.handleSave(next, queue);
-                    }, () => {
+                    },
+                    () => {
                         queue.isAsyncRunning = false;
-                    });
+                    }
+                );
             }
 
             if (queue.fullList.length > 10) {
@@ -54,13 +53,13 @@ export class DataList {
         }
     }
 
-    private handleSave(next: () => void, queue: queueType): void {
-
+    private handleSave(next: () => void, queue: QueueType): void {
         const currRecord = queue.toAdd[0];
 
         new Promise(resolve => resolve())
             .then(() => {
-                return query(`
+                return query(
+                    `
                   SELECT content, approved
                   FROM edits
                   WHERE post = (
@@ -70,15 +69,17 @@ export class DataList {
                   )
                   ORDER BY datetime DESC
                   LIMIT 1
-                `, currRecord.postHash);
+                `,
+                    currRecord.postHash
+                );
             })
-            .then((lastEdit: DatabaseResultSet) => {
-
+            .then(lastEdit => {
                 const isApproved = lastEdit.getLength() === 0 || lastEdit.getNumberFromDB("approved") === 1;
 
                 try {
                     if (isApproved) {
-                        return query(`
+                        return query(
+                            `
                           INSERT INTO edits
                           SET post     = (
                             SELECT id
@@ -87,16 +88,20 @@ export class DataList {
                           ),
                               content  = ?,
                               datetime = NOW()
-                        `, currRecord.postHash, JSON.stringify(currRecord.delta))
-                            .then(() => {
+                        `,
+                            currRecord.postHash,
+                            JSON.stringify(currRecord.delta)
+                        ).then(() => {
+                            if (currRecord.userId) {
                                 return this.insertUserIntoEdit(currRecord.postHash, currRecord.userId);
-                            });
+                            }
+                        });
                     } else {
-
                         const lastEditDelta = new Delta(JSON.parse(lastEdit.getStringFromDB("content")));
-                        const toBeSavedEdit = lastEditDelta.compose(currRecord.delta);
+                        const toBeSavedEdit = lastEditDelta.compose(currRecord.delta ? currRecord.delta : new Delta());
 
-                        return query(`
+                        return query(
+                            `
                           UPDATE edits
                             INNER JOIN posts ON edits.post = posts.id
                           SET edits.content = ?
@@ -104,29 +109,41 @@ export class DataList {
                             AND posts.hash = ?
                           ORDER BY edits.datetime DESC
                           LIMIT 1
-                        `, JSON.stringify(toBeSavedEdit), currRecord.postHash)
-                            .then(() => {
+                        `,
+                            JSON.stringify(toBeSavedEdit),
+                            currRecord.postHash
+                        ).then(() => {
+                            if (currRecord.userId) {
                                 return this.insertUserIntoEdit(currRecord.postHash, currRecord.userId);
-                            });
+                            }
+                        });
                     }
                 } catch (e) {
-                    logger.error(`Error with saving realtime edit (inserting), postHash: ${queue.toAdd[0].postHash}, delta: ${JSON.stringify(queue.toAdd[0].delta)}, queue:`);
+                    logger.error(
+                        `Error with saving realtime edit (inserting), postHash: ${
+                            queue.toAdd[0].postHash
+                        }, delta: ${JSON.stringify(queue.toAdd[0].delta)}, queue:`
+                    );
                     logger.error(JSON.stringify(queue));
                     logger.error(e);
-                    return null; // NOOP
                 }
             })
             .then(() => {
                 queue.toAdd.shift();
-                logger.verbose(`DONE inserting edit from time ${currRecord.timestamp} and user ${currRecord.userId} with id ${currRecord.userGeneratedId} and delta ${JSON.stringify(currRecord.delta)}`);
+                logger.verbose(
+                    `DONE inserting edit from time ${currRecord.timestamp} and user ${currRecord.userId} with id ${
+                        currRecord.userGeneratedId
+                    } and delta ${JSON.stringify(currRecord.delta)}`
+                );
                 next();
             });
     }
 
     private insertUserIntoEdit(postHash: number, userId: number) {
-        return query(`
+        return query(
+            `
           INSERT INTO editusers
-          SET edit = (
+          SET editsId = (
             SELECT id
             FROM edits
             WHERE post = (
@@ -136,23 +153,27 @@ export class DataList {
             )
               AND approved = 0
           ),
-              user = ?
-          ON DUPLICATE KEY UPDATE user=user;
-        `, postHash, userId)
-            .catch((e) => {
-                logger.error("Inserting into edituser failed");
-                logger.error(e);
-                return;
-            });
+              usersId = ?
+          ON DUPLICATE KEY UPDATE usersId=usersId;
+        `,
+            postHash,
+            userId
+        ).catch(e => {
+            logger.error("Inserting into edituser failed");
+            logger.error(e);
+            return;
+        });
     }
 
     public transformArray(newEdit: IRealtimeEdit, newEditHasPriority: boolean): Delta {
-        const editQueue =  this.getEditQueue(newEdit.postHash);
+        const editQueue = this.getEditQueue(newEdit.postHash);
         if (editQueue.length > 0) {
-            return transformFromArray(editQueue, newEdit, newEditHasPriority);
-        } else {
-            return new Delta();
+            const transformedDelta = transformFromArray(editQueue, newEdit, newEditHasPriority);
+            if (transformedDelta) {
+                return transformedDelta;
+            }
         }
+        return new Delta();
     }
 
     public getPreviousServerID(postHash: number): number {
@@ -160,9 +181,9 @@ export class DataList {
         if (currQueue.length === 0) {
             return -1;
         } else {
-            return currQueue[currQueue.length - 1].serverGeneratedId;
+            const iRealtimeEdit = currQueue[currQueue.length - 1];
+            return iRealtimeEdit.serverGeneratedId ? iRealtimeEdit.serverGeneratedId : -1;
         }
-
     }
 
     public getPreviousServerIDOfUser(edit: IRealtimeEdit): number {
@@ -172,7 +193,8 @@ export class DataList {
         } else {
             for (let i = currQueue.length - 1; i >= 0; i--) {
                 if (currQueue[i].userId === edit.userId && currQueue[i].userGeneratedId === edit.prevUserGeneratedId) {
-                    return currQueue[i].serverGeneratedId;
+                    const serverGeneratedId = currQueue[i].serverGeneratedId;
+                    return serverGeneratedId ? serverGeneratedId : -1;
                 }
             }
             // Not possible
@@ -190,7 +212,7 @@ export class DataList {
         }
     }
 
-    private getTodoQueue(postHash: number): queueType {
+    private getTodoQueue(postHash: number): QueueType {
         if (this.editQueues.hasOwnProperty(postHash)) {
             return this.editQueues[postHash];
         } else {

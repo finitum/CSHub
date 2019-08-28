@@ -2,7 +2,7 @@ import { IApiRequest } from "../../../models";
 
 import { Requests } from "../../Requests";
 
-export class ForceEditPost implements IApiRequest {
+export class ForceEditPost implements IApiRequest<void> {
     public static getURL: string = Requests.FORCEEDITPOST;
     public URL: string = ForceEditPost.getURL;
 

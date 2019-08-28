@@ -1,13 +1,6 @@
 <template>
     <div>
         <v-subheader>
-            Your posts
-        </v-subheader>
-
-        <PostList v-if="postHashes.length > 0" :post-hashes-prop="postHashes"></PostList>
-        <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
-
-        <v-subheader>
             Your profile
         </v-subheader>
         <v-container fluid fill-height>
@@ -122,23 +115,19 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
-import localForage from "localforage";
 
 import PostList from "../../components/posts/PostList.vue";
 
 import { userState } from "../../store";
 
-import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities";
+import { ApiWrapper, logStringConsole } from "../../utilities";
 import {
     ChangePassword,
     ChangePasswordCallback,
-    ChangePasswordResponseTypes,
-    Dashboard,
-    DashboardCallback
+    ChangePasswordResponseTypes
 } from "../../../../cshub-shared/src/api-calls";
 import { ChangeAvatar, ChangeAvatarCallback } from "../../../../cshub-shared/src/api-calls";
 import { uiState } from "../../store";
-import { IPost } from "../../../../cshub-shared/src/entities/post";
 import { IUser } from "../../../../cshub-shared/src/entities/user";
 
 @Component({
@@ -150,7 +139,6 @@ export default class UserDashboard extends Vue {
     /**
      * Data
      */
-    private postHashes: number[] = [];
     private userData = {
         currentPassword: "",
         currentPasswordError: "",
@@ -171,10 +159,6 @@ export default class UserDashboard extends Vue {
     /**
      * Lifecycle hooks
      */
-    private mounted() {
-        this.getHashes();
-    }
-
     public metaInfo(): any {
         return {
             title: "User - CSHub"
@@ -207,42 +191,15 @@ export default class UserDashboard extends Vue {
         }
     }
 
-    private getHashes() {
-        ApiWrapper.sendGetRequest(new Dashboard(), (callbackData: DashboardCallback) => {
-            this.postHashes = callbackData.postHashes;
-            logObjectConsole(callbackData.postHashes, "User dashboard posthashes");
-        });
-    }
-
     private changeAvatar() {
         ApiWrapper.sendPostRequest(new ChangeAvatar(this.imageBase64), (callback: ChangeAvatarCallback) => {
             if (callback.response) {
                 logStringConsole("User changed avatar");
-                localForage
-                    .keys()
-                    .then((keys: string[]) => {
-                        for (const key of keys) {
-                            if (key.slice(0, 5) === "POST_") {
-                                localForage.getItem<IPost>(key).then((post: IPost) => {
-                                    if (
-                                        userState.userModel &&
-                                        post.author.id === userState.userModel.id &&
-                                        callback.response
-                                    ) {
-                                        post.author.avatar = callback.response;
-                                        localForage.setItem<IPost>(key, post);
-                                    }
-                                });
-                            }
-                        }
-                    })
-                    .then(() => {
-                        uiState.setNotificationDialog({
-                            on: true,
-                            header: "Avatar changed",
-                            text: "Your avatar has been changed, refresh the page to see your avatar update"
-                        });
-                    });
+                uiState.setNotificationDialog({
+                    on: true,
+                    header: "Avatar changed",
+                    text: "Your avatar has been changed, refresh the page to see your avatar update"
+                });
             }
         });
     }

@@ -1,46 +1,70 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
-import {app} from "../../";
+import { app } from "../../";
 import logger from "../../utilities/Logger";
 
-import {Topics, GetTopicsCallBack} from "../../../../cshub-shared/src/api-calls";
-import {getTopicTree} from "../../utilities/TopicsUtils";
-import {DatabaseResultSet, query} from "../../db/database-query";
-import {ServerError} from "../../../../cshub-shared/src/models/ServerError";
+import { Topics, GetTopicsCallBack } from "../../../../cshub-shared/src/api-calls";
+import { getTopicTree } from "../../utilities/TopicsUtils";
+import { getRepository } from "typeorm";
+import { CacheVersion } from "../../db/entities/cacheversion";
+import { Topic } from "../../db/entities/topic";
 
-app.get(Topics.getURL, (req: Request, res: Response) => {
-
-    const topicVersion: number = +req.header(Topics.topicVersionHeader);
-    logger.info("Received TopicVersion: " + topicVersion);
-
-    const study: number = +req.query[Topics.studyQueryParam];
-    if (!study) {
-        res.status(400).send(new ServerError("Not a valid study id"));
-        return;
+app.get(Topics.getURL, async (req: Request, res: Response) => {
+    let version = -1;
+    const versionHeader = req.header(Topics.topicVersionHeader);
+    if (versionHeader) {
+        version = +versionHeader;
+        logger.info("Received TopicVersion: " + version);
     }
-    logger.info("Received Study: " + study);
 
-    query(`
-        SELECT cacheVersion
-        FROM studies T1
-        INNER JOIN topics t on T1.topTopicId = t.id
-        WHERE T1.id = ?`, study)
-        .then((versionData: DatabaseResultSet) => {
-            const version = versionData.getNumberFromDB("cacheVersion");
+    let study: number | undefined = undefined;
+    const studyQueryParam = req.query[Topics.studyQueryParam];
+    if (studyQueryParam) {
+        study = +studyQueryParam;
+        logger.info("Received Study: " + study);
+    }
 
-            if (version === topicVersion) {
-                res.status(304).send(); // Not Modified
-            } else {
-                const topics = getTopicTree(study);
-                topics
-                    .then((result) => {
-                        if (result === null) {
-                            logger.error(`No topics found`);
-                            res.status(500).send();
-                        } else {
-                            res.json(new GetTopicsCallBack(version, result));
-                        }
-                    });
+    const repository = getRepository(CacheVersion);
+
+    const versionData = await repository.findOne({
+        where: {
+            type: "TOPICS"
+        }
+    });
+
+    const makeJsonifiable = (topic: Topic) => {
+        delete topic.parent;
+
+        for (const child of topic.children) {
+            makeJsonifiable(child);
+        }
+    };
+
+    if (!versionData) {
+        const cacheVersion = new CacheVersion();
+        cacheVersion.version = 0;
+        cacheVersion.type = "TOPICS";
+        repository.save(cacheVersion);
+    } else if (versionData && versionData.version === version) {
+        res.status(304).send(); // Not Modified
+    } else {
+        const topicTree = await getTopicTree(study);
+
+        if (topicTree === null) {
+            logger.error(`No topics found`);
+            res.status(500).send();
+        } else {
+            if (topicTree.length > 1) {
+                logger.error("More than 1 top topic?");
+                res.status(500).send();
+                return;
             }
-        });
+
+            const topTopic = topicTree[0];
+
+            makeJsonifiable(topTopic);
+
+            res.json(new GetTopicsCallBack(versionData ? versionData.version : 0, topTopic));
+        }
+    }
 });

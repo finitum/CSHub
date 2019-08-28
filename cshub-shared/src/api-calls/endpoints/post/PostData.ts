@@ -7,7 +7,7 @@ export class GetPostCallBack {
     constructor(public post: IPost) {}
 }
 
-export class PostData implements IApiRequest {
+export class PostData implements IApiRequest<GetPostCallBack> {
     public static getURL: string = Requests.POSTDATA;
     public URL: string = PostData.getURL;
 

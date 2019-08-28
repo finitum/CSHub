@@ -1,28 +1,41 @@
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
 import { Module, Mutation, VuexModule } from "vuex-class-modules";
 import store from "../store";
+import { IStudy } from "../../../../cshub-shared/src/entities/study";
 
 export interface IDataState {
-    topics: ITopic[];
+    topTopic: ITopic | null;
+    studies: IStudy[] | null;
     hasConnection: boolean;
     searchQuery: string;
 }
 
 @Module
 class DataState extends VuexModule implements IDataState {
-    private _topics: ITopic[] = [];
+    private _topics: ITopic | null = null;
+
+    private _studies: IStudy[] | null = null;
 
     private _hasConnection = true;
 
     private _searchQuery = "";
 
-    get topics(): ITopic[] {
+    get topTopic(): ITopic | null {
         return this._topics;
     }
 
     @Mutation
-    public setTopics(value: ITopic[]) {
+    public setTopics(value: ITopic) {
         this._topics = value;
+    }
+
+    get studies(): IStudy[] | null {
+        return this._studies;
+    }
+
+    @Mutation
+    public setStudies(value: IStudy[]) {
+        this._studies = value;
     }
 
     get hasConnection(): boolean {

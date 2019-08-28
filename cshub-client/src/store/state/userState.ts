@@ -2,6 +2,7 @@ import { IUser } from "../../../../cshub-shared/src/entities/user";
 import { Module, Mutation, VuexModule } from "vuex-class-modules";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
 import store from "../store";
+import { uiState } from "../index";
 
 export interface IUserState {
     userModel: IUser | null;
@@ -46,6 +47,18 @@ class UserState extends VuexModule implements IUserState {
     get isAdmin(): boolean {
         if (this._userModel) {
             return this._userModel.admin;
+        }
+        return false;
+    }
+
+    get isStudyAdmin(): boolean {
+        if (this.isAdmin) {
+            return true;
+        }
+        if (this.studyAdmins.length > 0) {
+            const currStudy = uiState.studyNr;
+            const studyAdmin = this.studyAdmins.findIndex(study => study.id === currStudy);
+            return studyAdmin !== -1;
         }
         return false;
     }
