@@ -17,7 +17,7 @@ app.get(PostContent.getURL, (req: Request, res: Response) => {
         postVersion = +postVersionHeader;
     }
 
-    const postHash: number = req.params.hash;
+    const postHash: number = Number(req.params.hash);
 
     enum postState {
         ONLINE,

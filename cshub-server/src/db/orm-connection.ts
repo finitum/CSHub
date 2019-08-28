@@ -12,9 +12,9 @@ import tunnel from "tunnel-ssh";
 import fs from "fs";
 import logger from "../utilities/Logger";
 import { CacheVersion } from "./entities/cacheversion";
-import { Answer } from "./entities/practice/answer";
 import { Question } from "./entities/practice/question";
 import { app } from "../index";
+import {Answer} from "./entities/practice/answer";
 
 class CustomLogger implements Logger {
     log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {

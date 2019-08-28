@@ -11,7 +11,7 @@ import { Edit } from "../../db/entities/edit";
 import { getRepository } from "typeorm";
 
 app.get(EditContent.getURL, (req: Request, res: Response) => {
-    const postHash: number = req.params.hash;
+    const postHash: number = Number(req.params.hash);
     const includeLastEdit = !(req.header(EditContent.includeLastEditHeader) === "true");
 
     const inputsValidation = validateMultipleInputs({ input: postHash });

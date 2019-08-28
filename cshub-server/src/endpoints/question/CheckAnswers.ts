@@ -148,6 +148,9 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 return checkOpenNumberQuestion(clientAnswer, question);
             case QuestionType.OPENTEXT:
                 return checkOpenTextQuestion(clientAnswer, question);
+            default:
+                // @ts-ignore
+                return;
         }
     };
 

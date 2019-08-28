@@ -17,7 +17,7 @@ import { Post } from "../../db/entities/post";
 
 app.put(EditPost.getURL, async (req: Request, res: Response) => {
     const editPostRequest: EditPost = req.body as EditPost;
-    const postHash = req.params.hash;
+    const postHash: number = Number(req.params.hash);
 
     const userObj = checkTokenValidityFromRequest(req);
 

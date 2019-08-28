@@ -57,9 +57,6 @@
 
                         <v-divider></v-divider>
 
-                        <v-toolbar-title class="mt-2" style="margin-left: 0px"
-                            >Edit by {{ editedByText }}</v-toolbar-title
-                        >
                         <Quill
                             v-if="content !== null"
                             key="currEditQuill"
@@ -134,6 +131,10 @@ export default class PostSaveEditDialog extends Vue {
 
     get thisDialogActive(): boolean {
         return this.dialogActive.on && this.dialogActive.hash === this.post.hash;
+    }
+
+    set thisDialogActive(boolean) {
+        //pass
     }
 
     get topics(): ITopic[] {
