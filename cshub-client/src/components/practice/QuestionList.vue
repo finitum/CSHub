@@ -31,6 +31,7 @@ import {
 import { EventBus, QUESTIONS_CHANGED } from "../../utilities/EventBus";
 import ReviewQuestionListItem from "./ReviewQuestionListItem.vue";
 import EditQuestionListItem from "./EditQuestionListItem.vue";
+import { uiState } from "../../store";
 
 @Component({
     name: QuestionList.name,
@@ -68,7 +69,7 @@ export default class QuestionList extends Vue {
 
     private getData() {
         if (this.unpublished) {
-            ApiWrapper.get(new GetUnpublishedQuestions(+this.$route.params.hash)).then(questionIds => {
+            ApiWrapper.get(new GetUnpublishedQuestions(Number(uiState.studyNr))).then(questionIds => {
                 this.questionIds = questionIds !== null ? questionIds.questionIds : [];
             });
         } else {

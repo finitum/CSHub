@@ -9,6 +9,7 @@ const CreateAccount = () => import("../user/CreateUserAccount.vue");
 const AdminDashboard = () => import("../user/AdminDashboard.vue");
 const UserDashboard = () => import("../user/UserDashboard.vue");
 const UnsavedPosts = () => import("../user/UnsavedPosts.vue");
+const UnsavedQuestions = () => import("../UnsavedQuestions.vue");
 const ForgotPasswordComp = () => import("../user/ForgotPasswordComp.vue");
 const WIPPosts = () => import("../user/WIPPostsView.vue");
 
@@ -122,6 +123,12 @@ const router = new Router({
             path: Routes.UNSAVEDPOSTS,
             name: "unsavedposts",
             component: UnsavedPosts,
+            beforeEnter: userBeforeEnter
+        },
+        {
+            path: Routes.UNSAVEDQUESTIONS,
+            name: "unsavedquestions",
+            component: UnsavedQuestions,
             beforeEnter: userBeforeEnter
         },
         {

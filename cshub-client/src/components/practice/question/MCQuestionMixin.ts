@@ -13,6 +13,22 @@ export default class MCQuestionMixin extends Vue {
     private privMcAnswers: MCAnswerType = this.getInitialMcState();
 
     get mcAnswers(): MCAnswerType {
+        if (practiceState.currentCheckedQuestion) {
+            if (!practiceState.currentCheckedQuestion.correct) {
+                const answer = practiceState.currentCheckedQuestion.correctAnswer;
+                if (answer.type === QuestionType.MULTICLOSED) {
+                    const correctAnswers: MCAnswerType = {};
+
+                    answer.answerIds.forEach(answer => (correctAnswers[answer] = true));
+
+                    return {
+                        ...this.privMcAnswers,
+                        ...correctAnswers
+                    };
+                }
+            }
+        }
+
         return this.privMcAnswers;
     }
 

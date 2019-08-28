@@ -89,9 +89,11 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
             }
 
             const precision = parsedQuestion.precision;
+            const precisionInv = 1 / precision;
+            const precisionLog = Math.log10(precisionInv);
 
-            const correctAnswerRounded = parsedQuestion.number.toPrecision(precision);
-            const userAnswerRounded = clientAnswer.number.toPrecision(precision);
+            const correctAnswerRounded = parsedQuestion.number.toPrecision(precisionLog);
+            const userAnswerRounded = clientAnswer.number.toPrecision(precisionLog);
 
             return {
                 questionId: question.id,

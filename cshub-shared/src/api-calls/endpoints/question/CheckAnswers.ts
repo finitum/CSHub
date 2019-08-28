@@ -12,4 +12,9 @@ export class CheckAnswers implements IApiRequest<CheckAnswersCallback> {
     public URL: string = CheckAnswers.getURL;
 
     constructor(public answers: ToCheckAnswerType[]) {}
+
+    /**
+     * @see IApiRequest.response
+     */
+    response?: CheckAnswersCallback;
 }
