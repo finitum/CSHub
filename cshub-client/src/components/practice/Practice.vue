@@ -64,7 +64,7 @@ export default class Practice extends Vue {
 
         const questions = await ApiWrapper.get(new GetQuestions(+this.$route.params.hash, amountOfQuestions));
 
-        if (questions) {
+        if (questions && questions.questionIds.length > 0) {
             practiceState.setCurrentQuestions(
                 questions.questionIds.map(id => {
                     return {
@@ -74,16 +74,16 @@ export default class Practice extends Vue {
                 })
             );
 
-            if (practiceState.currentQuestions && practiceState.currentQuestions.length > 0) {
+            // Is this check necessary? AFAIK it can never not be true.
+            if (practiceState.currentQuestions) {
                 this.$router.push(`${Routes.QUESTION}/0`);
-            } else {
-                uiState.setNotificationDialog({
-                    header: "No questions!",
-                    text: "No questions were found for this topic!",
-                    on: true
-                });
-                this.$router.push(Routes.INDEX);
             }
+        } else {
+            uiState.setNotificationDialog({
+                header: "No questions!",
+                text: "No questions were found for this topic!",
+                on: true
+            });
         }
     }
 }
