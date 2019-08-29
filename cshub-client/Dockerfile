@@ -11,6 +11,9 @@ WORKDIR /app/cshub-client
 COPY package.json ./
 COPY yarn.lock ./
 
+# Install python as yarn build dependency
+RUN apk add python --no-cache
+
 # Get dependencies
 RUN yarn install
 
