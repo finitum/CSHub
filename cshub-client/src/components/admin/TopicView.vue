@@ -244,8 +244,6 @@ export default class TopicView extends Vue {
 }
 
 .sl-vue-tree.sl-vue-tree-root {
-    background-color: transparent;
-    color: black;
     border-radius: 3px;
 }
 
@@ -255,14 +253,13 @@ export default class TopicView extends Vue {
     padding-bottom: 4px;
 }
 
-.sl-vue-tree-selected > .sl-vue-tree-node-item {
-    background-color: rgba(0, 0, 0, 0.12);
-    color: #1976d2;
-}
+/*.sl-vue-tree-selected > .sl-vue-tree-node-item {*/
+/*    color: #1976d2;*/
+/*}*/
 
-.sl-vue-tree-node-item:hover {
-    background: rgba(0, 0, 0, 0.12);
-}
+/*.sl-vue-tree-node-item:hover {*/
+/*    background: rgba(0, 0, 0, 0.12);*/
+/*}*/
 
 .sl-vue-tree-node-item {
     position: relative;
@@ -304,7 +301,7 @@ export default class TopicView extends Vue {
 
 .sl-vue-tree-drag-info {
     position: absolute;
-    background-color: black;
+    /*background-color: black;*/
     opacity: 0.5;
     margin-left: 20px;
     margin-bottom: 20px;
