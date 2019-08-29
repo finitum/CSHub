@@ -17,6 +17,7 @@ import { findTopicInTree, getChildHashes, getTopicTree } from "../../utilities/T
 import { Study } from "../../db/entities/study";
 
 app.get(GetQuestions.getURL, (req: Request, res: Response) => {
+
     const topicQueryParam = req.query[GetQuestions.topicQueryParam];
     if (!topicQueryParam) {
         res.status(400).send(new ServerError("Topic query param not found", false));
@@ -72,7 +73,7 @@ app.get(GetQuestions.getURL, (req: Request, res: Response) => {
 });
 
 app.get(GetEditableQuestions.getURL, async (req: Request, res: Response) => {
-    const topicQueryParam = req.query[GetUnpublishedQuestions.studyQueryParam];
+    const topicQueryParam = req.query[GetEditableQuestions.topicQueryParam];
     if (!topicQueryParam) {
         res.status(400).send(new ServerError("Topic query param not found", false));
         return;
