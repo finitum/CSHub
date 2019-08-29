@@ -12,7 +12,7 @@ COPY package.json ./
 COPY yarn.lock ./
 
 # Install python as yarn build dependency
-RUN apk add python --no-cache
+RUN apk add python make g++ --no-cache
 
 # Get dependencies
 RUN yarn install
