@@ -45,7 +45,7 @@ export const Settings: ISettings = {
         USER: process.env.DATABASE_USER ? process.env.DATABASE_USER : "xxx",
         PASSWORD: process.env.DATABASE_PASSWORD ? process.env.DATABASE_PASSWORD : "xxx",
         NAME: process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "CSHubTest",
-        PORT: process.env.PORT ? Number(process.env.DATABASE_PORT) : 3306
+        PORT: process.env.DATABASE_PORT ? Number(process.env.DATABASE_PORT) : 3306
     },
     USESSH: process.env.USESSH ? process.env.USESSH === "true" : true,
     SSH: {
