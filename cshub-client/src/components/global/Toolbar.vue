@@ -24,13 +24,14 @@
         <v-spacer></v-spacer>
         <v-toolbar-items>
             <template>
-
-                <v-btn v-if="!onExamQuestion" tile depressed small color="primary" @click="backToQuestions">
-                    You're practicing questions! Go back to the questions <v-icon right>fas fa-backward</v-icon>
-                </v-btn>
-                <v-btn v-if="!onExamQuestion" tile depressed small color="secondary" @click="quitPractice" class="mr-2">
-                    Or quit practicing <v-icon right>fas fa-times</v-icon>
-                </v-btn>
+                <template v-if="!onExamQuestion && showExamWarning">
+                    <v-btn tile depressed small color="primary" @click="backToQuestions">
+                        You're practicing questions! Go back to the questions <v-icon right>fas fa-backward</v-icon>
+                    </v-btn>
+                    <v-btn tile depressed small color="secondary" @click="quitPractice" class="mr-2">
+                        Or quit practicing <v-icon right>fas fa-times</v-icon>
+                    </v-btn>
+                </template>
                 <v-btn v-if="!$vuetify.breakpoint.mdAndUp" icon depressed small color="primary" @click="goToSearch">
                     <v-icon color="white">fas fa-search</v-icon>
                 </v-btn>

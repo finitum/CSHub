@@ -15,12 +15,16 @@
                                 :error-messages="emailErrors"
                                 name="email"
                                 required
-                                suffix="@student.tudelft.nl"
                                 autocomplete="email"
                                 filled
                                 @change="userData.emailerror = ''"
                                 @keyup.enter="doLogin"
-                            ></v-text-field>
+                                hide-details
+                            >
+                                <template slot="append">
+                                    <v-select class="ma-0 pa-0" hide-details v-model="emailDomain" :items="emailDomains.map(i => '@' + i.domain)" placeholder="Select email"></v-select>
+                                </template>
+                            </v-text-field>
                             <v-text-field
                                 v-if="!forgotPassword"
                                 v-model="userData.password"
@@ -80,6 +84,8 @@ import {
     LoginResponseTypes
 } from "../../../../cshub-shared/src/api-calls/index";
 import { Routes } from "../../../../cshub-shared/src/Routes";
+import { IEmailDomain } from "../../../../cshub-shared/src/entities/emaildomains";
+import { GetEmailDomains, GetEmailDomainsCallback } from "../../../../cshub-shared/src/api-calls/endpoints/emaildomains";
 
 import router from "../router/router";
 import { SocketWrapper } from "../../utilities/socket-wrapper";
@@ -94,6 +100,8 @@ export default class LoginScreen extends Vue {
      * Data
      */
     public previousRoute = "";
+    private emailDomain: IEmailDomain | null = null;
+    private emailDomains: IEmailDomain[] = [];
 
     private userData = {
         email: "",
@@ -140,8 +148,11 @@ export default class LoginScreen extends Vue {
     /**
      * Lifecycle hooks
      */
-    private mounted() {
+    private async mounted() {
         this.userData.email = localStorage.getItem(LocalStorageData.EMAIL) || "";
+
+        const domains = (await ApiWrapper.get(new GetEmailDomains())) as GetEmailDomainsCallback;
+        this.emailDomains = domains.domains;
     }
 
     private beforeRouteEnter(to: Route, from: Route, next: (to?: (vm: this) => any) => void) {
