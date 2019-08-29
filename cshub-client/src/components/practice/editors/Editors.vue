@@ -22,6 +22,7 @@
             <EditorAccordion
                 title="Dynamic question"
                 subtitle="Create a dynamically generated and checked question"
+                hidden
             >
                 <DynamicEditor></DynamicEditor
             ></EditorAccordion>

@@ -15,7 +15,6 @@
                     label="Question"
                     value="Bla"
                     class="mb-4 mt-4"
-                    hide-details
                 ></v-textarea>
                 <v-textarea
                     v-model="explanation"
@@ -29,7 +28,6 @@
                     label="Explanation"
                     value="Bla"
                     class="mb-4"
-                    hide-details
                 ></v-textarea>
                 <v-text-field
                     v-model="answer"
@@ -38,7 +36,6 @@
                     outlined
                     name="answer"
                     :error-messages="errors.collect('answer')"
-                    hide-details
                 >
                 </v-text-field>
             </v-form>
@@ -59,7 +56,7 @@ import { AddQuestion, EditQuestion } from "../../../../../cshub-shared/src/api-c
 import { FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import OpenTextViewer from "../viewers/OpenTextViewer.vue";
 import { EventBus, QUESTIONS_CHANGED } from "../../../utilities/EventBus";
-import {uiState} from "../../../store";
+import { uiState } from "../../../store";
 
 @Component({
     name: OpenTextEditor.name,
@@ -114,6 +111,10 @@ export default class OpenTextEditor extends Vue {
                 text: "Saved question, it will be reviewed by an admin soon!",
                 on: true
             });
+
+            this.question = "";
+            this.answer = "";
+            this.explanation = "";
 
             EventBus.$emit(QUESTIONS_CHANGED);
         }
