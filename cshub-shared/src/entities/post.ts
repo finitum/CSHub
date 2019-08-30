@@ -19,5 +19,7 @@ export interface IPost {
 
     isIndex: boolean;
 
+    isExample: boolean;
+
     htmlContent?: string;
 }

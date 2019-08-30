@@ -7,7 +7,12 @@
             :post-hashes-prop="postHashes"
         ></PostList>
 
-        <v-tabs v-show="!isFullPost && !isIndex" icons-and-text :vertical="$vuetify.breakpoint.mdAndUp">
+        <v-tabs
+            v-show="!isFullPost && !isIndex"
+            v-model="tabIndex"
+            icons-and-text
+            :vertical="$vuetify.breakpoint.mdAndUp"
+        >
             <v-tab class="ml-0">
                 Posts
                 <v-icon>fas fa-newspaper</v-icon>
@@ -16,6 +21,11 @@
             <v-tab class="ml-0">
                 Practice
                 <v-icon>fas fa-question</v-icon>
+            </v-tab>
+
+            <v-tab class="ml-0">
+                Examples
+                <v-icon>fas fa-lightbulb</v-icon>
             </v-tab>
 
             <v-tab-item>
@@ -27,6 +37,13 @@
             </v-tab-item>
             <v-tab-item>
                 <Practice></Practice>
+            </v-tab-item>
+            <v-tab-item>
+                <transition name="topicHeader">
+                    <v-subheader v-if="!isFullPost">Examples in {{ currentTopicNameComputed }} </v-subheader>
+                </transition>
+                <Examples v-if="examplePostHashes.length > 0" :post-hashes-prop="examplePostHashes"></Examples>
+                <h2 v-else style="text-align: center; width: 100%">No examples found!</h2>
             </v-tab-item>
         </v-tabs>
     </div>
@@ -42,27 +59,31 @@ import isEqual from "lodash/isEqual";
 
 import PostList from "../../components/posts/PostList.vue";
 
-import { TopicPosts, GetTopicPostsCallBack } from "../../../../cshub-shared/src/api-calls/index";
+import { TopicPosts, PostHashes } from "../../../../cshub-shared/src/api-calls/index";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
 import { dataState, uiState } from "../../store";
 
-import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities/index";
+import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities";
 import { CacheTypes } from "../../utilities/cache-types";
 import { getTopicFromHash } from "../../utilities/Topics";
 import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
 import Editors from "../../components/practice/editors/Editors.vue";
 import Practice from "../../components/practice/Practice.vue";
+import Examples from "../../components/posts/Examples.vue";
+import { ExamplePosts } from "../../../../cshub-shared/src/api-calls/endpoints/posts/ExamplePosts";
 
 @Component({
     name: "PostView",
-    components: { Practice, Editors, PostList }
+    components: { Examples, Practice, Editors, PostList }
 })
 export default class PostView extends Vue {
     /**
      * Data
      */
+    private tabIndex = 0;
     private postHashes: number[] = [];
+    private examplePostHashes: number[] = [];
     private currentTopicHash = -1;
     private isFullPost = false;
 
@@ -164,38 +185,39 @@ export default class PostView extends Vue {
         }
     }
 
-    private getTopicRequest(topicHash: number) {
-        localForage.getItem<number[]>(CacheTypes.TOPICPOST + topicHash).then((value: number[]) => {
-            if (value !== null) {
-                this.postHashes = value;
+    private async getHashes(topicHash: number, isExample: boolean) {
+        const cacheType = isExample ? CacheTypes.EXAMPLES : CacheTypes.TOPICPOST;
+        const cacheValue = await localForage.getItem<number[]>(cacheType + topicHash);
+        if (cacheValue !== null) {
+            if (isExample) {
+                this.examplePostHashes = cacheValue;
+            } else {
+                this.postHashes = cacheValue;
+            }
+            logStringConsole("Set topicPosts from cache", "getTopicRequest");
+        }
 
-                logStringConsole("Set topicPosts from cache", "getTopicRequest");
+        const request = isExample ? new ExamplePosts(topicHash) : new TopicPosts(topicHash);
+        const postHashes = await ApiWrapper.get(request);
+
+        if (postHashes && !isEqual(postHashes.postHashes, this.postHashes)) {
+            if (isExample) {
+                this.examplePostHashes = postHashes.postHashes;
+            } else {
+                this.postHashes = postHashes.postHashes;
             }
 
-            ApiWrapper.sendGetRequest(
-                new TopicPosts(topicHash),
-                (callbackData: GetTopicPostsCallBack) => {
-                    if (!isEqual(callbackData.postHashes, this.postHashes)) {
-                        this.postHashes = callbackData.postHashes;
+            logObjectConsole(postHashes.postHashes, "Topic posthashes");
 
-                        logObjectConsole(callbackData.postHashes, "Topic posthashes");
+            localForage.setItem<number[]>(cacheType + topicHash, postHashes.postHashes).then(() => {
+                logStringConsole("Updated postHashes from server", "getTopicRequest");
+            });
+        }
+    }
 
-                        localForage
-                            .setItem<number[]>(CacheTypes.TOPICPOST + topicHash, callbackData.postHashes)
-                            .then(() => {
-                                logStringConsole("Updated postHashes from server", "getTopicRequest");
-                            });
-                    }
-                },
-                (err: AxiosError) => {
-                    localForage.getItem<number[]>(CacheTypes.TOPICPOST + topicHash).then((cachedValue: number[]) => {
-                        this.postHashes = cachedValue;
-
-                        logStringConsole("Set topicPosts from cache", "getTopicRequest error axios");
-                    });
-                }
-            );
-        });
+    private async getTopicRequest(topicHash: number) {
+        this.getHashes(topicHash, false);
+        this.getHashes(topicHash, true);
     }
 }
 </script>

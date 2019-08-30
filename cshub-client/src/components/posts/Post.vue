@@ -4,7 +4,7 @@
             <!-- The following transition is just a trick so I get an event on the change from preview to full post (performance of the animation when the viewer is on is terrible) -->
             <transition
                 :duration="300"
-                @before-leave="showContent = isIndexComputed"
+                @before-leave="showContent = alwaysShowContent"
                 @before-enter="showContent = false"
                 @after-enter="afterAnimation"
             >
@@ -18,7 +18,7 @@
                 class="loadingIcon"
             ></v-progress-circular>
             <v-card
-                :class="{ previewCard: !fullPostComputed, fullCard: fullPostComputed, isIndex: isIndexComputed }"
+                :class="{ previewCard: !fullPostComputed, fullCard: fullPostComputed, isIndex: alwaysShowContent }"
                 style="box-shadow: none"
             >
                 <v-layout align-start justify-start column fill-height>
@@ -201,7 +201,7 @@
                                     </div>
                                 </transition>
                                 <v-list
-                                    v-if="!isIndexComputed || fullPostComputed"
+                                    v-if="!alwaysShowContent || fullPostComputed"
                                     two-line
                                     style="width: 100%"
                                     class="pt-0"
@@ -212,7 +212,11 @@
                                         </v-list-item-avatar>
                                         <v-list-item-content class="pt-2 d-inline">
                                             <v-list-item-subtitle class="whitespaceInit post-title">
-                                                <span>{{ post.title }} {{ post.isIndex ? "(index page)" : "" }}</span>
+                                                <span>
+                                                    {{ post.title }}
+                                                    {{ post.isIndex ? "(index page)" : "" }}
+                                                    {{ post.isExample ? "(example)" : "" }}
+                                                </span>
                                             </v-list-item-subtitle>
                                             <v-list-item-subtitle class="whitespaceInit">
                                                 {{ post.datetime | formatDate }}
@@ -226,7 +230,7 @@
                     <v-flex class="fullHeight" style="width: 100%">
                         <v-card-text
                             v-if="
-                                ((fullPostComputed && !editModeComputed) || (!fullPostComputed && isIndexComputed)) &&
+                                ((fullPostComputed && !editModeComputed) || (!fullPostComputed && alwaysShowContent)) &&
                                     !loadingIcon
                             "
                             class="pt-0 fullHeight"
@@ -393,9 +397,14 @@ export default class Post extends Vue {
         return this.$route.fullPath === Routes.USERDASHBOARD;
     }
 
-    get isIndexComputed(): boolean {
+    get alwaysShowContent(): boolean {
         if (this.post) {
-            return this.post.isIndex && !this.isOnAdminDashboard && !this.isOnUserDashboard && !this.isOnUnsavedPosts;
+            return (
+                (this.post.isIndex || this.post.isExample) &&
+                !this.isOnAdminDashboard &&
+                !this.isOnUserDashboard &&
+                !this.isOnUnsavedPosts
+            );
         }
         return false;
     }
@@ -563,8 +572,6 @@ export default class Post extends Vue {
             if (this.post) {
                 this.post.wip = !this.post.wip;
             }
-
-            // this.$router.push(Routes.WIPPOSTS);
         });
     }
 
@@ -606,7 +613,7 @@ export default class Post extends Vue {
 
                         logObjectConsole(callbackData.post, "getPostRequest");
 
-                        if (this.fullPostComputed || this.post.isIndex) {
+                        if (this.fullPostComputed || this.post.isIndex || this.post.isExample) {
                             this.getContentRequest(callbackData.post);
                         } else {
                             localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, callbackData.post);
@@ -618,14 +625,12 @@ export default class Post extends Vue {
             } else {
                 logStringConsole("Gotten post from cache", "getPostRequest");
 
+                this.post = cachedValue;
+
                 if (this.fullPostComputed) {
                     this.getContentRequest(cachedValue);
-                } else {
-                    if (cachedValue.isIndex) {
-                        this.getContentRequest(cachedValue);
-                    } else {
-                        this.post = cachedValue;
-                    }
+                } else if (cachedValue.isIndex || cachedValue.isExample) {
+                    this.getContentRequest(cachedValue);
                 }
             }
         });

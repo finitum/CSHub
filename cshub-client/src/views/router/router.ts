@@ -88,7 +88,6 @@ const router = new Router({
         },
         {
             path: `${Routes.QUESTION}`,
-            name: "question",
             component: PracticeQuestion,
             children: [
                 {

@@ -140,8 +140,8 @@ export default class PostEditsDialog extends Vue {
         return this.dialogActive.on && this.dialogActive.hash === this.postHash;
     }
 
-    set thisDialogActive(boolean) {
-        //pass
+    set thisDialogActive(active: boolean) {
+        this.dialogActive.on = active;
     }
 
     /**
