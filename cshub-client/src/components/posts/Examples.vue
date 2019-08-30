@@ -3,9 +3,7 @@
         <v-container>
             <v-row>
                 <v-col v-for="postHash of postHashesProp" :key="postHash" cols="4">
-                    <v-card>
-                        <Post :post-hash="postHash"></Post>
-                    </v-card>
+                    <Post :post-hash="postHash"></Post>
                 </v-col>
             </v-row>
         </v-container>

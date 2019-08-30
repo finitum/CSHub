@@ -49,7 +49,16 @@ app.get(EditContent.getURL, async (req: Request, res: Response) => {
                     }
                 }
 
-                res.json(new GetEditContentCallback(edits));
+                res.json(
+                    new GetEditContentCallback(
+                        edits.map(edit => {
+                            return {
+                                ...edit,
+                                content: JSON.parse((edit.content as unknown) as string) // typeorm doesn't parse the JSON
+                            };
+                        })
+                    )
+                );
             })
             .catch(err => {
                 logger.error(`Edit content retrieve failed`);
