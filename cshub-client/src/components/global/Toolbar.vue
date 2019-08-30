@@ -23,24 +23,23 @@
         ></v-text-field>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-            <template>
-
-                <v-btn v-if="!onExamQuestion" tile depressed small color="primary" @click="backToQuestions">
+            <template v-if="!onExamQuestion && showExamWarning">
+                <v-btn tile depressed small color="primary" @click="backToQuestions">
                     You're practicing questions! Go back to the questions <v-icon right>fas fa-backward</v-icon>
                 </v-btn>
-                <v-btn v-if="!onExamQuestion" tile depressed small color="secondary" @click="quitPractice" class="mr-2">
+                <v-btn tile depressed small color="secondary" @click="quitPractice" class="mr-2">
                     Or quit practicing <v-icon right>fas fa-times</v-icon>
                 </v-btn>
-                <v-btn v-if="!$vuetify.breakpoint.mdAndUp" icon depressed small color="primary" @click="goToSearch">
-                    <v-icon color="white">fas fa-search</v-icon>
-                </v-btn>
-                <v-btn icon depressed small color="primary" @click="showVersionDialog">
-                    <v-icon color="white">fas fa-code-branch</v-icon>
-                </v-btn>
-                <v-btn icon depressed small color="primary" @click="darkMode = !darkMode">
-                    <v-icon color="white">{{ darkMode ? "fas fa-sun" : "fas fa-moon" }}</v-icon>
-                </v-btn>
             </template>
+            <v-btn v-if="!$vuetify.breakpoint.mdAndUp" icon depressed small color="primary" @click="goToSearch">
+                <v-icon color="white">fas fa-search</v-icon>
+            </v-btn>
+            <v-btn icon depressed small color="primary" @click="showVersionDialog">
+                <v-icon color="white">fas fa-code-branch</v-icon>
+            </v-btn>
+            <v-btn icon depressed small color="primary" @click="darkMode = !darkMode">
+                <v-icon color="white">{{ darkMode ? "fas fa-sun" : "fas fa-moon" }}</v-icon>
+            </v-btn>
         </v-toolbar-items>
     </v-app-bar>
 </template>
@@ -73,12 +72,11 @@ export default class Toolbar extends Vue {
      * Computed properties
      */
     get showExamWarning(): boolean {
-        return practiceState.currentQuestions && this.$route.name !== null;
+        return practiceState.currentQuestions !== false;
     }
 
     get onExamQuestion(): boolean {
-        return this.$route.name === "currentQuestion";
-
+        return practiceState.currentQuestions && this.$route.name === "currentQuestion";
     }
 
     get toolbarColor(): string {

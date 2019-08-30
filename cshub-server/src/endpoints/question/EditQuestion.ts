@@ -6,13 +6,13 @@ import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { AddQuestion, EditQuestion } from "../../../../cshub-shared/src/api-calls/endpoints/question";
 import { insertQuestions, validateNewQuestion } from "./QuestionUtils";
 import { AlreadySentError } from "../utils";
-import {checkTokenValidityFromRequest} from "../../auth/AuthMiddleware";
+import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
 
 app.put(EditQuestion.getURL, (req: Request, res: Response) => {
     const editQuestion = req.body as EditQuestion;
 
     const authorized = checkTokenValidityFromRequest(req);
-    if (!authorized){
+    if (!authorized) {
         return res.sendStatus(401);
     }
 
@@ -42,7 +42,7 @@ app.post(AddQuestion.getURL, (req: Request, res: Response) => {
     const addQuestions = req.body as AddQuestion;
 
     const authorized = checkTokenValidityFromRequest(req);
-    if (!authorized){
+    if (!authorized) {
         return res.sendStatus(401);
     }
 
