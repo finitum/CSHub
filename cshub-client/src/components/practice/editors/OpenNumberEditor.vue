@@ -15,7 +15,6 @@
                     label="Question"
                     value="Bla"
                     class="mb-4 mt-4"
-                    hide-details
                 ></v-textarea>
                 <v-textarea
                     v-model="explanation"
@@ -29,7 +28,6 @@
                     label="Explanation"
                     value="Bla"
                     class="mb-4"
-                    hide-details
                 ></v-textarea>
                 <v-text-field
                     v-model="answer"
@@ -40,7 +38,6 @@
                     name="answer"
                     :error-messages="errors.collect('answer')"
                     class="mb-4"
-                    hide-details
                 >
                 </v-text-field>
                 <v-text-field
@@ -51,7 +48,6 @@
                     type="number"
                     name="precision"
                     :error-messages="errors.collect('precision')"
-                    hide-details
                 >
                 </v-text-field>
             </v-form>
@@ -139,6 +135,11 @@ export default class OpenNumberEditor extends Vue {
                 text: "Saved question, it will be reviewed by an admin soon!",
                 on: true
             });
+
+            this.answer = 0;
+            this.question = "";
+            this.explanation = "";
+            this.precision = 0.01;
 
             EventBus.$emit(QUESTIONS_CHANGED);
         }

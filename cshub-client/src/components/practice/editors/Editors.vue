@@ -19,10 +19,7 @@
             >
                 <OpenTextEditor :is-editing="false"></OpenTextEditor
             ></EditorAccordion>
-            <EditorAccordion
-                title="Dynamic question"
-                subtitle="Create a dynamically generated and checked question"
-            >
+            <EditorAccordion title="Dynamic question" subtitle="Create a dynamically generated and checked question">
                 <DynamicEditor></DynamicEditor
             ></EditorAccordion>
         </v-expansion-panels>
