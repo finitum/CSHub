@@ -1,12 +1,18 @@
 <template>
     <div>
-        <v-container>
-            <v-row>
-                <v-col v-for="postHash of postHashesProp" :key="postHash" md="4" sm="6" cols="12" class="example pa-0 mb-4">
-                    <Post :post-hash="postHash"></Post>
-                </v-col>
-            </v-row>
-        </v-container>
+        <v-row class="mx-2">
+            <v-col
+                v-for="postHash of postHashesProp"
+                :key="postHash"
+                lg="3"
+                md="4"
+                sm="6"
+                cols="12"
+                class="example pa-0 mb-4"
+            >
+                <Post :post-hash="postHash"></Post>
+            </v-col>
+        </v-row>
     </div>
 </template>
 

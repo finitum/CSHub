@@ -748,9 +748,9 @@ export default class Post extends Vue {
 
 .previewCard {
     position: relative;
-    width: 90%;
+    /*width: 90%;*/
     overflow: hidden;
-    margin: 10px 5% 10px 5%;
+    margin: 10px 10px 10px 10px;
     padding: 0;
     transition: 0.3s;
     cursor: pointer;

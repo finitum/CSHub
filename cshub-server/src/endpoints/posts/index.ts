@@ -1,4 +1,4 @@
 import "./GetUnverifiedPosts";
-import "./TopicPosts";
 import "./WIPPosts";
+import "./TopicPosts";
 import "./ExamplePosts";
