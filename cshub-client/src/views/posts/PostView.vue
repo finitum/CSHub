@@ -81,7 +81,6 @@ export default class PostView extends Vue {
     /**
      * Data
      */
-    private tabIndex = 0;
     private postHashes: number[] = [];
     private examplePostHashes: number[] = [];
     private currentTopicHash = -1;
@@ -110,12 +109,34 @@ export default class PostView extends Vue {
         return this.$route.fullPath === Routes.INDEX;
     }
 
+    set tabIndex(index: number) {
+        const currentHash = +this.$route.params.hash;
+
+        if (index === 1) {
+            this.$router.push(`${Routes.TOPIC}/${currentHash}/practice`);
+        } else if (index === 2) {
+            this.$router.push(`${Routes.TOPIC}/${currentHash}/examples`);
+        } else {
+            this.$router.push(`${Routes.TOPIC}/${currentHash}`);
+        }
+    }
+
+    get tabIndex(): number {
+        if (this.$route.name === "topicpractice") {
+            return 1;
+        } else if (this.$route.name === "topicexamples") {
+            return 2;
+        } else {
+            return 0;
+        }
+    }
+
     /**
      * Watchers
      */
     @Watch("$route")
     private routeChanged(to: Route, from: Route) {
-        this.doOnRouteChange();
+        this.doOnRouteChange(to, from);
     }
 
     /**
@@ -155,7 +176,7 @@ export default class PostView extends Vue {
     /**
      * Methods
      */
-    private doOnRouteChange() {
+    private doOnRouteChange(to?: Route, from?: Route) {
         const currentHash = +this.$route.params.hash;
         if (this.$router.currentRoute.fullPath.includes(Routes.POST)) {
             this.currentTopicHash = -1;
@@ -164,6 +185,10 @@ export default class PostView extends Vue {
                 this.postHashes = [currentHash];
             }
         } else if (this.$router.currentRoute.fullPath.includes(Routes.TOPIC)) {
+            if (from && from.fullPath.includes(Routes.TOPIC)) {
+                return;
+            }
+
             this.currentTopicHash = currentHash;
             this.isFullPost = false;
             this.getTopicRequest(currentHash);

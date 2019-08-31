@@ -1,6 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-    <div>
-        <div v-if="post !== null" @click.capture="navigateToPost">
+    <div class="fullHeight">
+        <div v-if="post !== null" class="fullHeight" @click.capture="handleClick" @dblclick.capture="handleDoubleClick">
             <!-- The following transition is just a trick so I get an event on the change from preview to full post (performance of the animation when the viewer is on is terrible) -->
             <transition
                 :duration="300"
@@ -19,6 +19,7 @@
             ></v-progress-circular>
             <v-card
                 :class="{ previewCard: !fullPostComputed, fullCard: fullPostComputed, isIndex: alwaysShowContent }"
+                class="fullHeight"
                 style="box-shadow: none"
             >
                 <v-layout align-start justify-start column fill-height>
@@ -345,7 +346,6 @@ export default class Post extends Vue {
     private canResize = true;
     private showContent = true;
     private loadingIcon = false;
-    private previousTopicURL = "";
     private showTopMenu = true;
     private resizeInterval: number | null = null;
     private showLoadingIcon = false;
@@ -415,17 +415,14 @@ export default class Post extends Vue {
     @Watch("$route")
     private routeChanged(to: Route, from: Route) {
         if (this.fullPostComputed || to.fullPath.includes(this.postHash.toString())) {
-            if (from.name === "topic" || from.fullPath === Routes.INDEX) {
+            if (from.name === "topic" || from.name === "topicexamples" || from.fullPath === Routes.INDEX) {
                 if (this.post) {
                     this.getContentRequest(this.post);
-                    this.previousTopicURL = from.fullPath;
                 }
             } else if (this.editsListComputed) {
                 this.viewEditDialog();
             } else if (this.saveDialogComputed) {
                 this.savePostDialog();
-            } else if (!this.editModeComputed) {
-                this.previousTopicURL = Routes.INDEX;
             }
         }
     }
@@ -476,20 +473,6 @@ export default class Post extends Vue {
         }
 
         this.getPostRequest();
-
-        if (uiState.previousRoute) {
-            if (uiState.previousRoute.fullPath === Routes.USERDASHBOARD) {
-                this.previousTopicURL = Routes.USERDASHBOARD;
-            } else if (uiState.previousRoute.fullPath === Routes.ADMINDASHBOARD) {
-                this.previousTopicURL = Routes.ADMINDASHBOARD;
-            } else if (uiState.previousRoute.fullPath === Routes.UNSAVEDPOSTS) {
-                this.previousTopicURL = Routes.UNSAVEDPOSTS;
-            }
-        }
-
-        if (this.previousTopicURL === "") {
-            this.previousTopicURL = Routes.INDEX;
-        }
 
         if (this.editModeComputed) {
             this.enableEdit();
@@ -576,7 +559,7 @@ export default class Post extends Vue {
     }
 
     private returnToPostMenu() {
-        this.$router.push(this.previousTopicURL);
+        this.$router.go(-1);
     }
 
     private enableEdit() {
@@ -731,7 +714,13 @@ export default class Post extends Vue {
         });
     }
 
-    private navigateToPost(): void {
+    private handleClick(): void {
+        if (!this.alwaysShowContent) {
+            this.handleDoubleClick();
+        }
+    }
+
+    private handleDoubleClick(): void {
         if (!this.editModeComputed && !this.fullPostComputed) {
             this.$router.push(this.currentPostURLComputed);
         }
@@ -761,7 +750,7 @@ export default class Post extends Vue {
     position: relative;
     width: 90%;
     overflow: hidden;
-    margin: 20px 5% 20px 5%;
+    margin: 10px 5% 10px 5%;
     padding: 0;
     transition: 0.3s;
     cursor: pointer;

@@ -29,7 +29,6 @@ export interface IUIState {
     currentEditDialogState: editDialogType;
     paginationPageState: number;
     notificationDialog: notificationDialogType;
-    previousRoute: Route | undefined;
     darkMode: boolean;
     studyNr: number | undefined;
 }
@@ -57,8 +56,6 @@ class UIState extends VuexModule implements IUIState {
         header: "",
         text: ""
     };
-
-    private _previousRoute: Route | undefined = undefined;
 
     private _darkMode = localStorage.getItem(LocalStorageData.DARK) === "true";
 
@@ -107,15 +104,6 @@ class UIState extends VuexModule implements IUIState {
     @Mutation
     public setNotificationDialog(value: notificationDialogType) {
         this._notificationDialog = value;
-    }
-
-    get previousRoute(): Route | undefined {
-        return this._previousRoute;
-    }
-
-    @Mutation
-    public setPreviousRoute(value: Route | undefined) {
-        this._previousRoute = value;
     }
 
     get darkMode(): boolean {
