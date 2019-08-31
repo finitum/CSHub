@@ -87,8 +87,17 @@ const router = new Router({
             component: PostView
         },
         {
+            path: `${Routes.TOPIC}/:hash/practice`,
+            name: "topicpractice",
+            component: PostView
+        },
+        {
+            path: `${Routes.TOPIC}/:hash/examples`,
+            name: "topicexamples",
+            component: PostView
+        },
+        {
             path: `${Routes.QUESTION}`,
-            name: "question",
             component: PracticeQuestion,
             children: [
                 {
@@ -186,10 +195,6 @@ router.beforeEach((to: Route, from: Route, next) => {
             });
         }
     });
-});
-
-router.afterEach((to: Route, from: Route) => {
-    uiState.setPreviousRoute(from);
 });
 
 export default router;

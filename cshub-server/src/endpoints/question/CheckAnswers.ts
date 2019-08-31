@@ -138,8 +138,6 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
     }
 
     const parseAnswer = (question: Question, clientAnswer: CheckAnswerType): CheckedAnswerType => {
-        const questionParsed = parseAndValidateQuestion(question, res);
-
         switch (question.type) {
             case QuestionType.SINGLECLOSED:
             case QuestionType.MULTICLOSED:
@@ -148,9 +146,9 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 return checkOpenNumberQuestion(clientAnswer, question);
             case QuestionType.OPENTEXT:
                 return checkOpenTextQuestion(clientAnswer, question);
-            default:
-                // @ts-ignore
-                return;
+            case QuestionType.DYNAMIC:
+                res.sendStatus(500);
+                throw new AlreadySentError("NOT IMPLEMENTED");
         }
     };
 

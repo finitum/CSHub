@@ -13,7 +13,7 @@
                 class="mt-0"
             >
                 <template v-slot:label>
-                    <p class="questionContent" v-html="renderMarkdown(answer.answer)"></p>
+                    <span class="questionContent" v-html="renderMarkdown(answer.answer)"></span>
                 </template>
             </v-checkbox>
         </div>
@@ -33,7 +33,7 @@
                     :color="getColor(answer.id)"
                 >
                     <template v-slot:label>
-                        <p class="questionContent" v-html="renderMarkdown(answer.answer)"></p>
+                        <span class="questionContent" v-html="renderMarkdown(answer.answer)"></span>
                     </template>
                 </v-radio>
             </v-radio-group>
@@ -47,6 +47,9 @@
                 type="number"
                 :background-color="color"
             ></v-text-field>
+            <p v-if="checkedQuestion !== null" class="mt-4">
+                <b>Answer:</b> {{ checkedQuestion.correctAnswer.number }}
+            </p>
         </div>
         <div v-if="type === 'ot'">
             <v-text-field
@@ -56,8 +59,9 @@
                 hide-details
                 :background-color="color"
             ></v-text-field>
+            <p v-if="checkedQuestion !== null" class="mt-4"><b>Answer:</b> {{ checkedQuestion.correctAnswer.text }}</p>
         </div>
-        <p v-if="checkedQuestion !== null" class="mt-4">Explanation: {{ checkedQuestion.explanation }}</p>
+        <p v-if="checkedQuestion !== null" class="mt-4"><b>Explanation:</b> {{ checkedQuestion.explanation }}</p>
     </div>
 </template>
 

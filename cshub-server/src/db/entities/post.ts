@@ -71,4 +71,11 @@ export class Post implements IPost {
     })
     @Index()
     isIndex!: boolean;
+
+    @Expose()
+    @Column({
+        default: false
+    })
+    @Index()
+    isExample!: boolean;
 }

@@ -2,7 +2,7 @@ import { app } from "../../";
 import { Request, Response } from "express";
 import { DatabaseResultSet, query } from "../../db/database-query";
 import { GetUnverifiedPostsCallBack, WIPPosts } from "../../../../cshub-shared/src/api-calls";
-import { customValidator, validateMultipleInputs } from "../../utilities/StringUtils";
+import { customValidator } from "../../utilities/StringUtils";
 
 app.get(WIPPosts.getURL, (req: Request, res: Response) => {
     const studyId = +req.query[WIPPosts.studyQueryParam];

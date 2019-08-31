@@ -134,7 +134,7 @@ import { QuestionType } from "../../../../../cshub-shared/src/entities/question"
 import {
     DynamicQuestionVariable,
     FullAnswerType,
-    SeedRange,
+    SeedRange
 } from "../../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestion";
 import { evaluate } from "mathjs";
 import ViewerMixin from "../viewers/ViewerMixin";
@@ -154,20 +154,19 @@ export default class DynamicEditor extends ViewerMixin {
 
     private range: SeedRange = {
         minimum: 0,
-        maximum: 100,
+        maximum: 100
     };
 
-    get _range(){
+    get _range() {
         return [this.range.minimum, this.range.maximum];
     }
 
-    set _range(value){
+    set _range(value) {
         this.range.minimum = value[0];
         this.range.maximum = value[1];
     }
 
-
-    private validateVariable(variable: DynamicQuestionVariable){
+    private validateVariable(variable: DynamicQuestionVariable) {
         return () => {
             try {
                 evaluate(variable.code);
@@ -175,7 +174,7 @@ export default class DynamicEditor extends ViewerMixin {
             } catch (err) {
                 return String(err);
             }
-        }
+        };
     }
 
     private async submit() {
