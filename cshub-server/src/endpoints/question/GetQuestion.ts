@@ -18,7 +18,7 @@ import {
 import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 import { AlreadySentError } from "../utils";
 import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
-import { getVariableValues } from "../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
+import { generateVariableValues } from "../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
 
 app.get(GetFullQuestion.getURL, (req: Request, res: Response) => {
     const questionId = Number(req.params.id);
@@ -100,7 +100,7 @@ app.get(GetQuestion.getURL, (req: Request, res: Response) => {
                         };
                         break;
                     case QuestionType.DYNAMIC:
-                        const variables = getVariableValues(parsedQuestion.variableExpressions);
+                        const variables = generateVariableValues(parsedQuestion.variableExpressions);
                         strippedAnswer = {
                             type: parsedQuestion.type,
                             variables

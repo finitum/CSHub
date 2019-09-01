@@ -1,3 +1,5 @@
+import {QuestionType} from "../../../../../cshub-shared/src/entities/question"; import {QuestionType} from
+"../../../../../cshub-shared/src/entities/question";
 <template>
     <div v-if="question !== null">
         <v-card-title style="font-size: 1.25rem" class="pa-0" v-html="renderMarkdown(question.question)"></v-card-title>
@@ -40,7 +42,7 @@
         </div>
         <div v-if="type === 'on'">
             <v-text-field
-                v-model="privOnAnswer"
+                v-model="onAnswer"
                 outlined
                 :readonly="checkedQuestion !== null"
                 hide-details
@@ -54,13 +56,25 @@
         </div>
         <div v-if="type === 'ot'">
             <v-text-field
-                v-model="privOtAnswer"
+                v-model="otAnswer"
                 outlined
                 :readonly="checkedQuestion !== null"
                 hide-details
                 :background-color="color"
             ></v-text-field>
             <p v-if="checkedQuestion !== null" class="mt-4"><b>Answer:</b> {{ checkedQuestion.correctAnswer.text }}</p>
+        </div>
+        <div v-if="type === 'dn'">
+            <v-text-field
+                v-model="dnAnswer"
+                outlined
+                :readonly="checkedQuestion !== null"
+                hide-details
+                :background-color="color"
+            ></v-text-field>
+            <p v-if="checkedQuestion !== null" class="mt-4">
+                <b>Answer:</b> {{ checkedQuestion.correctAnswer.answer }}
+            </p>
         </div>
         <p v-if="checkedQuestion !== null" class="mt-4"><b>Explanation:</b> {{ checkedQuestion.explanation }}</p>
     </div>
@@ -76,22 +90,13 @@ import { PracticeQuestion } from "../../../../../cshub-shared/src/api-calls/endp
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
 import { mixins } from "vue-class-component";
 import ViewerMixin from "../viewers/ViewerMixin";
-import SCQuestionMixin from "./SCQuestionMixin";
-import MCQuestionMixin from "./MCQuestionMixin";
-import OTQuestionMixin from "./OTQuestionMixin";
-import ONQuestionMixin from "./ONQuestionMixin";
 import { CheckedAnswerType } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/CheckAnswer";
+import QuestionMixin from "./QuestionMixin";
 
 @Component({
     name: CurrentPracticeQuestion.name
 })
-export default class CurrentPracticeQuestion extends mixins(
-    ViewerMixin,
-    SCQuestionMixin,
-    MCQuestionMixin,
-    OTQuestionMixin,
-    ONQuestionMixin
-) {
+export default class CurrentPracticeQuestion extends mixins(ViewerMixin, QuestionMixin) {
     private question: PracticeQuestion | null = null;
     private checkedQuestion: CheckedAnswerType | null = null;
 
@@ -106,6 +111,8 @@ export default class CurrentPracticeQuestion extends mixins(
                     return "on";
                 case QuestionType.OPENTEXT:
                     return "ot";
+                case QuestionType.DYNAMIC:
+                    return "dn";
             }
         }
         return "";
@@ -164,13 +171,19 @@ export default class CurrentPracticeQuestion extends mixins(
             ApiWrapper.get(new GetQuestion(currentQuestion.questionId)).then(retrievedQuestion => {
                 this.question = retrievedQuestion !== null ? retrievedQuestion.question : null;
 
-                if (retrievedQuestion !== null && practiceState.checkedQuestions) {
-                    const checkedAnswer = practiceState.checkedQuestions.find(
-                        question => question.questionId === retrievedQuestion.question.id
-                    );
+                if (retrievedQuestion !== null) {
+                    if (retrievedQuestion.question.type === QuestionType.DYNAMIC) {
+                        this.variableValues = retrievedQuestion.question.variables;
+                    }
 
-                    this.checkedQuestion = checkedAnswer || null;
-                    practiceState.setCurrentCheckedQuestion(this.checkedQuestion);
+                    if (practiceState.checkedQuestions) {
+                        const checkedAnswer = practiceState.checkedQuestions.find(
+                            question => question.questionId === retrievedQuestion.question.id
+                        );
+
+                        this.checkedQuestion = checkedAnswer || null;
+                        practiceState.setCurrentCheckedQuestion(this.checkedQuestion);
+                    }
                 }
             });
         } else {

@@ -8,19 +8,32 @@ export const checkDynamicQuestion = (
     isCorrect: boolean;
     actualAnswer: number | string;
 } => {
+    // TODO actually implement this @jona
     return {
         isCorrect: false,
         actualAnswer: ""
     };
 };
 
-export const getVariableValues = (variables: VariableExpression[]): VariableValue[] => {
-    return [];
+export const evaluate = (expression: string, variables: VariableValue[]): string | number => {
+    // TODO actually implement this @jona
+    return 0;
 };
 
-export const variablePrefix = "$Var";
+export const generateVariableValues = (variables: VariableExpression[]): VariableValue[] => {
+    const valuedVariables: VariableValue[] = [];
 
-function getVariableNames(text: string): string[] {
+    variables.forEach(value =>
+        valuedVariables.push({
+            name: value.name,
+            value: Math.random() // TODO actually implement this @jona
+        })
+    );
+
+    return valuedVariables;
+};
+
+export function getVariableNames(text: string): string[] {
     const regex = /\$([a-zA-Z_$][a-zA-Z_$0-9]*)/g;
 
     const variableNames: string[] = [];

@@ -7,6 +7,7 @@
                     v-model="question"
                     v-validate="'required|min:2'"
                     :error-messages="errors.collect('question')"
+                    :hide-details="!errors.has('question')"
                     name="question"
                     filled
                     required
@@ -20,6 +21,7 @@
                     v-model="explanation"
                     v-validate="'required|min:2'"
                     :error-messages="errors.collect('explanation')"
+                    :hide-details="!errors.has('explanation')"
                     required
                     name="explanation"
                     filled
@@ -32,8 +34,9 @@
                 <v-text-field
                     v-model="answer"
                     v-validate="'required|decimal'"
+                    :hide-details="!errors.has('answer')"
                     label="Answer"
-                    outlined
+                    filled
                     type="number"
                     name="answer"
                     :error-messages="errors.collect('answer')"
@@ -43,6 +46,7 @@
                 <v-text-field
                     v-model="precision"
                     v-validate="'required|decimal'"
+                    :hide-details="!errors.has('precision')"
                     label="Precision"
                     outlined
                     type="number"
