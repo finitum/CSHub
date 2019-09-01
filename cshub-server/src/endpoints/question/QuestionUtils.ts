@@ -18,9 +18,8 @@ import {
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import { Topic } from "../../db/entities/topic";
 import { DynamicAnswer } from "../../db/entities/practice/dynamic-answer";
-import { hasRightAmountOfSeeds } from "../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
-import has = Reflect.has;
-import { Seed } from "../../db/entities/practice/seed";
+import { hasFittingVariables } from "../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
+import { Variable } from "../../db/entities/practice/variable";
 
 export const parseAndValidateQuestion = (question: Question, res: Response): FullQuestionWithId => {
     let answerType: FullAnswerType;
@@ -147,23 +146,24 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
             }
 
             if (
-                !hasRightAmountOfSeeds(
+                !hasFittingVariables(
                     question.question,
                     answer.dynamicAnswerExpression,
-                    answer.dynamicAnswerSeeds.length
+                    question.explanation,
+                    answer.dynamicAnswerVariables
                 )
             ) {
-                logger.error(`Mismatch in amount of seeds for ${question.id}`);
+                logger.error(`Mismatch in amount of variables for ${question.id}`);
                 res.status(500).send();
                 throw new AlreadySentError();
             }
 
             answerType = {
                 type: QuestionType.DYNAMIC,
-                seeds: answer.dynamicAnswerSeeds.map(seed => {
+                variableExpressions: answer.dynamicAnswerVariables.map(variable => {
                     return {
-                        start: seed.start,
-                        end: seed.end
+                        expression: variable.expression,
+                        name: variable.name
                     };
                 }),
                 answerExpression: answer.dynamicAnswerExpression
@@ -232,16 +232,11 @@ export const validateNewQuestion = (question: FullQuestion, res: Response) => {
             hasError = !validateMultipleInputs({ input: question.answer }).valid;
             break;
         case QuestionType.DYNAMIC:
-            for (const seed of question.seeds) {
+            for (const variable of question.variableExpressions) {
                 if (
-                    validateMultipleInputs(
-                        {
-                            input: seed.start
-                        },
-                        {
-                            input: seed.end
-                        }
-                    ).error
+                    validateMultipleInputs({
+                        input: variable
+                    }).error
                 ) {
                     hasError = true;
                     break;
@@ -250,7 +245,13 @@ export const validateNewQuestion = (question: FullQuestion, res: Response) => {
 
             hasError = !validateMultipleInputs({ input: question.answerExpression }).valid;
             hasError =
-                hasError || hasRightAmountOfSeeds(question.question, question.answerExpression, question.seeds.length);
+                hasError ||
+                hasFittingVariables(
+                    question.question,
+                    question.answerExpression,
+                    question.explanation,
+                    question.variableExpressions
+                );
             break;
     }
 
@@ -350,11 +351,10 @@ export const insertQuestions = async (
             newQuestion.answers.push(
                 new DynamicAnswer(
                     question.question.answerExpression,
-                    question.question.seeds.map(seed => {
-                        const newSeed = new Seed();
-                        newSeed.start = seed.start;
-                        newSeed.end = seed.end;
-                        return newSeed;
+                    question.question.variableExpressions.map(expression => {
+                        const newVariable = new Variable();
+                        newVariable.expression = expression.expression;
+                        return newVariable;
                     })
                 )
             );

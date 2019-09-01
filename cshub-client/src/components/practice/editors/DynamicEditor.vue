@@ -6,6 +6,13 @@
 
                 <p class="mt-5">Use $VariableName to create dynamically assignable variables in your question.</p>
 
+                <v-row>
+                    <p v-if="variables.length > 0" class="mt-5">
+                        Write a mathematical expression as a function of the <i>seed</i> variable to describe this
+                        parameter. Use <a href="https://mathjs.org/docs/expressions/syntax.html">MathJS</a> syntax.
+                    </p>
+                </v-row>
+
                 <v-textarea
                     v-model="question"
                     v-validate="'required|min:2'"
@@ -19,16 +26,24 @@
                     value="Bla"
                     class="mb-4"
                     hide-details
-                    @keyup="questionChanged"
+                    @keyup="inputChanged"
+                ></v-textarea>
+                <v-textarea
+                    v-model="explanation"
+                    v-validate="'required|min:2'"
+                    :error-messages="errors.collect('explanation')"
+                    required
+                    name="explanation"
+                    filled
+                    auto-grow
+                    rows="3"
+                    label="Explanation"
+                    value="Bla"
+                    class="mt-4"
+                    @keyup="inputChanged"
                 ></v-textarea>
 
                 <v-item-group>
-                    <v-row>
-                        <p v-if="variables.length > 0" class="mt-5">
-                            Write a mathematical expression as a function of the <i>seed</i> variable to describe this
-                            parameter. Use <a href="https://mathjs.org/docs/expressions/syntax.html">MathJS</a> syntax.
-                        </p>
-                    </v-row>
                     <v-row v-for="(variable, i) of variables" :key="i" align="center" class="mb-4 ml-0 mr-0">
                         <v-textarea
                             v-model="variable.code"
@@ -44,39 +59,9 @@
                         >
                         </v-textarea>
                     </v-row>
-
-                    <v-row>
-                        <v-text-field
-                            v-model="seed.minimum"
-                            label="Min seed value"
-                            max="10000"
-                            min="0"
-                            step="1"
-                            type="number"
-                            class="ma-2"
-                            value="0"
-                        ></v-text-field>
-                        <v-text-field
-                            v-model="seed.maximum"
-                            label="Max seed value"
-                            max="10000"
-                            min="0"
-                            step="1"
-                            type="number"
-                            class="ma-2"
-                            value="10"
-                        ></v-text-field>
-                    </v-row>
-
-                    <v-row>
-                        <p class="mt-5">
-                            Write a mathematical expression as a function of the parameters used in the assignment. Use
-                            <a href="https://mathjs.org/docs/expressions/syntax.html">MathJS</a> syntax.
-                        </p>
-                    </v-row>
                     <v-row align="center" class="mb-4 ml-0 mr-0">
                         <v-textarea
-                            v-model="answer.answer"
+                            v-model="answer"
                             v-validate="'required|min:2'"
                             :label="`Answer`"
                             outlined
@@ -87,6 +72,7 @@
                             class="mr-0 multiple-choice-textarea"
                             hide-details
                             messages="hello world"
+                            @keyup="inputChanged"
                         >
                         </v-textarea>
                     </v-row>
@@ -131,82 +117,39 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
-import {
-    DynamicQuestionVariable,
-    FullAnswerType,
-    SeedRange
-} from "../../../../../cshub-shared/src/api-calls/endpoints/question/AddQuestion";
-import { evaluate } from "mathjs";
 import ViewerMixin from "../viewers/ViewerMixin";
+import { FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
+import { ApiWrapper } from "../../../utilities";
+import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
 
 @Component({
     name: "DynamicEditor",
     inject: ["$validator"]
 })
 export default class DynamicEditor extends ViewerMixin {
-    private question: string = "";
-    private variables: DynamicQuestionVariable[] = [];
-    private answer: FullAnswerType = {
-        type: QuestionType.DYNAMIC,
-        answer: ""
-    };
-    private seed: number = 0;
+    private question = "";
+    private explanation = "";
+    private answerExpression = "";
 
-    private range: SeedRange = {
-        minimum: 0,
-        maximum: 100
-    };
-
-    get _range() {
-        return [this.range.minimum, this.range.maximum];
-    }
-
-    set _range(value) {
-        this.range.minimum = value[0];
-        this.range.maximum = value[1];
-    }
-
-    private validateVariable(variable: DynamicQuestionVariable) {
-        return () => {
-            try {
-                evaluate(variable.code);
-                return true;
-            } catch (err) {
-                return String(err);
-            }
-        };
-    }
+    private variableExpressions: { [name: string]: string } = {};
 
     private async submit() {
         let valid = await this.$validator.validateAll();
 
-        // if (valid) {
-        //     if (!this.multipleCorrect) {
-        //         this.answers[this.radioAnswer].correct = true;
-        //     }
-        //
-        //     const question: FullQuestion = {
-        //         question: this.question,
-        //         explanation: this.explanation,
-        //         type: this.multipleCorrect ? QuestionType.MULTICLOSED : QuestionType.SINGLECLOSED,
-        //         answers: this.answers
-        //     };
-        //
-        //     await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
-        // }
-    }
+        if (valid) {
+            const question: FullQuestion = {
+                question: this.question,
+                explanation: this.explanation,
+                answerExpression: this.answerExpression,
+                type: QuestionType.DYNAMIC,
+                variableExpressions: []
+            };
 
-    private async questionChanged() {
-        const regex = /\$([a-zA-Z_$][a-zA-Z_$0-9]*)/g;
-        let match: RegExpExecArray | null;
-        this.variables = [];
-        while ((match = regex.exec(this.question))) {
-            this.variables.push({
-                code: "",
-                name: match[1]
-            });
+            await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
         }
     }
+
+    private async inputChanged() {}
 }
 </script>
 

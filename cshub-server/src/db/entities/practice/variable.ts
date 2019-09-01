@@ -2,13 +2,13 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Answer } from "./answer";
 
 @Entity({
-    name: "seed"
+    name: "variable"
 })
-export class Seed {
+export class Variable {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @ManyToOne(type => Answer, answer => answer.dynamicAnswerSeeds, {
+    @ManyToOne(type => Answer, answer => answer.dynamicAnswerVariables, {
         nullable: false,
         onDelete: "RESTRICT",
         onUpdate: "RESTRICT"
@@ -18,10 +18,10 @@ export class Seed {
     @Column({
         nullable: false
     })
-    start!: number;
+    name!: string;
 
     @Column({
         nullable: false
     })
-    end!: number;
+    expression!: string;
 }

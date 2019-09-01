@@ -1,4 +1,5 @@
 import { QuestionType } from "../../../../entities/question";
+import { VariableValue } from "./Variable";
 
 export interface ToCheckAnswerType {
     questionId: number;
@@ -31,5 +32,5 @@ export type CheckAnswerType =
     | {
           type: QuestionType.DYNAMIC;
           answer: number | string;
-          seeds: number[];
+          variables: VariableValue[];
       };

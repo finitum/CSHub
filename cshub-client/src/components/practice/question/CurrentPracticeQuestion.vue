@@ -47,6 +47,7 @@
                 type="number"
                 :background-color="color"
             ></v-text-field>
+            <p class="mt-4">Answer this question with a precision of {{ question.precision }}</p>
             <p v-if="checkedQuestion !== null" class="mt-4">
                 <b>Answer:</b> {{ checkedQuestion.correctAnswer.number }}
             </p>

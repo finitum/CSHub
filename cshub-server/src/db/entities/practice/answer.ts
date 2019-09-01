@@ -5,8 +5,8 @@ import { Exclude, Expose } from "class-transformer";
 import { ClosedAnswer } from "./closed-answer";
 import { OpenTextAnswer } from "./open-text-answer";
 import { OpenNumberAnswer } from "./open-number-answer";
-import { Seed } from "./seed";
 import { DynamicAnswer } from "./dynamic-answer";
+import { Variable } from "./variable";
 
 @Exclude()
 @Entity({
@@ -62,8 +62,8 @@ export class Answer {
     })
     dynamicAnswerExpression?: string;
 
-    @OneToMany(type => Seed, seed => seed.answer)
-    dynamicAnswerSeeds?: Seed[];
+    @OneToMany(type => Variable, variable => variable.answer)
+    dynamicAnswerVariables?: Variable[];
 
     public isClosedAnswer(): this is ClosedAnswer {
         return (

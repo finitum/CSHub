@@ -1,4 +1,5 @@
 import { QuestionType } from "../../../../entities/question";
+import { VariableExpression } from "./Variable";
 
 export interface FullClosedAnswerType {
     answerText: string;
@@ -23,10 +24,7 @@ export type FullAnswerType =
     | {
           type: QuestionType.DYNAMIC;
           answerExpression: string;
-          seeds: {
-              start: number;
-              end: number;
-          }[];
+          variableExpressions: VariableExpression[];
       };
 
 export type FullQuestion = {

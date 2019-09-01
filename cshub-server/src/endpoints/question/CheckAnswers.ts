@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 import { app } from "../../";
 
-import { checkDynamicQuestion as dynamicQuestionChecker } from "../../../../cshub-shared/src/utilities/DynamicQuestionChecker";
+import { checkDynamicQuestion as dynamicQuestionChecker } from "../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
 import { getRepository, In } from "typeorm";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { CheckAnswers, CheckAnswersCallback } from "../../../../cshub-shared/src/api-calls/endpoints/question";
@@ -150,7 +150,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
 
             const checkedAnswer = dynamicQuestionChecker(
                 parsedQuestion.answerExpression,
-                clientAnswer.seeds,
+                clientAnswer.variables,
                 clientAnswer.answer
             );
 
@@ -159,7 +159,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 answer: clientAnswer,
                 correctAnswer: {
                     type: QuestionType.DYNAMIC,
-                    seeds: clientAnswer.seeds,
+                    variables: clientAnswer.variables,
                     answer: checkedAnswer.actualAnswer
                 },
                 correct: checkedAnswer.isCorrect,

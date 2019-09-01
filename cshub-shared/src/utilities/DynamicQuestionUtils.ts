@@ -1,6 +1,8 @@
+import { VariableExpression, VariableValue } from "../api-calls/endpoints/question/models/Variable";
+
 export const checkDynamicQuestion = (
     answerExpression: string,
-    seeds: number[],
+    variables: VariableValue[],
     userAnswer: number | string
 ): {
     isCorrect: boolean;
@@ -12,32 +14,74 @@ export const checkDynamicQuestion = (
     };
 };
 
-export const getAmountOfSeeds = (question: string, answer: string): number => {
-    const seedIndexes = Array.from(
-        new Set(
-            (question + answer)
-                .split(" ")
-                .filter(word => word.startsWith("$seed"))
-                .map(word => Number(word.replace("$seed", "")))
-                .filter(index => !isNaN(index))
-        )
-    ).sort();
-
-    if (seedIndexes.length === 0) return 0;
-
-    let currSeedIndex = 0;
-    seedIndexes.forEach(seedIndex => {
-        if (seedIndex !== currSeedIndex) {
-            throw new Error();
-        }
-
-        currSeedIndex++;
-    });
-
-    return seedIndexes.length;
+export const getVariableValues = (variables: VariableExpression[]): VariableValue[] => {
+    return [];
 };
 
-export const hasRightAmountOfSeeds = (question: string, answer: string, amountOfSeeds: number): boolean => {
-    const amountOfSeedsInQuestionAndAnswer = getAmountOfSeeds(question, answer);
-    return amountOfSeedsInQuestionAndAnswer === amountOfSeeds;
+export const variablePrefix = "$Var";
+
+function getVariableNames(text: string): string[] {
+    const regex = /\$([a-zA-Z_$][a-zA-Z_$0-9]*)/g;
+
+    const variableNames: string[] = [];
+
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(text))) {
+        variableNames.push(match[1]);
+    }
+
+    return variableNames;
+}
+
+export const hasFittingVariables = (
+    question: string,
+    answer: string,
+    explanation: string,
+    variableExpressions: VariableExpression[]
+): boolean => {
+    const variableTexts = question + answer + explanation;
+    const variableNames = new Set(getVariableNames(variableTexts));
+
+    if (variableNames.size !== variableExpressions.length) return false;
+
+    interface VariableType extends VariableExpression {
+        dependsOn: string[]; // the names of variables
+    }
+
+    const variableDependencyTree: VariableType[] = [];
+
+    variableExpressions.forEach(value => {
+        const variableNames = getVariableNames(value.expression);
+
+        if (variableNames.includes(value.name)) {
+            throw new Error("Variable depends on itself!");
+        }
+
+        variableDependencyTree.push({
+            name: value.name,
+            expression: value.expression,
+            dependsOn: variableNames
+        });
+    });
+
+    let resolvedDependencies: string[] = [];
+
+    while (variableDependencyTree.length !== 0) {
+        let startSize = variableDependencyTree.length;
+
+        for (let i = variableDependencyTree.length - 1; i >= 0; i--) {
+            const variable = variableDependencyTree[i];
+            const everyVariableResolved = variable.dependsOn.every(name => resolvedDependencies.includes(name));
+            if (everyVariableResolved) {
+                resolvedDependencies.push(variable.name);
+                variableDependencyTree.splice(i, 1);
+            }
+        }
+
+        if (startSize === variableDependencyTree.length) {
+            throw new Error("Infinite dependencies between variables!");
+        }
+    }
+
+    return true;
 };

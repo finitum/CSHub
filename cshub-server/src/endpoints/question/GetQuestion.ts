@@ -18,6 +18,7 @@ import {
 import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 import { AlreadySentError } from "../utils";
 import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
+import { getVariableValues } from "../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
 
 app.get(GetFullQuestion.getURL, (req: Request, res: Response) => {
     const questionId = Number(req.params.id);
@@ -88,21 +89,21 @@ app.get(GetQuestion.getURL, (req: Request, res: Response) => {
                         };
                         break;
                     case QuestionType.OPENNUMBER:
+                        strippedAnswer = {
+                            type: parsedQuestion.type,
+                            precision: parsedQuestion.precision
+                        };
+                        break;
                     case QuestionType.OPENTEXT:
                         strippedAnswer = {
                             type: parsedQuestion.type
                         };
                         break;
                     case QuestionType.DYNAMIC:
-                        const seeds: number[] = [];
-                        for (const seed of parsedQuestion.seeds) {
-                            const max = seed.end;
-                            const min = seed.start;
-                            seeds.push(Math.floor(Math.random() * (max - min + 1)) + min);
-                        }
+                        const variables = getVariableValues(parsedQuestion.variableExpressions);
                         strippedAnswer = {
                             type: parsedQuestion.type,
-                            seeds
+                            variables
                         };
                         break;
                     default:
