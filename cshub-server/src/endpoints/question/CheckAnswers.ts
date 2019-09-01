@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 
 import { app } from "../../";
 
+import { checkDynamicQuestion as dynamicQuestionChecker } from "../../../../cshub-shared/src/utilities/DynamicQuestionChecker";
 import { getRepository, In } from "typeorm";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { CheckAnswers, CheckAnswersCallback } from "../../../../cshub-shared/src/api-calls/endpoints/question";
@@ -137,6 +138,39 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     }
 
+    function checkDynamicQuestion(clientAnswer: CheckAnswerType, question: Question): CheckedAnswerType {
+        if (clientAnswer.type === QuestionType.DYNAMIC) {
+            const parsedQuestion = parseAndValidateQuestion(question, res);
+
+            if (parsedQuestion.type !== QuestionType.DYNAMIC) {
+                logger.error("Incompatible types!");
+                res.sendStatus(500);
+                throw new AlreadySentError();
+            }
+
+            const checkedAnswer = dynamicQuestionChecker(
+                parsedQuestion.answerExpression,
+                clientAnswer.seeds,
+                clientAnswer.answer
+            );
+
+            return {
+                questionId: question.id,
+                answer: clientAnswer,
+                correctAnswer: {
+                    type: QuestionType.DYNAMIC,
+                    seeds: clientAnswer.seeds,
+                    answer: checkedAnswer.actualAnswer
+                },
+                correct: checkedAnswer.isCorrect,
+                explanation: question.explanation
+            };
+        } else {
+            res.status(400).send(new ServerError("This answer shouldn't be dynamic!"));
+            throw new AlreadySentError();
+        }
+    }
+
     const parseAnswer = (question: Question, clientAnswer: CheckAnswerType): CheckedAnswerType => {
         switch (question.type) {
             case QuestionType.SINGLECLOSED:
@@ -147,8 +181,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
             case QuestionType.OPENTEXT:
                 return checkOpenTextQuestion(clientAnswer, question);
             case QuestionType.DYNAMIC:
-                res.sendStatus(500);
-                throw new AlreadySentError("NOT IMPLEMENTED");
+                return checkDynamicQuestion(clientAnswer, question);
         }
     };
 

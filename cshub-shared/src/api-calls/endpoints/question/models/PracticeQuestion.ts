@@ -10,6 +10,10 @@ export type PracticeAnswerType =
       }
     | {
           type: QuestionType.OPENNUMBER | QuestionType.OPENTEXT;
+      }
+    | {
+          type: QuestionType.DYNAMIC;
+          seeds: number[];
       };
 
 export type PracticeQuestion = {

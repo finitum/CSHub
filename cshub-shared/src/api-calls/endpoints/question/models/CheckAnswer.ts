@@ -27,4 +27,9 @@ export type CheckAnswerType =
     | {
           type: QuestionType.OPENTEXT;
           text: string;
+      }
+    | {
+          type: QuestionType.DYNAMIC;
+          answer: number | string;
+          seeds: number[];
       };

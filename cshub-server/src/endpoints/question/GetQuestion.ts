@@ -93,6 +93,18 @@ app.get(GetQuestion.getURL, (req: Request, res: Response) => {
                             type: parsedQuestion.type
                         };
                         break;
+                    case QuestionType.DYNAMIC:
+                        const seeds: number[] = [];
+                        for (const seed of parsedQuestion.seeds) {
+                            const max = seed.end;
+                            const min = seed.start;
+                            seeds.push(Math.floor(Math.random() * (max - min + 1)) + min);
+                        }
+                        strippedAnswer = {
+                            type: parsedQuestion.type,
+                            seeds
+                        };
+                        break;
                     default:
                         logger.error("Missing switch case");
                         res.status(500).send();

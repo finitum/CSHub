@@ -17,6 +17,10 @@ import {
     FullQuestionWithId
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import { Topic } from "../../db/entities/topic";
+import { DynamicAnswer } from "../../db/entities/practice/dynamic-answer";
+import { hasRightAmountOfSeeds } from "../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
+import has = Reflect.has;
+import { Seed } from "../../db/entities/practice/seed";
 
 export const parseAndValidateQuestion = (question: Question, res: Response): FullQuestionWithId => {
     let answerType: FullAnswerType;
@@ -110,8 +114,7 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
                 throw new AlreadySentError();
             }
 
-            const correctAnswer = (question.answers as OpenTextAnswer[])[0].openAnswerText;
-            if (!correctAnswer) {
+            if (!(question.answers as OpenTextAnswer[])[0].openAnswerText) {
                 logger.error(`No answer text found for ${question.id}`);
                 res.status(500).send();
                 throw new AlreadySentError();
@@ -121,6 +124,49 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
             answerType = {
                 type: QuestionType.OPENTEXT,
                 answer: openText.openAnswerText
+            };
+            break;
+        case QuestionType.DYNAMIC:
+            if (question.answers.length !== 1) {
+                logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            if (!question.answers[0].isDynamicAnswer()) {
+                logger.error(`Wrong answer type for answerid ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            const answer = (question.answers as DynamicAnswer[])[0];
+            if (!answer.dynamicAnswerExpression) {
+                logger.error(`No answer expression found for ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            if (
+                !hasRightAmountOfSeeds(
+                    question.question,
+                    answer.dynamicAnswerExpression,
+                    answer.dynamicAnswerSeeds.length
+                )
+            ) {
+                logger.error(`Mismatch in amount of seeds for ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            answerType = {
+                type: QuestionType.DYNAMIC,
+                seeds: answer.dynamicAnswerSeeds.map(seed => {
+                    return {
+                        start: seed.start,
+                        end: seed.end
+                    };
+                }),
+                answerExpression: answer.dynamicAnswerExpression
             };
             break;
         default:
@@ -184,6 +230,27 @@ export const validateNewQuestion = (question: FullQuestion, res: Response) => {
             break;
         case QuestionType.OPENTEXT:
             hasError = !validateMultipleInputs({ input: question.answer }).valid;
+            break;
+        case QuestionType.DYNAMIC:
+            for (const seed of question.seeds) {
+                if (
+                    validateMultipleInputs(
+                        {
+                            input: seed.start
+                        },
+                        {
+                            input: seed.end
+                        }
+                    ).error
+                ) {
+                    hasError = true;
+                    break;
+                }
+            }
+
+            hasError = !validateMultipleInputs({ input: question.answerExpression }).valid;
+            hasError =
+                hasError || hasRightAmountOfSeeds(question.question, question.answerExpression, question.seeds.length);
             break;
     }
 
@@ -278,6 +345,19 @@ export const insertQuestions = async (
             break;
         case QuestionType.OPENTEXT:
             newQuestion.answers.push(new OpenTextAnswer(question.question.answer));
+            break;
+        case QuestionType.DYNAMIC:
+            newQuestion.answers.push(
+                new DynamicAnswer(
+                    question.question.answerExpression,
+                    question.question.seeds.map(seed => {
+                        const newSeed = new Seed();
+                        newSeed.start = seed.start;
+                        newSeed.end = seed.end;
+                        return newSeed;
+                    })
+                )
+            );
             break;
     }
 

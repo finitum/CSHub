@@ -19,6 +19,14 @@ export type FullAnswerType =
     | {
           type: QuestionType.OPENTEXT;
           answer: string;
+      }
+    | {
+          type: QuestionType.DYNAMIC;
+          answerExpression: string;
+          seeds: {
+              start: number;
+              end: number;
+          }[];
       };
 
 export type FullQuestion = {
