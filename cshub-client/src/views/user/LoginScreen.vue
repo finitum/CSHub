@@ -19,10 +19,19 @@
                                 filled
                                 @change="userData.emailerror = ''"
                                 @keyup.enter="doLogin"
-                                hide-details
                             >
                                 <template slot="append">
-                                    <v-select class="ma-0 pa-0" hide-details v-model="emailDomain" :items="emailDomains.map(i => '@' + i.domain)" placeholder="Select email"></v-select>
+                                    <span class="mt-3">@</span>
+                                    <v-select
+                                        v-model="emailDomain"
+                                        v-validate="'required'"
+                                        item-text="domain"
+                                        item-value="id"
+                                        class="ma-0 pa-0"
+                                        hide-details
+                                        placeholder="Select email"
+                                        :items="emailDomains"
+                                    ></v-select>
                                 </template>
                             </v-text-field>
                             <v-text-field
@@ -85,7 +94,10 @@ import {
 } from "../../../../cshub-shared/src/api-calls/index";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 import { IEmailDomain } from "../../../../cshub-shared/src/entities/emaildomains";
-import { GetEmailDomains, GetEmailDomainsCallback } from "../../../../cshub-shared/src/api-calls/endpoints/emaildomains";
+import {
+    GetEmailDomains,
+    GetEmailDomainsCallback
+} from "../../../../cshub-shared/src/api-calls/endpoints/emaildomains";
 
 import router from "../router/router";
 import { SocketWrapper } from "../../utilities/socket-wrapper";
@@ -100,7 +112,7 @@ export default class LoginScreen extends Vue {
      * Data
      */
     public previousRoute = "";
-    private emailDomain: IEmailDomain | null = null;
+    private emailDomain: number | null = null;
     private emailDomains: IEmailDomain[] = [];
 
     private userData = {
@@ -153,6 +165,7 @@ export default class LoginScreen extends Vue {
 
         const domains = (await ApiWrapper.get(new GetEmailDomains())) as GetEmailDomainsCallback;
         this.emailDomains = domains.domains;
+        this.emailDomain = domains.domains[0].id;
     }
 
     private beforeRouteEnter(to: Route, from: Route, next: (to?: (vm: this) => any) => void) {
@@ -174,7 +187,7 @@ export default class LoginScreen extends Vue {
         this.$validator.validateAll().then((allValid: boolean) => {
             if (allValid) {
                 ApiWrapper.sendPostRequest(
-                    new ForgotPasswordMail(this.userData.email),
+                    new ForgotPasswordMail(this.userData.email, this.emailDomains.filter(i => i.id === this.emailDomain)[0]),
                     (result: ForgotPasswordMailCallback) => {
                         if (result.response === ForgotPasswordMailResponseTypes.SENT) {
                             uiState.setNotificationDialog({
@@ -188,15 +201,29 @@ export default class LoginScreen extends Vue {
                         }
                     }
                 );
+            } else {
+                this.popup();
             }
+        });
+    }
+
+    private popup() {
+        uiState.setNotificationDialog({
+            on: true,
+            header: `You forgot to fill out some fields`,
+            text: ""
         });
     }
 
     private doLogin() {
         this.$validator.validateAll().then((allValid: boolean) => {
-            if (allValid) {
+            if (allValid && this.emailDomain != null) {
                 ApiWrapper.sendPostRequest(
-                    new Login(this.userData.email, this.userData.password),
+                    new Login(
+                        this.userData.email,
+                        this.userData.password,
+                        this.emailDomains.filter(i => i.id === this.emailDomain)[0]
+                    ),
                     (callbackData: LoginCallBack) => {
                         if (callbackData.response === LoginResponseTypes.SUCCESS && callbackData.userModel) {
                             if (this.userData.rememberuser) {
@@ -228,6 +255,8 @@ export default class LoginScreen extends Vue {
                         }
                     }
                 );
+            } else {
+                this.popup();
             }
         });
     }

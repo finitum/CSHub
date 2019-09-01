@@ -14,12 +14,25 @@
                                 label="Email"
                                 :error-messages="errors.collect('email') + userData.emailerror"
                                 name="email"
-                                suffix="@student.tudelft.nl"
                                 required
                                 filled
                                 @change="userData.emailerror = ''"
                                 @keyup.enter="doCreateAccount"
-                            ></v-text-field>
+                            >
+                                <template slot="append">
+                                    <span class="mt-3">@</span>
+                                    <v-select
+                                        v-model="emailDomain"
+                                        v-validate="'required'"
+                                        item-text="domain"
+                                        item-value="id"
+                                        class="ma-0 pa-0"
+                                        hide-details
+                                        placeholder="Select email"
+                                        :items="emailDomains"
+                                    ></v-select>
+                                </template>
+                            </v-text-field>
                             <v-text-field
                                 v-model="userData.password"
                                 v-validate="'required|min:8|confirmed:password confirmation'"
@@ -83,17 +96,19 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
-
 import { emailValidator, ApiWrapper, logStringConsole } from "../../utilities";
-
 import {
     CreateAccount,
     CreateAccountCallBack,
     CreateAccountResponseTypes
 } from "../../../../cshub-shared/src/api-calls";
 import { Routes } from "../../../../cshub-shared/src/Routes";
-
 import router from "../router/router";
+import { IEmailDomain } from "../../../../cshub-shared/src/entities/emaildomains";
+import {
+    GetEmailDomains,
+    GetEmailDomainsCallback
+} from "../../../../cshub-shared/src/api-calls/endpoints/emaildomains";
 
 @Component({
     name: "CreateUserAccount",
@@ -112,12 +127,18 @@ export default class CreateUserAccount extends Vue {
         firstname: "",
         lastname: ""
     };
+    private emailDomain: number | null = null;
+    private emailDomains: IEmailDomain[] = [];
 
     /**
      * Lifecycle hooks
      */
-    private mounted() {
+    private async mounted() {
         this.$validator.extend("checkTUEmail", emailValidator);
+
+        const domains = (await ApiWrapper.get(new GetEmailDomains())) as GetEmailDomainsCallback;
+        this.emailDomains = domains.domains;
+        this.emailDomain = domains.domains[0].id;
     }
 
     public metaInfo(): any {
@@ -137,7 +158,8 @@ export default class CreateUserAccount extends Vue {
                         this.userData.email,
                         this.userData.password,
                         this.userData.firstname,
-                        this.userData.lastname
+                        this.userData.lastname,
+                        this.emailDomains.filter(i => i.id === this.emailDomain)[0]
                     ),
                     (callbackData: CreateAccountCallBack) => {
                         if (callbackData.response === CreateAccountResponseTypes.SUCCESS) {

@@ -20,9 +20,10 @@ app.post(ForgotPasswordMail.getURL, (req: Request, res: Response) => {
             `
             SELECT id, firstname
             FROM users
-            WHERE email = ?
+            WHERE email = ? and domainId = ?
         `,
-            forgotPassword.email
+            forgotPassword.email,
+            forgotPassword.domain.id
         ).then((resDatabase: DatabaseResultSet) => {
             if (resDatabase.convertRowsToResultObjects().length > 0) {
                 sendPasswordResetMail(

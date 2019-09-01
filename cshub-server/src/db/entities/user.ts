@@ -1,9 +1,21 @@
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToMany,
+    ManyToOne,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+    RelationId
+} from "typeorm";
 import { Study } from "./study";
 import { Edit } from "./edit";
 import { IUser } from "../../../../cshub-shared/src/entities/user";
 import { Question } from "./practice/question";
 import { Exclude, Expose } from "class-transformer";
+import {EmailDomain} from "./emaildomain";
+import {Topic} from "./topic";
 
 @Exclude()
 @Entity({
@@ -89,4 +101,14 @@ export class User implements IUser {
     // Just to make the model complete
     @ManyToMany(type => Edit, edit => edit.editusers)
     edits?: Edit[];
+
+    @Expose()
+    @ManyToOne(type => EmailDomain, domain => domain.users, {
+        nullable: false
+    })
+    @JoinColumn()
+    domain!: EmailDomain;
+
+    @RelationId((user: User) => user.domain)
+    domainId!: number;
 }

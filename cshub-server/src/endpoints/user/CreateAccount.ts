@@ -51,9 +51,10 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
             `
             SELECT id
             FROM users
-            WHERE email = ?
+            WHERE email = ? AND domainId = ?
             `,
-            createAccountRequest.email
+            createAccountRequest.email,
+            createAccountRequest.domain.id
         )
             .then((result: DatabaseResultSet) => {
                 // It checks whether the user doesn't already exist. If not, hash the password 45000 times and insert the user into the database. If nothing gives any errors, send the callback with a succes message, otherwise it will give the corresponding message
@@ -63,12 +64,13 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
                             query(
                                 `
                             INSERT INTO users
-                            SET email = ?, password = ?, firstname = ?, lastname = ?
+                            SET email = ?, password = ?, firstname = ?, lastname = ?, domainId = ?
                             `,
                                 createAccountRequest.email,
                                 hashedValue,
                                 createAccountRequest.firstname,
-                                createAccountRequest.lastname
+                                createAccountRequest.lastname,
+                                createAccountRequest.domain.id
                             )
                                 .then((result: DatabaseResultSet) => {
                                     sendVerificationEmail(
