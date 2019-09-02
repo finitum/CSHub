@@ -1,4 +1,7 @@
 import { VariableExpression, VariableValue } from "../api-calls/endpoints/question/models/Variable";
+import { create, all } from "mathjs";
+
+const math = create(all);
 
 export const checkDynamicQuestion = (
     answerExpression: string,
@@ -8,25 +11,33 @@ export const checkDynamicQuestion = (
     isCorrect: boolean;
     actualAnswer: number | string;
 } => {
-    // TODO actually implement this @jona
+
+    const answer = evaluate(answerExpression, variables);
+
     return {
-        isCorrect: false,
-        actualAnswer: ""
+        isCorrect: answer == userAnswer,
+        actualAnswer: answer
     };
 };
 
 export const evaluate = (expression: string, variables: VariableValue[]): string | number => {
-    // TODO actually implement this @jona
-    return 0;
+    let scope = {};
+    for (const i of variables) {
+        scope[i.name] = i.value;
+    }
+
+    return math.evaluate(expression, scope);
 };
 
 export const generateVariableValues = (variables: VariableExpression[]): VariableValue[] => {
     const valuedVariables: VariableValue[] = [];
 
-    variables.forEach(value =>
+    const dependencyOrder = resolveDependencyTree(variables);
+
+    dependencyOrder.forEach(value =>
         valuedVariables.push({
             name: value.name,
-            value: Math.random() // TODO actually implement this @jona
+            value: evaluate(value.expression, valuedVariables)
         })
     );
 
@@ -46,16 +57,7 @@ export function getVariableNames(text: string): string[] {
     return variableNames;
 }
 
-export const hasFittingVariables = (
-    question: string,
-    answer: string,
-    explanation: string,
-    variableExpressions: VariableExpression[]
-): boolean => {
-    const variableTexts = question + answer + explanation;
-    const variableNames = new Set(getVariableNames(variableTexts));
-
-    if (variableNames.size !== variableExpressions.length) return false;
+export const resolveDependencyTree = (variableExpressions: VariableExpression[]): VariableExpression[] {
 
     interface VariableType extends VariableExpression {
         dependsOn: string[]; // the names of variables
@@ -78,6 +80,7 @@ export const hasFittingVariables = (
     });
 
     let resolvedDependencies: string[] = [];
+    let resolvedDependenciesVariables: VariableExpression[] = [];
 
     while (variableDependencyTree.length !== 0) {
         let startSize = variableDependencyTree.length;
@@ -87,6 +90,7 @@ export const hasFittingVariables = (
             const everyVariableResolved = variable.dependsOn.every(name => resolvedDependencies.includes(name));
             if (everyVariableResolved) {
                 resolvedDependencies.push(variable.name);
+                resolvedDependenciesVariables.push(variable);
                 variableDependencyTree.splice(i, 1);
             }
         }
@@ -96,5 +100,22 @@ export const hasFittingVariables = (
         }
     }
 
+    return resolvedDependenciesVariables;
+}
+
+export const hasFittingVariables = (
+    question: string,
+    answer: string,
+    explanation: string,
+    variableExpressions: VariableExpression[]
+): boolean => {
+    const variableTexts = question + answer + explanation;
+    const variableNames = new Set(getVariableNames(variableTexts));
+
+    if (variableNames.size !== variableExpressions.length){
+        return false;
+    }
+
+    resolveDependencyTree(variableExpressions);
     return true;
 };
