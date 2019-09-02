@@ -43,6 +43,12 @@
                             :answer="question.number"
                             :precision="question.precision"
                         ></OpenNumberViewer>
+                        <DynamicViewer
+                            :question="question.question"
+                            :explanation="question.explanation"
+                            :answer-expression="question.answerExpression"
+                            :variable-expressions="question.variableExpressions"
+                        ></DynamicViewer>
                     </v-col>
                     <v-col v-if="replacesQuestion !== null" cols="6">
                         <b>Original question:</b>
@@ -66,6 +72,12 @@
                             :answer="replacesQuestion.number"
                             :precision="replacesQuestion.precision"
                         ></OpenNumberViewer>
+                        <DynamicViewer
+                            :question="replacesQuestion.question"
+                            :explanation="replacesQuestion.explanation"
+                            :answer-expression="replacesQuestion.answerExpression"
+                            :variable-expressions="replacesQuestion.variableExpressions"
+                        ></DynamicViewer>
                     </v-col>
                 </v-row>
             </v-card>
@@ -88,10 +100,11 @@ import MultipleChoiceViewer from "./viewers/MultipleChoiceViewer.vue";
 import { EventBus, QUESTIONS_CHANGED } from "../../utilities/EventBus";
 import { mixins } from "vue-class-component";
 import QuestionListItemMixin from "./QuestionListItemMixin";
+import DynamicViewer from "./viewers/DynamicViewer.vue";
 
 @Component({
     name: QuestionListItem.name,
-    components: { MultipleChoiceViewer, OpenNumberViewer, OpenTextViewer }
+    components: { DynamicViewer, MultipleChoiceViewer, OpenNumberViewer, OpenTextViewer }
 })
 export default class QuestionListItem extends mixins(QuestionListItemMixin) {
     private replacesQuestion: FullQuestionWithId | null = null;

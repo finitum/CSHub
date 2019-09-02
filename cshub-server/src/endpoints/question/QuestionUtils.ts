@@ -145,12 +145,13 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
                 throw new AlreadySentError();
             }
 
+            const dynamicAnswerVariables = answer.dynamicAnswerVariables || [];
             if (
                 !hasFittingVariables(
                     question.question,
                     answer.dynamicAnswerExpression,
                     question.explanation,
-                    answer.dynamicAnswerVariables
+                    dynamicAnswerVariables
                 )
             ) {
                 logger.error(`Mismatch in amount of variables for ${question.id}`);
@@ -160,7 +161,7 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
 
             answerType = {
                 type: QuestionType.DYNAMIC,
-                variableExpressions: answer.dynamicAnswerVariables.map(variable => {
+                variableExpressions: dynamicAnswerVariables.map(variable => {
                     return {
                         expression: variable.expression,
                         name: variable.name
@@ -246,7 +247,7 @@ export const validateNewQuestion = (question: FullQuestion, res: Response) => {
             hasError = !validateMultipleInputs({ input: question.answerExpression }).valid;
             hasError =
                 hasError ||
-                hasFittingVariables(
+                !hasFittingVariables(
                     question.question,
                     question.answerExpression,
                     question.explanation,

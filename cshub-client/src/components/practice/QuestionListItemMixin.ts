@@ -25,6 +25,8 @@ export default class QuestionListItemMixin extends Vue {
                     return "on";
                 case QuestionType.OPENTEXT:
                     return "ot";
+                case QuestionType.DYNAMIC:
+                    return "dn";
             }
         }
         return "";
@@ -41,6 +43,8 @@ export default class QuestionListItemMixin extends Vue {
                     return "fas fa-calculator";
                 case QuestionType.OPENTEXT:
                     return "fas fa-font";
+                case QuestionType.DYNAMIC:
+                    return "fas fa-sync";
             }
         }
 
