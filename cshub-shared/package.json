@@ -16,6 +16,7 @@
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-prettier": "^3.1.0",
     "prettier": "^1.18.2",
+    "mathjs": "^6.2.1",
     "quill-delta": "^4.1.0"
   },
   "dependencies": {

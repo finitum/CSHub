@@ -146,6 +146,7 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
             }
 
             const dynamicAnswerVariables = answer.dynamicAnswerVariables || [];
+            console.log(dynamicAnswerVariables);
             if (
                 !hasFittingVariables(
                     question.question,

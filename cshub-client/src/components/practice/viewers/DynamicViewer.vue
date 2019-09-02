@@ -46,7 +46,11 @@ export default class DynamicViewer extends mixins(ViewerMixin) {
     private variableExpressions!: VariableExpression[];
 
     get valuedVariables(): VariableValue[] {
-        return generateVariableValues(this.variableExpressions);
+        try {
+            return generateVariableValues(this.variableExpressions);
+        } catch (err) {
+            return [];
+        }
     }
 
     get renderedQuestion() {
@@ -58,7 +62,11 @@ export default class DynamicViewer extends mixins(ViewerMixin) {
     }
 
     get answer() {
-        return evaluate(this.answerExpression, this.valuedVariables);
+        try {
+            return evaluate(this.answerExpression, this.valuedVariables);
+        } catch (err) {
+            return this.answerExpression;
+        }
     }
 }
 </script>

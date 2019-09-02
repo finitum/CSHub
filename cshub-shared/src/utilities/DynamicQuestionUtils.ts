@@ -21,12 +21,12 @@ export const checkDynamicQuestion = (
 };
 
 export const evaluate = (expression: string, variables: VariableValue[]): string | number => {
-    let scope = {};
+    let scope: any = {};
     for (const i of variables) {
         scope[i.name] = i.value;
     }
 
-    return math.evaluate(expression, scope);
+    return math.evaluate(expression.replace(/\$/g, ""), scope);
 };
 
 export const generateVariableValues = (variables: VariableExpression[]): VariableValue[] => {
@@ -57,7 +57,7 @@ export function getVariableNames(text: string): string[] {
     return variableNames;
 }
 
-export const resolveDependencyTree = (variableExpressions: VariableExpression[]): VariableExpression[] {
+export const resolveDependencyTree = (variableExpressions: VariableExpression[]): VariableExpression[] => {
 
     interface VariableType extends VariableExpression {
         dependsOn: string[]; // the names of variables
