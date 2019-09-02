@@ -42,15 +42,6 @@
                     <v-icon color="white">{{ darkMode ? "fas fa-sun" : "fas fa-moon" }}</v-icon>
                 </v-btn>
             </template>
-            <v-btn v-if="!$vuetify.breakpoint.mdAndUp" icon depressed small color="primary" @click="goToSearch">
-                <v-icon color="white">fas fa-search</v-icon>
-            </v-btn>
-            <v-btn icon depressed small color="primary" @click="showVersionDialog">
-                <v-icon color="white">fas fa-code-branch</v-icon>
-            </v-btn>
-            <v-btn icon depressed small color="primary" @click="darkMode = !darkMode">
-                <v-icon color="white">{{ darkMode ? "fas fa-sun" : "fas fa-moon" }}</v-icon>
-            </v-btn>
         </v-toolbar-items>
     </v-app-bar>
 </template>

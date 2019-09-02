@@ -30,7 +30,6 @@ export interface ISettings {
         };
         APIKEY: string;
         NOREPLYADDRESS: string;
-        SUFFIX: string;
         DEBUGMAILADDRESS: string;
     };
     APIADDRESS: string;
@@ -71,7 +70,6 @@ export const Settings: ISettings = {
         },
         APIKEY: process.env.MAIL_APIKEY ? process.env.MAIL_APIKEY : "xxxx",
         NOREPLYADDRESS: process.env.MAIL_APIKEY ? process.env.MAIL_APIKEY : "no-reply@xxx.nl",
-        SUFFIX: process.env.MAIL_SUFFIX ? process.env.MAIL_SUFFIX : "@xxxxx",
         DEBUGMAILADDRESS: process.env.MAIL_DEBUGMAILADDRESS ? process.env.MAIL_DEBUGMAILADDRESS : "xxxx"
     },
     APIADDRESS: process.env.APIADDRESS ? process.env.APIADDRESS : "xxxx",
