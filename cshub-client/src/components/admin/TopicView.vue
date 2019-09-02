@@ -253,14 +253,6 @@ export default class TopicView extends Vue {
     padding-bottom: 4px;
 }
 
-/*.sl-vue-tree-selected > .sl-vue-tree-node-item {*/
-/*    color: #1976d2;*/
-/*}*/
-
-/*.sl-vue-tree-node-item:hover {*/
-/*    background: rgba(0, 0, 0, 0.12);*/
-/*}*/
-
 .sl-vue-tree-node-item {
     position: relative;
     display: flex;
@@ -301,7 +293,6 @@ export default class TopicView extends Vue {
 
 .sl-vue-tree-drag-info {
     position: absolute;
-    /*background-color: black;*/
     opacity: 0.5;
     margin-left: 20px;
     margin-bottom: 20px;

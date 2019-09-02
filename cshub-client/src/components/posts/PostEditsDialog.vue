@@ -32,8 +32,8 @@
                                     <v-flex xs7>
                                         <span v-if="index !== 0">Edited by </span>
                                         <span v-if="index === 0">Created by </span>
-                                        <span v-if="edit.editedBy[0].id === null">unknown</span>
-                                        <span v-for="(user, userindex) in edit.editedBy" v-else :key="user.id"
+                                        <span v-if="edit.editusers.length === 0">unknown</span>
+                                        <span v-for="(user, userindex) in edit.editusers" v-else :key="user.id"
                                             >{{ user.firstname }} {{ user.lastname
                                             }}{{ userindex === edit.editedBy.length - 1 ? "" : ", " }}</span
                                         >
@@ -43,6 +43,7 @@
                                             depressed
                                             small
                                             color="primary"
+                                            class="ml-4"
                                             @click="showIndex = index"
                                             >View edit
                                         </v-btn>
@@ -51,6 +52,7 @@
                                             depressed
                                             small
                                             color="primary"
+                                            class="ml-4"
                                             @click="showIndex = -1"
                                             >Close edit
                                         </v-btn>
@@ -140,8 +142,8 @@ export default class PostEditsDialog extends Vue {
         return this.dialogActive.on && this.dialogActive.hash === this.postHash;
     }
 
-    set thisDialogActive(boolean) {
-        //pass
+    set thisDialogActive(active: boolean) {
+        this.dialogActive.on = active;
     }
 
     /**

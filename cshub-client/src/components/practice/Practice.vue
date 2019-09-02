@@ -74,10 +74,7 @@ export default class Practice extends Vue {
                 })
             );
 
-            // Is this check necessary? AFAIK it can never not be true.
-            if (practiceState.currentQuestions) {
-                this.$router.push(`${Routes.QUESTION}/0`);
-            }
+            this.$router.push(`${Routes.QUESTION}/0`);
         } else {
             uiState.setNotificationDialog({
                 header: "No questions!",

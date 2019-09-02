@@ -68,7 +68,7 @@
                 <NavDrawerItem
                     :to="navigationLocations.POSTCREATE"
                     icon="fas fa-pen"
-                    text="Create new post"
+                    text="Create new post / example"
                 ></NavDrawerItem>
             </div>
         </v-list>

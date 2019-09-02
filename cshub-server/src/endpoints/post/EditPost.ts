@@ -17,7 +17,7 @@ import { Post } from "../../db/entities/post";
 
 app.put(EditPost.getURL, async (req: Request, res: Response) => {
     const editPostRequest: EditPost = req.body as EditPost;
-    const postHash: number = Number(req.params.hash);
+    const postHash = Number(req.params.hash);
 
     const userObj = checkTokenValidityFromRequest(req);
 
@@ -43,7 +43,7 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
             `
             DELETE T1
             FROM editusers T1
-                     INNER JOIN edits T2 on T1.edit = T2.id
+                     INNER JOIN edits T2 on T1.editsId = T2.id
             WHERE T2.post = (
                 SELECT id
                 FROM posts
@@ -59,7 +59,6 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
                     DELETE
                     FROM edits
                     WHERE post = (
-D
                         SELECT id
                         FROM posts
                         WHERE hash = ?
@@ -73,20 +72,20 @@ D
     } else {
         const editsRepository = getRepository(Edit);
         const postsRepository = getRepository(Post);
-        const post = await postsRepository.find({
+        const post = await postsRepository.findOne({
             hash: postHash
         });
 
         try {
-            if (post.length == 0) {
+            if (!post) {
                 return res.sendStatus(500);
             }
 
-            const edits = (await editsRepository.find({ post: post[0] })).sort(
-                (a: Edit, b: Edit) => +a.datetime - +b.datetime
-            );
+            const edits = (await editsRepository.find({ post })).sort((a: Edit, b: Edit) => +a.datetime - +b.datetime);
 
-            console.log(edits);
+            if (edits.length === 0) {
+                return res.status(400).json(new ServerError("No content to save!"));
+            }
 
             if (edits[edits.length - 1].approved) {
                 return res.sendStatus(204);
@@ -127,7 +126,7 @@ D
                     editPostRequest.postTopicHash,
                     postHash,
                     postHash
-                )
+                );
 
                 logger.info("Edited post succesfully");
                 return res.sendStatus(200);

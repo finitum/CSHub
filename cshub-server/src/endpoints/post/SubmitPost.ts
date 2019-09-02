@@ -25,8 +25,14 @@ app.post(SubmitPost.getURL, async (req: Request, res: Response) => {
             }
         },
         { input: submitPostRequest.postTopicHash },
-        { input: submitPostRequest.isIndex }
+        { input: submitPostRequest.isIndex },
+        { input: submitPostRequest.isExample }
     );
+
+    if (submitPostRequest.isIndex && submitPostRequest.isExample) {
+        return res.status(400).json(new ServerError("Can't be both index and example!"));
+    }
+
     const postRepository = getRepository(Post);
     const topicRepository = getRepository(Topic);
 
@@ -84,7 +90,8 @@ app.post(SubmitPost.getURL, async (req: Request, res: Response) => {
                 topic: requestTopic,
                 title: submitPostRequest.postTitle,
                 hash: topicHash,
-                isIndex: submitPostRequest.isIndex
+                isIndex: submitPostRequest.isIndex,
+                isExample: submitPostRequest.isExample
             }
         ]);
 

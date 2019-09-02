@@ -1,7 +1,7 @@
 <template>
     <v-row>
         <v-col cols="6">
-            <v-form ref="form" @submit="submit">
+            <v-form @submit="submit">
                 <v-btn color="primary" @click="submit">Submit</v-btn>
 
                 <v-checkbox

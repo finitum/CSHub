@@ -17,5 +17,10 @@ export class SubmitPost implements IApiRequest<CreatePostCallback> {
     public static getURL: string = Requests.SUBMITPOST;
     public URL: string = SubmitPost.getURL;
 
-    constructor(public postTitle: string, public postTopicHash: number, public isIndex: boolean) {}
+    constructor(
+        public postTitle: string,
+        public postTopicHash: number,
+        public isIndex: boolean,
+        public isExample: boolean
+    ) {}
 }
