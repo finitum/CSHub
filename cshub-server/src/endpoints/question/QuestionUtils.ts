@@ -21,7 +21,7 @@ import { DynamicAnswer } from "../../db/entities/practice/dynamic-answer";
 import { hasFittingVariables } from "../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
 import { Variable } from "../../db/entities/practice/variable";
 
-export const parseAndValidateQuestion = (question: Question, res: Response): FullQuestionWithId => {
+export const parseAndValidateQuestion = async (question: Question, res: Response): Promise<FullQuestionWithId> => {
     let answerType: FullAnswerType;
     switch (question.type) {
         case QuestionType.SINGLECLOSED:
@@ -145,7 +145,9 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
                 throw new AlreadySentError();
             }
 
-            const dynamicAnswerVariables = answer.dynamicAnswerVariables || [];
+            const variableRepository = getRepository(Variable);
+            const dynamicAnswerVariables = await variableRepository.find({ answer: answer })
+
             if (
                 !hasFittingVariables(
                     question.question,

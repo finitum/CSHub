@@ -3,7 +3,7 @@ import { Requests } from "../../Requests";
 import { CheckedAnswerType, ToCheckAnswerType } from "./models/CheckAnswer";
 
 export class CheckAnswersCallback {
-    constructor(public answers: CheckedAnswerType[]) {}
+    constructor(public answers: Promise<CheckedAnswerType>[]) {}
 }
 
 export class CheckAnswers implements IApiRequest<CheckAnswersCallback> {

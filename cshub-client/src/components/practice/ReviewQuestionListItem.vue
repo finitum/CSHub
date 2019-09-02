@@ -113,7 +113,9 @@ export default class QuestionListItem extends mixins(QuestionListItemMixin) {
 
     private created() {
         ApiWrapper.get(new GetFullQuestion(this.questionId)).then(question => {
-            this.question = question !== null ? question.question : null;
+            if (question) {
+                this.question = question.question;
+            }
 
             if (this.question && this.question.replacesQuestion) {
                 ApiWrapper.get(new GetFullQuestion(this.question.replacesQuestion)).then(replacesQuestion => {

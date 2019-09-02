@@ -41,9 +41,9 @@ app.get(GetFullQuestion.getURL, (req: Request, res: Response) => {
             },
             relations: ["answers"]
         })
-        .then(question => {
+        .then(async question => {
             if (question) {
-                res.json(new GetFullQuestionCallback(parseAndValidateQuestion(question, res)));
+                res.json(new GetFullQuestionCallback(await parseAndValidateQuestion(question, res)));
             } else {
                 res.sendStatus(404);
             }
@@ -70,9 +70,9 @@ app.get(GetQuestion.getURL, (req: Request, res: Response) => {
             },
             relations: ["answers"]
         })
-        .then(question => {
+        .then(async question => {
             if (question) {
-                const parsedQuestion = parseAndValidateQuestion(question, res);
+                const parsedQuestion = await parseAndValidateQuestion(question, res);
 
                 let strippedAnswer: PracticeAnswerType;
                 switch (parsedQuestion.type) {

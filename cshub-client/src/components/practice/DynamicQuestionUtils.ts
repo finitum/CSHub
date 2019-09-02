@@ -5,7 +5,9 @@ export const replaceVariablesByValues = (text: string, variablesAndValues: Varia
 
     let newText = text;
     variablesAndValues.forEach(value => {
-        newText = newText.replace(new RegExp(`\\$${value.name}`, "g"), (value.value || "").toString());
+        const computedValue = value.value === null? "" : value.value.toString();
+        newText = newText.replace(new RegExp(`\\$${value.name}`, "g"), computedValue);
+
     });
     return newText;
 };

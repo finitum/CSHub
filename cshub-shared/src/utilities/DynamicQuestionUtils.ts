@@ -48,7 +48,7 @@ export const generateVariableValues = (variables: VariableExpression[]): Variabl
 };
 
 export function getVariableNames(text: string): string[] {
-    const regex = /\$([a-zA-Z_$][a-zA-Z_$0-9]*)/g;
+    const regex = /\$([a-zA-Z_][a-zA-Z_0-9]*)/g;
 
     const variableNames: string[] = [];
 

@@ -25,9 +25,9 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         return;
     }
 
-    function checkClosedQuestion(clientAnswer: CheckAnswerType, question: Question): CheckedAnswerType {
+    async function checkClosedQuestion(clientAnswer: CheckAnswerType, question: Question): Promise<CheckedAnswerType> {
         if (clientAnswer.type === question.type) {
-            const parsedQuestion = parseAndValidateQuestion(question, res);
+            const parsedQuestion = await parseAndValidateQuestion(question, res);
 
             if (parsedQuestion.type !== QuestionType.SINGLECLOSED && parsedQuestion.type !== QuestionType.MULTICLOSED) {
                 logger.error("Incompatible types!");
@@ -79,9 +79,9 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     }
 
-    function checkOpenNumberQuestion(clientAnswer: CheckAnswerType, question: Question): CheckedAnswerType {
+    async function checkOpenNumberQuestion(clientAnswer: CheckAnswerType, question: Question): Promise<CheckedAnswerType> {
         if (clientAnswer.type === QuestionType.OPENNUMBER) {
-            const parsedQuestion = parseAndValidateQuestion(question, res);
+            const parsedQuestion = await parseAndValidateQuestion(question, res);
 
             if (parsedQuestion.type !== QuestionType.OPENNUMBER) {
                 logger.error("Incompatible types!");
@@ -112,9 +112,12 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     }
 
-    function checkOpenTextQuestion(clientAnswer: CheckAnswerType, question: Question): CheckedAnswerType {
+    async function checkOpenTextQuestion(
+        clientAnswer: CheckAnswerType,
+        question: Question
+    ): Promise<CheckedAnswerType> {
         if (clientAnswer.type === QuestionType.OPENTEXT) {
-            const parsedQuestion = parseAndValidateQuestion(question, res);
+            const parsedQuestion = await parseAndValidateQuestion(question, res);
 
             if (parsedQuestion.type !== QuestionType.OPENTEXT) {
                 logger.error("Incompatible types!");
@@ -138,9 +141,9 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     }
 
-    function checkDynamicQuestion(clientAnswer: CheckAnswerType, question: Question): CheckedAnswerType {
+    async function checkDynamicQuestion(clientAnswer: CheckAnswerType, question: Question): Promise<CheckedAnswerType> {
         if (clientAnswer.type === QuestionType.DYNAMIC) {
-            const parsedQuestion = parseAndValidateQuestion(question, res);
+            const parsedQuestion = await parseAndValidateQuestion(question, res);
 
             if (parsedQuestion.type !== QuestionType.DYNAMIC) {
                 logger.error("Incompatible types!");
@@ -171,17 +174,17 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     }
 
-    const parseAnswer = (question: Question, clientAnswer: CheckAnswerType): CheckedAnswerType => {
+    const parseAnswer = async (question: Question, clientAnswer: CheckAnswerType): Promise<CheckedAnswerType> => {
         switch (question.type) {
             case QuestionType.SINGLECLOSED:
             case QuestionType.MULTICLOSED:
-                return checkClosedQuestion(clientAnswer, question);
+                return await checkClosedQuestion(clientAnswer, question);
             case QuestionType.OPENNUMBER:
-                return checkOpenNumberQuestion(clientAnswer, question);
+                return await checkOpenNumberQuestion(clientAnswer, question);
             case QuestionType.OPENTEXT:
-                return checkOpenTextQuestion(clientAnswer, question);
+                return await checkOpenTextQuestion(clientAnswer, question);
             case QuestionType.DYNAMIC:
-                return checkDynamicQuestion(clientAnswer, question);
+                return await checkDynamicQuestion(clientAnswer, question);
         }
     };
 
@@ -196,11 +199,11 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
             },
             relations: ["answers"]
         })
-        .then(questions => {
+        .then(async questions => {
             res.json(
                 new CheckAnswersCallback(
-                    questions.map(question => {
-                        const clientAnswer = checkAnswers.answers.find(answer => answer.questionId === question.id);
+                    questions.map(async question => {
+                        const clientAnswer = await checkAnswers.answers.find(answer => answer.questionId === question.id);
 
                         if (!clientAnswer) {
                             logger.error(`First we had an answer, now we dont?`);

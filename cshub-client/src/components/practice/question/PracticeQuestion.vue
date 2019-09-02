@@ -57,20 +57,21 @@ export default class PracticeQuestion extends Vue {
                     return;
                 }
 
-                const value = await ApiWrapper.post(
+                ApiWrapper.post(
                     new CheckAnswers([
                         {
                             questionId: currQuestion.questionId,
                             answer: currQuestion.answer
                         }
                     ])
-                );
-                if (value && value.answers.length === 1) {
-                    practiceState.setCheckedQuestion({
-                        value: value.answers[0],
-                        index: questionIndex
-                    });
-                }
+                ).then(value => {
+                    if (value && value.answers.length === 1) {
+                        practiceState.setCheckedQuestion({
+                            value: value.answers[0],
+                            index: questionIndex
+                        });
+                    }
+                });
             }
         }
     }

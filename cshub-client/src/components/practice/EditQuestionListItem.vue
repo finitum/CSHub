@@ -82,9 +82,12 @@ export default class QuestionListItem extends mixins(QuestionListItemMixin) {
         return userState.isStudyAdmin;
     }
 
-    private created() {
+    private mounted() {
+
         ApiWrapper.get(new GetFullQuestion(this.questionId)).then(question => {
-            this.question = question !== null ? question.question : null;
+            if (question) {
+                this.question = question.question;
+            }
         });
     }
 
