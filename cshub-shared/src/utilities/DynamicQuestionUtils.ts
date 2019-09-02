@@ -1,7 +1,7 @@
 import { VariableExpression, VariableValue } from "../api-calls/endpoints/question/models/Variable";
 import { create, all } from "mathjs";
 
-const math = create(all);
+const math = create(all, {});
 
 export const checkDynamicQuestion = (
     answerExpression: string,
@@ -11,7 +11,6 @@ export const checkDynamicQuestion = (
     isCorrect: boolean;
     actualAnswer: number | string;
 } => {
-
     const answer = evaluate(answerExpression, variables);
 
     return {
@@ -21,12 +20,16 @@ export const checkDynamicQuestion = (
 };
 
 export const evaluate = (expression: string, variables: VariableValue[]): string | number => {
-    let scope = {};
+    const scope: { [name: string]: string | number } = {};
     for (const i of variables) {
         scope[i.name] = i.value;
     }
 
-    return math.evaluate(expression, scope);
+    if (math.evaluate) {
+        return math.evaluate(expression, scope);
+    } else {
+        throw new Error("Math is not defined!");
+    }
 };
 
 export const generateVariableValues = (variables: VariableExpression[]): VariableValue[] => {
@@ -57,8 +60,7 @@ export function getVariableNames(text: string): string[] {
     return variableNames;
 }
 
-export const resolveDependencyTree = (variableExpressions: VariableExpression[]): VariableExpression[] {
-
+export const resolveDependencyTree = (variableExpressions: VariableExpression[]): VariableExpression[] => {
     interface VariableType extends VariableExpression {
         dependsOn: string[]; // the names of variables
     }
@@ -101,7 +103,7 @@ export const resolveDependencyTree = (variableExpressions: VariableExpression[])
     }
 
     return resolvedDependenciesVariables;
-}
+};
 
 export const hasFittingVariables = (
     question: string,
@@ -112,7 +114,7 @@ export const hasFittingVariables = (
     const variableTexts = question + answer + explanation;
     const variableNames = new Set(getVariableNames(variableTexts));
 
-    if (variableNames.size !== variableExpressions.length){
+    if (variableNames.size !== variableExpressions.length) {
         return false;
     }
 
