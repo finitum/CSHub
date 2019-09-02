@@ -1,4 +1,6 @@
+import {QuestionType} from "../../../../../cshub-shared/src/entities/question";
 import {QuestionType} from "../../../../../cshub-shared/src/entities/question"; import {QuestionType} from
+"../../../../../cshub-shared/src/entities/question"; import {QuestionType} from
 "../../../../../cshub-shared/src/entities/question";
 <template>
     <div v-if="question !== null">
@@ -49,7 +51,9 @@ import {QuestionType} from "../../../../../cshub-shared/src/entities/question"; 
                 type="number"
                 :background-color="color"
             ></v-text-field>
-            <p class="mt-4">Answer this question with a precision of {{ question.precision }}</p>
+            <p v-if="checkedQuestion === null" class="mt-4">
+                Answer this question with a precision of {{ question.precision }}
+            </p>
             <p v-if="checkedQuestion !== null" class="mt-4">
                 <b>Answer:</b> {{ checkedQuestion.correctAnswer.number }}
             </p>
@@ -76,29 +80,32 @@ import {QuestionType} from "../../../../../cshub-shared/src/entities/question"; 
                 <b>Answer:</b> {{ checkedQuestion.correctAnswer.answer }}
             </p>
         </div>
+        <p v-if="checkedQuestion !== null" class="mt-4">
+            <b>Correct:</b> {{ checkedQuestion.correct === null ? "can't check" : checkedQuestion.correct }}
+        </p>
         <p v-if="checkedQuestion !== null" class="mt-4"><b>Explanation:</b> {{ checkedQuestion.explanation }}</p>
     </div>
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
-import { Routes } from "../../../../../cshub-shared/src/Routes";
-import { practiceState } from "../../../store";
-import { ApiWrapper } from "../../../utilities";
-import { GetQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
-import { PracticeQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/PracticeQuestion";
-import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
-import { mixins } from "vue-class-component";
-import ViewerMixin from "../viewers/ViewerMixin";
-import { CheckedAnswerType } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/CheckAnswer";
-import QuestionMixin from "./QuestionMixin";
+    import {Component} from "vue-property-decorator";
+    import {Routes} from "../../../../../cshub-shared/src/Routes";
+    import {practiceState} from "../../../store";
+    import {ApiWrapper} from "../../../utilities";
+    import {GetQuestion} from "../../../../../cshub-shared/src/api-calls/endpoints/question";
+    import {PracticeQuestion} from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/PracticeQuestion";
+    import {QuestionType} from "../../../../../cshub-shared/src/entities/question";
+    import {mixins} from "vue-class-component";
+    import ViewerMixin from "../viewers/ViewerMixin";
+    import {CheckedAnswerType} from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/CheckAnswer";
+    import QuestionMixin from "./QuestionMixin";
+    import {StoreQuestionType} from "../../../store/state/practiceState";
 
-@Component({
+    @Component({
     name: CurrentPracticeQuestion.name
 })
 export default class CurrentPracticeQuestion extends mixins(ViewerMixin, QuestionMixin) {
     private question: PracticeQuestion | null = null;
-    private checkedQuestion: CheckedAnswerType | null = null;
 
     get type(): string {
         if (this.question) {
@@ -118,12 +125,46 @@ export default class CurrentPracticeQuestion extends mixins(ViewerMixin, Questio
         return "";
     }
 
+    get checkedQuestion(): CheckedAnswerType | null {
+        return (
+            practiceState.checkedQuestions.find(
+                question => question && question.questionId === this.currentQuestion.questionId
+            ) || null
+        );
+    }
+
+    get currentQuestion(): StoreQuestionType {
+        const questionIndex = +this.$route.params.index;
+
+        if (!isNaN(questionIndex)) {
+            const currentQuestions = practiceState.currentQuestions;
+            if (!currentQuestions) {
+                this.$router.push(Routes.INDEX);
+                throw new Error();
+            }
+
+            const currentQuestion = currentQuestions[questionIndex];
+            if (!currentQuestion) {
+                practiceState.clear();
+                this.$router.push(Routes.INDEX);
+                throw new Error();
+            }
+
+            return currentQuestion;
+        }
+
+        this.$router.push(Routes.INDEX);
+        throw new Error();
+    }
+
     get color(): string {
         if (this.checkedQuestion) {
             if (this.checkedQuestion.correct === true) {
                 return "green";
             } else if (this.checkedQuestion.correct === false) {
                 return "red";
+            } else if (this.checkedQuestion.correctAnswer.type === QuestionType.OPENTEXT) {
+                return "orange";
             } else {
                 return "";
             }
@@ -135,15 +176,18 @@ export default class CurrentPracticeQuestion extends mixins(ViewerMixin, Questio
     private getColor(answerId: number) {
         if (practiceState.currentCheckedQuestion) {
             const answer = practiceState.currentCheckedQuestion.correctAnswer;
-            if (answer.type === QuestionType.SINGLECLOSED) {
+            const userAnswer = practiceState.currentCheckedQuestion.answer;
+            if (answer.type === QuestionType.SINGLECLOSED && userAnswer.type === QuestionType.SINGLECLOSED) {
                 if (answer.answerId !== answerId) {
                     return "red";
                 } else {
                     return "green";
                 }
-            } else if (answer.type === QuestionType.MULTICLOSED) {
-                if (answer.answerIds.includes(answerId)) {
+            } else if (answer.type === QuestionType.MULTICLOSED && userAnswer.type === QuestionType.MULTICLOSED) {
+                if (answer.answerIds.includes(answerId) && userAnswer.answerIds.includes(answerId)) {
                     return "green";
+                } else if (answer.answerIds.includes(answerId)) {
+                    return "orange";
                 } else {
                     return "red";
                 }
@@ -152,44 +196,17 @@ export default class CurrentPracticeQuestion extends mixins(ViewerMixin, Questio
     }
 
     private mounted() {
-        const questionIndex = +this.$route.params.index;
+        ApiWrapper.get(new GetQuestion(this.currentQuestion.questionId)).then(retrievedQuestion => {
+            this.question = retrievedQuestion !== null ? retrievedQuestion.question : null;
 
-        if (!isNaN(questionIndex)) {
-            const currentQuestions = practiceState.currentQuestions;
-            if (!currentQuestions) {
-                this.$router.push(Routes.INDEX);
-                return;
-            }
-
-            const currentQuestion = currentQuestions[questionIndex];
-            if (!currentQuestion) {
-                practiceState.clear();
-                this.$router.push(Routes.INDEX);
-                return;
-            }
-
-            ApiWrapper.get(new GetQuestion(currentQuestion.questionId)).then(retrievedQuestion => {
-                this.question = retrievedQuestion !== null ? retrievedQuestion.question : null;
-
-                if (retrievedQuestion !== null) {
-                    if (retrievedQuestion.question.type === QuestionType.DYNAMIC) {
-                        this.variableValues = retrievedQuestion.question.variables;
-                    }
-
-                    if (practiceState.checkedQuestions) {
-                        const checkedAnswer = practiceState.checkedQuestions.find(
-                            question => question.questionId === retrievedQuestion.question.id
-                        );
-
-                        this.checkedQuestion = checkedAnswer || null;
-                        practiceState.setCurrentCheckedQuestion(this.checkedQuestion);
-                    }
+            if (retrievedQuestion !== null) {
+                if (retrievedQuestion.question.type === QuestionType.DYNAMIC) {
+                    this.variableValues = retrievedQuestion.question.variables;
                 }
-            });
-        } else {
-            this.$router.push(Routes.INDEX);
-            return;
-        }
+
+                practiceState.setCurrentCheckedQuestion(this.checkedQuestion);
+            }
+        });
     }
 }
 </script>

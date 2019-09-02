@@ -5,28 +5,30 @@ import {
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/CheckAnswer";
 import store from "../store";
 import localforage from "localforage";
+import Vue from "vue";
 
-export interface QuestionType {
+export interface StoreQuestionType {
     questionId: number;
     answer: CheckAnswerType | null;
 }
 
 export interface IPracticeState {
-    currentQuestions: QuestionType[] | false;
-    checkedQuestions: CheckedAnswerType[] | false;
+    currentQuestions: StoreQuestionType[] | false;
+    checkedQuestions: (CheckedAnswerType | false)[];
+    currentCheckedQuestion: CheckedAnswerType | null;
 }
 
 @Module
 class PracticeState extends VuexModule implements IPracticeState {
-    private _currentQuestions: QuestionType[] | false = false;
-    private _checkedQuestions: CheckedAnswerType[] | false = false;
+    private _currentQuestions: StoreQuestionType[] | false = false;
+    private _checkedQuestions: (CheckedAnswerType | false)[] = [];
     private _currentCheckedQuestion: CheckedAnswerType | null = null;
 
-    get currentQuestions(): QuestionType[] | false {
+    get currentQuestions(): StoreQuestionType[] | false {
         return this._currentQuestions;
     }
 
-    get checkedQuestions(): CheckedAnswerType[] | false {
+    get checkedQuestions(): (CheckedAnswerType | false)[] {
         return this._checkedQuestions;
     }
 
@@ -37,7 +39,7 @@ class PracticeState extends VuexModule implements IPracticeState {
     @Mutation
     public clear() {
         this._currentQuestions = false;
-        this._checkedQuestions = false;
+        this._checkedQuestions = [];
         this._currentCheckedQuestion = null;
     }
 
@@ -47,13 +49,19 @@ class PracticeState extends VuexModule implements IPracticeState {
     }
 
     @Mutation
-    public setCurrentQuestions(value: QuestionType[] | false) {
+    public setCurrentQuestions(value: StoreQuestionType[] | false) {
         this._currentQuestions = value;
     }
 
     @Mutation
-    public setCheckedQuestions(value: CheckedAnswerType[] | false) {
+    public setCheckedQuestions(value: (CheckedAnswerType | false)[]) {
         this._checkedQuestions = value;
+    }
+
+    @Mutation
+    public setCheckedQuestion(value: { value: CheckedAnswerType; index: number }) {
+        Vue.set(this._checkedQuestions, value.index, value.value);
+        this._currentCheckedQuestion = value.value;
     }
 
     @Mutation
@@ -94,7 +102,7 @@ practiceStateModule.$watch(
 );
 
 const setInitialState = async () => {
-    const questions = await localforage.getItem<QuestionType[]>(`${key}-questions`);
+    const questions = await localforage.getItem<StoreQuestionType[]>(`${key}-questions`);
     if (questions) {
         practiceStateModule.setCurrentQuestions(questions);
     }
