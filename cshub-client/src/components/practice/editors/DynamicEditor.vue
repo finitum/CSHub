@@ -99,7 +99,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
 import ViewerMixin from "../viewers/ViewerMixin";
 import { evaluate } from "mathjs";
@@ -108,6 +108,10 @@ import { ApiWrapper } from "../../../utilities";
 import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
 import { getVariableNames } from "../../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
 import DynamicViewer from "../viewers/DynamicViewer.vue";
+import { uiState } from "../../../store";
+import { VariableExpression } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/Variable";
+
+type VariableDictionary = { [name: string]: string };
 
 @Component({
     name: "DynamicEditor",
@@ -115,14 +119,31 @@ import DynamicViewer from "../viewers/DynamicViewer.vue";
     inject: ["$validator"]
 })
 export default class DynamicEditor extends ViewerMixin {
-    /**
-     * Data
-     */
-    private question = "";
-    private explanation = "";
+    @Prop({
+        required: false
+    })
+    private propQuestion?: string;
 
-    private answerExpression = "";
-    private variableExpressions: { [name: string]: string } = {}; // key = name, value = value
+    @Prop({
+        required: false
+    })
+    private propExplanation?: string;
+
+    @Prop({
+        required: false
+    })
+    private propAnswerExpression?: string;
+
+    @Prop({
+        required: false
+    })
+    private propVariableExpressions?: VariableExpression[];
+
+    private question = this.propQuestion || "";
+    private explanation = this.propExplanation || "";
+
+    private answerExpression = this.propAnswerExpression || "";
+    private variableExpressions: VariableDictionary = this.getInitialVariableExpressions(); // key = name, value = value
 
     get variableExpressionsParsed() {
         return Object.keys(this.variableExpressions).map(key => {
@@ -149,7 +170,22 @@ export default class DynamicEditor extends ViewerMixin {
             };
 
             await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
+
+            uiState.setNotificationDialog({
+                header: "Saved",
+                text: "Saved question, it will be reviewed by an admin soon!",
+                on: true
+            });
         }
+    }
+
+    private getInitialVariableExpressions(): VariableDictionary {
+        if (this.propVariableExpressions) {
+            const propVariables: VariableDictionary = {};
+            this.propVariableExpressions.forEach(variable => (propVariables[variable.name] = variable.expression));
+            return propVariables;
+        }
+        return {};
     }
 
     private validateVariable(variableExpression: string) {
