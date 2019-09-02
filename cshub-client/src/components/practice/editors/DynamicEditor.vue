@@ -191,7 +191,8 @@ export default class DynamicEditor extends ViewerMixin {
     private validateVariable(variableExpression: string) {
         return () => {
             try {
-                evaluate(variableExpression || "", this.variableExpressionsParsed);
+                const variables = generateVariableValues(this.variableExpressionsParsed);
+                evaluate(variableExpression || "", variables);
                 return true;
             } catch (err) {
                 return String(err);

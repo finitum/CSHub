@@ -61,7 +61,6 @@ export function getVariableNames(text: string): string[] {
 }
 
 export const resolveDependencyTree = (variableExpressions: VariableExpression[]): VariableExpression[] => {
-
     interface VariableType extends VariableExpression {
         dependsOn: string[]; // the names of variables
     }

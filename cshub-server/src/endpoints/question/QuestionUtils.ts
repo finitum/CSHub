@@ -146,7 +146,6 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
             }
 
             const dynamicAnswerVariables = answer.dynamicAnswerVariables || [];
-            console.log(dynamicAnswerVariables);
             if (
                 !hasFittingVariables(
                     question.question,
@@ -323,7 +322,7 @@ export const insertQuestions = async (
         throw new AlreadySentError();
     }
 
-    const newQuestion = new Question();
+    let newQuestion = new Question();
     newQuestion.type = question.question.type;
     newQuestion.question = question.question.question;
     newQuestion.topic = topic;
@@ -355,6 +354,7 @@ export const insertQuestions = async (
                     question.question.answerExpression,
                     question.question.variableExpressions.map(expression => {
                         const newVariable = new Variable();
+                        newVariable.name = expression.name;
                         newVariable.expression = expression.expression;
                         return newVariable;
                     })
@@ -363,6 +363,15 @@ export const insertQuestions = async (
             break;
     }
 
-    await repository.save(newQuestion);
+    newQuestion = await repository.save(newQuestion);
+
+    if (newQuestion.type === QuestionType.DYNAMIC) {
+        const variableRepository = getRepository(Variable);
+        const answer = newQuestion.answers[0];
+        const variables = answer.dynamicAnswerVariables || [];
+        variables.forEach(variable => (variable.answer = answer));
+        await variableRepository.save(variables);
+    }
+
     res.json();
 };
