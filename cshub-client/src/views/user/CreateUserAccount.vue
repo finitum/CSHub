@@ -10,7 +10,7 @@
                         <v-form>
                             <v-text-field
                                 v-model="userData.email"
-                                v-validate="'required|checkTUEmail'"
+                                v-validate="'required|min:8'"
                                 label="Email"
                                 :error-messages="errors.collect('email') + userData.emailerror"
                                 name="email"
