@@ -41,7 +41,7 @@
                 <v-icon color="white">{{ darkMode ? "fas fa-sun" : "fas fa-moon" }}</v-icon>
             </v-btn>
             <v-btn depressed small color="primary" href="https://discord.gg/kHy5wXA">
-                <embed class="discordlogo" src="/img/icons/discord.png" />
+                <img class="discordlogo" src="/img/icons/discord.png" />
             </v-btn>
 
         </v-toolbar-items>
