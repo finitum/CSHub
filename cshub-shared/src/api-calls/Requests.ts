@@ -52,6 +52,8 @@ export class Requests {
     public static readonly CHANGEPASSWORD: string = "/user/changepassword"; // POST
     public static readonly CHANGEAVATAR: string = "/user/changeavatar"; // POST
 
+    public static readonly EMAILDOMAINS: string = "/emaildomains"; // GET, POST, PUT, DELETE
+
     public static readonly PROFILE = "/profile/:userId"; // GET, Is actually profile pic
 
     public static readonly DASHBOARD: string = "/dashboard"; // GET

@@ -1,5 +1,3 @@
-import { isValidEmail } from "../../../cshub-shared/src/utilities/TUEmail";
-
 export interface ICustomValidatorResponse {
     valid: boolean;
     value?: string | number | object | boolean;
@@ -67,12 +65,6 @@ export const customValidator = (input: ICustomValidatorInput): ICustomValidatorR
             inputString.length > input.validationObject.maxlength
         ) {
             return { valid: false, error: CustomValidatorReponseTypes.MAXLENGTH, value: input.input };
-        } else if (input.validationObject.tuemail) {
-            if (!isValidEmail(input.input.toString())) {
-                return { valid: false, error: CustomValidatorReponseTypes.TUEMAIL, value: input.input };
-            } else {
-                return { valid: true };
-            }
         } else {
             return { valid: true };
         }

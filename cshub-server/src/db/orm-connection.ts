@@ -15,6 +15,7 @@ import { CacheVersion } from "./entities/cacheversion";
 import { Question } from "./entities/practice/question";
 import { app } from "../index";
 import { Answer } from "./entities/practice/answer";
+import { EmailDomain } from "./entities/emaildomain";
 import { Variable } from "./entities/practice/variable";
 
 class CustomLogger implements Logger {
@@ -51,7 +52,7 @@ const options: ConnectionOptions = {
     database: Settings.DATABASE.NAME,
     multipleStatements: true,
     logger: new CustomLogger(),
-    entities: [User, Topic, Post, Edit, Study, Answer, Question, CacheVersion, Variable],
+    entities: [User, Topic, Post, Edit, Study, Answer, Question, CacheVersion, EmailDomain, Variable],
     synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
 };
 
