@@ -14,7 +14,6 @@ import QuestionList from "../components/practice/QuestionList.vue";
     components: { QuestionList }
 })
 export default class UnsavedQuestions extends Vue {
-
     /**
      * Lifecycle hooks
      */

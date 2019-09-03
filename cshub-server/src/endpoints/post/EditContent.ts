@@ -39,7 +39,7 @@ app.get(EditContent.getURL, async (req: Request, res: Response) => {
                     post
                 },
                 order: {
-                    datetime: "DESC"
+                    datetime: "ASC"
                 }
             })
             .then(edits => {

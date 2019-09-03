@@ -77,7 +77,8 @@
                                                 <v-breadcrumbs-item
                                                     v-else
                                                     :disabled="!editModeComputed"
-                                                    @click="disableEdit"
+                                                    :to="currentPostURLComputed"
+                                                    :exact="true"
                                                 >
                                                     {{ props.item.text }}
                                                 </v-breadcrumbs-item>
@@ -114,7 +115,7 @@
                                                     v-on="on"
                                                     @click="wipPost()"
                                                 >
-                                                    <v-icon v-if="post.isWIP">fas fa-comments</v-icon>
+                                                    <v-icon v-if="post.wip">fas fa-comments</v-icon>
                                                     <v-icon v-else>far fa-comments</v-icon>
                                                 </v-btn>
                                             </template>
@@ -566,10 +567,6 @@ export default class Post extends Vue {
         this.$router.push(`${this.currentPostURLComputed}/edit`);
     }
 
-    private disableEdit() {
-        this.$router.push(`${this.currentPostURLComputed}`);
-    }
-
     private getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
         const parentTopic = child.parent;
 
@@ -664,7 +661,7 @@ export default class Post extends Vue {
                 this.topicNames.push({
                     text: currentPost.title,
                     to: this.$route.fullPath,
-                    topic: true
+                    topic: false
                 });
             }
 

@@ -192,6 +192,13 @@ export default class TopicView extends Vue {
                     dataState.setTopics(topTopic);
                     EventBus.$emit(STUDY_CHANGED);
                 });
+
+                uiState.setNotificationDialog({
+                    header: "Saved",
+                    text: "Saved!",
+                    on: true
+                });
+                return;
             } else {
                 this.getNodes();
             }

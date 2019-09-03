@@ -39,8 +39,8 @@ app.put(RestructureTopics.postURL, async (req: Request, res: Response) => {
             return;
         }
 
-        updateOldTree(restructureTopicsRequest, studyId, req, res);
-        insertNewTopics(restructureTopicsRequest, studyId, req, res);
+        await updateOldTree(restructureTopicsRequest, studyId, req, res);
+        await insertNewTopics(restructureTopicsRequest, studyId, req, res);
 
         await query(`
             UPDATE cacheversion
@@ -93,7 +93,7 @@ const updateOldTree = async (requestObj: RestructureTopics, studyNr: number, req
         throw new AlreadySentError();
     }
 
-    const recursiveUpdate = (topic: ITopic) => {
+    const recursiveUpdate = async (topic: ITopic) => {
         for (const childTopic of topic.children) {
             const validation = validateMultipleInputs({
                 input: childTopic.name,
@@ -109,16 +109,16 @@ const updateOldTree = async (requestObj: RestructureTopics, studyNr: number, req
                 throw new AlreadySentError();
             }
 
-            topicRepository.update(childTopic.id, {
+            await topicRepository.update(childTopic.id, {
                 name: childTopic.name,
                 parent: topic
             });
 
-            recursiveUpdate(childTopic);
+            await recursiveUpdate(childTopic);
         }
     };
 
-    recursiveUpdate(requestObj.topTopic);
+    await recursiveUpdate(requestObj.topTopic);
 };
 
 const insertNewTopics = async (requestObj: RestructureTopics, studyNr: number, req: Request, res: Response) => {

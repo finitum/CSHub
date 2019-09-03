@@ -1,13 +1,15 @@
 import Component from "vue-class-component";
-import Meta from "vue-meta";
-
 Component.registerHooks(["beforeRouteEnter", "beforeRouteLeave", "beforeRouteUpdate", "metaInfo"]);
 
+import Meta from "vue-meta";
 import "@babel/polyfill";
 import Vue from "vue";
 import "./plugins";
 
-Vue.use(Meta);
+Vue.use(Meta, {
+    keyName: "metaInfo",
+    refreshOnceOnNavigation: true
+});
 
 import App from "./App.vue";
 import router from "./views/router/router";
