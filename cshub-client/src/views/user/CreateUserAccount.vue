@@ -10,11 +10,12 @@
                         <v-form>
                             <v-text-field
                                 v-model="userData.email"
-                                v-validate="'required|min:8'"
+                                v-validate="'required|min:2'"
                                 label="Email"
                                 :error-messages="errors.collect('email') + userData.emailerror"
                                 name="email"
                                 required
+                                hint="Make sure to use your student email address and not some NetId!"
                                 filled
                                 @change="userData.emailerror = ''"
                                 @keyup.enter="doCreateAccount"

@@ -40,7 +40,7 @@ export const generateVariableValues = (variables: VariableExpression[]): Variabl
     dependencyOrder.forEach(value =>
         valuedVariables.push({
             name: value.name,
-            value: evaluate(value.expression, valuedVariables)
+            value: evaluate(value.expression, valuedVariables) || ""
         })
     );
 

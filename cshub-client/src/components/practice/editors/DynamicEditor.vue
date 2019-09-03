@@ -200,7 +200,7 @@ export default class DynamicEditor extends ViewerMixin {
         };
     }
 
-    private async inputChanged() {
+    private inputChanged() {
         let expressionValue = "";
         for (const name of Object.keys(this.variableExpressions)) {
             expressionValue += ` ${this.variableExpressions[name]}`;
