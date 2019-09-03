@@ -51,6 +51,7 @@ const options: ConnectionOptions = {
     password: Settings.DATABASE.PASSWORD,
     database: Settings.DATABASE.NAME,
     multipleStatements: true,
+    charset: "utf8mb4",
     logger: new CustomLogger(),
     entities: [User, Topic, Post, Edit, Study, Answer, Question, CacheVersion, EmailDomain, Variable],
     synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
