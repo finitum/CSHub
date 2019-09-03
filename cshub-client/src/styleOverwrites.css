@@ -1,3 +1,32 @@
 .v-treeview-node__label {
     font-size: inherit !important;
 }
+
+.v-input__control {
+    flex-grow: 1 !important;
+}
+
+.fullHeight {
+    height: 100%;
+}
+
+.v-tabs-items {
+    background-color: unset !important;
+}
+
+.v-tabs > .v-tabs-bar {
+    background-color: unset !important;
+}
+
+.v-application code {
+    color: unset !important;
+    box-shadow: unset !important;
+}
+
+.loginMailSelect .v-select__selection {
+    max-width: 100%;
+}
+
+.loginMailSelect .v-select__selections input {
+    display: none;
+}

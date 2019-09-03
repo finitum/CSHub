@@ -1,25 +1,30 @@
-import {getMarkdownParser, MarkdownLatexQuill} from "./MarkdownLatexQuill";
+import { getMarkdownParser, MarkdownLatexQuill } from "./MarkdownLatexQuill";
 
-export const getHTML = (quillEditor: any, document: Document, window: Window) => {
+export const getHTML = (quillEditor: any, document: Document) => {
     const node = quillEditor.container.firstChild.cloneNode(true);
 
     // Converts the classes of all the code blocks so that hljs can highlight them properly
-    const allNodes: any[] = [...node.getElementsByTagName("*")];
+    const allNodes = [...node.getElementsByTagName("*")];
 
     let prevElement: {
-        isMarkdownBlock: boolean,
-        lang?: string,
-        containerNode?: HTMLElement,
-        currString?: string
+        isMarkdownBlock: boolean;
+        lang?: string;
+        containerNode?: HTMLElement;
+        currString?: string;
     } = {
         isMarkdownBlock: false
     };
 
-    const finalizeMarkdownBlock = (doc: Document, win: Window) => {
+    const finalizeMarkdownBlock = (doc: Document) => {
         if (prevElement.isMarkdownBlock) {
-            prevElement.currString = prevElement.currString.substr(0, prevElement.currString.length - 1);
-            prevElement.currString = prevElement.currString.split("<").join("&lt;");
-            prevElement.currString = prevElement.currString.split(">").join("&gt;");
+            const currString = prevElement.currString || "";
+
+            prevElement.currString = currString
+                .split("<")
+                .join("&lt;")
+                .split(">")
+                .join("&gt;");
+
             const newNode = doc.createElement("div");
             // To not have a break at the end
             newNode.style.whiteSpace = "normal";
@@ -31,7 +36,9 @@ export const getHTML = (quillEditor: any, document: Document, window: Window) =>
                 .split("&amp;gt;")
                 .join("&gt;");
 
-            prevElement.containerNode.before(newNode);
+            if (prevElement.containerNode) {
+                prevElement.containerNode.before(newNode);
+            }
 
             prevElement = {
                 isMarkdownBlock: false
@@ -42,7 +49,7 @@ export const getHTML = (quillEditor: any, document: Document, window: Window) =>
     const toBeDeletedNodes: HTMLElement[] = [];
 
     for (const domNode of allNodes) {
-        if ((domNode.tagName === "PRE" && domNode.classList.contains(MarkdownLatexQuill.blotName))) {
+        if (domNode.tagName === "PRE" && domNode.classList.contains(MarkdownLatexQuill.blotName)) {
             toBeDeletedNodes.push(domNode);
             if (prevElement.isMarkdownBlock) {
                 if (domNode.textContent !== "\n") {
@@ -61,14 +68,14 @@ export const getHTML = (quillEditor: any, document: Document, window: Window) =>
             domNode.parentNode.replaceChild(br, domNode);
 
             if (!domNode.classList.contains(MarkdownLatexQuill.blotName)) {
-                finalizeMarkdownBlock(document, window);
+                finalizeMarkdownBlock(document);
             }
         } else {
-            finalizeMarkdownBlock(document, window);
+            finalizeMarkdownBlock(document);
         }
     }
 
-    finalizeMarkdownBlock(document, window);
+    finalizeMarkdownBlock(document);
 
     toBeDeletedNodes.forEach((domNode: HTMLElement) => {
         domNode.remove();
@@ -80,7 +87,12 @@ export const getHTML = (quillEditor: any, document: Document, window: Window) =>
         const tagName = domNode.tagName;
         if (tagName === "H1" || tagName === "H2" || tagName === "H3") {
             const innerText = (domNode.innerText || domNode.textContent) as string;
-            domNode.id = innerText.split(" ").join("-").split("\n").join("-").toLowerCase();
+            domNode.id = innerText
+                .split(" ")
+                .join("-")
+                .split("\n")
+                .join("-")
+                .toLowerCase();
         }
     }
 

@@ -1,882 +1,902 @@
-<template>
-    <div>
-        <div v-if="post !== null" @click.capture="navigateToPost">
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+    <div class="fullHeight">
+        <div v-if="post !== null" class="fullHeight" @click.capture="handleClick" @dblclick.capture="handleDoubleClick">
             <!-- The following transition is just a trick so I get an event on the change from preview to full post (performance of the animation when the viewer is on is terrible) -->
-            <transition :duration="300" @before-leave="showContent = isIndexComputed"
-                        @before-enter="showContent = false" @after-enter="afterAnimation">
+            <transition
+                :duration="300"
+                @before-leave="showContent = alwaysShowContent"
+                @before-enter="showContent = false"
+                @after-enter="afterAnimation"
+            >
                 <div v-if="fullPostComputed"></div>
             </transition>
             <v-progress-circular
-                    v-if="showLoadingIcon"
-                    :size="100"
-                    color="primary"
-                    indeterminate
-                    class="loadingIcon"
+                v-if="showLoadingIcon"
+                :size="100"
+                color="primary"
+                indeterminate
+                class="loadingIcon"
             ></v-progress-circular>
-            <v-card :class="{previewCard: !fullPostComputed, fullCard: fullPostComputed, isIndex: isIndexComputed}"
-                    :id="'post_' + domId" style="box-shadow: none">
-                <v-card-title primary-title :id="'postTitle_' + domId" class="pb-0 xl-0 pt-1 titleCard">
-                    <transition name="topMenuShow">
-                        <div v-if="!showTopMenu && fullPostComputed">
-                            <v-btn color="primary" depressed small dark @click="returnToPostMenu">
-                                <v-icon>fas fa-chevron-left</v-icon>
-                            </v-btn>
-                            <v-btn color="secondary" depressed small @click="showTopMenu = true"
-                                   class="angleLighten3Dark">
-                                <v-icon>fas fa-angle-down</v-icon>
-                            </v-btn>
-                        </div>
-                    </transition>
-                    <span v-if="(showTopMenu || !fullPostComputed)" style="display: contents">
-                        <transition name="breadcrumb">
-                            <v-breadcrumbs divider="/" style="width: 100%" v-if="fullPostComputed">
-                                <v-btn color="primary" depressed small dark @click="returnToPostMenu">
-                                    <v-icon>fas fa-chevron-left</v-icon>
-                                </v-btn>
-                                <v-breadcrumbs-item
-                                        v-for="item in topicNames"
-                                        :key="item.index"
-                                        :disabled="false">
-                                    <router-link :to="item.url">{{item.name}}</router-link>
-                                </v-breadcrumbs-item>
-                                <v-breadcrumbs-item :disabled="!editModeComputed" @click="disableEdit">
-                                    {{post.title}}
-                                </v-breadcrumbs-item>
-                                
-                                <v-tooltip bottom v-if="!editModeComputed && userAdminComputed">
-                                    <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" color="red" depressed small @click="hidePost()">
-                                            <v-icon>fas fa-trash</v-icon>
+            <v-card
+                :class="{ previewCard: !fullPostComputed, fullCard: fullPostComputed, isIndex: alwaysShowContent }"
+                class="fullHeight"
+                style="box-shadow: none"
+            >
+                <v-layout align-start justify-start column fill-height>
+                    <v-flex>
+                        <v-card-title primary-title class="pb-0 xl-0 pt-1 titleCard">
+                            <transition name="topMenuShow">
+                                <div v-if="!showTopMenu && fullPostComputed">
+                                    <v-btn
+                                        color="primary"
+                                        min-width="88"
+                                        class="mr-1 my-1"
+                                        depressed
+                                        small
+                                        dark
+                                        @click="returnToPostMenu"
+                                    >
+                                        <v-icon>fas fa-chevron-left</v-icon>
+                                    </v-btn>
+                                    <v-btn
+                                        color="secondary"
+                                        depressed
+                                        min-width="88"
+                                        small
+                                        class="ma-1 angleLighten3Dark"
+                                        @click="showTopMenu = true"
+                                    >
+                                        <v-icon>fas fa-angle-down</v-icon>
+                                    </v-btn>
+                                </div>
+                            </transition>
+                            <span v-if="showTopMenu || !fullPostComputed" style="display: contents">
+                                <transition name="breadcrumb">
+                                    <div v-if="fullPostComputed">
+                                        <v-btn
+                                            color="primary"
+                                            min-width="88"
+                                            depressed
+                                            class="my-1 mr-4 d-inline-block"
+                                            small
+                                            dark
+                                            @click="returnToPostMenu"
+                                        >
+                                            <v-icon>fas fa-chevron-left</v-icon>
                                         </v-btn>
-                                    </template>
-                                    <span>Delete the post (sorta)</span>
-                                </v-tooltip>
 
-                                <v-tooltip bottom v-if="!editModeComputed && userIsLoggedIn && userAdminComputed">
-                                    <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" color="purple" depressed small @click="wipPost()">
-                                            <v-icon v-if="post.isWIP">fas fa-comments</v-icon>
-                                            <v-icon v-else>far fa-comments</v-icon>
+                                        <v-breadcrumbs :items="topicNames" class="d-inline-block pa-0 mr-4 my-1">
+                                            <template v-slot:item="props">
+                                                <v-breadcrumbs-item
+                                                    v-if="props.item.topic"
+                                                    :to="props.item.to"
+                                                    :exact="true"
+                                                >
+                                                    {{ props.item.text }}
+                                                </v-breadcrumbs-item>
+                                                <v-breadcrumbs-item
+                                                    v-else
+                                                    :disabled="!editModeComputed"
+                                                    @click="disableEdit"
+                                                >
+                                                    {{ props.item.text }}
+                                                </v-breadcrumbs-item>
+                                            </template>
+                                        </v-breadcrumbs>
+                                        <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                    min-width="88"
+                                                    color="red"
+                                                    depressed
+                                                    class="my-1 mr-4 d-inline-block"
+                                                    small
+                                                    v-on="on"
+                                                    @click="hidePost()"
+                                                >
+                                                    <v-icon>fas fa-trash</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>Delete the post (sorta)</span>
+                                        </v-tooltip>
+
+                                        <v-tooltip
+                                            v-if="!editModeComputed && userIsLoggedIn && userAdminComputed"
+                                            bottom
+                                        >
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                    min-width="88"
+                                                    color="purple"
+                                                    depressed
+                                                    class="my-1 mr-4 d-inline-block"
+                                                    small
+                                                    v-on="on"
+                                                    @click="wipPost()"
+                                                >
+                                                    <v-icon v-if="post.isWIP">fas fa-comments</v-icon>
+                                                    <v-icon v-else>far fa-comments</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>Toggle WIP (dark = WIP)</span>
+                                        </v-tooltip>
+
+                                        <v-tooltip v-if="!editModeComputed && userIsLoggedIn" bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                    min-width="88"
+                                                    color="orange"
+                                                    depressed
+                                                    class="my-1 mr-4 d-inline-block"
+                                                    small
+                                                    v-on="on"
+                                                    @click="enableEdit"
+                                                >
+                                                    <v-icon>fas fa-edit</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>Edit the post</span>
+                                        </v-tooltip>
+
+                                        <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                    min-width="88"
+                                                    depressed
+                                                    class="my-1 mr-4 d-inline-block"
+                                                    small
+                                                    color="green"
+                                                    v-on="on"
+                                                    @click="savePostDialog"
+                                                >
+                                                    <v-icon>fas fa-save</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>Save the post</span>
+                                        </v-tooltip>
+
+                                        <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                    min-width="88"
+                                                    depressed
+                                                    class="my-1 mr-4 d-inline-block"
+                                                    small
+                                                    color="blue"
+                                                    v-on="on"
+                                                    @click="forceEditPost"
+                                                >
+                                                    <v-icon>fas fa-gavel</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>Force edit the post</span>
+                                        </v-tooltip>
+
+                                        <v-tooltip v-if="!editModeComputed" bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                    min-width="88"
+                                                    depressed
+                                                    small
+                                                    class="my-1 mr-4 d-inline-block"
+                                                    color="primary"
+                                                    v-on="on"
+                                                    @click="viewEditDialog"
+                                                >
+                                                    <v-icon>fas fa-history</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>View post history</span>
+                                        </v-tooltip>
+
+                                        <v-btn
+                                            depressed
+                                            small
+                                            min-width="88"
+                                            color="secondary"
+                                            class="my-1 mr-4 d-inline-block angleLighten3Dark"
+                                            @click="showTopMenu = false"
+                                        >
+                                            <v-icon>fas fa-angle-up</v-icon>
                                         </v-btn>
-                                    </template>
-                                    <span>Toggle WIP (dark = WIP)</span>
-                                </v-tooltip>
-
-                                <v-tooltip bottom v-if="!editModeComputed && userIsLoggedIn">
-                                    <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" color="orange" depressed small @click="enableEdit">
-                                            <v-icon>fas fa-edit</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>Edit the post</span>
-                                </v-tooltip>
-
-                                <v-tooltip bottom v-if="!editModeComputed && userAdminComputed">
-                                    <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" depressed small color="green"
-                                               @click="savePostDialog">
-                                            <v-icon>fas fa-save</v-icon>
-                                        </v-btn>
-                                    </template>
-                                <span>Save the post</span>
-                                </v-tooltip>
-
-                                <v-tooltip bottom v-if="!editModeComputed && userAdminComputed">
-                                    <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" depressed small color="blue" @click="forceEditPost">
-                                            <v-icon>fas fa-gavel</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>Force edit the post</span>
-                                </v-tooltip>
-
-                                <v-tooltip bottom v-if="!editModeComputed">
-                                    <template v-slot:activator="{on}">
-                                        <v-btn v-on="on" depressed small color="primary" @click="viewEditDialog">
-                                            <v-icon>fas fa-history</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>View post history</span>
-                                </v-tooltip>
-
-                                <v-btn depressed small color="secondary" @click="showTopMenu = false"
-                                       class="angleLighten3Dark">
-                                    <v-icon>fas fa-angle-up</v-icon>
-                                </v-btn>
-                            </v-breadcrumbs>
-                        </transition>
-                        <v-list two-line style="width: 100%" v-if="!isIndexComputed || fullPostComputed">
-                            <v-list-tile avatar class="mb-1 postTile">
-                                <v-list-tile-avatar>
-                                    <img :src="getAvatarURL(post.author.avatar)" class="profileBorder"/>
-                                </v-list-tile-avatar>
-                                <v-list-tile-content class="pt-2 d-inline">
-                                    <v-list-tile-sub-title class="whitespaceInit post-title">
-                                        <span>{{post.title}} {{post.isIndex ? "(index page)" : ""}}</span>
-                                    </v-list-tile-sub-title>
-                                    <v-list-tile-sub-title class="whitespaceInit">{{post.author.firstname}} {{post.author.lastname}} - {{post.datetime | formatDate}}</v-list-tile-sub-title>
-                                </v-list-tile-content>
-                            </v-list-tile>
-                        </v-list>
-                    </span>
-                </v-card-title>
-                <v-container
-                        v-if="(fullPostComputed && !editModeComputed) || (!fullPostComputed && isIndexComputed)"
-                        position="relative"
-                        class="scroll-y"
-                        :class="[{noPaddingTop: fullPostComputed, fixedPadding: isIndexComputed}, 'postScrollWindow_' + domId]"
-                        style="margin: 0; max-width: none; overflow-wrap: break-word">
-                    <v-layout
-                            id="htmlContentContainer"
-                            column
-                            align-center
-                            justify-center
-                            v-scroll:#post-scroll-target>
-                        <v-card-text v-if="!loadingIcon" id="postCardText"
-                                     :class="{indexPostCardText: isIndexComputed}">
-                            <v-list-tile-sub-title class="whitespaceInit post-title secondaryTitle">
-                                <span>{{post.title}}</span>
-                            </v-list-tile-sub-title>
-                            <div class="ql-editor">
-                                <div v-show="showContent" v-html="post.htmlContent" id="htmlOutput"></div>
+                                    </div>
+                                </transition>
+                                <v-list
+                                    v-if="!alwaysShowContent || fullPostComputed"
+                                    two-line
+                                    style="width: 100%"
+                                    class="pt-0"
+                                >
+                                    <v-list-item class="pa-0 postTile">
+                                        <v-list-item-avatar>
+                                            <img src="https://picsum.photos/40" class="profileBorder" />
+                                        </v-list-item-avatar>
+                                        <v-list-item-content class="pt-2 d-inline">
+                                            <v-list-item-subtitle class="whitespaceInit post-title">
+                                                <span>
+                                                    {{ post.title }}
+                                                    {{ post.isIndex ? "(index page)" : "" }}
+                                                    {{ post.isExample ? "(example)" : "" }}
+                                                </span>
+                                            </v-list-item-subtitle>
+                                            <v-list-item-subtitle class="whitespaceInit">
+                                                {{ post.datetime | formatDate }}
+                                            </v-list-item-subtitle>
+                                        </v-list-item-content>
+                                    </v-list-item>
+                                </v-list>
+                            </span>
+                        </v-card-title>
+                    </v-flex>
+                    <v-flex class="fullHeight" style="width: 100%">
+                        <v-card-text
+                            v-if="
+                                ((fullPostComputed && !editModeComputed) || (!fullPostComputed && alwaysShowContent)) &&
+                                    !loadingIcon
+                            "
+                            class="pt-0 fullHeight"
+                        >
+                            <v-list-item-subtitle class="whitespaceInit post-title secondaryTitle">
+                                <span>{{ post.title }}</span>
+                            </v-list-item-subtitle>
+                            <div class="ql-editor fullHeight pa-0">
+                                <div
+                                    v-show="showContent"
+                                    id="htmlOutput"
+                                    class="fullHeight"
+                                    v-html="post.htmlContent"
+                                ></div>
                             </div>
                         </v-card-text>
-                    </v-layout>
-                </v-container>
-                <Quill key="editQuill"
-                       ref="editQuill"
-                       :class="'postScrollWindow_' + domId"
-                       v-if="fullPostComputed && !loadingIcon && editModeComputed"
-                       @markdownPreviewToggle="markDownToggled"
-                       style="margin-bottom: 20px"
-                       :editorSetup="{allowEdit: true, showToolbar: true, postHash}"
-                ></Quill>
-
+                        <v-card-text
+                            v-else-if="fullPostComputed && !loadingIcon && editModeComputed"
+                            class="fullHeight"
+                        >
+                            <Quill
+                                key="editQuill"
+                                ref="editQuill"
+                                style="margin-bottom: 20px"
+                                :editor-setup="{ allowEdit: true, showToolbar: true, postHash }"
+                            ></Quill>
+                        </v-card-text>
+                    </v-flex>
+                </v-layout>
                 <div v-if="loadingIcon">
                     <v-progress-circular
-                            :size="150"
-                            :width="5"
-                            color="primary"
-                            indeterminate
-                            style="width: 100%; margin: 10% auto;"/>
+                        :size="150"
+                        :width="5"
+                        color="primary"
+                        indeterminate
+                        style="width: 100%; margin: 10% auto;"
+                    />
                 </div>
             </v-card>
         </div>
         <div v-else-if="loadingIcon">
             <v-progress-circular
-                    :size="150"
-                    :width="5"
-                    color="primary"
-                    indeterminate
-                    style="width: 100%; margin: 10% auto;"/>
+                :size="150"
+                :width="5"
+                color="primary"
+                indeterminate
+                style="width: 100%; margin: 10% auto;"
+            />
         </div>
-        <PostEditsDialog v-if="fullPostComputed" :key="postHash" :postHash="postHash"></PostEditsDialog>
-        <PostSaveEditDialog v-if="post !== null && fullPostComputed" :key="postHash - 1"
-                            :post="post"></PostSaveEditDialog>
+        <PostEditsDialog v-if="fullPostComputed" :key="postHash" :post-hash="postHash"></PostEditsDialog>
+        <PostSaveEditDialog
+            v-if="post !== null && fullPostComputed"
+            :key="postHash - 1"
+            :post="post"
+        ></PostSaveEditDialog>
     </div>
 </template>
 <script lang="ts">
-    import Vue from "vue";
-    import localForage from "localforage";
-    import {Component, Prop, Watch} from "vue-property-decorator";
-    import {Route} from "vue-router";
-    import {AxiosError} from "axios";
-    import CodeMirror from "codemirror";
+import Vue from "vue";
+import localForage from "localforage";
+import { Component, Prop, Watch } from "vue-property-decorator";
+import { Route } from "vue-router";
+import { AxiosError } from "axios";
+import CodeMirror from "codemirror";
 
-    import Quill from "../quill/Quill.vue";
-    import PostEditsDialog from "./PostEditsDialog.vue";
+import Quill from "../quill/Quill.vue";
+import PostEditsDialog from "./PostEditsDialog.vue";
 
-    import {
-        GetPost,
-        GetPostCallBack,
-        GetPostContent,
-        GetPostContentCallBack,
-        PostSettings,
-        PostSettingsCallback,
-        PostSettingsEditType,
-        PostVersionTypes,
-        Requests
-    } from "../../../../cshub-shared/src/api-calls";
-    import {IPost, ITopic} from "../../../../cshub-shared/src/models";
-    import {getTopicFromHash} from "../../../../cshub-shared/src/utilities/Topics";
-    import {Routes} from "../../../../cshub-shared/src/Routes";
+import {
+    ForceEditPost,
+    GetPostCallBack,
+    GetPostContentCallBack,
+    PostContent,
+    PostData,
+    PostSettings,
+    PostSettingsEditType,
+    PostVersionTypes,
+    Requests
+} from "../../../../cshub-shared/src/api-calls";
+import { Routes } from "../../../../cshub-shared/src/Routes";
 
-    import {ApiWrapper, errorLogStringConsole, logObjectConsole, logStringConsole} from "../../utilities";
-    import {CacheTypes} from "../../utilities/cache-types";
-    import {idGenerator} from "../../utilities/id-generator";
+import { ApiWrapper, logObjectConsole, logStringConsole } from "../../utilities";
+import { CacheTypes } from "../../utilities/cache-types";
 
-    import dataState from "../../store/data";
-    import userState from "../../store/user";
-    import uiState from "../../store/ui";
-    import {ForceEditPost} from "../../../../cshub-shared/src/api-calls/pages/ForceEditPost";
-    import {colorize} from "../../utilities/codemirror-colorize";
-    import PostSaveEditDialog from "./PostSaveEditDialog.vue";
+import { dataState, uiState, userState } from "../../store";
+import { colorize } from "../../utilities/codemirror-colorize";
+import PostSaveEditDialog from "./PostSaveEditDialog.vue";
+import { IPost } from "../../../../cshub-shared/src/entities/post";
+import { ITopic } from "../../../../cshub-shared/src/entities/topic";
+import { getTopicFromHash } from "../../utilities/Topics";
 
-    interface IBreadCrumbType {
-        name: string;
-        url: string;
+interface IBreadCrumbType {
+    topic: boolean;
+    text: string;
+    to: string;
+}
+
+@Component({
+    name: "Post",
+    components: { Quill, PostEditsDialog, PostSaveEditDialog }
+})
+export default class Post extends Vue {
+    /**
+     * Data
+     */
+    @Prop({ required: true }) private postHash!: number;
+
+    private dialogOpen = false;
+
+    private post: IPost | null = null;
+    private topicNames: IBreadCrumbType[] = [];
+    private canResize = true;
+    private showContent = true;
+    private loadingIcon = false;
+    private showTopMenu = true;
+    private resizeInterval: number | null = null;
+    private showLoadingIcon = false;
+
+    /**
+     * Computed properties
+     */
+    get userAdminComputed(): boolean {
+        return this.userIsLoggedIn && userState.isAdmin;
     }
 
-    @Component({
-        name: "Post",
-        components: {Quill, PostEditsDialog, PostSaveEditDialog}
-    })
-    export default class Post extends Vue {
+    get userIsLoggedIn(): boolean {
+        return userState.isLoggedIn;
+    }
 
-        /**
-         * Data
-         */
-        @Prop(Number) private postHash: number;
+    get currentPostURLComputed(): string {
+        return `${Routes.POST}/${this.postHash}`;
+    }
 
-        private dialogOpen = false;
+    get fullPostComputed(): boolean {
+        return this.$route.fullPath.includes(this.postHash.toString());
+    }
 
-        private domId: string = idGenerator();
-        private post: IPost = null;
-        private topicNames: IBreadCrumbType[] = [];
-        private canResize = true;
-        private showContent = true;
-        private loadingIcon = false;
-        private previousTopicURL = "";
-        private showTopMenu = true;
-        private resizeInterval: number;
-        private showLoadingIcon = false;
+    get editModeComputed(): boolean {
+        return this.$route.fullPath === `${this.currentPostURLComputed}/edit`;
+    }
 
-        /**
-         * Computed properties
-         */
-        get userOwnsThisPostComputed(): boolean {
-            if (userState.userModel !== null) {
-                return userState.userModel.id === this.post.author.id;
-            } else {
-                return false;
-            }
+    get editsListComputed(): boolean {
+        return this.$route.fullPath === `${this.currentPostURLComputed}/edits`;
+    }
+
+    get saveDialogComputed(): boolean {
+        return this.$route.fullPath === `${this.currentPostURLComputed}/save`;
+    }
+
+    get topics(): ITopic[] {
+        return dataState.topTopic ? dataState.topTopic.children : [];
+    }
+
+    get isOnAdminDashboard(): boolean {
+        return this.$route.fullPath === Routes.ADMINDASHBOARD;
+    }
+
+    get isOnUnsavedPosts(): boolean {
+        return this.$route.fullPath === Routes.UNSAVEDPOSTS;
+    }
+
+    get isOnUserDashboard(): boolean {
+        return this.$route.fullPath === Routes.USERDASHBOARD;
+    }
+
+    get alwaysShowContent(): boolean {
+        if (this.post) {
+            return (
+                (this.post.isIndex || this.post.isExample) &&
+                !this.isOnAdminDashboard &&
+                !this.isOnUserDashboard &&
+                !this.isOnUnsavedPosts
+            );
         }
+        return false;
+    }
 
-        get userAdminComputed(): boolean {
-            return this.userIsLoggedIn && userState.isAdmin;
-        }
-
-        get userIsLoggedIn(): boolean {
-            return userState.isLoggedIn;
-        }
-
-        get currentPostURLComputed(): string {
-            return `${Routes.POST}/${this.postHash}`;
-        }
-
-        get fullPostComputed(): boolean {
-            return this.$route.fullPath.includes(this.postHash.toString());
-        }
-
-        get editModeComputed(): boolean {
-            return this.$route.fullPath === `${this.currentPostURLComputed}/edit`;
-        }
-
-        get editsListComputed(): boolean {
-            return this.$route.fullPath === `${this.currentPostURLComputed}/edits`;
-        }
-
-        get saveDialogComputed(): boolean {
-            return this.$route.fullPath === `${this.currentPostURLComputed}/save`;
-        }
-
-        get topics(): ITopic[] {
-            return dataState.topics;
-        }
-
-        get isOnAdminDashboard(): boolean {
-            return this.$route.fullPath === Routes.ADMINDASHBOARD;
-        }
-
-        get isOnUnsavedPosts(): boolean {
-            return this.$route.fullPath === Routes.UNSAVEDPOSTS;
-        }
-
-        get isOnUserDashboard(): boolean {
-            return this.$route.fullPath === Routes.USERDASHBOARD;
-        }
-
-        get isIndexComputed(): boolean {
-            return this.post !== null && this.post.isIndex && !this.isOnAdminDashboard && !this.isOnUserDashboard && !this.isOnUnsavedPosts;
-        }
-
-        /**
-         * Watchers
-         */
-        @Watch("$route")
-        private routeChanged(to: Route, from: Route) {
-            if (this.fullPostComputed || to.fullPath.includes(this.postHash.toString())) {
-                if (from.name === "topic" || from.fullPath === Routes.INDEX) {
+    /**
+     * Watchers
+     */
+    @Watch("$route")
+    private routeChanged(to: Route, from: Route) {
+        if (this.fullPostComputed || to.fullPath.includes(this.postHash.toString())) {
+            if (from.name === "topic" || from.name === "topicexamples" || from.fullPath === Routes.INDEX) {
+                if (this.post) {
                     this.getContentRequest(this.post);
-                    this.previousTopicURL = from.fullPath;
-                } else if (this.editsListComputed) {
-                    this.viewEditDialog();
-                } else if (this.saveDialogComputed) {
-                    this.savePostDialog();
-                } else if (!this.editModeComputed) {
-                    this.previousTopicURL = Routes.INDEX;
                 }
-            }
-
-        }
-
-        @Watch("showContent")
-        private showContentChanged(to: boolean) {
-            if (to) {
-                this.highlightCode();
-            }
-        }
-
-        @Watch("saveDialogComputed")
-        private saveDialogComputedChanged(to: boolean) {
-            const notificationDialogState = uiState.currentEditDialogState;
-            if (!to && !notificationDialogState.on && notificationDialogState.hasJustSaved) {
-                this.getPostRequest();
-                uiState.setCurrentEditDialogState({
-                    ...notificationDialogState,
-                    hasJustSaved: false
-                });
-            }
-        }
-
-        /**
-         * Lifecycle hooks
-         */
-        public metaInfo(): any {
-            if (this.fullPostComputed && this.post !== null) {
-                return {
-                    title: `${this.post.title} - CSHub`
-                };
-            } else {
-                return {};
-            }
-        }
-
-        private mounted() {
-
-            this.$socket.on("connect_error", () => {
-                this.socketError();
-            });
-
-            this.$socket.on("connect_failed", () => {
-                this.socketError();
-            });
-
-            if (this.$vuetify.breakpoint.xsOnly) {
-                this.showTopMenu = false;
-            }
-
-            window.addEventListener("resize", this.windowHeightChanged);
-            this.windowHeightChanged();
-            this.getPostRequest();
-
-            if (uiState.previousRoute.fullPath === Routes.USERDASHBOARD) {
-                this.previousTopicURL = Routes.USERDASHBOARD;
-            } else if (uiState.previousRoute.fullPath === Routes.ADMINDASHBOARD) {
-                this.previousTopicURL = Routes.ADMINDASHBOARD;
-            } else if (uiState.previousRoute.fullPath === Routes.UNSAVEDPOSTS) {
-                this.previousTopicURL = Routes.UNSAVEDPOSTS;
-            }
-
-            if (this.previousTopicURL === "") {
-                this.previousTopicURL = Routes.INDEX;
-            }
-
-            if (this.editModeComputed) {
-                this.enableEdit();
             } else if (this.editsListComputed) {
-                uiState.setEditDialogState({
-                    on: true,
-                    hash: this.postHash
-                });
+                this.viewEditDialog();
             } else if (this.saveDialogComputed) {
-                uiState.setCurrentEditDialogState({
-                    on: true,
-                    hash: this.postHash
-                });
-            }
-
-            this.resizeInterval = setInterval(() => {
-                const postCard = document.getElementById(`post_${this.domId}`);
-                const postCardTitle = document.getElementById(`postTitle_${this.domId}`);
-                if (postCard !== null) {
-
-                    let postCardTitleHeight = 0;
-                    if (postCardTitle !== null) {
-                        postCardTitleHeight = postCardTitle.clientHeight;
-                    }
-
-                    const newHeight = postCard.clientHeight - postCardTitleHeight - 50;
-
-                    if (newHeight > 0) {
-                        this.windowHeightChanged();
-                        clearInterval(this.resizeInterval);
-                    } else {
-                        this.windowHeightChanged();
-                    }
-                }
-            }, 100);
-
-        }
-
-        private updated() {
-            if (this.fullPostComputed && this.post !== null && !this.loadingIcon) {
-                this.windowHeightChanged();
-                this.highlightCode();
+                this.savePostDialog();
             }
         }
+    }
 
-        /**
-         * Methods
-         */
+    @Watch("showContent")
+    private showContentChanged(to: boolean) {
+        if (to) {
+            this.highlightCode();
+        }
+    }
 
-        private markDownToggled(value: boolean) {
-            Vue.nextTick(() => {
-                this.windowHeightChanged();
+    @Watch("saveDialogComputed")
+    private saveDialogComputedChanged(to: boolean) {
+        const notificationDialogState = uiState.currentEditDialogState;
+        if (!to && !notificationDialogState.on && notificationDialogState.hasJustSaved) {
+            this.getPostRequest();
+            uiState.setCurrentEditDialogState({
+                ...notificationDialogState,
+                hasJustSaved: false
             });
         }
+    }
 
-        private socketError() {
-            if (this.editModeComputed) {
-                uiState.setNotificationDialogState({
-                    header: "Connection failed",
-                    text: "The connection with the server failed :( perhaps try refreshing or hope that it's been fixed in a few minutes (your edits won't be saved!)",
-                    on: true
-                });
-            }
-        }
-
-        private forceEditPost() {
-            this.showLoadingIcon = true;
-
-            ApiWrapper.sendPutRequest(new ForceEditPost(this.postHash), () => {
-                this.showLoadingIcon = false;
-                uiState.setNotificationDialogState({
-                    on: true,
-                    header: "Edited post",
-                    text: "Post was edited successfully"
-                });
-
-                this.$router.push(this.currentPostURLComputed);
-                this.getPostRequest();
-            });
-        }
-
-        private highlightCode() {
-            colorize(null, CodeMirror);
-        }
-
-        private getAvatarURLApi(id: number) {
-
-            const profileurl = Requests.PROFILE.replace(/:userId/, id.toString());
-            return `${process.env.VUE_APP_API_URL || (window as any).appConfig.VUE_APP_API_URL}${profileurl}`;
-        }
-
-        private getAvatarURL(dbImage: string) {
-            if (dbImage !== null) {
-                return `data:image/jpg;base64,${dbImage}`;
-            } else {
-                return "/img/defaultAvatar.png";
-            }
-        }
-
-        private windowHeightChanged() {
-            if (this.canResize && this.fullPostComputed) {
-                // Calculate the right height for the postcardtext, 100px padding
-                this.canResize = false;
-
-                const postCard = document.getElementById(`post_${this.domId}`);
-                const postCardTitle = document.getElementById(`postTitle_${this.domId}`);
-                if (postCard !== null) {
-
-                    let postCardTitleHeight = 0;
-                    if (postCardTitle !== null) {
-                        postCardTitleHeight = postCardTitle.clientHeight;
-                    }
-
-                    const newHeight = postCard.clientHeight - postCardTitleHeight - 50;
-
-                    const rootElement = document.getElementsByClassName(`postScrollWindow_${this.domId}`);
-                    let elements: HTMLCollectionOf<Element>;
-
-                    if (rootElement.length === 1) {
-                        const elementsByClassNameElement = rootElement[0];
-                        elements = elementsByClassNameElement.getElementsByClassName("flex");
-
-                        if (elements !== null && newHeight > 0) {
-
-                            // @ts-ignore
-                            elementsByClassNameElement.style.maxHeight = `${newHeight}px`;
-
-                            for (const element of elements) {
-                                // @ts-ignore
-                                element.style.maxHeight = `${newHeight}px`;
-                            }
-
-                            setTimeout(() => {
-                                this.canResize = true;
-                            }, 250);
-                        } else {
-                            this.canResize = true;
-                        }
-                    } else {
-                        this.canResize = true;
-                        errorLogStringConsole("Found multiple postScrollWindows", "Post.vue");
-                    }
-                } else {
-                    this.canResize = true;
-                }
-            }
-        }
-
-        private hidePost() {
-            ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.HIDE), (callback: PostSettingsCallback) => {
-                logStringConsole("Removed post");
-                this.$router.push(Routes.INDEX);
-            });
-        }
-
-        private wipPost() {
-            ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.WIP), (callback: PostSettingsCallback) => {
-                logStringConsole("WIPPED post");
-                this.post.isWIP = !this.post.isWIP;
-                // this.$router.push(Routes.WIPPOSTS);
-            });
-        }
-
-        private returnToPostMenu() {
-            this.$router.push(this.previousTopicURL);
-        }
-
-        private getParentTopic(child: ITopic, topics: ITopic[]): ITopic {
-            for (const topic of topics) {
-                if (topic.children !== undefined && topic.children.findIndex((x) => x.id === child.id) !== -1) {
-                    return topic;
-                } else if (topic.children !== undefined && topic.children.length > 0) {
-                    const currTopic = this.getParentTopic(child, topic.children);
-                    if (currTopic !== null) {
-                        return currTopic;
-                    }
-                }
-            }
-            return null;
-        }
-
-        private enableEdit() {
-            this.$router.push(`${this.currentPostURLComputed}/edit`);
-        }
-
-        private disableEdit() {
-            this.$router.push(`${this.currentPostURLComputed}`);
-        }
-
-        private getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
-            const parentTopic = this.getParentTopic(child, dataState.topics);
-
-            const currTopic: IBreadCrumbType = {
-                name: child.name,
-                url: `${Routes.TOPIC}/${child.hash}`
+    /**
+     * Lifecycle hooks
+     */
+    public metaInfo(): any {
+        if (this.fullPostComputed && this.post) {
+            return {
+                title: `${this.post.title} - CSHub`
             };
+        } else {
+            return {};
+        }
+    }
 
-            if (parentTopic !== null) {
-                const parentArray: IBreadCrumbType[] = this.getTopicListWhereFinalChildIs(parentTopic);
-                return [...parentArray, currTopic];
-            } else {
-                return [currTopic];
-            }
+    private mounted() {
+        this.$socket.on("connect_error", () => {
+            this.socketError();
+        });
+
+        this.$socket.on("connect_failed", () => {
+            this.socketError();
+        });
+
+        if (this.$vuetify.breakpoint.xsOnly) {
+            this.showTopMenu = false;
         }
 
-        private getPostRequest() {
-            localForage.getItem<IPost>(CacheTypes.POSTS + this.postHash)
-                .then((cachedValue: IPost) => {
-                    if (cachedValue === null || cachedValue.id === undefined) {
-                        ApiWrapper.sendGetRequest(new GetPost(this.postHash), (callbackData: GetPostCallBack) => {
-                            if (callbackData.post !== null) {
-                                this.post = callbackData.post;
+        this.getPostRequest();
 
-                                logObjectConsole(callbackData.post, "getPostRequest");
-
-                                if (this.fullPostComputed || this.post.isIndex) {
-                                    this.getContentRequest(callbackData.post);
-                                } else {
-                                    localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, callbackData.post);
-                                }
-                            } else {
-                                this.$router.push(Routes.INDEX);
-                            }
-                        });
-                    } else {
-                        logStringConsole("Gotten post from cache", "getPostRequest");
-
-                        if (this.fullPostComputed) {
-                            this.getContentRequest(cachedValue);
-                        } else {
-                            if (cachedValue.isIndex) {
-                                this.getContentRequest(cachedValue);
-                            } else {
-                                this.post = cachedValue;
-                            }
-                        }
-                    }
-                });
-        }
-
-        private getContentRequest(cachedValue: IPost) {
-            const timeOut = setTimeout(() => {
-                this.loadingIcon = true;
-            }, 250);
-
-            const postVersion: number = typeof cachedValue.htmlContent !== "string" ? -1 : cachedValue.postVersion;
-
-            ApiWrapper.sendGetRequest(new GetPostContent(this.postHash, postVersion), (callbackContent: GetPostContentCallBack) => {
-
-                clearTimeout(timeOut);
-                this.loadingIcon = false;
-
-                let hasBeenUpdated = false;
-
-                if (callbackContent === null) {
-                    this.post = {
-                        ...cachedValue
-                    };
-                } else if (callbackContent.postVersionType === PostVersionTypes.POSTDELETED) {
-                    this.$router.push(Routes.INDEX);
-                } else if (callbackContent.postVersionType === PostVersionTypes.UPDATEDPOST) {
-                    this.post = {
-                        ...callbackContent.postUpdated
-                    };
-                    this.post.htmlContent = callbackContent.content.html;
-                    hasBeenUpdated = true;
-                } else if (callbackContent.postVersionType === PostVersionTypes.RETRIEVEDCONTENT) {
-                    this.post = {
-                        ...cachedValue
-                    };
-                    this.post.htmlContent = callbackContent.content.html;
-                    hasBeenUpdated = true;
-                }
-
-                this.topicNames = this.getTopicListWhereFinalChildIs(getTopicFromHash(this.post.topicHash, dataState.topics));
-
-                if (hasBeenUpdated) {
-                    this.$forceUpdate();
-                    localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, this.post)
-                        .then(() => {
-                            logStringConsole("Changed post in cache", "getContentRequest");
-                        });
-                }
-
-                this.scrollToHash();
-            }, (err: AxiosError) => {
-
-                clearTimeout(timeOut);
-                this.loadingIcon = false;
-
-                if (cachedValue !== null && this.post !== null) {
-                    this.post.htmlContent = cachedValue.htmlContent;
-                }
-                this.$forceUpdate();
-
-                this.scrollToHash();
-            });
-        }
-
-        private scrollToHash() {
-            this.$nextTick()
-                .then(() => {
-                    if (this.$route.hash) {
-                        const hashElement = document.getElementById(this.$route.hash.substr(1));
-                        if (hashElement !== null) {
-                            hashElement.scrollIntoView();
-                        }
-                    }
-                });
-        }
-
-        private afterAnimation() {
-            this.showContent = true;
-        }
-
-        private viewEditDialog() {
-            if (this.$route.fullPath !== `${this.currentPostURLComputed}/edits`) {
-                this.$router.push(`${this.currentPostURLComputed}/edits`);
-            }
+        if (this.editModeComputed) {
+            this.enableEdit();
+        } else if (this.editsListComputed) {
             uiState.setEditDialogState({
                 on: true,
                 hash: this.postHash
             });
-        }
-
-        private navigateToPost(): void {
-            if (!this.editModeComputed && !this.fullPostComputed) {
-                logStringConsole(`Going to post ${this.post.title}`, "PostPreview navigateToPost");
-
-                this.$router.push(this.currentPostURLComputed);
-            }
-        }
-
-        private savePostDialog() {
-
-            if (this.$route.fullPath !== `${this.currentPostURLComputed}/save`) {
-                this.$router.push(`${this.currentPostURLComputed}/save`);
-            }
-
+        } else if (this.saveDialogComputed) {
             uiState.setCurrentEditDialogState({
                 on: true,
                 hash: this.postHash
             });
         }
     }
+
+    private updated() {
+        if (this.fullPostComputed && this.post !== null && !this.loadingIcon) {
+            this.highlightCode();
+        }
+    }
+
+    /**
+     * Methods
+     */
+    private socketError() {
+        if (this.editModeComputed) {
+            uiState.setNotificationDialog({
+                header: "Connection failed",
+                text:
+                    "The connection with the server failed :( perhaps try refreshing or hope that it's been fixed in a few minutes (your edits won't be saved!)",
+                on: true
+            });
+        }
+    }
+
+    private forceEditPost() {
+        this.showLoadingIcon = true;
+
+        ApiWrapper.sendPutRequest(new ForceEditPost(this.postHash), () => {
+            this.showLoadingIcon = false;
+            uiState.setNotificationDialog({
+                on: true,
+                header: "Edited post",
+                text: "Post was edited successfully"
+            });
+
+            this.$router.push(this.currentPostURLComputed);
+            this.getPostRequest();
+        });
+    }
+
+    private highlightCode() {
+        colorize(null, CodeMirror);
+    }
+
+    private getAvatarURLApi(id: number) {
+        const profileurl = Requests.PROFILE.replace(/:userId/, id.toString());
+        return `${process.env.VUE_APP_API_URL || (window as any).appConfig.VUE_APP_API_URL}${profileurl}`;
+    }
+
+    private getAvatarURL(dbImage: string) {
+        if (dbImage !== null) {
+            return `data:image/jpg;base64,${dbImage}`;
+        } else {
+            return "/img/defaultAvatar.png";
+        }
+    }
+
+    private hidePost() {
+        ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.HIDE), () => {
+            logStringConsole("Removed post");
+            this.$router.push(Routes.INDEX);
+        });
+    }
+
+    private wipPost() {
+        ApiWrapper.sendPutRequest(new PostSettings(this.postHash, PostSettingsEditType.WIP), () => {
+            logStringConsole("WIPPED post");
+            if (this.post) {
+                this.post.wip = !this.post.wip;
+            }
+        });
+    }
+
+    private returnToPostMenu() {
+        this.$router.go(-1);
+    }
+
+    private enableEdit() {
+        this.$router.push(`${this.currentPostURLComputed}/edit`);
+    }
+
+    private disableEdit() {
+        this.$router.push(`${this.currentPostURLComputed}`);
+    }
+
+    private getTopicListWhereFinalChildIs(child: ITopic): IBreadCrumbType[] {
+        const parentTopic = child.parent;
+
+        const currTopic: IBreadCrumbType = {
+            text: child.name,
+            to: `${Routes.TOPIC}/${child.hash}`,
+            topic: true
+        };
+
+        if (parentTopic) {
+            const parentArray: IBreadCrumbType[] = this.getTopicListWhereFinalChildIs(parentTopic);
+            return [...parentArray, currTopic];
+        } else {
+            return [currTopic];
+        }
+    }
+
+    private getPostRequest() {
+        localForage.getItem<IPost>(CacheTypes.POSTS + this.postHash).then((cachedValue: IPost) => {
+            if (cachedValue === null || cachedValue.id === undefined) {
+                ApiWrapper.sendGetRequest(new PostData(this.postHash), (callbackData: GetPostCallBack) => {
+                    if (callbackData.post !== null) {
+                        this.post = callbackData.post;
+
+                        logObjectConsole(callbackData.post, "getPostRequest");
+
+                        if (this.fullPostComputed || this.post.isIndex || this.post.isExample) {
+                            this.getContentRequest(callbackData.post);
+                        } else {
+                            localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, callbackData.post);
+                        }
+                    } else {
+                        this.$router.push(Routes.INDEX);
+                    }
+                });
+            } else {
+                logStringConsole("Gotten post from cache", "getPostRequest");
+
+                this.post = cachedValue;
+
+                if (this.fullPostComputed) {
+                    this.getContentRequest(cachedValue);
+                } else if (cachedValue.isIndex || cachedValue.isExample) {
+                    this.getContentRequest(cachedValue);
+                }
+            }
+        });
+    }
+
+    private async getContentRequest(knownPost: IPost) {
+        const timeOut = setTimeout(() => {
+            this.loadingIcon = true;
+        }, 250);
+
+        const postVersion: number = typeof knownPost.htmlContent !== "string" ? -1 : knownPost.postVersion;
+
+        try {
+            const content = await ApiWrapper.get(new PostContent(this.postHash, postVersion));
+
+            clearTimeout(timeOut);
+            this.loadingIcon = false;
+
+            let hasBeenUpdated = false;
+
+            let currentPost: IPost = {
+                ...knownPost
+            };
+
+            if (content !== null) {
+                switch (content.data.type) {
+                    case PostVersionTypes.UPDATEDPOST:
+                        currentPost = {
+                            ...content.data.postUpdated
+                        };
+                        currentPost.htmlContent = content.data.content.html;
+                        hasBeenUpdated = true;
+                        break;
+                    case PostVersionTypes.POSTDELETED:
+                        this.$router.push(Routes.INDEX);
+                        currentPost = {
+                            ...knownPost
+                        };
+                        break;
+                }
+            }
+
+            const children = dataState.topTopic ? dataState.topTopic.children : [];
+            const topicFromHash = getTopicFromHash(currentPost.topic.hash, children);
+
+            if (topicFromHash) {
+                this.topicNames = this.getTopicListWhereFinalChildIs(topicFromHash);
+                this.topicNames.push({
+                    text: currentPost.title,
+                    to: this.$route.fullPath,
+                    topic: true
+                });
+            }
+
+            if (hasBeenUpdated) {
+                this.$forceUpdate();
+                localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, currentPost).then(() => {
+                    logStringConsole("Changed post in cache", "getContentRequest");
+                });
+            }
+
+            this.post = currentPost;
+
+            this.scrollToHash();
+        } catch (err) {
+            clearTimeout(timeOut);
+            this.loadingIcon = false;
+            this.post = knownPost;
+
+            this.$forceUpdate();
+
+            this.scrollToHash();
+        }
+    }
+
+    private scrollToHash() {
+        this.$nextTick().then(() => {
+            if (this.$route.hash) {
+                const hashElement = document.getElementById(this.$route.hash.substr(1));
+                if (hashElement !== null) {
+                    hashElement.scrollIntoView();
+                }
+            }
+        });
+    }
+
+    private afterAnimation() {
+        this.showContent = true;
+    }
+
+    private viewEditDialog() {
+        if (this.$route.fullPath !== `${this.currentPostURLComputed}/edits`) {
+            this.$router.push(`${this.currentPostURLComputed}/edits`);
+        }
+        uiState.setEditDialogState({
+            on: true,
+            hash: this.postHash
+        });
+    }
+
+    private handleClick(): void {
+        if (!this.alwaysShowContent) {
+            this.handleDoubleClick();
+        }
+    }
+
+    private handleDoubleClick(): void {
+        if (!this.editModeComputed && !this.fullPostComputed) {
+            this.$router.push(this.currentPostURLComputed);
+        }
+    }
+
+    private savePostDialog() {
+        if (this.$route.fullPath !== `${this.currentPostURLComputed}/save`) {
+            this.$router.push(`${this.currentPostURLComputed}/save`);
+        }
+
+        uiState.setCurrentEditDialogState({
+            on: true,
+            hash: this.postHash
+        });
+    }
+}
 </script>
 
 <style scoped lang="scss">
+@import "../../styling/vars";
 
-    @import "../../styling/vars";
+.profileBorder {
+    border-radius: 0;
+}
 
-    .profileBorder {
-        border-radius: 0;
+.previewCard {
+    position: relative;
+    width: 90%;
+    overflow: hidden;
+    margin: 10px 5% 10px 5%;
+    padding: 0;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.previewCard:hover {
+    transform: scale(1.05);
+    border: HSL(194, 100%, 42%) 1px solid;
+}
+
+.whitespaceInit {
+    white-space: initial;
+}
+
+.fullCard {
+    position: absolute;
+    width: 100%;
+    overflow: hidden;
+    margin: 0;
+    height: 100%;
+    max-height: 100%;
+    transition: 0.3s;
+}
+
+.post-title {
+    font-weight: 400;
+    font-size: 1.5rem;
+    line-height: 24px;
+    font-family: Roboto, sans-serif;
+    word-break: break-word;
+}
+
+.viewButton {
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: right;
+    margin: 0;
+    padding: 0;
+    height: 2em;
+}
+
+.breadcrumb-enter-active {
+    transition: opacity 0.2s;
+}
+
+.breadcrumb-leave-active {
+    transition: opacity 0.1s;
+}
+
+.breadcrumb-enter,
+.breadcrumb-leave-to {
+    opacity: 0;
+}
+
+.topMenuShow-enter-active,
+.topMenuShow-leave-active {
+    transition: opacity 0.2s;
+}
+
+.topMenuShow-enter,
+.topMenuShow-leave-to {
+    opacity: 0;
+}
+
+@font-face {
+    font-family: "SailecLight";
+    src: url("../../../public/assets/Sailec-Light.otf");
+}
+
+.ql-editor {
+    border: none;
+    font-family: "SailecLight", sans-serif;
+}
+
+.loadingIcon {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+.secondaryTitle {
+    display: none;
+}
+
+#postCardText {
+    padding: 0 !important;
+}
+
+@media print {
+    .container {
+        padding: 0 !important;
+        max-height: none !important;
     }
 
-    .previewCard {
-        position: relative;
-        width: 90%;
-        overflow: hidden;
-        margin: 20px 5% 20px 5%;
-        padding: 0;
-        transition: 0.3s;
-        cursor: pointer;
-    }
-
-    .previewCard:hover {
-        transform: scale(1.05);
-        border: HSL(194, 100%, 42%) 1px solid;
-    }
-
-    .whitespaceInit {
-        white-space: initial;
-    }
-
-    .fullCard {
-        position: absolute;
-        width: 100%;
-        overflow: hidden;
-        margin: 0;
-        height: 100%;
-        max-height: 100%;
-        transition: 0.3s;
-    }
-
-    .post-title {
-        font-weight: 400;
-        font-size: 1.5rem;
-        line-height: 24px;
-        font-family: Roboto, sans-serif;
-        word-break: break-word;
-    }
-
-    .viewButton {
-        position: relative;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        text-align: right;
-        margin: 0;
-        padding: 0;
-        height: 2em;
-    }
-
-    .breadcrumb-enter-active {
-        transition: opacity .2s;
-    }
-
-    .breadcrumb-leave-active {
-        transition: opacity .1s;
-    }
-
-    .breadcrumb-enter, .breadcrumb-leave-to {
-        opacity: 0;
-    }
-
-    .topMenuShow-enter-active, .topMenuShow-leave-active {
-        transition: opacity .2s;
-    }
-
-    .topMenuShow-enter, .topMenuShow-leave-to {
-        opacity: 0;
-    }
-
-    @font-face {
-        font-family: 'SailecLight';
-        src: url("../../../public/assets/Sailec-Light.otf");
-    }
-
-    .ql-editor {
-        border: none;
-        font-family: 'SailecLight', sans-serif;
-    }
-
-    .loadingIcon {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        width: auto;
-        height: auto;
-        transform: translate(-50%, -50%);
-        z-index: 9999;
-    }
-
-    .secondaryTitle {
+    .titleCard {
         display: none;
     }
 
-    #postCardText {
-        padding: 0 !important;
+    .secondaryTitle {
+        display: inline;
     }
 
-    @media print {
-
-        .container {
-            padding: 0 !important;
-            max-height: none !important;
-        }
-
-        .titleCard {
-            display: none;
-        }
-
-        .secondaryTitle {
-            display: inline;
-        }
-
-        .fullCard {
-            position: relative !important;
-        }
+    .fullCard {
+        position: relative !important;
     }
+}
 
-    .theme--light.v-list .v-list__tile__sub-title {
-        color: black;
-    }
+.theme--light.v-list .v-list-item__subtitle {
+    color: black;
+}
 
-    .theme--dark .angleLighten3Dark {
-        background-color: #8b8b8b !important;
-    }
+.theme--light.v-card .v-card__text {
+    color: rgba(0, 0, 0, 0.87);
+}
 
-    .indexPostCardText .ql-editor {
-        padding: 0;
-    }
+.theme--dark.v-card .v-card__text {
+    color: rgba(255, 255, 255, 0.87);
+}
 
-    .indexPostCardText {
-        padding: 0;
-    }
+.theme--dark .angleLighten3Dark {
+    background-color: #8b8b8b !important;
+}
 
-    .indexPostCardText #htmlOutput {
-        cursor: pointer;
-    }
+.indexPostCardText .ql-editor {
+    padding: 0;
+}
 
-    .noPaddingTop {
-        padding-top: 0;
-    }
+.indexPostCardText {
+    padding: 0;
+}
 
-    .fixedPadding {
-        padding: 10px 10px 10px 30px;
-    }
+.indexPostCardText #htmlOutput {
+    cursor: pointer;
+}
+
+.noPaddingTop {
+    padding-top: 0;
+}
+
+.fixedPadding {
+    padding: 10px 10px 10px 30px;
+}
 </style>

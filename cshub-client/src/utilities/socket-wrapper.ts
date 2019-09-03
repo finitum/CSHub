@@ -1,8 +1,7 @@
-import {ISocketRequest} from "../../../cshub-shared/src/models/ISocketRequest";
-import {logStringConsole} from "./debugConsole";
+import { ISocketRequest } from "../../../cshub-shared/src/models";
+import { logStringConsole } from "./debugConsole";
 
 export class SocketWrapper {
-
     public static emitSocket(request: ISocketRequest, sockets: any) {
         sockets.emit(request.URL, request, request.callback);
     }

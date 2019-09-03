@@ -1,5 +1,4 @@
-import {IRealtimeEdit} from "../api-calls/realtime-edit";
-
+import { IRealtimeEdit } from "../api-calls/realtime-edit";
 // @ts-ignore
 import Delta from "quill-delta/dist/Delta";
 
@@ -9,7 +8,11 @@ import Delta from "quill-delta/dist/Delta";
  * @param newEdit the new edit
  * @param countUserDeltas whether to include the user's edits in the edit
  */
-export const transformFromArray = (inputEdits: IRealtimeEdit[], newEdit: IRealtimeEdit, countUserDeltas: boolean): Delta => {
+export const transformFromArray = (
+    inputEdits: IRealtimeEdit[],
+    newEdit: IRealtimeEdit,
+    countUserDeltas: boolean
+): Delta | undefined => {
     const toBeTransformed: IRealtimeEdit[] = [];
     for (let i = inputEdits.length - 1; i >= 0; i--) {
         const iRealtimeEdit = inputEdits[i];
@@ -22,22 +25,20 @@ export const transformFromArray = (inputEdits: IRealtimeEdit[], newEdit: IRealti
 
     toBeTransformed.reverse();
 
-    let editDelta: Delta = null;
+    let editDelta: Delta | undefined = undefined;
 
     for (const transformable of toBeTransformed) {
-        if (editDelta === null) {
+        if (!editDelta) {
             editDelta = new Delta(transformable.delta);
         } else {
             editDelta = editDelta.compose(new Delta(transformable.delta));
         }
     }
 
-    if (editDelta !== null && typeof editDelta !== "undefined") {
-        const transformed = editDelta.transform(newEdit.delta, true); // Quill priority works the other way around
-
-        return transformed;
+    if (editDelta && newEdit.delta) {
+        // Quill priority works the other way around
+        return editDelta.transform(newEdit.delta, true);
     } else {
         return newEdit.delta;
     }
-
 };

@@ -1,86 +1,147 @@
 <template>
     <div>
         <v-data-table
-                :headers="headers"
-                :items="items"
-                :pagination.sync="pagination"
-                :total-items="amountItems"
-                :loading="loading"
-                class="elevation-1"
+            :headers="headers"
+            :items="items"
+            :loading="loading"
+            :server-items-length="amountItems"
+            class="elevation-1"
+            @update:options="getDataOptions"
         >
-            <template slot="items" slot-scope="props">
-                <td>{{ props.item.id }}</td>
-                <td class="text-xs-right">{{ props.item.firstname }}</td>
-                <td class="text-xs-right">{{ props.item.lastname }}</td>
-                <td class="text-xs-right">{{ props.item.email }}</td>
-                <td class="text-xs-right">{{ props.item.admin }}</td>
-                <td class="text-xs-right">{{ props.item.blocked }}</td>
-                <td class="text-xs-right">{{ props.item.verified }}</td>
+            <template v-slot:item.admin="{ item }">
+                <v-checkbox v-model="item.admin" @change="admin(item)" :disabled="isSelf(item)"></v-checkbox>
             </template>
+
+            <template v-slot:item.blocked="{ item }">
+                <v-checkbox v-model="item.blocked" @change="block(item)" :disabled="isSelf(item)"></v-checkbox>
+            </template>
+
+            <template v-slot:item.verified="{ item }">
+                <v-checkbox v-model="item.verified" @change="verify(item)" :disabled="isSelf(item)"></v-checkbox>
+            </template>
+
+            <template v-slot:item.studies="{ item }">
+                <v-select
+                    v-model="item.studies"
+                    :items="studies"
+                    label="Select"
+                    multiple
+                    persistent-hint
+                    @change="studyAdmin(item)"
+                    :disabled="isSelf(item)"
+                ></v-select>
+            </template>
+
         </v-data-table>
     </div>
 </template>
 
 <script lang="ts">
-    import Vue from "vue";
-    import {Component, Watch} from "vue-property-decorator";
+import Vue from "vue";
+import { Component } from "vue-property-decorator";
 
-    import {ApiWrapper} from "../../utilities";
+import { ApiWrapper } from "../../utilities";
 
-    import {GetAllUsers, GetAllUsersCallBack} from "../../../../cshub-shared/src/api-calls/admin";
-    import {IUser} from "../../../../cshub-shared/src/models";
+import { AllUsers, AllUsersCallBack, Studies} from "../../../../cshub-shared/src/api-calls";
+import { IUser } from "../../../../cshub-shared/src/entities/user";
+import { IStudy } from "../../../../cshub-shared/src/entities/study";
+import {
+    VerifyUser,
+    BlockUser,
+    SetAdminUser,
+    SetStudyAdminUser
+} from "../../../../cshub-shared/src/api-calls/endpoints/user/UserAdminPage";
+import { dataState, uiState, userState } from "../../store";
+import { getStudies } from "../../views/router/guards/setupRequiredDataGuard";
 
-    @Component({
-        name: "userTable"
-    })
-    export default class UserTable extends Vue {
+@Component({
+    name: "userTable"
+})
+export default class UserTable extends Vue {
+    /**
+     * Data
+     */
+    private items: IUser[] = [];
 
-        /**
-         * Data
-         */
-        private items: IUser[] = [];
-        private pagination: any = {};
-        private readonly headers = [
-            {text: "Id", value: "id"},
-            {text: "First name", value: "firstname"},
-            {text: "Last name", value: "lastname"},
-            {text: "Email", value: "email"},
-            {text: "Admin", value: "admin"},
-            {text: "Blocked", value: "blocked"},
-            {text: "Verified", value: "verified"}
-        ];
-        private loading = true;
-        private amountItems: number = 0;
+    private readonly headers = [
+        { text: "Id", value: "id" },
+        { text: "First name", value: "firstname" },
+        { text: "Last name", value: "lastname" },
+        { text: "Email", value: "email" },
+        { text: "Admin", value: "admin" },
+        { text: "Blocked", value: "blocked" },
+        { text: "Verified", value: "verified" },
+        { text: "Study admin", value: "studies" }
+    ];
+    private loading = true;
+    private amountItems: number = 0;
 
-        /**
-         * Watchers
-         */
-        @Watch("pagination", {deep: true})
-        private paginationChanged(newValue: any) {
-            this.getData(newValue.rowsPerPage, newValue.page);
-        }
-
-        /**
-         * Lifecycle hooks
-         */
-        private mounted() {
-            this.getData(this.pagination.rowsPerPage, this.pagination.page);
-        }
-
-
-        /**
-         * Methods
-         */
-        private getData(rowsPerPage: number, page: number) {
-            this.loading = true;
-            ApiWrapper.sendGetRequest(new GetAllUsers(rowsPerPage, page), (callback: GetAllUsersCallBack) => {
-                this.items = callback.users;
-                this.amountItems = callback.totalItems;
-                this.loading = false;
+    get studies(): Array<{ text: string; value: number }> {
+        if (dataState.studies) {
+            return dataState.studies.map(value => {
+                return {
+                    text: value.name,
+                    value: value.id
+                };
             });
+        } else {
+            return [];
         }
     }
+
+    /*
+     * Lifecycle hooks
+     */
+    private mounted() {
+        this.getData(10, 1);
+    }
+
+    /**
+     * Methods
+     */
+    private getDataOptions(options: { page: number; itemsPerPage: number }) {
+        this.getData(options.itemsPerPage, options.page);
+    }
+
+    private getData(itemsPerPage: number, page: number) {
+        this.loading = true;
+        ApiWrapper.sendGetRequest(new AllUsers(itemsPerPage, page), (callback: AllUsersCallBack) => {
+            this.items = callback.users;
+            this.amountItems = callback.totalItems;
+            this.loading = false;
+        });
+    }
+
+    private async admin(item: IUser) {
+        await ApiWrapper.put(new SetAdminUser(item, item.admin));
+    }
+
+    private async block(item: IUser) {
+        await ApiWrapper.put(new BlockUser(item, item.blocked));
+    }
+
+    private async studyAdmin(item: IUser) {
+        await ApiWrapper.put(new SetStudyAdminUser(item, item.studies));
+    }
+
+    private async verify(item: IUser) {
+        await ApiWrapper.put(new VerifyUser(item, item.verified));
+    }
+
+
+    private isSelf(item: IUser){
+        const Self = userState.userModel;
+        if (Self === null) {
+            return true;
+        }
+
+        if (item.id === Self.id) {
+            return true;
+        }
+
+        return false;
+    }
+}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

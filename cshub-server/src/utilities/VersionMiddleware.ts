@@ -1,8 +1,8 @@
-import {app} from "../index";
-import {Request, Response} from "express";
+import { app } from "../index";
+import { Request, Response } from "express";
 import logger from "../utilities/Logger";
-import {readFileSync} from "fs";
-import {ServerError} from "../../../cshub-shared/src/models/ServerError";
+import { readFileSync } from "fs";
+import { ServerError } from "../../../cshub-shared/src/models/ServerError";
 
 const SHA = JSON.parse(readFileSync("./package.json").toString())["gitSHA"];
 
@@ -14,9 +14,13 @@ app.use((req: Request, res: Response, next: Function) => {
 
     if (!versionMatch) {
         logger.info(msg);
-        res.status(500).send(new ServerError("There was a version mismatch between the server and client, this could mean you run an outdated version, which can be fixed by refreshing / force refreshing", true));
+        res.status(500).send(
+            new ServerError(
+                "There was a version mismatch between the server and client, this could mean you run an outdated version, which can be fixed by refreshing / force refreshing",
+                true
+            )
+        );
     } else {
         next();
     }
-
 });

@@ -1,12 +1,9 @@
-import {SocketRequests} from "../SocketRequests";
-import {IRealtimeEdit} from "./IRealtimeEdit";
-import {ISocketRequest} from "../../models/ISocketRequest";
+import { SocketRequests } from "../SocketRequests";
+import { IRealtimeEdit } from "./IRealtimeEdit";
 
-export class ClientDataUpdated implements ISocketRequest {
-
+export class ClientDataUpdated {
     public static getURL: string = SocketRequests.CLIENTDATAUPDATED;
     public URL: string = ClientDataUpdated.getURL;
 
     constructor(public edit: IRealtimeEdit) {}
-
 }

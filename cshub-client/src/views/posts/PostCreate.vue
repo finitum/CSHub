@@ -1,4 +1,3 @@
-import {SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
 <template>
     <v-container fluid fill-height>
         <v-layout justify-center align-center>
@@ -9,60 +8,68 @@ import {SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
                     color="primary"
                     indeterminate
                 ></v-progress-circular>
-                <v-card :class="{opaqueLoading: showLoadingIcon}">
-                    <v-card-title class="title font-weight-regular justify-space-between">
-                        <v-layout row justify-space-between>
-                            <v-flex>
-                                <h3 class="headline">Create post</h3>
-                            </v-flex>
-                            <v-flex class="text-xs-right">
-                                <v-btn depressed large color="primary" @click="submitPost">
-                                    <span>Submit</span>
-                                </v-btn>
-                            </v-flex>
-                        </v-layout>
+                <v-card :class="{ opaqueLoading: showLoadingIcon }">
+                    <v-card-title class="title">
+                        <h3 class="headline mr-4">Create post</h3>
+                        <v-btn depressed large color="primary" @click="submitPost">
+                            <span>Submit</span>
+                        </v-btn>
                     </v-card-title>
-                    <v-card-text>
+                    <v-card-text class="ma-2">
                         <v-layout row>
-                            <v-flex xs10>
+                            <v-flex xs7>
                                 <v-text-field
-                                        style="font-weight:bold; font-size: 22px"
-                                        label="Title"
-                                        box
-                                        v-model="postTitle"
-                                        v-validate="'required|min:4|max:50'"
-                                        :error-messages="errors.collect('postTitle') + postTitleError"
-                                        @change="postTitleError = ''"
-                                        name="postTitle"
-                                        required
+                                    v-model="postTitle"
+                                    v-validate="'required|min:4|max:50'"
+                                    style="font-weight:bold; font-size: 22px"
+                                    label="Title"
+                                    filled
+                                    :error-messages="errors.collect('postTitle') + postTitleError"
+                                    name="postTitle"
+                                    required
+                                    @change="postTitleError = ''"
                                 ></v-text-field>
                             </v-flex>
                             <v-flex xs2>
                                 <v-checkbox
+                                    v-model="isIndex"
+                                    :disabled="isExample"
                                     class="ml-3"
                                     label="Is index"
-                                    v-model="isIndex"
+                                ></v-checkbox>
+                            </v-flex>
+                            <v-flex xs2>
+                                <v-checkbox
+                                    v-model="isExample"
+                                    :disabled="isIndex"
+                                    class="ml-1"
+                                    label="Is example"
                                 ></v-checkbox>
                             </v-flex>
                             <v-flex xs1 class="text-xs-right">
-                                <v-menu
-                                        v-model="topicViewOpen"
-                                        :close-on-content-click="false"
-                                        :nudge-width="100"
-                                        :nudge-left="200"
-                                        offset-x
-                                >
-                                    <v-btn
-                                            slot="activator"
-                                            dark
-                                            flat
-                                            id="tableButton"
-                                    >
-                                        <v-icon v-if="!showTopicWrongIcon && !showTopicFilledIcon" color="black" style="font-size: 25px !important">fas fa-folder</v-icon>
-                                        <v-icon v-if="showTopicFilledIcon" color="primary" style="font-size: 25px !important">fas fa-folder-plus</v-icon>
-                                        <v-icon v-if="showTopicWrongIcon && !showTopicFilledIcon" color="red" style="font-size: 25px !important">fas fa-folder-minus</v-icon>
-                                    </v-btn>
-
+                                <v-menu :close-on-content-click="false" :nudge-width="100" :nudge-left="200" offset-x>
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn id="tableButton" dark text v-on="on">
+                                            <v-icon
+                                                v-if="!showTopicWrongIcon && !showTopicFilledIcon"
+                                                color="black"
+                                                style="font-size: 25px !important"
+                                                >fas fa-folder</v-icon
+                                            >
+                                            <v-icon
+                                                v-if="showTopicFilledIcon"
+                                                color="primary"
+                                                style="font-size: 25px !important"
+                                                >fas fa-folder-plus</v-icon
+                                            >
+                                            <v-icon
+                                                v-if="showTopicWrongIcon && !showTopicFilledIcon"
+                                                color="red"
+                                                style="font-size: 25px !important"
+                                                >fas fa-folder-minus</v-icon
+                                            >
+                                        </v-btn>
+                                    </template>
                                     <v-card>
                                         <v-card-title primary-title style="padding-bottom: 0">
                                             <h3>
@@ -71,13 +78,14 @@ import {SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
                                         </v-card-title>
                                         <v-card-text style="padding-top: 0">
                                             <v-treeview
-                                                    v-if="topics !== null"
-                                                    :active.sync="activeTopicHash"
-                                                    :items="topics"
-                                                    item-key="hash"
-                                                    activatable
-                                                    active-class="primary--text"
-                                                    transition>
+                                                v-if="topics !== null"
+                                                :active.sync="activeTopicHash"
+                                                :items="topics"
+                                                item-key="hash"
+                                                activatable
+                                                active-class="primary--text"
+                                                transition
+                                            >
                                             </v-treeview>
                                         </v-card-text>
                                     </v-card>
@@ -92,96 +100,97 @@ import {SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
 </template>
 
 <script lang="ts">
-    import Vue from "vue";
-    import {Component, Watch} from "vue-property-decorator";
+import Vue from "vue";
+import { Component, Watch } from "vue-property-decorator";
 
-    import Quill from "../../components/quill/Quill.vue";
+import Quill from "../../components/quill/Quill.vue";
 
-    import dataState from "../../store/data";
+import { dataState } from "../../store";
 
-    import {ApiWrapper} from "../../utilities";
+import { ApiWrapper } from "../../utilities";
 
-    import {CreatePost, CreatePostCallback, SubmitPostResponse} from "../../../../cshub-shared/src/api-calls/pages";
-    import {ITopic} from "../../../../cshub-shared/src/models";
+import { SubmitPost, CreatePostCallback, SubmitPostResponse } from "../../../../cshub-shared/src/api-calls";
+import { ITopic } from "../../../../cshub-shared/src/entities/topic";
 
-    @Component({
-        name: "PostCreate",
-        components: {Quill},
-        inject: ["$validator"]
-    })
-    export default class PostCreate extends Vue {
+@Component({
+    name: "PostCreate",
+    components: { Quill },
+    inject: ["$validator"]
+})
+export default class PostCreate extends Vue {
+    /**
+     * Data
+     */
+    private activeTopicHash: number[] = [];
+    private postTitle = "";
+    private postTitleError = "";
+    private isIndex = false;
+    private isExample = false;
+    private showTopicWrongIcon = false;
+    private showTopicFilledIcon = false;
+    private showLoadingIcon = false;
 
-        /**
-         * Data
-         */
-        private activeTopicHash: number[] = [];
-        private topicViewOpen = false;
-        private postTitle = "";
-        private postTitleError = "";
-        private isIndex = false;
-        private showTopicWrongIcon = false;
-        private showTopicFilledIcon = false;
-        private showLoadingIcon = false;
+    /**
+     * Computed properties
+     */
+    get topics(): ITopic[] {
+        return dataState.topTopic ? dataState.topTopic.children : [];
+    }
 
-        /**
-         * Computed properties
-         */
-        get topics(): ITopic[] {
-            return dataState.topics;
-        }
+    /**
+     * Watchers
+     */
+    @Watch("activeTopicHash")
+    private activeTopicHashChanged() {
+        this.showTopicFilledIcon = this.activeTopicHash[0] !== undefined;
+    }
 
-        /**
-         * Watchers
-         */
-        @Watch("activeTopicHash")
-        private activeTopicHashChanged() {
-            this.showTopicFilledIcon = this.activeTopicHash[0] !== undefined;
-        }
+    /**
+     * Lifecycle hooks
+     */
+    public metaInfo(): any {
+        return {
+            title: "Create post - CSHub"
+        };
+    }
 
-        /**
-         * Lifecycle hooks
-         */
-        public metaInfo(): any {
-            return {
-                title: "Create post - CSHub"
-            };
-        }
-
-        /**
-         * Methods
-         */
-        private submitPost() {
-            if (typeof this.activeTopicHash[0] !== "undefined") {
-                this.$validator.validateAll()
-                    .then((allValid: boolean) => {
-                        if (allValid) {
-                            ApiWrapper.sendPostRequest(new CreatePost(this.postTitle, this.activeTopicHash[0], this.isIndex), (response: CreatePostCallback) => {
-                                this.showLoadingIcon = false;
-                                if (response.response === SubmitPostResponse.SUCCESS) {
-                                    this.$router.push(`/post/${response.postHash}/edit`);
-                                } else if (response.response === SubmitPostResponse.TITLEALREADYINUSE) {
-                                    this.postTitleError = "Title is already in use!";
-                                } else if (response.response === SubmitPostResponse.ALREADYHASINDEX) {
-                                    this.postTitleError = "This topic already has an index!";
-                                } else {
-                                    this.postTitleError = "There has been some error with this input";
-                                }
-                            });
+    /**
+     * Methods
+     */
+    private submitPost() {
+        if (this.activeTopicHash[0]) {
+            this.$validator.validateAll().then((allValid: boolean) => {
+                if (allValid) {
+                    ApiWrapper.sendPostRequest(
+                        new SubmitPost(this.postTitle, this.activeTopicHash[0], this.isIndex, this.isExample),
+                        (response: CreatePostCallback) => {
+                            this.showLoadingIcon = false;
+                            if (response.response === SubmitPostResponse.SUCCESS) {
+                                this.$router.push(`/post/${response.postHash}/edit`);
+                            } else if (response.response === SubmitPostResponse.TITLEALREADYINUSE) {
+                                this.postTitleError = "Title is already in use!";
+                            } else if (response.response === SubmitPostResponse.ALREADYHASINDEX) {
+                                this.postTitleError = "This topic already has an index!";
+                            } else {
+                                this.postTitleError = "There has been some error with this input";
+                            }
                         }
-                    });
-            } else {
-                this.showTopicWrongIcon = true;
-                setTimeout(() => {
-                    this.showTopicWrongIcon = false;
-                }, 1000);
-            }
+                    );
+                }
+            });
+        } else {
+            this.showTopicWrongIcon = true;
+            setTimeout(() => {
+                this.showTopicWrongIcon = false;
+            }, 1000);
         }
     }
+}
 </script>
 
 <style scoped>
-    .opaqueLoading {
-        pointer-events: none;
-        filter: blur(8px);
-    }
+.opaqueLoading {
+    pointer-events: none;
+    filter: blur(8px);
+}
 </style>

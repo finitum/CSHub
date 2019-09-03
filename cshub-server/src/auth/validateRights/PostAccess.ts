@@ -1,65 +1,68 @@
-import {validateAccessToken} from "../JWTHandler";
-import {DatabaseResultSet, query} from "../../utilities/DatabaseConnection";
-import dayjs from "dayjs";
+import { DatabaseResultSet, query } from "../../db/database-query";
+import { checkTokenValidityFromJWT } from "../AuthMiddleware";
+import { Request } from "express";
+import { getStudiesFromTopic } from "../../utilities/TopicsUtils";
 
-export type postAccessType = {
-    access: boolean,
-    isOwner: boolean,
-    editRights: boolean
+export interface PostAccessType {
+    canEdit: boolean;
+    canSave: boolean;
+}
+
+export const hasAccessToTopicRequest = (topicHash: number, req: Request): Promise<PostAccessType> => {
+    if (req.cookies === null) {
+        return Promise.resolve({ canEdit: false, canSave: false });
+    }
+
+    return hasAccessToTopicJWT(topicHash, req.cookies["token"]);
 };
 
-// Test whether the user has enough rights to access this post; only admins have access to non-verified posts
-export const hasAccessToPost = (postHash: number, jwt: string): Promise<postAccessType> => {
+export const hasAccessToTopicJWT = (topicHash: number, jwt: string): Promise<PostAccessType> => {
+    const tokenResult = checkTokenValidityFromJWT(jwt);
 
-    let isLoggedIn = true;
-
-    if (jwt === null || jwt === undefined) {
-        isLoggedIn = false;
+    // Check if user is global admin
+    if (tokenResult && tokenResult.user.admin) {
+        return Promise.resolve({ canEdit: true, canSave: true });
     }
 
-    const tokenResult = validateAccessToken(jwt);
-
-    if (typeof tokenResult !== "undefined") {
-        if (dayjs(tokenResult.expirydate * 1000).isBefore(dayjs())) {
-            isLoggedIn = false;
-        } else {
-            isLoggedIn = !tokenResult.user.blocked && tokenResult.user.verified;
+    // Check if user is study admin
+    return getStudiesFromTopic(topicHash).then(studies => {
+        if (tokenResult) {
+            for (const study of studies) {
+                const isStudyAdmin = tokenResult.user.studies.map(currStudy => currStudy.id).includes(study.id);
+                if (isStudyAdmin) {
+                    return { canEdit: true, canSave: true };
+                }
+            }
         }
-    } else {
-        isLoggedIn = false;
+
+        return { canEdit: true, canSave: false };
+    });
+};
+
+export const hasAccessToPostRequest = (postHash: number, req: Request): Promise<PostAccessType> => {
+    if (req.cookies === null) {
+        return Promise.resolve({ canEdit: false, canSave: false });
     }
 
-    return query(`
-      SELECT deleted, author, editCount
-      FROM posts
-             LEFT JOIN (
-        SELECT COUNT(*) AS editCount, post
-        FROM edits
-        GROUP BY post
-      ) e on posts.id = e.post
-      WHERE hash = ?
-    `, postHash)
-        .then((databaseResult: DatabaseResultSet) => {
-            if (databaseResult.getNumberFromDB("deleted") === 1) {
-                return {access: false, isOwner: false, editRights: false};
-            }
+    return hasAccessToPostJWT(postHash, req.cookies["token"]);
+};
 
-            if (typeof tokenResult !== "undefined" && isLoggedIn && tokenResult.user.admin) {
-                return {access: true, isOwner: true, editRights: true};
-            }
+// Test whether the user has enough rights to access this post
+// A (study) admin has the ability to save
+export const hasAccessToPostJWT = (postHash: number, jwt: string): Promise<PostAccessType> => {
+    return query(
+        `
+      SELECT deleted, t.hash
+      FROM posts p
+        INNER JOIN topics t on p.topic = t.id
+      WHERE p.hash = ?
+    `,
+        postHash
+    ).then((databaseResult: DatabaseResultSet) => {
+        if (databaseResult.getNumberFromDB("deleted") === 1) {
+            return { canEdit: false, canSave: false };
+        }
 
-            if (typeof tokenResult !== "undefined" && isLoggedIn && tokenResult.user.id === databaseResult.getNumberFromDB("author")) {
-                return {access: true, isOwner: true, editRights: true};
-            }
-
-            const editCount = databaseResult.getNumberFromDB("editCount");
-            if (editCount !== null || editCount > 1) {
-                return {access: true, isOwner: false, editRights: isLoggedIn};
-            } else {
-                return {access: false, isOwner: false, editRights: false};
-            }
-        });
-
-
-
+        return hasAccessToTopicJWT(databaseResult.getNumberFromDB("hash"), jwt);
+    });
 };

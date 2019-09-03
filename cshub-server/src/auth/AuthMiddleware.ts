@@ -1,33 +1,25 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import dayjs from "dayjs";
 
-import {IJWTToken} from "../../../cshub-shared/src/models/IJWTToken";
+import { IJWTToken } from "../../../cshub-shared/src/models";
 
-import {app} from "../index";
-import {sign, validateAccessToken} from "./JWTHandler";
-import {Settings} from "../settings";
-import {logMiddleware} from "../utilities/LoggingMiddleware";
+import { app } from "../index";
+import { sign, validateAccessToken } from "./JWTHandler";
+import { Settings } from "../settings";
+import { logMiddleware } from "../utilities/LoggingMiddleware";
 
 app.use((req: Request, res: Response, next: Function) => {
+    const tokenValidity = checkTokenValidityFromRequest(req);
 
+    if (tokenValidity) {
+        const newtoken: string = sign(tokenValidity.user);
 
-    const tokenValidity = checkTokenValidity(req);
+        res.cookie("token", newtoken, {
+            maxAge: Settings.TOKENAGEMILLISECONDS,
+            domain: Settings.DOMAIN
+        });
 
-    if (tokenValidity.valid) {
-
-        if (typeof tokenValidity.tokenObj.user !== "undefined") {
-            const newtoken: string = sign(tokenValidity.tokenObj.user);
-
-            res.cookie("token", newtoken, {
-                maxAge: Settings.TOKENAGEMILLISECONDS,
-                domain: Settings.DOMAIN
-            });
-
-            logMiddleware(req, tokenValidity.tokenObj);
-        } else {
-            logMiddleware(req, null);
-        }
-
+        logMiddleware(req, tokenValidity);
     } else {
         logMiddleware(req, null);
         res.clearCookie("token");
@@ -36,21 +28,39 @@ app.use((req: Request, res: Response, next: Function) => {
     next();
 });
 
-export type ValidationType = { valid: boolean, tokenObj?: IJWTToken };
-export const checkTokenValidity = (req: Request): ValidationType => {
+export type ValidationType = false | IJWTToken;
+
+export const checkTokenValidityFromJWT = (jwt: string): ValidationType => {
+    if (!jwt) {
+        return false;
+    }
 
     // This checks the incoming JWT token, validates it, checks if it's still valid.
     // If valid, create a new one (so no cookie stealing)
     // If invalid, remove the cookie
-    if (req.cookies !== null && req.cookies["token"] !== null) {
+    const tokenObj = validateAccessToken(jwt);
 
-        const tokenObj: IJWTToken = validateAccessToken(req.cookies.token);
-
-        if (tokenObj !== undefined && dayjs(tokenObj.expirydate * 1000).isAfter(dayjs()) && tokenObj.user.verified && !tokenObj.user.blocked) {
-            return {valid: true, tokenObj};
-        } else {
-            return {valid: false};
-        }
+    if (
+        tokenObj !== undefined &&
+        dayjs(tokenObj.expirydate * 1000).isAfter(dayjs()) &&
+        tokenObj.user.verified &&
+        !tokenObj.user.blocked
+    ) {
+        return tokenObj;
+    } else {
+        return false;
     }
-    return {valid: false};
+};
+
+export const checkTokenValidityFromRequest = (req: Request): ValidationType => {
+    if (req.cookies === null) {
+        return false;
+    }
+
+    const cookie = req.cookies["token"];
+    if (cookie === undefined) {
+        return false;
+    }
+
+    return checkTokenValidityFromJWT(cookie);
 };

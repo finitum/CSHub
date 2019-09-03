@@ -11,55 +11,63 @@
         <v-dialog v-model="thisDialogActive" fullscreen hide-overlay transition="dialog-bottom-transition">
             <v-card v-if="post !== null">
                 <v-toolbar dark color="primary">
-                    <v-btn icon dark @click.native="dialogActive = {on: false, hash: -1}">
+                    <v-btn icon dark @click.native="dialogActive = { on: false, hash: -1 }">
                         <v-icon>fas fa-times</v-icon>
                     </v-btn>
                     <v-toolbar-title>Current edit</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
                         <v-tooltip bottom>
-                            <template v-slot:activator="{on}">
-                                <v-btn v-on="on" depressed small color="red" @click="deleteEdit" v-if="hasBeenEdited">Delete</v-btn>
+                            <template v-slot:activator="{ on }">
+                                <v-btn v-if="hasBeenEdited" depressed small color="red" v-on="on" @click="deleteEdit"
+                                    >Delete</v-btn
+                                >
                             </template>
                             <span>Delete the current edit</span>
                         </v-tooltip>
 
                         <v-tooltip bottom>
-                            <template v-slot:activator="{on}">
-                                <v-btn v-on="on" depressed small color="red" @click="save" v-if="hasBeenEdited">Save</v-btn>
+                            <template v-slot:activator="{ on }">
+                                <v-btn v-if="hasBeenEdited" depressed small color="red" v-on="on" @click="save"
+                                    >Save</v-btn
+                                >
                             </template>
                             <span>Save the current edit</span>
                         </v-tooltip>
-
                     </v-toolbar-items>
                 </v-toolbar>
                 <v-card-text>
                     <div v-if="hasBeenEdited">
                         <v-toolbar-title>Title</v-toolbar-title>
-                        <v-text-field style="width: 100%" v-model="post.title"/>
+                        <v-text-field v-model="post.title" style="width: 100%" />
 
                         <v-divider></v-divider>
 
                         <v-toolbar-title class="mt-2" style="margin-left: 0px">Topic</v-toolbar-title>
                         <v-treeview
-                                v-if="topics !== null"
-                                :active.sync="activeTopicHash"
-                                :items="topics"
-                                item-key="hash"
-                                activatable
-                                active-class="primary--text"
-                                transition>
+                            v-if="topics !== null"
+                            :active.sync="activeTopicHash"
+                            :items="topics"
+                            item-key="hash"
+                            activatable
+                            active-class="primary--text"
+                            transition
+                        >
                         </v-treeview>
 
                         <v-divider></v-divider>
 
-                        <v-toolbar-title class="mt-2" style="margin-left: 0px">Edit by {{editedByText}}</v-toolbar-title>
-                        <Quill key="currEditQuill"
-                               ref="currEditQuill"
-                               class="save-quill"
-                               v-if="content !== null"
-                               :editorSetup="{allowEdit: false, showToolbar: false, postHash: post.hash}"
-                               :initialValueProp="content">
+                        <v-toolbar-title class="mt-2" style="margin-left: 0"
+                            >Edit by {{ editedByText }}</v-toolbar-title
+                        >
+                        <Quill
+                            v-if="content !== null"
+                            key="currEditQuill"
+                            ref="currEditQuill"
+                            class="save-quill"
+                            :editor-setup="{ allowEdit: false, showToolbar: false, postHash: post.hash }"
+                            :initial-value-prop="content"
+                        >
                         </Quill>
                     </div>
                     <v-toolbar-title v-else>No new edit!</v-toolbar-title>
@@ -70,119 +78,130 @@
 </template>
 
 <script lang="ts">
-    import Vue from "vue";
-    import {Component, Prop, Watch} from "vue-property-decorator";
+import Vue from "vue";
+import { Component, Prop, Watch } from "vue-property-decorator";
 
-    import Quill from "../quill/Quill.vue";
+import Quill from "../quill/Quill.vue";
 
-    import {IPost, ITopic} from "../../../../cshub-shared/src/models";
-    import {Routes} from "../../../../cshub-shared/src/Routes";
+import { Routes } from "../../../../cshub-shared/src/Routes";
 
-    import uiState from "../../store/ui";
-    import {editDialogType} from "../../store/ui/state";
+import { uiState } from "../../store";
+import { editDialogType } from "../../store/state/uiState";
 
-    import userState from "../../store/user";
-    import {ApiWrapper, logStringConsole} from "../../utilities";
-    import {EditPost, GetEditContent, GetEditContentCallback} from "../../../../cshub-shared/src/api-calls/pages";
-    import dataState from "../../store/data";
-    import Delta from "quill-delta/dist/Delta";
+import { userState } from "../../store";
+import { ApiWrapper, logStringConsole } from "../../utilities";
+import { EditPost, EditContent, GetEditContentCallback } from "../../../../cshub-shared/src/api-calls";
+import { dataState } from "../../store";
+import Delta from "quill-delta/dist/Delta";
+import { IPost } from "../../../../cshub-shared/src/entities/post";
+import { ITopic } from "../../../../cshub-shared/src/entities/topic";
 
-    @Component({
-        name: "PostSaveEditDialog",
-        components: {Quill},
-    })
-    export default class PostSaveEditDialog extends Vue {
+@Component({
+    name: "PostSaveEditDialog",
+    components: { Quill }
+})
+export default class PostSaveEditDialog extends Vue {
+    /**
+     * Data
+     */
+    @Prop({ required: true }) private post!: IPost;
 
-        /**
-         * Data
-         */
-        @Prop(null) private post: IPost;
+    private showLoadingIcon = false;
 
-        private showLoadingIcon = false;
+    private content: Delta | null = null;
+    private editedByText: string = "";
+    private hasBeenEdited = true;
 
-        private content: Delta = null;
-        private editedByText: string = "";
-        private hasBeenEdited = true;
+    private activeTopicHash: number[] = [];
 
-        private activeTopicHash: number[] = [];
+    /**
+     * Computed properties
+     */
+    get dialogActive(): editDialogType {
+        return uiState.currentEditDialogState;
+    }
 
-        /**
-         * Computed properties
-         */
-        get dialogActive(): editDialogType {
-            return uiState.currentEditDialogState;
+    set dialogActive(value: editDialogType) {
+        if (!value.on) {
+            uiState.setCurrentEditDialogState(value);
+            this.$router.push(`${Routes.POST}/${this.post.hash}`);
         }
+    }
 
-        set dialogActive(value: editDialogType) {
-            if (!value.on) {
-                uiState.setCurrentEditDialogState(value);
-                this.$router.push(`${Routes.POST}/${this.post.hash}`);
-            }
+    get userAdminComputed(): boolean {
+        return userState.isAdmin;
+    }
+
+    get thisDialogActive(): boolean {
+        return this.dialogActive.on && this.dialogActive.hash === this.post.hash;
+    }
+
+    set thisDialogActive(active: boolean) {
+        this.dialogActive.on = active;
+    }
+
+    get topics(): ITopic[] {
+        return dataState.topTopic ? dataState.topTopic.children : [];
+    }
+
+    /**
+     * Watchers
+     */
+    @Watch("dialogActive")
+    private dialogActiveChanged(newVal: editDialogType) {
+        if (this.thisDialogActive) {
+            this.getEdit();
         }
+    }
 
-        get userAdminComputed(): boolean {
-            return userState.isAdmin;
+    /**
+     * Lifecycle hooks
+     */
+    private mounted() {
+        if (this.thisDialogActive) {
+            this.getEdit();
         }
+    }
 
-        get thisDialogActive(): boolean {
-            return this.dialogActive.on && this.dialogActive.hash === this.post.hash;
-        }
+    /**
+     * Methods
+     */
+    private getEdit() {
+        ApiWrapper.sendGetRequest(new EditContent(this.post.hash, true), (callbackData: GetEditContentCallback) => {
+            if (callbackData.edits[callbackData.edits.length - 1].approved) {
+                this.hasBeenEdited = false;
+            } else {
+                let content = new Delta();
 
-        get topics(): ITopic[] {
-            return dataState.topics;
-        }
+                for (let i = 0; i < callbackData.edits.length; i++) {
+                    const currEdit = callbackData.edits[i];
 
-        /**
-         * Watchers
-         */
-        @Watch("dialogActive")
-        private dialogActiveChanged(newVal: editDialogType) {
-            if (this.thisDialogActive) {
-                this.getEdit();
-            }
-        }
-
-        /**
-         * Lifecycle hooks
-         */
-        private mounted() {
-            if (this.thisDialogActive) {
-                this.getEdit();
-            }
-        }
-
-        /**
-         * Methods
-         */
-        private getEdit() {
-            ApiWrapper.sendGetRequest(new GetEditContent(this.post.hash, true), (callbackData: GetEditContentCallback) => {
-
-                if (callbackData.edits[callbackData.edits.length - 1].approved) {
-                    this.hasBeenEdited = false;
-                } else {
-                    let content = new Delta();
-
-                    for (let i = 0; i < callbackData.edits.length; i++) {
-
-                        const currEdit = callbackData.edits[i];
-
-                        if (i >= callbackData.edits.length - 1 && !currEdit.approved) {
+                    if (i >= callbackData.edits.length - 1) {
+                        if (!currEdit.approved) {
                             this.editedByText = "";
 
-                            for (const editor of currEdit.editedBy) {
-                                if (this.editedByText !== "") {
-                                    this.editedByText += ", ";
+                            const editusers = currEdit.editusers;
+
+                            if (editusers) {
+                                for (const editor of editusers) {
+                                    if (this.editedByText !== "") {
+                                        this.editedByText += ", ";
+                                    }
+                                    this.editedByText += editor.firstname + " " + editor.lastname;
                                 }
-                                this.editedByText += editor.firstname + " " + editor.lastname;
                             }
+
                             const currContent = currEdit.content;
+
+                            const theme = this.$vuetify.theme;
+                            const currentTheme = theme.dark ? theme.themes.dark : theme.themes.light;
 
                             for (const op of currContent.ops) {
                                 if (op.hasOwnProperty("insert")) {
                                     op.attributes = {
                                         ...op.attributes,
-                                        background: this.$vuetify.theme.success,
-                                        color: this.$vuetify.theme.secondary
+                                        background: currentTheme.success,
+                                        color: currentTheme.secondary
                                     };
                                 }
                                 if (op.hasOwnProperty("delete")) {
@@ -190,8 +209,8 @@
                                     delete op.delete;
                                     op.attributes = {
                                         ...op.attributes,
-                                        background: this.$vuetify.theme.warning,
-                                        color: this.$vuetify.theme.secondary,
+                                        background: currentTheme.warning,
+                                        color: currentTheme.secondary,
                                         strike: true
                                     };
                                 }
@@ -201,36 +220,34 @@
                         } else {
                             content = content.compose(currEdit.content);
                         }
-
+                    } else {
+                        content = content.compose(currEdit.content);
                     }
-
-                    this.hasBeenEdited = true;
-                    this.content = content;
                 }
 
-            });
+                this.hasBeenEdited = true;
+                this.content = content;
+            }
+        });
 
-            this.activeTopicHash = [this.post.topicHash];
-        }
+        this.activeTopicHash = [this.post.topic.hash];
+    }
 
-        public save() {
-            this.showLoadingIcon = true;
-            logStringConsole("Editing post");
-            ApiWrapper.sendPutRequest(new EditPost(
-                this.post.hash,
-                this.post.title,
-                this.activeTopicHash[0],
-                false
-            ), (responseData: null, status) => {
+    public save() {
+        this.showLoadingIcon = true;
+        logStringConsole("Editing post");
+        ApiWrapper.sendPutRequest(
+            new EditPost(this.post.hash, this.post.title, this.activeTopicHash[0], false),
+            (responseData: null, status) => {
                 this.showLoadingIcon = false;
                 if (status === 200) {
-                    uiState.setNotificationDialogState({
+                    uiState.setNotificationDialog({
                         on: true,
                         header: "Edited post",
                         text: "Post was edited successfully"
                     });
                 } else if (status === 204) {
-                    uiState.setNotificationDialogState({
+                    uiState.setNotificationDialog({
                         on: true,
                         header: "Didn't edit post",
                         text: "There was nothing to update!"
@@ -244,19 +261,17 @@
                     hash: -1,
                     hasJustSaved: true
                 };
-            });
-        }
+            }
+        );
+    }
 
-        public deleteEdit() {
-            ApiWrapper.sendPutRequest(new EditPost(
-                this.post.hash,
-                this.post.title,
-                this.activeTopicHash[0],
-                true
-            ), (responseData: null, status) => {
+    public deleteEdit() {
+        ApiWrapper.sendPutRequest(
+            new EditPost(this.post.hash, this.post.title, this.activeTopicHash[0], true),
+            (responseData: null, status) => {
                 this.showLoadingIcon = false;
 
-                uiState.setNotificationDialogState({
+                uiState.setNotificationDialog({
                     on: true,
                     header: "Deleted edit",
                     text: "Edit was successfully deleted"
@@ -267,19 +282,20 @@
                     hash: -1,
                     hasJustSaved: false
                 };
-            });
-        }
+            }
+        );
     }
+}
 </script>
 
 <style lang="scss">
-    .save-quill {
-        .ql-editor {
-            overflow: hidden;
-        }
-
-        .ql-container {
-            height: 100%;
-        }
+.save-quill {
+    .ql-editor {
+        overflow: hidden;
     }
+
+    .ql-container {
+        height: 100%;
+    }
+}
 </style>
