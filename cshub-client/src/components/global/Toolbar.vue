@@ -40,6 +40,10 @@
             <v-btn icon depressed small color="primary" @click="darkMode = !darkMode">
                 <v-icon color="white">{{ darkMode ? "fas fa-sun" : "fas fa-moon" }}</v-icon>
             </v-btn>
+            <v-btn depressed small color="primary" href="https://discord.gg/kHy5wXA">
+                <embed class="discordlogo" src="/img/icons/discord.png" />
+            </v-btn>
+
         </v-toolbar-items>
     </v-app-bar>
 </template>
@@ -169,6 +173,11 @@ export default class Toolbar extends Vue {
 <style scoped>
 .darkModeSwitch i {
     color: white !important;
+}
+
+.discordlogo {
+    width: 18px;
+    height: 20px;
 }
 
 .theme--dark .primary {
