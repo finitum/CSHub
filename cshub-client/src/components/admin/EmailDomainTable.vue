@@ -125,7 +125,7 @@ export default class EmailDomainTable extends Vue {
     }
 
     private async getData() {
-        const response = (await ApiWrapper.get(new GetEmailDomains())) as GetEmailDomainsCallback;
+        const response = await ApiWrapper.get(new GetEmailDomains());
 
         if (response !== null) {
             this.items = response.domains;

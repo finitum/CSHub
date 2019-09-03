@@ -1,25 +1,26 @@
 import {
     Column,
     Entity,
+    Index,
     JoinColumn,
     ManyToMany,
     ManyToOne,
-    OneToMany,
-    OneToOne,
     PrimaryGeneratedColumn,
-    RelationId
+    RelationId,
+    Unique
 } from "typeorm";
 import { Study } from "./study";
 import { Edit } from "./edit";
 import { IUser } from "../../../../cshub-shared/src/entities/user";
-import { Question } from "./practice/question";
 import { Exclude, Expose } from "class-transformer";
-import {EmailDomain} from "./emaildomain";
-import {Topic} from "./topic";
+import { EmailDomain } from "./emaildomain";
 
 @Exclude()
 @Entity({
     name: "users"
+})
+@Index("uq_email_domain", ["email", "domain"], {
+    unique: true
 })
 export class User implements IUser {
     @Expose()
@@ -28,7 +29,9 @@ export class User implements IUser {
 
     @Expose()
     @Column({
-        type: "text"
+        type: "varchar",
+        length: 128,
+        nullable: false
     })
     email!: string;
 

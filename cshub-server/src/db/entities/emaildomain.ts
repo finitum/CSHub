@@ -1,7 +1,7 @@
 import { Exclude, Expose } from "class-transformer";
-import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { IEmailDomain } from "../../../../cshub-shared/src/entities/emaildomains";
-import {User} from "./user";
+import { User } from "./user";
 
 @Exclude()
 @Entity({

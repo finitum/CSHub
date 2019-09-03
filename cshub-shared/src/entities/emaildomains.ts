@@ -1,4 +1,4 @@
-export interface IEmailDomain{
-    id: number,
-    domain: string,
+export interface IEmailDomain {
+    id: number;
+    domain: string;
 }

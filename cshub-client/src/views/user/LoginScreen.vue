@@ -27,7 +27,7 @@
                                         v-validate="'required'"
                                         item-text="domain"
                                         item-value="id"
-                                        class="ma-0 pa-0"
+                                        class="ma-0 pa-0 loginMailSelect"
                                         hide-details
                                         placeholder="Select email"
                                         :items="emailDomains"
@@ -163,9 +163,12 @@ export default class LoginScreen extends Vue {
     private async mounted() {
         this.userData.email = localStorage.getItem(LocalStorageData.EMAIL) || "";
 
-        const domains = (await ApiWrapper.get(new GetEmailDomains())) as GetEmailDomainsCallback;
-        this.emailDomains = domains.domains;
-        this.emailDomain = domains.domains[0].id;
+        const domains = await ApiWrapper.get(new GetEmailDomains());
+
+        if (domains) {
+            this.emailDomains = domains.domains;
+            this.emailDomain = domains.domains[0].id;
+        }
     }
 
     private beforeRouteEnter(to: Route, from: Route, next: (to?: (vm: this) => any) => void) {
@@ -186,8 +189,9 @@ export default class LoginScreen extends Vue {
     private forgotPasswordSend() {
         this.$validator.validateAll().then((allValid: boolean) => {
             if (allValid) {
+                const emailDomain = this.emailDomains.filter(i => i.id === this.emailDomain)[0];
                 ApiWrapper.sendPostRequest(
-                    new ForgotPasswordMail(this.userData.email, this.emailDomains.filter(i => i.id === this.emailDomain)[0]),
+                    new ForgotPasswordMail(this.userData.email, emailDomain),
                     (result: ForgotPasswordMailCallback) => {
                         if (result.response === ForgotPasswordMailResponseTypes.SENT) {
                             uiState.setNotificationDialog({

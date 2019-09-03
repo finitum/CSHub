@@ -15,7 +15,7 @@ import { CacheVersion } from "./entities/cacheversion";
 import { Question } from "./entities/practice/question";
 import { app } from "../index";
 import { Answer } from "./entities/practice/answer";
-import {EmailDomain} from "./entities/emaildomain";
+import { EmailDomain } from "./entities/emaildomain";
 
 class CustomLogger implements Logger {
     log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {

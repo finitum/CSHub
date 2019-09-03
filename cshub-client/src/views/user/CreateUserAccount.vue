@@ -26,7 +26,7 @@
                                         v-validate="'required'"
                                         item-text="domain"
                                         item-value="id"
-                                        class="ma-0 pa-0"
+                                        class="ma-0 pa-0 loginMailSelect"
                                         hide-details
                                         placeholder="Select email"
                                         :items="emailDomains"
@@ -96,7 +96,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
-import { emailValidator, ApiWrapper, logStringConsole } from "../../utilities";
+import { ApiWrapper, logStringConsole } from "../../utilities";
 import {
     CreateAccount,
     CreateAccountCallBack,
@@ -134,8 +134,6 @@ export default class CreateUserAccount extends Vue {
      * Lifecycle hooks
      */
     private async mounted() {
-        this.$validator.extend("checkTUEmail", emailValidator);
-
         const domains = (await ApiWrapper.get(new GetEmailDomains())) as GetEmailDomainsCallback;
         this.emailDomains = domains.domains;
         this.emailDomain = domains.domains[0].id;
@@ -153,13 +151,14 @@ export default class CreateUserAccount extends Vue {
     private doCreateAccount() {
         this.$validator.validateAll().then((allValid: boolean) => {
             if (allValid) {
+                const emailDomain = this.emailDomains.filter(i => i.id === this.emailDomain)[0];
                 ApiWrapper.sendPostRequest(
                     new CreateAccount(
                         this.userData.email,
                         this.userData.password,
                         this.userData.firstname,
                         this.userData.lastname,
-                        this.emailDomains.filter(i => i.id === this.emailDomain)[0]
+                        emailDomain
                     ),
                     (callbackData: CreateAccountCallBack) => {
                         if (callbackData.response === CreateAccountResponseTypes.SUCCESS) {
