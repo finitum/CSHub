@@ -40,6 +40,9 @@
             <v-btn icon depressed small color="primary" @click="darkMode = !darkMode">
                 <v-icon color="white">{{ darkMode ? "fas fa-sun" : "fas fa-moon" }}</v-icon>
             </v-btn>
+            <v-btn icon depressed small color="primary" href="https://discord.gg/kHy5wXA" target="_blank">
+                <v-icon color="white">fab fa-discord</v-icon>
+            </v-btn>
         </v-toolbar-items>
     </v-app-bar>
 </template>
