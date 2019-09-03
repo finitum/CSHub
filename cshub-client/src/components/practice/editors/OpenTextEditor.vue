@@ -7,6 +7,7 @@
                     v-model="question"
                     v-validate="'required|min:2'"
                     :error-messages="errors.collect('question')"
+                    :hide-details="!errors.has('question')"
                     name="question"
                     filled
                     required
@@ -21,6 +22,7 @@
                     v-validate="'required|min:2'"
                     :error-messages="errors.collect('explanation')"
                     required
+                    :hide-details="!errors.has('explanation')"
                     name="explanation"
                     filled
                     auto-grow
@@ -33,8 +35,9 @@
                     v-model="answer"
                     v-validate="'required|min:2'"
                     label="Answer"
-                    outlined
+                    filled
                     name="answer"
+                    :hide-details="!errors.has('answer')"
                     :error-messages="errors.collect('answer')"
                 >
                 </v-text-field>

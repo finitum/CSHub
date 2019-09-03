@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.0.0-rc.1",
-    "@types/mathjs": "^6.0.1",
-    "@types/socket.io-client": "^1.4.32",
     "animate.css": "^3.7.0",
     "axios": "^0.18.1",
     "codemirror": "^5.42.2",
@@ -45,6 +43,8 @@
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.10.1",
+    "@types/mathjs": "^6.0.1",
+    "@types/socket.io-client": "^1.4.32",
     "@types/codemirror": "^0.0.71",
     "@types/katex": "^0.5.0",
     "@types/lodash": "^4.14.117",

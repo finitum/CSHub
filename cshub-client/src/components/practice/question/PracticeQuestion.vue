@@ -3,6 +3,7 @@
         <div class="mb-4">
             <v-btn color="primary" class="mr-2" @click="submit">Submit</v-btn>
             <v-btn color="error" class="mr-2" @click="stop">Stop</v-btn>
+            <v-btn color="primary" class="mr-2" outlined @click="checkCurrent">Check current question</v-btn>
             <v-pagination v-model="paginationPageState" :length="paginationLength" style="width: unset"></v-pagination>
         </div>
 
@@ -38,6 +39,41 @@ export default class PracticeQuestion extends Vue {
 
     set paginationPageState(page: number) {
         this.$router.push(`${Routes.QUESTION}/${(page - 1).toString()}`);
+    }
+
+    private async checkCurrent() {
+        const questionIndex = +this.$route.params.index;
+
+        const questions = practiceState.currentQuestions;
+        if (questions) {
+            const currQuestion = questions[questionIndex];
+            if (currQuestion) {
+                if (!currQuestion.answer) {
+                    uiState.setNotificationDialog({
+                        header: "Missing answer!",
+                        text: "You haven't answered anything!",
+                        on: true
+                    });
+                    return;
+                }
+
+                ApiWrapper.post(
+                    new CheckAnswers([
+                        {
+                            questionId: currQuestion.questionId,
+                            answer: currQuestion.answer
+                        }
+                    ])
+                ).then(value => {
+                    if (value && value.answers.length === 1) {
+                        practiceState.setCheckedQuestion({
+                            value: value.answers[0],
+                            index: questionIndex
+                        });
+                    }
+                });
+            }
+        }
     }
 
     private stop() {

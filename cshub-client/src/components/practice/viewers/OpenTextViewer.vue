@@ -16,9 +16,9 @@ import { mixins } from "vue-class-component";
 import ViewerMixin from "./ViewerMixin";
 
 @Component({
-    name: OpenTextEditor.name
+    name: OpenTextViewer.name
 })
-export default class OpenTextEditor extends mixins(ViewerMixin) {
+export default class OpenTextViewer extends mixins(ViewerMixin) {
     @Prop({
         required: true
     })

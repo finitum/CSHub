@@ -14,6 +14,7 @@
                     v-model="question"
                     v-validate="'required|min:2'"
                     :error-messages="errors.collect('question')"
+                    :hide-details="!errors.has('question')"
                     name="question"
                     filled
                     required
@@ -27,6 +28,7 @@
                     v-model="explanation"
                     v-validate="'required|min:2'"
                     :error-messages="errors.collect('explanation')"
+                    :hide-details="!errors.has('explanation')"
                     required
                     name="explanation"
                     filled
@@ -55,8 +57,9 @@
                             auto-grow
                             :name="`Answer ${i + 1}`"
                             :error-messages="errors.collect(`Answer ${i + 1}`)"
+                            :hide-details="!errors.has(`Answer ${i + 1}`)"
                             rows="1"
-                            class="mr-0 multiple-choice-textarea"
+                            class="mr-0"
                             append-icon="fas fa-plus"
                         >
                             <template v-slot:append>

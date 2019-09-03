@@ -1,6 +1,6 @@
 <template>
     <div v-if="question !== null">
-        <v-card-title style="font-size: 1.25rem" class="pa-0" v-html="renderMarkdown(question.question)"></v-card-title>
+        <span style="font-size: 1.25rem" class="pa-0" v-html="getRenderedQuestion(question)"></span>
 
         <div v-if="type === 'mc'">
             <v-checkbox
@@ -40,20 +40,23 @@
         </div>
         <div v-if="type === 'on'">
             <v-text-field
-                v-model="privOnAnswer"
+                v-model="onAnswer"
                 outlined
                 :readonly="checkedQuestion !== null"
                 hide-details
                 type="number"
                 :background-color="color"
             ></v-text-field>
+            <p v-if="checkedQuestion === null" class="mt-4">
+                Answer this question with a precision of {{ Math.pow(10, -question.precision) }}
+            </p>
             <p v-if="checkedQuestion !== null" class="mt-4">
                 <b>Answer:</b> {{ checkedQuestion.correctAnswer.number }}
             </p>
         </div>
         <div v-if="type === 'ot'">
             <v-text-field
-                v-model="privOtAnswer"
+                v-model="otAnswer"
                 outlined
                 :readonly="checkedQuestion !== null"
                 hide-details
@@ -61,6 +64,21 @@
             ></v-text-field>
             <p v-if="checkedQuestion !== null" class="mt-4"><b>Answer:</b> {{ checkedQuestion.correctAnswer.text }}</p>
         </div>
+        <div v-if="type === 'dn'">
+            <v-text-field
+                v-model="dnAnswer"
+                outlined
+                :readonly="checkedQuestion !== null"
+                hide-details
+                :background-color="color"
+            ></v-text-field>
+            <p v-if="checkedQuestion !== null" class="mt-4">
+                <b>Answer:</b> {{ checkedQuestion.correctAnswer.answer }}
+            </p>
+        </div>
+        <p v-if="checkedQuestion !== null" class="mt-4">
+            <b>Correct:</b> {{ checkedQuestion.correct === null ? "can't check" : checkedQuestion.correct }}
+        </p>
         <p v-if="checkedQuestion !== null" class="mt-4"><b>Explanation:</b> {{ checkedQuestion.explanation }}</p>
     </div>
 </template>
@@ -75,24 +93,15 @@ import { PracticeQuestion } from "../../../../../cshub-shared/src/api-calls/endp
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
 import { mixins } from "vue-class-component";
 import ViewerMixin from "../viewers/ViewerMixin";
-import SCQuestionMixin from "./SCQuestionMixin";
-import MCQuestionMixin from "./MCQuestionMixin";
-import OTQuestionMixin from "./OTQuestionMixin";
-import ONQuestionMixin from "./ONQuestionMixin";
 import { CheckedAnswerType } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/CheckAnswer";
+import QuestionMixin from "./QuestionMixin";
+import { StoreQuestionType } from "../../../store/state/practiceState";
 
 @Component({
     name: CurrentPracticeQuestion.name
 })
-export default class CurrentPracticeQuestion extends mixins(
-    ViewerMixin,
-    SCQuestionMixin,
-    MCQuestionMixin,
-    OTQuestionMixin,
-    ONQuestionMixin
-) {
+export default class CurrentPracticeQuestion extends mixins(ViewerMixin, QuestionMixin) {
     private question: PracticeQuestion | null = null;
-    private checkedQuestion: CheckedAnswerType | null = null;
 
     get type(): string {
         if (this.question) {
@@ -105,9 +114,43 @@ export default class CurrentPracticeQuestion extends mixins(
                     return "on";
                 case QuestionType.OPENTEXT:
                     return "ot";
+                case QuestionType.DYNAMIC:
+                    return "dn";
             }
         }
         return "";
+    }
+
+    get checkedQuestion(): CheckedAnswerType | null {
+        return (
+            practiceState.checkedQuestions.find(
+                question => question && question.questionId === this.currentQuestion.questionId
+            ) || null
+        );
+    }
+
+    get currentQuestion(): StoreQuestionType {
+        const questionIndex = +this.$route.params.index;
+
+        if (!isNaN(questionIndex)) {
+            const currentQuestions = practiceState.currentQuestions;
+            if (!currentQuestions) {
+                this.$router.push(Routes.INDEX);
+                throw new Error();
+            }
+
+            const currentQuestion = currentQuestions[questionIndex];
+            if (!currentQuestion) {
+                practiceState.clear();
+                this.$router.push(Routes.INDEX);
+                throw new Error();
+            }
+
+            return currentQuestion;
+        }
+
+        this.$router.push(Routes.INDEX);
+        throw new Error();
     }
 
     get color(): string {
@@ -116,6 +159,8 @@ export default class CurrentPracticeQuestion extends mixins(
                 return "green";
             } else if (this.checkedQuestion.correct === false) {
                 return "red";
+            } else if (this.checkedQuestion.correctAnswer.type === QuestionType.OPENTEXT) {
+                return "orange";
             } else {
                 return "";
             }
@@ -127,15 +172,18 @@ export default class CurrentPracticeQuestion extends mixins(
     private getColor(answerId: number) {
         if (practiceState.currentCheckedQuestion) {
             const answer = practiceState.currentCheckedQuestion.correctAnswer;
-            if (answer.type === QuestionType.SINGLECLOSED) {
+            const userAnswer = practiceState.currentCheckedQuestion.answer;
+            if (answer.type === QuestionType.SINGLECLOSED && userAnswer.type === QuestionType.SINGLECLOSED) {
                 if (answer.answerId !== answerId) {
                     return "red";
                 } else {
                     return "green";
                 }
-            } else if (answer.type === QuestionType.MULTICLOSED) {
-                if (answer.answerIds.includes(answerId)) {
+            } else if (answer.type === QuestionType.MULTICLOSED && userAnswer.type === QuestionType.MULTICLOSED) {
+                if (answer.answerIds.includes(answerId) && userAnswer.answerIds.includes(answerId)) {
                     return "green";
+                } else if (answer.answerIds.includes(answerId)) {
+                    return "orange";
                 } else {
                     return "red";
                 }
@@ -144,38 +192,17 @@ export default class CurrentPracticeQuestion extends mixins(
     }
 
     private mounted() {
-        const questionIndex = +this.$route.params.index;
+        ApiWrapper.get(new GetQuestion(this.currentQuestion.questionId)).then(retrievedQuestion => {
+            this.question = retrievedQuestion !== null ? retrievedQuestion.question : null;
 
-        if (!isNaN(questionIndex)) {
-            const currentQuestions = practiceState.currentQuestions;
-            if (!currentQuestions) {
-                this.$router.push(Routes.INDEX);
-                return;
-            }
-
-            const currentQuestion = currentQuestions[questionIndex];
-            if (!currentQuestion) {
-                practiceState.clear();
-                this.$router.push(Routes.INDEX);
-                return;
-            }
-
-            ApiWrapper.get(new GetQuestion(currentQuestion.questionId)).then(retrievedQuestion => {
-                this.question = retrievedQuestion !== null ? retrievedQuestion.question : null;
-
-                if (retrievedQuestion !== null && practiceState.checkedQuestions) {
-                    const checkedAnswer = practiceState.checkedQuestions.find(
-                        question => question.questionId === retrievedQuestion.question.id
-                    );
-
-                    this.checkedQuestion = checkedAnswer || null;
-                    practiceState.setCurrentCheckedQuestion(this.checkedQuestion);
+            if (retrievedQuestion !== null) {
+                if (retrievedQuestion.question.type === QuestionType.DYNAMIC) {
+                    this.variableValues = retrievedQuestion.question.variables;
                 }
-            });
-        } else {
-            this.$router.push(Routes.INDEX);
-            return;
-        }
+
+                practiceState.setCurrentCheckedQuestion(this.checkedQuestion);
+            }
+        });
     }
 }
 </script>

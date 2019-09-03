@@ -1,5 +1,3 @@
-import {QuestionSettingsEditType} from "../../../../cshub-shared/src/api-calls/endpoints/question"; import
-{QuestionSettingsEditType} from "../../../../cshub-shared/src/api-calls/endpoints/question";
 <template>
     <div>
         <v-list-item v-if="question !== null">
@@ -45,6 +43,13 @@ import {QuestionSettingsEditType} from "../../../../cshub-shared/src/api-calls/e
                     :prop-precision="question.precision"
                     :is-editing="question.id"
                 ></OpenNumberEditor>
+                <DynamicEditor
+                    v-if="type === 'dn'"
+                    :prop-question="question.question"
+                    :prop-explanation="question.explanation"
+                    :prop-answer-expression="question.answerExpression"
+                    :prop-variable-expression="question.variableExpressions"
+                ></DynamicEditor>
             </v-card>
         </v-dialog>
     </div>
@@ -64,10 +69,11 @@ import MultipleChoiceEditor from "./editors/MultipleChoiceEditor.vue";
 import OpenTextEditor from "./editors/OpenTextEditor.vue";
 import OpenNumberEditor from "./editors/OpenNumberEditor.vue";
 import { userState } from "../../store";
+import DynamicEditor from "./editors/DynamicEditor.vue";
 
 @Component({
     name: QuestionListItem.name,
-    components: { OpenNumberEditor, OpenTextEditor, MultipleChoiceEditor }
+    components: { DynamicEditor, OpenNumberEditor, OpenTextEditor, MultipleChoiceEditor }
 })
 export default class QuestionListItem extends mixins(QuestionListItemMixin) {
     private editQuestionDialog = false;
@@ -76,9 +82,12 @@ export default class QuestionListItem extends mixins(QuestionListItemMixin) {
         return userState.isStudyAdmin;
     }
 
-    private created() {
+    private mounted() {
+
         ApiWrapper.get(new GetFullQuestion(this.questionId)).then(question => {
-            this.question = question !== null ? question.question : null;
+            if (question) {
+                this.question = question.question;
+            }
         });
     }
 

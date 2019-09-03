@@ -18,6 +18,7 @@ import {
 import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 import { AlreadySentError } from "../utils";
 import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
+import { generateVariableValues } from "../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
 
 app.get(GetFullQuestion.getURL, (req: Request, res: Response) => {
     const questionId = Number(req.params.id);
@@ -40,9 +41,9 @@ app.get(GetFullQuestion.getURL, (req: Request, res: Response) => {
             },
             relations: ["answers"]
         })
-        .then(question => {
+        .then(async question => {
             if (question) {
-                res.json(new GetFullQuestionCallback(parseAndValidateQuestion(question, res)));
+                res.json(new GetFullQuestionCallback(await parseAndValidateQuestion(question, res)));
             } else {
                 res.sendStatus(404);
             }
@@ -69,9 +70,9 @@ app.get(GetQuestion.getURL, (req: Request, res: Response) => {
             },
             relations: ["answers"]
         })
-        .then(question => {
+        .then(async question => {
             if (question) {
-                const parsedQuestion = parseAndValidateQuestion(question, res);
+                const parsedQuestion = await parseAndValidateQuestion(question, res);
 
                 let strippedAnswer: PracticeAnswerType;
                 switch (parsedQuestion.type) {
@@ -88,9 +89,21 @@ app.get(GetQuestion.getURL, (req: Request, res: Response) => {
                         };
                         break;
                     case QuestionType.OPENNUMBER:
+                        strippedAnswer = {
+                            type: parsedQuestion.type,
+                            precision: parsedQuestion.precision
+                        };
+                        break;
                     case QuestionType.OPENTEXT:
                         strippedAnswer = {
                             type: parsedQuestion.type
+                        };
+                        break;
+                    case QuestionType.DYNAMIC:
+                        const variables = generateVariableValues(parsedQuestion.variableExpressions);
+                        strippedAnswer = {
+                            type: parsedQuestion.type,
+                            variables
                         };
                         break;
                     default:

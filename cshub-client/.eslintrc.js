@@ -17,7 +17,8 @@ module.exports = {
                 tabWidth: 4,
                 printWidth: 120
             }
-        ]
+        ],
+        "no-dupe-class-members": "off"
     },
     parserOptions: {
         parser: "@typescript-eslint/parser"
