@@ -6,7 +6,7 @@
             </v-list-item-avatar>
 
             <v-list-item-content>
-                <v-list-item-title v-text="question.question"></v-list-item-title>
+                <v-list-item-title id="renderedQuestion" v-html="getRenderedQuestion(question)"></v-list-item-title>
             </v-list-item-content>
 
             <v-list-item-action>
@@ -21,7 +21,7 @@
         <v-dialog v-model="questionDialog">
             <v-card class="pa-4">
                 <v-row>
-                    <v-col :cols="replacesQuestion !== null ? 6 : 12">
+                    <v-col v-if="question !== null" :cols="replacesQuestion !== null ? 6 : 12">
                         <b v-if="replacesQuestion !== null">New question:</b>
                         <MultipleChoiceViewer
                             v-if="type === 'mc'"
@@ -44,6 +44,7 @@
                             :precision="question.precision"
                         ></OpenNumberViewer>
                         <DynamicViewer
+                            v-if="type === 'dn'"
                             :question="question.question"
                             :explanation="question.explanation"
                             :answer-expression="question.answerExpression"
@@ -73,6 +74,7 @@
                             :precision="replacesQuestion.precision"
                         ></OpenNumberViewer>
                         <DynamicViewer
+                            v-if="type === 'dn'"
                             :question="replacesQuestion.question"
                             :explanation="replacesQuestion.explanation"
                             :answer-expression="replacesQuestion.answerExpression"
@@ -101,12 +103,13 @@ import { EventBus, QUESTIONS_CHANGED } from "../../utilities/EventBus";
 import { mixins } from "vue-class-component";
 import QuestionListItemMixin from "./QuestionListItemMixin";
 import DynamicViewer from "./viewers/DynamicViewer.vue";
+import ViewerMixin from "./viewers/ViewerMixin";
 
 @Component({
     name: QuestionListItem.name,
     components: { DynamicViewer, MultipleChoiceViewer, OpenNumberViewer, OpenTextViewer }
 })
-export default class QuestionListItem extends mixins(QuestionListItemMixin) {
+export default class QuestionListItem extends mixins(QuestionListItemMixin, ViewerMixin) {
     private replacesQuestion: FullQuestionWithId | null = null;
 
     private questionDialog = false;
@@ -133,3 +136,11 @@ export default class QuestionListItem extends mixins(QuestionListItemMixin) {
     }
 }
 </script>
+
+<style lang="scss">
+.renderedQuestion {
+    p {
+        margin-bottom: 0 !important;
+    }
+}
+</style>

@@ -49,7 +49,7 @@ export default class DynamicViewer extends mixins(ViewerMixin) {
         try {
             return generateVariableValues(this.variableExpressions);
         } catch (err) {
-            console.log(err);
+            console.error(err);
             return [];
         }
     }

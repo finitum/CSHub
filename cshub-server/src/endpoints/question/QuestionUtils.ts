@@ -146,7 +146,7 @@ export const parseAndValidateQuestion = async (question: Question, res: Response
             }
 
             const variableRepository = getRepository(Variable);
-            const dynamicAnswerVariables = await variableRepository.find({ answer: answer })
+            const dynamicAnswerVariables = await variableRepository.find({ answer: answer });
 
             if (
                 !hasFittingVariables(
@@ -230,6 +230,10 @@ export const validateNewQuestion = (question: FullQuestion, res: Response) => {
             break;
         case QuestionType.OPENNUMBER:
             hasError = !validateMultipleInputs({ input: question.precision }, { input: question.number }).valid;
+            const precision = Number(question.precision);
+            hasError = hasError || !Number.isInteger(precision);
+            hasError = hasError || precision > 10;
+            hasError = hasError || precision < -10;
             break;
         case QuestionType.OPENTEXT:
             hasError = !validateMultipleInputs({ input: question.answer }).valid;

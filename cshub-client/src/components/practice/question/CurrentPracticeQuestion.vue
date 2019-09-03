@@ -1,10 +1,6 @@
-import {QuestionType} from "../../../../../cshub-shared/src/entities/question";
-import {QuestionType} from "../../../../../cshub-shared/src/entities/question"; import {QuestionType} from
-"../../../../../cshub-shared/src/entities/question"; import {QuestionType} from
-"../../../../../cshub-shared/src/entities/question";
 <template>
     <div v-if="question !== null">
-        <v-card-title style="font-size: 1.25rem" class="pa-0" v-html="renderMarkdown(question.question)"></v-card-title>
+        <span style="font-size: 1.25rem" class="pa-0" v-html="getRenderedQuestion(question)"></span>
 
         <div v-if="type === 'mc'">
             <v-checkbox
@@ -52,7 +48,7 @@ import {QuestionType} from "../../../../../cshub-shared/src/entities/question"; 
                 :background-color="color"
             ></v-text-field>
             <p v-if="checkedQuestion === null" class="mt-4">
-                Answer this question with a precision of {{ question.precision }}
+                Answer this question with a precision of {{ Math.pow(10, -question.precision) }}
             </p>
             <p v-if="checkedQuestion !== null" class="mt-4">
                 <b>Answer:</b> {{ checkedQuestion.correctAnswer.number }}
@@ -88,20 +84,20 @@ import {QuestionType} from "../../../../../cshub-shared/src/entities/question"; 
 </template>
 
 <script lang="ts">
-    import {Component} from "vue-property-decorator";
-    import {Routes} from "../../../../../cshub-shared/src/Routes";
-    import {practiceState} from "../../../store";
-    import {ApiWrapper} from "../../../utilities";
-    import {GetQuestion} from "../../../../../cshub-shared/src/api-calls/endpoints/question";
-    import {PracticeQuestion} from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/PracticeQuestion";
-    import {QuestionType} from "../../../../../cshub-shared/src/entities/question";
-    import {mixins} from "vue-class-component";
-    import ViewerMixin from "../viewers/ViewerMixin";
-    import {CheckedAnswerType} from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/CheckAnswer";
-    import QuestionMixin from "./QuestionMixin";
-    import {StoreQuestionType} from "../../../store/state/practiceState";
+import { Component } from "vue-property-decorator";
+import { Routes } from "../../../../../cshub-shared/src/Routes";
+import { practiceState } from "../../../store";
+import { ApiWrapper } from "../../../utilities";
+import { GetQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
+import { PracticeQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/PracticeQuestion";
+import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
+import { mixins } from "vue-class-component";
+import ViewerMixin from "../viewers/ViewerMixin";
+import { CheckedAnswerType } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/CheckAnswer";
+import QuestionMixin from "./QuestionMixin";
+import { StoreQuestionType } from "../../../store/state/practiceState";
 
-    @Component({
+@Component({
     name: CurrentPracticeQuestion.name
 })
 export default class CurrentPracticeQuestion extends mixins(ViewerMixin, QuestionMixin) {

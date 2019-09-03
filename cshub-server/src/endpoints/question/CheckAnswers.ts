@@ -79,7 +79,10 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     }
 
-    async function checkOpenNumberQuestion(clientAnswer: CheckAnswerType, question: Question): Promise<CheckedAnswerType> {
+    async function checkOpenNumberQuestion(
+        clientAnswer: CheckAnswerType,
+        question: Question
+    ): Promise<CheckedAnswerType> {
         if (clientAnswer.type === QuestionType.OPENNUMBER) {
             const parsedQuestion = await parseAndValidateQuestion(question, res);
 
@@ -90,11 +93,9 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
             }
 
             const precision = parsedQuestion.precision;
-            const precisionInv = 1 / precision;
-            const precisionLog = Math.log10(precisionInv);
-
-            const correctAnswerRounded = parsedQuestion.number.toPrecision(precisionLog);
-            const userAnswerRounded = clientAnswer.number.toPrecision(precisionLog);
+            const multiplier = Math.pow(10, precision || 0);
+            const correctAnswerRounded = Math.round(parsedQuestion.number * multiplier) / multiplier;
+            const userAnswerRounded = Math.round(clientAnswer.number * multiplier) / multiplier;
 
             return {
                 questionId: question.id,
@@ -174,17 +175,17 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     }
 
-    const parseAnswer = async (question: Question, clientAnswer: CheckAnswerType): Promise<CheckedAnswerType> => {
+    const parseAnswer = (question: Question, clientAnswer: CheckAnswerType): Promise<CheckedAnswerType> => {
         switch (question.type) {
             case QuestionType.SINGLECLOSED:
             case QuestionType.MULTICLOSED:
-                return await checkClosedQuestion(clientAnswer, question);
+                return checkClosedQuestion(clientAnswer, question);
             case QuestionType.OPENNUMBER:
-                return await checkOpenNumberQuestion(clientAnswer, question);
+                return checkOpenNumberQuestion(clientAnswer, question);
             case QuestionType.OPENTEXT:
-                return await checkOpenTextQuestion(clientAnswer, question);
+                return checkOpenTextQuestion(clientAnswer, question);
             case QuestionType.DYNAMIC:
-                return await checkDynamicQuestion(clientAnswer, question);
+                return checkDynamicQuestion(clientAnswer, question);
         }
     };
 
@@ -200,26 +201,27 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
             relations: ["answers"]
         })
         .then(async questions => {
-            res.json(
-                new CheckAnswersCallback(
-                    questions.map(async question => {
-                        const clientAnswer = await checkAnswers.answers.find(answer => answer.questionId === question.id);
+            const mappedQuestions = await Promise.all(
+                questions.map(async question => {
+                    const clientAnswer = checkAnswers.answers.find(answer => answer.questionId === question.id);
 
-                        if (!clientAnswer) {
-                            logger.error(`First we had an answer, now we dont?`);
-                            logger.error(question);
-                            logger.error(checkAnswers.answers);
-                            res.status(500).send();
-                            throw new AlreadySentError();
-                        }
+                    if (!clientAnswer) {
+                        logger.error(`First we had an answer, now we dont?`);
+                        logger.error(question);
+                        logger.error(checkAnswers.answers);
+                        res.status(500).send();
+                        throw new AlreadySentError();
+                    }
 
-                        return parseAnswer(question, clientAnswer.answer);
-                    })
-                )
+                    return await parseAnswer(question, clientAnswer.answer);
+                })
             );
+
+            res.json(new CheckAnswersCallback(mappedQuestions));
         })
         .catch(err => {
             if (!(err instanceof AlreadySentError)) {
+                logger.error(err);
                 res.status(500).send(new ServerError("Server did oopsie"));
             }
         });

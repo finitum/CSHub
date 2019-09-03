@@ -1,8 +1,8 @@
 import Vue from "vue";
 import Component from "vue-class-component";
-import {FullQuestionWithId} from "../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
-import {Prop} from "vue-property-decorator";
-import {QuestionType} from "../../../../cshub-shared/src/entities/question";
+import { FullQuestionWithId } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
+import { Prop } from "vue-property-decorator";
+import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 
 @Component({
     name: QuestionListItemMixin.name
@@ -13,15 +13,7 @@ export default class QuestionListItemMixin extends Vue {
     })
     public questionId!: number;
 
-    public question: FullQuestionWithId = {
-        question: "",
-        explanation: "",
-        id: 0,
-        replacesQuestion: 0,
-        type: QuestionType.DYNAMIC,
-        answerExpression: "",
-        variableExpressions: []
-    };
+    public question: FullQuestionWithId | null = null;
 
     get type(): string {
         if (this.question) {

@@ -45,12 +45,12 @@
                 </v-text-field>
                 <v-text-field
                     v-model="precision"
-                    v-validate="'required|decimal'"
-                    :hide-details="!errors.has('precision')"
+                    v-validate="'required|min_value:-10|max_value:10|numeric'"
                     label="Precision"
                     outlined
                     type="number"
                     name="precision"
+                    hint="The precision is the amount of numbers after the decimal point. If you put in 0 the precision will be 1, 2 will be 0.01, -2 will be 100"
                     :error-messages="errors.collect('precision')"
                 >
                 </v-text-field>
@@ -114,7 +114,7 @@ export default class OpenNumberEditor extends Vue {
     private explanation = this.propExplanation || "";
 
     private answer: number = this.propAnswer || 0;
-    private precision: number = this.propPrecision || 0.01;
+    private precision: number = this.propPrecision || 1;
 
     private async submit() {
         let valid = await this.$validator.validateAll();
