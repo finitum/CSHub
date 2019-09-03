@@ -18,6 +18,11 @@
                 <v-icon>fas fa-book-open</v-icon>
             </v-tab>
 
+            <v-tab v-if="userAdminComputed" class="ml-0">
+                Email Domains
+                <v-icon>fas fa-at</v-icon>
+            </v-tab>
+
             <v-tab-item v-if="userAdminComputed">
                 <UserTable class="mt-2 pa-2"></UserTable>
             </v-tab-item>
@@ -26,6 +31,9 @@
             </v-tab-item>
             <v-tab-item v-if="userStudyAdminComputed">
                 <TopicView class="mt-2 pa-2"></TopicView>
+            </v-tab-item>
+            <v-tab-item v-if="userAdminComputed">
+                <EmailDomainTable class="mt-2 pa-2"></EmailDomainTable>
             </v-tab-item>
         </v-tabs>
     </div>
@@ -41,10 +49,11 @@ import TopicView from "../../components/admin/TopicView.vue";
 import { userState } from "../../store";
 import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
 import { Routes } from "../../../../cshub-shared/src/Routes";
+import EmailDomainTable from "../../components/admin/EmailDomainTable.vue";
 
 @Component({
     name: "AdminDashboard",
-    components: { TopicView, UserTable, StudyTable }
+    components: { TopicView, UserTable, StudyTable, EmailDomainTable }
 })
 export default class AdminDashboard extends Vue {
     private tabs = null;

@@ -14,7 +14,8 @@ import logger from "../utilities/Logger";
 import { CacheVersion } from "./entities/cacheversion";
 import { Question } from "./entities/practice/question";
 import { app } from "../index";
-import {Answer} from "./entities/practice/answer";
+import { Answer } from "./entities/practice/answer";
+import { EmailDomain } from "./entities/emaildomain";
 
 class CustomLogger implements Logger {
     log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {
@@ -50,16 +51,7 @@ const options: ConnectionOptions = {
     database: Settings.DATABASE.NAME,
     multipleStatements: true,
     logger: new CustomLogger(),
-    entities: [
-        User,
-        Topic,
-        Post,
-        Edit,
-        Study,
-        Answer,
-        Question,
-        CacheVersion
-    ],
+    entities: [User, Topic, Post, Edit, Study, Answer, Question, CacheVersion, EmailDomain],
     synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
 };
 

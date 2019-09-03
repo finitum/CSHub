@@ -10,6 +10,9 @@ import logger from "./Logger";
 import { Requests } from "../../../cshub-shared/src/api-calls/index";
 import { Routes } from "../../../cshub-shared/src/Routes";
 import { getRandomNumberLarge } from "../../../cshub-shared/src/utilities/Random";
+import { getRepository } from "typeorm";
+import { User } from "../db/entities/user";
+import { EmailDomain } from "../db/entities/emaildomain";
 
 sgMail.setApiKey(Settings.MAIL.APIKEY);
 const nodeMailer = nodemailer.createTransport({
@@ -69,7 +72,10 @@ export const sendVerificationEmail = (to: string, name: string, insertId: number
         hash,
         insertId
     ).then(() => {
-        fs.readFile(`${__dirname}/mailTemplate.html`, "utf8", (err, html: string) => {
+        const userRepository = getRepository(User);
+        const domainRepository = getRepository(EmailDomain);
+
+        fs.readFile(`${__dirname}/mailTemplate.html`, "utf8", async (err, html: string) => {
             const replaceToAddress = `${Settings.APIADDRESS + Requests.VERIFYMAIL}?hash=${hash}&accId=${insertId}`;
             const newHTML = html
                 .replace("{0}", `Dear ${name}, please verify your email address`)
@@ -79,11 +85,28 @@ export const sendVerificationEmail = (to: string, name: string, insertId: number
 
             logger.info(`Replaced address; ${replaceToAddress}`);
 
+            let user = await userRepository.findOne({ id: insertId });
+            if (!user) {
+                logger.error("Could not get user, mail not sent");
+                throw Error();
+            }
+            const domain = await domainRepository.findOne({ id: user.domainId });
+            if (!domain) {
+                logger.error("Could not get domain, mail not sent");
+                throw Error();
+            }
+
+            const suffix = domain.domain;
+            const address = to + "@" + suffix;
+
+            logger.info(`Sending verification mail to ${address}`);
+
             if (Settings.LIVE) {
-                if (Settings.MAIL.SUFFIX.charAt(0) === "@") {
-                    sendMail("Verify your email address", newHTML, to + Settings.MAIL.SUFFIX);
-                } else {
+                if (suffix.charAt(0) === "@") {
                     logger.error("Wrong suffix entered, mail not sent");
+                    throw Error();
+                } else {
+                    sendMail("Verify your email address", newHTML, to + suffix);
                 }
             } else {
                 sendMail("Verify your email address", newHTML, Settings.MAIL.DEBUGMAILADDRESS);
@@ -104,7 +127,10 @@ export const sendPasswordResetMail = (to: string, name: string, userId: number) 
         hash,
         userId
     ).then(() => {
-        fs.readFile(`${__dirname}/mailTemplate.html`, "utf8", (err, html: string) => {
+        const userRepository = getRepository(User);
+        const domainRepository = getRepository(EmailDomain);
+
+        fs.readFile(`${__dirname}/mailTemplate.html`, "utf8", async (err, html: string) => {
             const replaceToAddress = `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}${Routes.FORGOTPASSWORD}?hash=${hash}&accId=${userId}`;
             const newHTML = html
                 .replace("{0}", `Dear ${name}, you have requested to change your password`)
@@ -112,13 +138,30 @@ export const sendPasswordResetMail = (to: string, name: string, userId: number) 
                 .replace("{2}", replaceToAddress)
                 .replace("{3}", "Change password");
 
+            let user = await userRepository.findOne({ id: userId });
+            if (!user) {
+                logger.error("Could not get user, mail not sent");
+                throw Error();
+            }
+            const domain = await domainRepository.findOne({ id: user.domainId });
+
+            if (!domain) {
+                logger.error("Could not get domain, mail not sent");
+                throw Error();
+            }
+
+            const suffix = domain.domain;
+            const address = to + "@" + suffix;
+
             logger.info(`Replaced address; ${replaceToAddress}`);
+            logger.info(`Sending forgot password mail to ${address}`);
 
             if (Settings.LIVE) {
-                if (Settings.MAIL.SUFFIX.charAt(0) === "@") {
-                    sendMail("Change your password", newHTML, to + Settings.MAIL.SUFFIX);
-                } else {
+                if (suffix.charAt(0) === "@") {
                     logger.error("Wrong suffix entered, mail not sent");
+                    throw Error();
+                } else {
+                    sendMail("Change your password", newHTML, address);
                 }
             } else {
                 sendMail("Change your password", newHTML, Settings.MAIL.DEBUGMAILADDRESS);
