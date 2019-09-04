@@ -63,20 +63,26 @@ const updateOldTree = async (requestObj: RestructureTopics, studyNr: number, req
 
     const study = await studyRepository.findOne({ id: studyNr });
     if (!study) {
-        return res.sendStatus(404);
+        res.sendStatus(404);
+        throw new AlreadySentError();
     }
 
-    const topTopic = await topicRepository.findOne(study.topTopic);
+    const topTopic = await topicRepository.findOne({
+        id: study.topTopicId
+    });
     if (!topTopic) {
-        return res.sendStatus(500);
+        res.sendStatus(500);
+        throw new AlreadySentError();
     } else if (topTopic.id !== requestObj.topTopic.id) {
-        return res.sendStatus(400);
+        res.sendStatus(400);
+        throw new AlreadySentError();
     }
 
     const topicTree = await getTopicTree(study.id);
 
     if (!topicTree) {
-        return res.sendStatus(500);
+        res.sendStatus(500);
+        throw new AlreadySentError();
     }
 
     const actualTopTopic = findTopicInTree(topTopic.hash, topicTree);
@@ -143,14 +149,15 @@ const insertNewTopics = async (requestObj: RestructureTopics, studyNr: number, r
     if (!inputsValidation.valid) {
         logger.error(`Invalid Request`);
         res.sendStatus(400);
-        return;
+        throw new AlreadySentError();
     }
 
     // test if there are any topics in the tree
     const topics = await getTopicTree(studyNr);
     if (topics === null) {
         logger.error(`No Topics Found`);
-        return res.status(500).json(new ServerError("Server did oopsie"));
+        res.status(500).json(new ServerError("Server did oopsie"));
+        throw new AlreadySentError();
     }
 
     for (const newTopic of requestObj.newTopics) {
@@ -158,13 +165,15 @@ const insertNewTopics = async (requestObj: RestructureTopics, studyNr: number, r
         const parentTopic = findTopicInTree(newTopic.parentHash, topics);
         if (parentTopic === null) {
             logger.error(`No Parent Topic Found`);
-            return res.status(400).json(new ServerError("Parent topic not found!"));
+            res.status(400).json(new ServerError("Parent topic not found!"));
+            throw new AlreadySentError();
         }
 
         const studiesWithParentTopic = findStudyIdsOfTopic(parentTopic);
         if (!studiesWithParentTopic.some(study => study.id === studyNr)) {
             logger.error(`Study id doesn't correspond to parent id`);
-            return res.status(400).json(new ServerError("Study id doesn't correspond to parent id!"));
+            res.status(400).json(new ServerError("Study id doesn't correspond to parent id!"));
+            throw new AlreadySentError();
         }
 
         const topicHash = await generateRandomTopicHash();
