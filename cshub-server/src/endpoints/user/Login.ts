@@ -55,7 +55,7 @@ app.post(Login.getURL, async (req: Request, res: Response) => {
     }
 
     if (possibleUsers.length === 0) {
-        return res.json(new LoginCallBack(LoginResponseTypes.NOEXISTINGACCOUNT));
+        return res.json(new LoginCallBack(LoginResponseTypes.INCORRECTPASS));
     }
 
     const user = possibleUsers[0];

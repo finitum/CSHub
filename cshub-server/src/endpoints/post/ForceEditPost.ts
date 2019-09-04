@@ -76,5 +76,7 @@ app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
                 res.sendStatus(401);
             }
         });
+    } else {
+        res.sendStatus(400);
     }
 });

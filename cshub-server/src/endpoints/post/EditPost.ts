@@ -94,7 +94,7 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
             let delta = new Delta(edits[0].content);
 
             for (let i = 1; i < edits.length; i++) {
-                delta = delta.compose(new Delta(edits[i].content));
+                delta = delta.compose(new Delta(JSON.parse((edits[i].content as any) as string))); // typeorm doesn't parse the JSON
             }
 
             getHTMLFromDelta(delta, async (html, indexWords) => {

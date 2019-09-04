@@ -9,15 +9,15 @@
             @update:options="getDataOptions"
         >
             <template v-slot:item.admin="{ item }">
-                <v-checkbox v-model="item.admin" @change="admin(item)" :disabled="isSelf(item)"></v-checkbox>
+                <v-checkbox v-model="item.admin" :disabled="isSelf(item)" @change="admin(item)"></v-checkbox>
             </template>
 
             <template v-slot:item.blocked="{ item }">
-                <v-checkbox v-model="item.blocked" @change="block(item)" :disabled="isSelf(item)"></v-checkbox>
+                <v-checkbox v-model="item.blocked" :disabled="isSelf(item)" @change="block(item)"></v-checkbox>
             </template>
 
             <template v-slot:item.verified="{ item }">
-                <v-checkbox v-model="item.verified" @change="verify(item)" :disabled="isSelf(item)"></v-checkbox>
+                <v-checkbox v-model="item.verified" :disabled="isSelf(item)" @change="verify(item)"></v-checkbox>
             </template>
 
             <template v-slot:item.studies="{ item }">
@@ -26,12 +26,12 @@
                     :items="studies"
                     label="Select"
                     multiple
+                    item-value="id"
                     persistent-hint
-                    @change="studyAdmin(item)"
                     :disabled="isSelf(item)"
+                    @change="studyAdmin(item)"
                 ></v-select>
             </template>
-
         </v-data-table>
     </div>
 </template>
@@ -42,7 +42,7 @@ import { Component } from "vue-property-decorator";
 
 import { ApiWrapper } from "../../utilities";
 
-import { AllUsers, AllUsersCallBack, Studies} from "../../../../cshub-shared/src/api-calls";
+import { AllUsers, AllUsersCallBack, Studies } from "../../../../cshub-shared/src/api-calls";
 import { IUser } from "../../../../cshub-shared/src/entities/user";
 import { IStudy } from "../../../../cshub-shared/src/entities/study";
 import {
@@ -52,7 +52,6 @@ import {
     SetStudyAdminUser
 } from "../../../../cshub-shared/src/api-calls/endpoints/user/UserAdminPage";
 import { dataState, uiState, userState } from "../../store";
-import { getStudies } from "../../views/router/guards/setupRequiredDataGuard";
 
 @Component({
     name: "userTable"
@@ -76,12 +75,12 @@ export default class UserTable extends Vue {
     private loading = true;
     private amountItems: number = 0;
 
-    get studies(): Array<{ text: string; value: number }> {
+    get studies(): Array<{ text: string; id: number }> {
         if (dataState.studies) {
             return dataState.studies.map(value => {
                 return {
                     text: value.name,
-                    value: value.id
+                    id: value.id
                 };
             });
         } else {
@@ -101,6 +100,10 @@ export default class UserTable extends Vue {
      */
     private getDataOptions(options: { page: number; itemsPerPage: number }) {
         this.getData(options.itemsPerPage, options.page);
+    }
+
+    private getStudyAdmins(user: IUser) {
+        return user.studies.map(study => study.id);
     }
 
     private getData(itemsPerPage: number, page: number) {
@@ -128,8 +131,7 @@ export default class UserTable extends Vue {
         await ApiWrapper.put(new VerifyUser(item, item.verified));
     }
 
-
-    private isSelf(item: IUser){
+    private isSelf(item: IUser) {
         const Self = userState.userModel;
         if (Self === null) {
             return true;

@@ -1,5 +1,5 @@
 import { IStudy } from "./study";
-import {IEmailDomain} from "./emaildomains";
+import { IEmailDomain } from "./emaildomains";
 
 export interface IUser {
     id: number;

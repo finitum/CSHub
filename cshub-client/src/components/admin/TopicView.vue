@@ -241,7 +241,6 @@ export default class TopicView extends Vue {
     flex-grow: 1;
     overflow-x: hidden;
     overflow-y: auto;
-    height: 800px;
 }
 
 .sl-vue-tree {

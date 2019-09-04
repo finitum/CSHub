@@ -6,7 +6,7 @@ const enumerateErrorFormat = format.printf(info => {
     return info.stack ? `${log}\n${info.stack}` : log;
 });
 
-const liveJsonFormat = format.combine(format.timestamp(), format.json(), enumerateErrorFormat);
+const liveJsonFormat = format.combine(format.timestamp(), format.json());
 const debugFormat = format.combine(
     winston.format.errors({ stack: true }),
     winston.format.cli(),
@@ -22,7 +22,7 @@ const logger = winston.createLogger({
     transports: [
         new winston.transports.Console({
             format: usedFormat,
-            handleExceptions: Settings.LIVE
+            handleExceptions: false
         })
     ]
 });

@@ -240,9 +240,6 @@ export default class LoginScreen extends Vue {
                             } else {
                                 router.push(Routes.INDEX);
                             }
-                        } else if (callbackData.response === LoginResponseTypes.NOEXISTINGACCOUNT) {
-                            logStringConsole("Account does not exist");
-                            this.userData.emailerror = "Account does not exist.";
                         } else if (callbackData.response === LoginResponseTypes.ACCOUNTNOTVERIFIED) {
                             logStringConsole("Account is not verified");
                             this.userData.emailerror = "Account has not been verified.";

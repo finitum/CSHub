@@ -2,14 +2,13 @@ import { IApiRequest } from "../../../models";
 
 import { Requests } from "../../Requests";
 import { IUser } from "../../../entities/user";
-import {IEmailDomain} from "../../../entities/emaildomains";
+import { IEmailDomain } from "../../../entities/emaildomains";
 
 export enum LoginResponseTypes {
     INCORRECTPASS,
     ACCOUNTNOTVERIFIED,
     ACCOUNTBLOCKED,
     SUCCESS,
-    NOEXISTINGACCOUNT,
     INVALIDINPUT
 }
 
