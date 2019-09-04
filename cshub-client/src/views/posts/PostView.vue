@@ -8,7 +8,7 @@
         ></PostList>
 
         <v-tabs
-            v-show="!isFullPost && !isIndex"
+            v-if="!isFullPost && !isIndex"
             v-model="tabIndex"
             icons-and-text
             :vertical="$vuetify.breakpoint.mdAndUp"

@@ -604,7 +604,6 @@ export default class Post extends Vue {
                 });
             } else {
                 logStringConsole("Gotten post from cache", "getPostRequest");
-
                 this.post = cachedValue;
 
                 if (this.fullPostComputed) {

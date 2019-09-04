@@ -43,43 +43,53 @@ class CustomLogger implements Logger {
     }
 }
 
-const options: ConnectionOptions = {
-    type: "mariadb",
-    host: Settings.DATABASE.HOST,
-    port: Settings.DATABASE.PORT,
-    username: Settings.DATABASE.USER,
-    password: Settings.DATABASE.PASSWORD,
-    database: Settings.DATABASE.NAME,
-    multipleStatements: true,
-    charset: "utf8mb4",
-    logger: new CustomLogger(),
-    entities: [User, Topic, Post, Edit, Study, Answer, Question, CacheVersion, EmailDomain, Variable],
-    synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
-};
-
-if (Settings.USESSH) {
-    const sshConfig = {
-        username: Settings.SSH.USER,
-        privateKey: fs.readFileSync(Settings.SSH.PRIVATEKEYLOCATION),
-        host: Settings.SSH.HOST,
-        port: Settings.SSH.PORT,
-        dstHost: "localhost",
-        dstPort: 3306,
-        localHost: "localhost",
-        localPort: Settings.DATABASE.PORT
+export const connectDb = (): Promise<void> => {
+    const options: ConnectionOptions = {
+        type: "mariadb",
+        host: Settings.DATABASE.HOST,
+        port: Settings.DATABASE.PORT,
+        username: Settings.DATABASE.USER,
+        password: Settings.DATABASE.PASSWORD,
+        database: Settings.DATABASE.NAME,
+        multipleStatements: true,
+        charset: "utf8mb4",
+        logger: new CustomLogger(),
+        entities: [User, Topic, Post, Edit, Study, Answer, Question, CacheVersion, EmailDomain, Variable],
+        synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
     };
 
-    tunnel(sshConfig, (error, server) => {
-        if (error) {
-            throw error;
-        }
+    if (Settings.USESSH) {
+        const sshConfig = {
+            username: Settings.SSH.USER,
+            privateKey: fs.readFileSync(Settings.SSH.PRIVATEKEYLOCATION),
+            host: Settings.SSH.HOST,
+            port: Settings.SSH.PORT,
+            dstHost: "localhost",
+            dstPort: 3306,
+            localHost: "localhost",
+            localPort: Settings.DATABASE.PORT
+        };
 
-        createConnection(options).catch(reason => logger.error(reason));
-    });
-} else {
-    createConnection(options)
-        .then(() => {
-            app.emit("db-connect");
-        })
-        .catch(reason => logger.error(reason));
-}
+        return new Promise(resolve => {
+            tunnel(sshConfig, (error, server) => {
+                if (error) {
+                    throw error;
+                }
+
+                createConnection(options)
+                    .then(() => {
+                        resolve();
+                    })
+                    .catch(reason => logger.error(reason));
+            });
+        });
+    } else {
+        return createConnection(options)
+            .then(() => {
+                app.emit("db-connect");
+            })
+            .catch(reason => {
+                logger.error(reason);
+            });
+    }
+};
