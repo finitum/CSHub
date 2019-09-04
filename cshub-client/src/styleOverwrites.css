@@ -20,6 +20,7 @@
 
 .v-application code {
     color: unset !important;
+    background-color: unset !important;
     box-shadow: unset !important;
 }
 
