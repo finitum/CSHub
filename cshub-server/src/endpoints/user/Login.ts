@@ -44,7 +44,7 @@ app.post(Login.getURL, async (req: Request, res: Response) => {
         possibleUsers = await userRepository.find({
             relations: ["studies"],
             where: {
-                email: loginRequest.email,
+                email: loginRequest.email.trim(),
                 domain: loginRequest.domain
             }
         });
