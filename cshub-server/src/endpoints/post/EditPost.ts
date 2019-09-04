@@ -91,7 +91,7 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
                 return res.sendStatus(204);
             }
 
-            let delta = new Delta(edits[0].content);
+            let delta = new Delta(JSON.parse((edits[0].content as any) as string));
 
             for (let i = 1; i < edits.length; i++) {
                 delta = delta.compose(new Delta(JSON.parse((edits[i].content as any) as string))); // typeorm doesn't parse the JSON
