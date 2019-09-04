@@ -5,16 +5,17 @@
         </h4>
         <div v-else>
             <v-list two-line subheader>
-                <div v-for="questionId in shownQuestionIds" :key="questionId">
+                <div v-for="questionId in shownQuestionIds" :key="questionId" class="mb-2">
                     <ReviewQuestionListItem v-if="unpublished" :question-id="questionId"></ReviewQuestionListItem>
                     <EditQuestionListItem v-else :question-id="questionId"></EditQuestionListItem>
+                    <v-divider></v-divider>
                 </div>
+                <v-pagination
+                    v-if="questionIds.length > 0"
+                    v-model="paginationPageState"
+                    :length="Math.ceil(questionIds.length / 5)"
+                ></v-pagination>
             </v-list>
-            <v-pagination
-                v-if="questionIds.length > 0"
-                v-model="paginationPageState"
-                :length="Math.ceil(questionIds.length / 5)"
-            ></v-pagination>
         </div>
     </div>
 </template>

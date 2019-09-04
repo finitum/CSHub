@@ -8,6 +8,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import QuestionList from "../components/practice/QuestionList.vue";
+import { MetaInfo } from "vue-meta";
 
 @Component({
     name: UnsavedQuestions.name,
@@ -17,7 +18,7 @@ export default class UnsavedQuestions extends Vue {
     /**
      * Lifecycle hooks
      */
-    public metaInfo(): any {
+    public metaInfo(): MetaInfo {
         return {
             title: "Unsaved questions - CSHub"
         };

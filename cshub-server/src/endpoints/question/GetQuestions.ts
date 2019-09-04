@@ -150,14 +150,13 @@ app.get(GetUnpublishedQuestions.getURL, async (req: Request, res: Response) => {
             const repository = getRepository(Question);
 
             repository
-                .find({
-                    select: ["id"],
-                    where: {
-                        topicId: In(childHashes),
-                        active: false,
-                        deleted: false
-                    }
+                .createQueryBuilder("question")
+                .select("question.id", "id")
+                .leftJoin("question.topic", "topic")
+                .where("topic.hash IN (:...childHashes) AND question.active = 0 AND question.deleted = 0", {
+                    childHashes
                 })
+                .getRawMany()
                 .then(questions => {
                     res.json(new GetQuestionsCallback(questions.map(question => question.id)));
                 })
@@ -167,4 +166,3 @@ app.get(GetUnpublishedQuestions.getURL, async (req: Request, res: Response) => {
         }
     }
 });
-

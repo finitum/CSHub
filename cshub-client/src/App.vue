@@ -132,7 +132,7 @@ a {
     background-color: $lightergrey !important;
 }
 
-.mord.accent {
+.v-application .mord.accent {
     background-color: inherit !important;
 }
 
