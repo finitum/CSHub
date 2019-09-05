@@ -13,7 +13,10 @@ import { getRepository } from "typeorm";
 import { User } from "../../db/entities/user";
 
 app.post(Logout.getURL, (req: Request, res: Response) => {
-    res.clearCookie("token").send();
+    res.clearCookie("token", {
+        maxAge: Settings.TOKENAGEMILLISECONDS,
+        domain: Settings.DOMAIN
+    }).send();
 });
 
 app.post(Login.getURL, async (req: Request, res: Response) => {

@@ -209,9 +209,10 @@
                                     class="pt-0"
                                 >
                                     <v-list-item class="pa-0 postTile">
-                                        <v-list-item-avatar>
+                                        <!-- Maybe re-add later -->
+                                        <!-- <v-list-item-avatar>
                                             <img src="https://picsum.photos/40" class="profileBorder" />
-                                        </v-list-item-avatar>
+                                        </v-list-item-avatar> -->
                                         <v-list-item-content class="pt-2 d-inline">
                                             <v-list-item-subtitle class="whitespaceInit post-title">
                                                 <span>
