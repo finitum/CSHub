@@ -34,16 +34,16 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
                     const lastname = result.getStringFromDB("lastname");
                     const title = result.getStringFromDB("title");
 
-                    const descriptionMeta: metaType = {
+                    const descriptionMeta: MetaType = {
                         property: "og:description",
                         content: `A post by ${firstname} ${lastname}. Join now and start writing!`
                     };
-                    const imageMeta: metaType = {
+                    const imageMeta: MetaType = {
                         property: "og:image",
                         content: `https://picsum.photos/40`
                     };
-                    const titleMeta: metaType = { property: "og:title", content: `${title} - CSHub` };
-                    const titleActualMeta: metaType = { name: "title", content: `${title} - CSHub` };
+                    const titleMeta: MetaType = { property: "og:title", content: `${title} - CSHub` };
+                    const titleActualMeta: MetaType = { name: "title", content: `${title} - CSHub` };
 
                     const metas = [...getSitename(param), descriptionMeta, titleActualMeta, imageMeta, titleMeta];
 
@@ -63,12 +63,12 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
             ).then((result: DatabaseResultSet) => {
                 const name = result.getStringFromDB("name");
 
-                const descriptionMeta: metaType = {
+                const descriptionMeta: MetaType = {
                     property: "og:description",
                     content: `A topic on ${name}. Click to see all the related posts!`
                 };
-                const titleMeta: metaType = { property: "og:title", content: `${name} - CSHub` };
-                const titleActualMeta: metaType = { name: "title", content: `${name} - CSHub` };
+                const titleMeta: MetaType = { property: "og:title", content: `${name} - CSHub` };
+                const titleActualMeta: MetaType = { name: "title", content: `${name} - CSHub` };
 
                 const metas = [...getSitenameImage(param), descriptionMeta, titleMeta, titleActualMeta];
 
@@ -97,6 +97,9 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
         case Routes.UNSAVEDPOSTS:
             title = "Unsaved posts";
             break;
+        case Routes.UNSAVEDQUESTIONS:
+            title = "Unsaved questions";
+            break;
         case Routes.SEARCH:
             title = "Search";
             break;
@@ -112,19 +115,19 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
     res.send(createHTML(getSitenameImageDescription(param, title)));
 });
 
-interface metaType {
+interface MetaType {
     property?: string;
     name?: string;
     content: string;
 }
 
-const getSitename = (param: string): metaType[] => [
+const getSitename = (param: string): MetaType[] => [
     { property: "og:type", content: "website" },
     { property: "og:url", content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}${param}` },
     { property: "og:site_name", content: "CSHub" }
 ];
 
-const getSitenameImage = (param: string): metaType[] => [
+const getSitenameImage = (param: string): MetaType[] => [
     ...getSitename(param),
     {
         property: "og:image",
@@ -134,7 +137,7 @@ const getSitenameImage = (param: string): metaType[] => [
 
 const joinNowAndHelpCreateThem =
     "CSHub is a place where everyone can create, view and edit summaries. Join now and help create them!";
-const getSitenameImageDescription = (param: string, title: string): metaType[] => [
+const getSitenameImageDescription = (param: string, title: string): MetaType[] => [
     ...getSitenameImage(param),
     {
         property: "og:title",
@@ -154,7 +157,7 @@ const getSitenameImageDescription = (param: string, title: string): metaType[] =
     }
 ];
 
-const createHTML = (metas: metaType[]) => {
+const createHTML = (metas: MetaType[]) => {
     let metaTags = "";
     let titleTag = "";
     for (const meta of metas) {

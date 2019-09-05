@@ -85,9 +85,7 @@ export const connectDb = (): Promise<void> => {
         });
     } else {
         return createConnection(options)
-            .then(() => {
-                app.emit("db-connect");
-            })
+            .then(() => {})
             .catch(reason => {
                 logger.error(reason);
             });
