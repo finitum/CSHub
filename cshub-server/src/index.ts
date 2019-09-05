@@ -78,7 +78,7 @@ connectDb().then(async () => {
 
         const newTopic = new Topic();
         newTopic.name = defaultTopicName;
-        newTopic.parentId = null;
+        newTopic.parentid = null;
         newTopic.hash = hash;
         topic = await topicRepository.save(newTopic);
     }

@@ -2,10 +2,11 @@
     <div>
         <v-btn color="primary" dark class="mb-2 mr-2" @click="save">Save</v-btn>
         <v-btn color="primary" dark class="mb-2 mr-2" @click="getNodes">Refresh</v-btn>
-        <v-btn color="primary" dark class="mb-2" @click="create">Create topic</v-btn>
+        <v-btn color="primary" dark class="mb-2 mr-2" @click="create">Create topic</v-btn>
+        <v-btn color="primary" dark class="mb-2" @click="deleteNode">Delete selected topic</v-btn>
 
         <!-- replace by vuetify variant if it ever gets implemented -->
-        <sl-vue-tree ref="slVueTree" v-model="nodes">
+        <sl-vue-tree ref="slVueTree" v-model="nodes" :allow-multiselect="false">
             <template slot="title" slot-scope="{ node }">
                 <div v-if="isEditingName !== node.data.id" class="d-inline-block" @click="startEditing(node)">
                     {{ node.title }}
@@ -32,7 +33,7 @@
                     <v-icon v-if="node.isExpanded">fas fa-chevron-down</v-icon>
                     <v-icon v-if="!node.isExpanded">fas fa-chevron-right</v-icon>
                 </span>
-                <span v-else> </span>
+                <span v-else></span>
             </template>
         </sl-vue-tree>
     </div>
@@ -48,7 +49,7 @@ import SlVueTree, { ICursorPosition, ISlTreeNode, ISlTreeNodeModel } from "sl-vu
 import "sl-vue-tree/dist/sl-vue-tree-minimal.css";
 
 import { ITopic } from "../../../../cshub-shared/src/entities/topic";
-import { NewTopicData, RestructureTopics } from "../../../../cshub-shared/src/api-calls/endpoints/topics";
+import { RestructureTopics, TopicOrNew } from "../../../../cshub-shared/src/api-calls/endpoints/topics";
 import { dataState, uiState } from "../../store";
 import { ApiWrapper } from "../../utilities";
 import { getTopTopic, parseTopTopic } from "../../views/router/guards/setupRequiredDataGuard";
@@ -90,6 +91,11 @@ export default class TopicView extends Vue {
         (this.tree as any).insert(insertPosition, newNode);
     }
 
+    private deleteNode() {
+        const selected = this.tree.getSelected();
+        selected.forEach(currSelected => (this.tree as any).remove([currSelected.path]));
+    }
+
     private startEditing(node: ISlTreeNode<ITopic>) {
         this.isEditingName = node.data ? node.data.id : false;
         this.currentlyEditedTitle = node.title;
@@ -121,45 +127,35 @@ export default class TopicView extends Vue {
     }
 
     private async collectNodes(
-        parent: ITopic,
-        node: ISlTreeNodeModel<ITopic>,
-        isSaving: false | NewTopicData[] = false
-    ): Promise<ITopic | undefined> {
+        parent: TopicOrNew,
+        node: ISlTreeNodeModel<TopicOrNew>
+    ): Promise<TopicOrNew | undefined> {
         if (node.data === undefined) {
             return;
         }
 
-        if (node.data.id === undefined && isSaving) {
-            const newTopic: NewTopicData = {
-                name: node.title,
-                parentHash: parent.hash
-            };
+        const newnode: TopicOrNew = {
+            id: node.data.id || null,
+            name: node.data.name,
+            children: [],
+            hash: node.data.hash || null,
+            parent: parent
+        };
 
-            isSaving.push(newTopic);
-        } else {
-            const newnode: ITopic = {
-                id: node.data.id,
-                name: node.data.name,
-                children: [],
-                hash: node.data.hash,
-                parent: parent
-            };
-
-            if (node.children) {
-                for (const child of node.children) {
-                    const currentChildren = await this.collectNodes(newnode, child, isSaving);
-                    if (currentChildren) {
-                        newnode.children.push(currentChildren);
-                    }
+        if (node.children) {
+            for (const child of node.children) {
+                const currentChildren = await this.collectNodes(newnode, child);
+                if (currentChildren) {
+                    newnode.children.push(currentChildren);
                 }
             }
-
-            return newnode;
         }
+
+        return newnode;
     }
 
     private async save() {
-        const topTopic = clone(dataState.topTopic);
+        const topTopic: TopicOrNew | null = clone(dataState.topTopic);
 
         if (!topTopic) {
             uiState.setNotificationDialog({
@@ -170,11 +166,10 @@ export default class TopicView extends Vue {
             return;
         }
 
-        const newTopics: NewTopicData[] = [];
         topTopic.children = [];
 
         for (const node of this.nodes) {
-            const topicTree = await this.collectNodes(topTopic, node, newTopics);
+            const topicTree = await this.collectNodes(topTopic, node);
             if (topicTree) {
                 topTopic.children.push(topicTree);
             }
@@ -185,7 +180,7 @@ export default class TopicView extends Vue {
                 const fullCopy = cloneDeep(topTopic);
                 this.makeJsonifiable(fullCopy);
 
-                await ApiWrapper.put(new RestructureTopics(uiState.studyNr, fullCopy, newTopics));
+                await ApiWrapper.put(new RestructureTopics(uiState.studyNr, fullCopy));
 
                 getTopTopic(uiState.studyNr, true).then(topTopic => {
                     parseTopTopic(topTopic);
@@ -207,7 +202,7 @@ export default class TopicView extends Vue {
         }
     }
 
-    private makeJsonifiable(topic: ITopic) {
+    private makeJsonifiable(topic: TopicOrNew) {
         delete topic.parent;
 
         for (const child of topic.children) {

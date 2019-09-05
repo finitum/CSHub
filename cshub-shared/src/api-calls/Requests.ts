@@ -16,7 +16,6 @@ export class Requests {
     public static readonly TOPICPOSTS: string = "/posts/:topichash"; // GET
 
     public static readonly TOPICS: string = "/topics"; // GET
-    public static readonly SUBMITTOPIC: string = "/topics"; // POST
     public static readonly RESTRUCTURETOPICS: string = "/topics/:id/restructure"; // PUT
 
     public static readonly GETSTUDIES: string = "/study"; // GET

@@ -1,10 +1,12 @@
 import { IApiRequest } from "../../../models";
 import { Requests } from "../../Requests";
-import { ITopic } from "../../../entities/topic";
 
-export interface NewTopicData {
+export interface TopicOrNew {
+    id: number | null;
+    hash: number | null;
+    parent: TopicOrNew | null;
+    children: TopicOrNew[];
     name: string;
-    parentHash: number;
 }
 
 export class RestructureTopics implements IApiRequest<void> {
@@ -12,7 +14,7 @@ export class RestructureTopics implements IApiRequest<void> {
 
     public URL: string = RestructureTopics.postURL;
 
-    constructor(studyId: number, public topTopic: ITopic, public newTopics: NewTopicData[]) {
+    constructor(studyId: number, public topTopic: TopicOrNew) {
         this.URL = this.URL.replace(/:id/, studyId.toString());
     }
 }

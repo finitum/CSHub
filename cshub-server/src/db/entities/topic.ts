@@ -38,8 +38,8 @@ export class Topic implements ITopic {
     @JoinColumn({ name: "parentid" })
     parent!: Topic | null;
 
-    @RelationId((topic: Topic) => topic.parent)
-    parentId!: number | null;
+    @Column({ type: "int", nullable: true })
+    parentid!: number | null;
 
     @Expose()
     @OneToMany(type => Topic, topic => topic.parent)

@@ -4,21 +4,14 @@ import { getRepository } from "typeorm";
 import { query } from "../../db/database-query";
 import { AlreadySentError } from "../utils";
 import logger from "../../utilities/Logger";
-import { RestructureTopics } from "../../../../cshub-shared/src/api-calls/endpoints/topics";
-import { ITopic } from "../../../../cshub-shared/src/entities/topic";
+import { RestructureTopics, TopicOrNew } from "../../../../cshub-shared/src/api-calls/endpoints/topics";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { Topic } from "../../db/entities/topic";
 import { Study } from "../../db/entities/study";
-import {
-    findStudyIdsOfTopic,
-    findTopicInTree,
-    generateRandomTopicHash,
-    getChildHashes,
-    getTopicTree
-} from "../../utilities/TopicsUtils";
-import { xor, isEmpty } from "lodash";
+import { findTopicInTree, generateRandomTopicHash, getChildHashes, getTopicTree } from "../../utilities/TopicsUtils";
 import { validateMultipleInputs } from "../../utilities/StringUtils";
 import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
+import { Post } from "../../db/entities/post";
 
 app.put(RestructureTopics.postURL, async (req: Request, res: Response) => {
     const restructureTopicsRequest: RestructureTopics = req.body as RestructureTopics;
@@ -39,8 +32,170 @@ app.put(RestructureTopics.postURL, async (req: Request, res: Response) => {
             return;
         }
 
-        await updateOldTree(restructureTopicsRequest, studyId, req, res);
-        await insertNewTopics(restructureTopicsRequest, studyId, req, res);
+        const topicRepository = getRepository(Topic);
+        const studyRepository = getRepository(Study);
+
+        const study = await studyRepository.findOne({ id: studyId });
+        if (!study) {
+            res.sendStatus(404);
+            return;
+        }
+
+        const topTopic = await topicRepository.findOne({
+            id: study.topTopicId
+        });
+        if (!topTopic) {
+            res.sendStatus(500);
+            logger.error("No top topic");
+            return;
+        } else if (topTopic.id !== restructureTopicsRequest.topTopic.id) {
+            res.sendStatus(400);
+            return;
+        }
+
+        const topicTree = await getTopicTree(study.id);
+
+        if (!topicTree) {
+            res.sendStatus(500);
+            logger.error("No topic tree");
+            return;
+        }
+
+        const actualTopTopic = findTopicInTree(topTopic.hash, topicTree);
+
+        if (!actualTopTopic) {
+            res.sendStatus(500);
+            logger.error("No actual top topic");
+            return;
+        }
+
+        const getNonNewChildHashes = (inputTopic: TopicOrNew[]): number[] => {
+            const currentTopicHashes: number[] = [];
+
+            for (const topic of inputTopic) {
+                currentTopicHashes.push(...getNonNewChildHashes(topic.children));
+                if (topic.id !== null && topic.hash !== null) {
+                    currentTopicHashes.push(topic.hash);
+                }
+            }
+
+            return currentTopicHashes;
+        };
+
+        const postRepository = getRepository(Post);
+
+        const originalChildHashes = getChildHashes([actualTopTopic]);
+        const nonNewChildHashes = getNonNewChildHashes([restructureTopicsRequest.topTopic]);
+
+        const deletedHashes = originalChildHashes.filter(hash => !nonNewChildHashes.includes(hash));
+        for (const deletedHash of deletedHashes) {
+            const topicInTree = findTopicInTree(deletedHash, topicTree);
+            if (topicInTree) {
+                const childHashes = getChildHashes([topicInTree]);
+                const posts = await postRepository
+                    .createQueryBuilder("post")
+                    .select(["post.id", "topic.name"])
+                    .leftJoin("post.topic", "topic")
+                    .where("topic.hash IN (:...childHashes)", {
+                        childHashes
+                    })
+                    .getRawMany();
+
+                if (posts.length > 0) {
+                    res.status(400).json(
+                        new ServerError(`You are deleting a topic (${posts[0].topic_name}) which has underlying posts!`)
+                    );
+                    return;
+                }
+            }
+        }
+
+        const insertNewTopics = async (parentTopic: TopicOrNew): Promise<TopicOrNew> => {
+            for (let i = 0; i < parentTopic.children.length; i++) {
+                const childTopic = parentTopic.children[i];
+
+                if (childTopic.id === null || childTopic.hash === null) {
+                    const inputsValidation = validateMultipleInputs({
+                        input: childTopic.name,
+                        validationObject: {
+                            minlength: 2,
+                            maxlength: 40
+                        }
+                    });
+
+                    if (!inputsValidation.valid) {
+                        res.status(400);
+                        throw new AlreadySentError();
+                    }
+
+                    const topicHash = await generateRandomTopicHash();
+
+                    const topicRepository = getRepository(Topic);
+                    const newTopic = new Topic();
+                    newTopic.parentid = parentTopic.id;
+                    newTopic.hash = topicHash;
+                    newTopic.name = childTopic.name;
+                    const topicInserted = await topicRepository.save(newTopic);
+
+                    parentTopic.children[i] = {
+                        ...topicInserted,
+                        children: childTopic.children
+                    };
+                }
+
+                await insertNewTopics(childTopic);
+            }
+
+            return parentTopic;
+        };
+
+        const newTopicTree = await insertNewTopics(restructureTopicsRequest.topTopic);
+
+        const recursiveUpdate = async (topic: TopicOrNew) => {
+            for (const childTopic of topic.children) {
+                if (childTopic.id === null || childTopic.hash === null) {
+                    res.sendStatus(500);
+                    logger.error("Id or hash null");
+                    throw new AlreadySentError();
+                } else {
+                    const validation = validateMultipleInputs({
+                        input: childTopic.name,
+                        validationObject: {
+                            minlength: 2,
+                            maxlength: 40
+                        }
+                    });
+
+                    if (!validation.valid) {
+                        logger.error(`Invalid Request`);
+                        res.sendStatus(400);
+                        throw new AlreadySentError();
+                    }
+
+                    if (topic.id === null || topic.hash === null) {
+                        res.sendStatus(500);
+                        logger.error("Id or hash null");
+                        throw new AlreadySentError();
+                    }
+
+                    const parent = new Topic();
+                    parent.id = topic.id;
+
+                    await topicRepository.update(childTopic.id, {
+                        name: childTopic.name,
+                        parent
+                    });
+                }
+
+                await recursiveUpdate(childTopic);
+            }
+        };
+
+        await recursiveUpdate(newTopicTree);
+
+        for (const hash of deletedHashes) {
+            await topicRepository.delete({ hash });
+        }
 
         await query(`
             UPDATE cacheversion
@@ -56,138 +211,3 @@ app.put(RestructureTopics.postURL, async (req: Request, res: Response) => {
         }
     }
 });
-
-const updateOldTree = async (requestObj: RestructureTopics, studyNr: number, req: Request, res: Response) => {
-    const topicRepository = getRepository(Topic);
-    const studyRepository = getRepository(Study);
-
-    const study = await studyRepository.findOne({ id: studyNr });
-    if (!study) {
-        res.sendStatus(404);
-        throw new AlreadySentError();
-    }
-
-    const topTopic = await topicRepository.findOne({
-        id: study.topTopicId
-    });
-    if (!topTopic) {
-        res.sendStatus(500);
-        throw new AlreadySentError();
-    } else if (topTopic.id !== requestObj.topTopic.id) {
-        res.sendStatus(400);
-        throw new AlreadySentError();
-    }
-
-    const topicTree = await getTopicTree(study.id);
-
-    if (!topicTree) {
-        res.sendStatus(500);
-        throw new AlreadySentError();
-    }
-
-    const actualTopTopic = findTopicInTree(topTopic.hash, topicTree);
-
-    if (!actualTopTopic) {
-        return res.sendStatus(500);
-    }
-
-    const expectedMinimumChildHashes = getChildHashes([actualTopTopic]);
-    const actualChildHashes = getChildHashes([requestObj.topTopic]);
-
-    if (!isEmpty(xor(expectedMinimumChildHashes, actualChildHashes))) {
-        res.status(400).json(new ServerError("Not the same amount of elements as known tree!"));
-        throw new AlreadySentError();
-    }
-
-    const recursiveUpdate = async (topic: ITopic) => {
-        for (const childTopic of topic.children) {
-            const validation = validateMultipleInputs({
-                input: childTopic.name,
-                validationObject: {
-                    minlength: 2,
-                    maxlength: 40
-                }
-            });
-
-            if (!validation.valid) {
-                logger.error(`Invalid Request`);
-                res.sendStatus(400);
-                throw new AlreadySentError();
-            }
-
-            await topicRepository.update(childTopic.id, {
-                name: childTopic.name,
-                parent: topic
-            });
-
-            await recursiveUpdate(childTopic);
-        }
-    };
-
-    await recursiveUpdate(requestObj.topTopic);
-};
-
-const insertNewTopics = async (requestObj: RestructureTopics, studyNr: number, req: Request, res: Response) => {
-    const inputsValidation = validateMultipleInputs(
-        ...requestObj.newTopics.map(topic => {
-            return {
-                input: topic.name,
-                validationObject: {
-                    minlength: 2,
-                    maxlength: 40
-                }
-            };
-        }),
-        ...requestObj.newTopics.map(topic => {
-            return {
-                input: topic.parentHash
-            };
-        })
-    );
-
-    // check if the request was valid
-    if (!inputsValidation.valid) {
-        logger.error(`Invalid Request`);
-        res.sendStatus(400);
-        throw new AlreadySentError();
-    }
-
-    // test if there are any topics in the tree
-    const topics = await getTopicTree(studyNr);
-    if (topics === null) {
-        logger.error(`No Topics Found`);
-        res.status(500).json(new ServerError("Server did oopsie"));
-        throw new AlreadySentError();
-    }
-
-    for (const newTopic of requestObj.newTopics) {
-        // check if the parent topic actually exists
-        const parentTopic = findTopicInTree(newTopic.parentHash, topics);
-        if (parentTopic === null) {
-            logger.error(`No Parent Topic Found`);
-            res.status(400).json(new ServerError("Parent topic not found!"));
-            throw new AlreadySentError();
-        }
-
-        const studiesWithParentTopic = findStudyIdsOfTopic(parentTopic);
-        if (!studiesWithParentTopic.some(study => study.id === studyNr)) {
-            logger.error(`Study id doesn't correspond to parent id`);
-            res.status(400).json(new ServerError("Study id doesn't correspond to parent id!"));
-            throw new AlreadySentError();
-        }
-
-        const topicHash = await generateRandomTopicHash();
-
-        await query(
-            `
-            INSERT INTO topics
-            SET name     = ?,
-                parentid = ?,
-                hash     = ?
-        `,
-            newTopic.name,
-            parentTopic.id,
-            topicHash
-        );
-    }
-};
