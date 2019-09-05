@@ -13,6 +13,12 @@
                 <v-btn icon @click="approve">
                     <v-icon color="green lighten-1">fas fa-thumbs-up</v-icon>
                 </v-btn>
+                <v-btn icon @click="dissaprove">
+                    <v-icon color="red lighten-1">fas fa-thumbs-down</v-icon>
+                </v-btn>
+                <v-btn icon @click="editQuestionDialog = true">
+                    <v-icon color="orange lighten-1">fas fa-edit</v-icon>
+                </v-btn>
                 <v-btn icon @click="questionDialog = true">
                     <v-icon color="primary lighten-1">fas fa-info</v-icon>
                 </v-btn>
@@ -84,6 +90,40 @@
                 </v-row>
             </v-card>
         </v-dialog>
+        <v-dialog v-model="editQuestionDialog">
+            <v-card class="pa-4">
+                <MultipleChoiceEditor
+                    v-if="type === 'mc'"
+                    :prop-multiple-correct="question.multipleCorrect"
+                    :prop-question="question.question"
+                    :prop-explanation="question.explanation"
+                    :prop-answers="question.answers"
+                    :is-editing="question.id"
+                ></MultipleChoiceEditor>
+                <OpenTextEditor
+                    v-if="type === 'ot'"
+                    :prop-question="question.question"
+                    :prop-explanation="question.explanation"
+                    :prop-answer="question.answer"
+                    :is-editing="question.id"
+                ></OpenTextEditor>
+                <OpenNumberEditor
+                    v-if="type === 'on'"
+                    :prop-question="question.question"
+                    :prop-explanation="question.explanation"
+                    :prop-answer="question.number"
+                    :prop-precision="question.precision"
+                    :is-editing="question.id"
+                ></OpenNumberEditor>
+                <DynamicEditor
+                    v-if="type === 'dn'"
+                    :prop-question="question.question"
+                    :prop-explanation="question.explanation"
+                    :prop-answer-expression="question.answerExpression"
+                    :prop-variable-expression="question.variableExpressions"
+                ></DynamicEditor>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -104,15 +144,29 @@ import { mixins } from "vue-class-component";
 import QuestionListItemMixin from "./QuestionListItemMixin";
 import DynamicViewer from "./viewers/DynamicViewer.vue";
 import ViewerMixin from "./viewers/ViewerMixin";
+import DynamicEditor from "./editors/DynamicEditor.vue";
+import OpenNumberEditor from "./editors/OpenNumberEditor.vue";
+import OpenTextEditor from "./editors/OpenTextEditor.vue";
+import MultipleChoiceEditor from "./editors/MultipleChoiceEditor.vue";
 
 @Component({
     name: QuestionListItem.name,
-    components: { DynamicViewer, MultipleChoiceViewer, OpenNumberViewer, OpenTextViewer }
+    components: {
+        DynamicViewer,
+        MultipleChoiceViewer,
+        OpenNumberViewer,
+        OpenTextViewer,
+        DynamicEditor,
+        OpenNumberEditor,
+        OpenTextEditor,
+        MultipleChoiceEditor
+    }
 })
 export default class QuestionListItem extends mixins(QuestionListItemMixin, ViewerMixin) {
     private replacesQuestion: FullQuestionWithId | null = null;
 
     private questionDialog = false;
+    private editQuestionDialog = false;
 
     private created() {
         ApiWrapper.get(new GetFullQuestion(this.questionId)).then(question => {
@@ -131,6 +185,13 @@ export default class QuestionListItem extends mixins(QuestionListItemMixin, View
     public approve() {
         if (this.question) {
             ApiWrapper.put(new QuestionSettings(this.question.id, QuestionSettingsEditType.APPROVE));
+            EventBus.$emit(QUESTIONS_CHANGED);
+        }
+    }
+
+    public dissaprove() {
+        if (this.question) {
+            ApiWrapper.put(new QuestionSettings(this.question.id, QuestionSettingsEditType.DELETE));
             EventBus.$emit(QUESTIONS_CHANGED);
         }
     }
