@@ -9,6 +9,7 @@ const CreateAccount = () => import("../user/CreateUserAccount.vue");
 const AdminDashboard = () => import("../user/AdminDashboard.vue");
 const UserDashboard = () => import("../user/UserDashboard.vue");
 const UnsavedPosts = () => import("../user/UnsavedPosts.vue");
+const UnsavedQuestions = () => import("../UnsavedQuestions.vue");
 const ForgotPasswordComp = () => import("../user/ForgotPasswordComp.vue");
 const WIPPosts = () => import("../user/WIPPostsView.vue");
 
@@ -86,8 +87,17 @@ const router = new Router({
             component: PostView
         },
         {
+            path: `${Routes.TOPIC}/:hash/practice`,
+            name: "topicpractice",
+            component: PostView
+        },
+        {
+            path: `${Routes.TOPIC}/:hash/examples`,
+            name: "topicexamples",
+            component: PostView
+        },
+        {
             path: `${Routes.QUESTION}`,
-            name: "question",
             component: PracticeQuestion,
             children: [
                 {
@@ -122,6 +132,12 @@ const router = new Router({
             path: Routes.UNSAVEDPOSTS,
             name: "unsavedposts",
             component: UnsavedPosts,
+            beforeEnter: userBeforeEnter
+        },
+        {
+            path: Routes.UNSAVEDQUESTIONS,
+            name: "unsavedquestions",
+            component: UnsavedQuestions,
             beforeEnter: userBeforeEnter
         },
         {
@@ -179,10 +195,6 @@ router.beforeEach((to: Route, from: Route, next) => {
             });
         }
     });
-});
-
-router.afterEach((to: Route, from: Route) => {
-    uiState.setPreviousRoute(from);
 });
 
 export default router;

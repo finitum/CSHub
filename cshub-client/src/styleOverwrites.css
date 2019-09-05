@@ -17,3 +17,17 @@
 .v-tabs > .v-tabs-bar {
     background-color: unset !important;
 }
+
+.v-application code {
+    color: unset !important;
+    background-color: unset !important;
+    box-shadow: unset !important;
+}
+
+.loginMailSelect .v-select__selection {
+    max-width: 100%;
+}
+
+.loginMailSelect .v-select__selections input {
+    display: none;
+}

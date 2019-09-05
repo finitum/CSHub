@@ -1,5 +1,5 @@
 import { server } from "../index";
-import socket, { Socket } from "socket.io";
+import socket, { Server, Socket } from "socket.io";
 import { ClientDataUpdated, ClientCursorUpdated, IRealtimeSelect } from "../../../cshub-shared/src/api-calls";
 import { DataUpdatedHandler } from "./DataUpdatedHandler";
 import { TogglePostJoin } from "../../../cshub-shared/src/api-calls";
@@ -9,69 +9,76 @@ import { customValidator } from "../utilities/StringUtils";
 import { hasAccessToPostJWT, PostAccessType } from "../auth/validateRights/PostAccess";
 import { CursorUpdatedHandler } from "./CursorUpdatedHandler";
 
-export const io = socket(server);
+export let io: Server;
 
-const cookieparser = () => {
-    // @ts-ignore TODO: Why does this break?
-    const parser = cookieParser.apply(null, arguments);
+export const registerSockets = () => {
+    io = socket(server);
 
-    return (socket, next) => {
-        parser(socket.request, socket.response, next);
+    const cookieparser = () => {
+        // @ts-ignore TODO: Why does this break?
+        const parser = cookieParser.apply(null, arguments);
+
+        return (socket, next) => {
+            parser(socket.request, socket.response, next);
+        };
     };
-};
 
-io.use(cookieparser());
+    io.use(cookieparser());
 
-io.on("connection", (socketConn: Socket) => {
-    socketConn.on("disconnecting", () => {
-        CursorUpdatedHandler.removeCursor(socketConn);
-    });
+    io.on("connection", (socketConn: Socket) => {
+        socketConn.on("disconnecting", () => {
+            CursorUpdatedHandler.removeCursor(socketConn);
+        });
 
-    socketConn.on(ClientCursorUpdated.getURL, (cursorUpdated: ClientCursorUpdated) => {
-        CursorUpdatedHandler.changedCursor(cursorUpdated.selection, socketConn);
-    });
+        socketConn.on(ClientCursorUpdated.getURL, (cursorUpdated: ClientCursorUpdated) => {
+            CursorUpdatedHandler.changedCursor(cursorUpdated.selection, socketConn);
+        });
 
-    socketConn.on(ClientDataUpdated.getURL, (dataUpdated: ClientDataUpdated) => {
-        DataUpdatedHandler.applyNewEdit(dataUpdated.edit, socketConn);
-    });
+        socketConn.on(ClientDataUpdated.getURL, (dataUpdated: ClientDataUpdated) => {
+            DataUpdatedHandler.applyNewEdit(dataUpdated.edit, socketConn);
+        });
 
-    socketConn.on(
-        TogglePostJoin.getURL,
-        (togglePost: TogglePostJoin, fn: (edit: IRealtimeEdit | null, select: IRealtimeSelect[] | null) => void) => {
-            const inputsValidation = customValidator({
-                input: togglePost.postHash
-            });
+        socketConn.on(
+            TogglePostJoin.getURL,
+            (
+                togglePost: TogglePostJoin,
+                fn: (edit: IRealtimeEdit | null, select: IRealtimeSelect[] | null) => void
+            ) => {
+                const inputsValidation = customValidator({
+                    input: togglePost.postHash
+                });
 
-            if (inputsValidation.valid) {
-                hasAccessToPostJWT(togglePost.postHash, socketConn.request.cookies["token"]).then(
-                    (approved: PostAccessType) => {
-                        if (approved.canEdit) {
-                            const roomName = `POST_${togglePost.postHash}`;
-                            if (togglePost.join) {
-                                socketConn.join(roomName);
+                if (inputsValidation.valid) {
+                    hasAccessToPostJWT(togglePost.postHash, socketConn.request.cookies["token"]).then(
+                        (approved: PostAccessType) => {
+                            if (approved.canEdit) {
+                                const roomName = `POST_${togglePost.postHash}`;
+                                if (togglePost.join) {
+                                    socketConn.join(roomName);
 
-                                let edit: IRealtimeEdit | null;
+                                    let edit: IRealtimeEdit | null;
 
-                                DataUpdatedHandler.getCurrentPostData(togglePost.postHash).then(data => {
-                                    edit = data;
-                                    const select = CursorUpdatedHandler.getCurrentPostData(togglePost.postHash);
+                                    DataUpdatedHandler.getCurrentPostData(togglePost.postHash).then(data => {
+                                        edit = data;
+                                        const select = CursorUpdatedHandler.getCurrentPostData(togglePost.postHash);
 
-                                    CursorUpdatedHandler.addUser(socketConn, togglePost.postHash);
+                                        CursorUpdatedHandler.addUser(socketConn, togglePost.postHash);
 
-                                    fn(edit, select);
-                                });
+                                        fn(edit, select);
+                                    });
+                                } else {
+                                    socketConn.leave(roomName);
+                                    fn(null, null);
+                                }
                             } else {
-                                socketConn.leave(roomName);
                                 fn(null, null);
                             }
-                        } else {
-                            fn(null, null);
                         }
-                    }
-                );
-            } else {
-                fn(null, null);
+                    );
+                } else {
+                    fn(null, null);
+                }
             }
-        }
-    );
-});
+        );
+    });
+};

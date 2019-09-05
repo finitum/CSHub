@@ -12,9 +12,11 @@ import tunnel from "tunnel-ssh";
 import fs from "fs";
 import logger from "../utilities/Logger";
 import { CacheVersion } from "./entities/cacheversion";
-import { Answer } from "./entities/practice/answer";
 import { Question } from "./entities/practice/question";
 import { app } from "../index";
+import { Answer } from "./entities/practice/answer";
+import { EmailDomain } from "./entities/emaildomain";
+import { Variable } from "./entities/practice/variable";
 
 class CustomLogger implements Logger {
     log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {
@@ -41,51 +43,53 @@ class CustomLogger implements Logger {
     }
 }
 
-const options: ConnectionOptions = {
-    type: "mariadb",
-    host: Settings.DATABASE.HOST,
-    port: Settings.DATABASE.PORT,
-    username: Settings.DATABASE.USER,
-    password: Settings.DATABASE.PASSWORD,
-    database: Settings.DATABASE.NAME,
-    multipleStatements: true,
-    logger: new CustomLogger(),
-    entities: [
-        User,
-        Topic,
-        Post,
-        Edit,
-        Study,
-        Answer,
-        Question,
-        CacheVersion
-    ],
-    synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
-};
-
-if (Settings.USESSH) {
-    const sshConfig = {
-        username: Settings.SSH.USER,
-        privateKey: fs.readFileSync(Settings.SSH.PRIVATEKEYLOCATION),
-        host: Settings.SSH.HOST,
-        port: Settings.SSH.PORT,
-        dstHost: "localhost",
-        dstPort: 3306,
-        localHost: "localhost",
-        localPort: Settings.DATABASE.PORT
+export const connectDb = (): Promise<void> => {
+    const options: ConnectionOptions = {
+        type: "mariadb",
+        host: Settings.DATABASE.HOST,
+        port: Settings.DATABASE.PORT,
+        username: Settings.DATABASE.USER,
+        password: Settings.DATABASE.PASSWORD,
+        database: Settings.DATABASE.NAME,
+        multipleStatements: true,
+        charset: "utf8mb4",
+        logger: new CustomLogger(),
+        entities: [User, Topic, Post, Edit, Study, Answer, Question, CacheVersion, EmailDomain, Variable],
+        synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
     };
 
-    tunnel(sshConfig, (error, server) => {
-        if (error) {
-            throw error;
-        }
+    if (Settings.USESSH) {
+        const sshConfig = {
+            username: Settings.SSH.USER,
+            privateKey: fs.readFileSync(Settings.SSH.PRIVATEKEYLOCATION),
+            host: Settings.SSH.HOST,
+            port: Settings.SSH.PORT,
+            dstHost: "localhost",
+            dstPort: 3306,
+            localHost: "localhost",
+            localPort: Settings.DATABASE.PORT
+        };
 
-        createConnection(options).catch(reason => logger.error(reason));
-    });
-} else {
-    createConnection(options)
-        .then(() => {
-            app.emit("db-connect");
-        })
-        .catch(reason => logger.error(reason));
-}
+        return new Promise(resolve => {
+            tunnel(sshConfig, (error, server) => {
+                if (error) {
+                    throw error;
+                }
+
+                createConnection(options)
+                    .then(() => {
+                        resolve();
+                    })
+                    .catch(reason => logger.error(reason));
+            });
+        });
+    } else {
+        return createConnection(options)
+            .then(() => {
+                app.emit("db-connect");
+            })
+            .catch(reason => {
+                logger.error(reason);
+            });
+    }
+};

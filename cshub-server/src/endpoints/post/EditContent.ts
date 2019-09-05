@@ -9,26 +9,37 @@ import { EditContent, GetEditContentCallback } from "../../../../cshub-shared/sr
 
 import { Edit } from "../../db/entities/edit";
 import { getRepository } from "typeorm";
+import { Post } from "../../db/entities/post";
 
-app.get(EditContent.getURL, (req: Request, res: Response) => {
-    const postHash: number = Number(req.params.hash);
+app.get(EditContent.getURL, async (req: Request, res: Response) => {
+    const postHash = Number(req.params.hash);
     const includeLastEdit = !(req.header(EditContent.includeLastEditHeader) === "true");
 
     const inputsValidation = validateMultipleInputs({ input: postHash });
 
     if (inputsValidation.valid) {
+        const postRepository = getRepository(Post);
+
+        const post = await postRepository.findOne({
+            where: {
+                hash: postHash
+            }
+        });
+
+        if (!post) {
+            return res.sendStatus(404);
+        }
+
         const editRepository = getRepository(Edit);
 
         editRepository
             .find({
                 relations: ["editusers"],
                 where: {
-                    post: {
-                        hash: postHash
-                    }
+                    post
                 },
                 order: {
-                    datetime: "DESC"
+                    datetime: "ASC"
                 }
             })
             .then(edits => {
@@ -38,7 +49,16 @@ app.get(EditContent.getURL, (req: Request, res: Response) => {
                     }
                 }
 
-                res.json(new GetEditContentCallback(edits));
+                res.json(
+                    new GetEditContentCallback(
+                        edits.map(edit => {
+                            return {
+                                ...edit,
+                                content: JSON.parse((edit.content as unknown) as string) // typeorm doesn't parse the JSON
+                            };
+                        })
+                    )
+                );
             })
             .catch(err => {
                 logger.error(`Edit content retrieve failed`);

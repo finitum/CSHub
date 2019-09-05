@@ -2,7 +2,6 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { practiceState } from "../../../store";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
-import { Watch } from "vue-property-decorator";
 
 @Component({
     name: OTQuestionMixin.name
@@ -14,15 +13,9 @@ export default class OTQuestionMixin extends Vue {
         return this.privOtAnswer;
     }
 
-    @Watch("privOtAnswer", {
-        deep: true
-    })
-    private onPrivOtAnswersUpdate(value: string | null) {
-        const questionIndex = +this.$route.params.index;
-
+    set otAnswer(value: string | null) {
         if (value !== null) {
             const questionIndex = +this.$route.params.index;
-            const currentQuestions = practiceState.currentQuestions;
             practiceState.addAnswer({
                 questionIndex,
                 answer: {

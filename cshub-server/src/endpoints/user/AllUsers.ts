@@ -19,6 +19,7 @@ app.get(AllUsers.getURL, (req: Request, res: Response) => {
 
         userRepository
             .find({
+                relations: ["studies"],
                 skip: (page - 1) * rowsPerPage,
                 take: rowsPerPage
             })

@@ -7,7 +7,7 @@ import { getRepository } from "typeorm";
 import { Post } from "../../db/entities/post";
 
 app.get(PostData.getURL, (req: Request, res: Response) => {
-    const hash: number = Number(req.params.hash);
+    const hash = Number(req.params.hash);
 
     // Get all the post data from database
     getPostData(hash).then(data => {

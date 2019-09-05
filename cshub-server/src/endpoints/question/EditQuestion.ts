@@ -6,9 +6,15 @@ import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { AddQuestion, EditQuestion } from "../../../../cshub-shared/src/api-calls/endpoints/question";
 import { insertQuestions, validateNewQuestion } from "./QuestionUtils";
 import { AlreadySentError } from "../utils";
+import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
 
 app.put(EditQuestion.getURL, (req: Request, res: Response) => {
     const editQuestion = req.body as EditQuestion;
+
+    const authorized = checkTokenValidityFromRequest(req);
+    if (!authorized) {
+        return res.sendStatus(401);
+    }
 
     if (editQuestion.question === null || req.params.id === undefined) {
         res.status(400).send(new ServerError("No question!"));
@@ -34,6 +40,11 @@ app.put(EditQuestion.getURL, (req: Request, res: Response) => {
 
 app.post(AddQuestion.getURL, (req: Request, res: Response) => {
     const addQuestions = req.body as AddQuestion;
+
+    const authorized = checkTokenValidityFromRequest(req);
+    if (!authorized) {
+        return res.sendStatus(401);
+    }
 
     if (!addQuestions.question || !addQuestions.topicHash || isNaN(addQuestions.topicHash)) {
         res.status(400).send(new ServerError("Missing properties"));

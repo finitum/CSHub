@@ -27,6 +27,12 @@ export class Topic implements ITopic {
     id!: number;
 
     @Expose()
+    @Column({
+        type: "text"
+    })
+    name!: string;
+
+    @Expose()
     @ManyToOne(type => Topic, topic => topic.children, {
         nullable: true,
         onDelete: "RESTRICT",
@@ -41,12 +47,6 @@ export class Topic implements ITopic {
     @Expose()
     @OneToMany(type => Topic, topic => topic.parent)
     children!: Topic[];
-
-    @Expose()
-    @Column({
-        type: "text"
-    })
-    name!: string;
 
     @Expose()
     @Column({

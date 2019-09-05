@@ -10,9 +10,10 @@ export class Requests {
     public static readonly FORCEEDITPOST: string = "/post/:hash/forcesave"; // PUT
     public static readonly POSTSETTINGS: string = "/post/:hash/:action"; // PUT, action = hide,wip
 
+    public static readonly GETEXAMPLES: string = "/posts/:topichash/example"; // GET
     public static readonly GETUNVERIFIEDPOSTS: string = "/posts/unverified"; // GET
     public static readonly WIPPOSTS: string = "/posts/wip"; // GET
-    public static readonly TOPICPOSTS: string = "/posts/topic/:topichash"; // GET
+    public static readonly TOPICPOSTS: string = "/posts/:topichash"; // GET
 
     public static readonly TOPICS: string = "/topics"; // GET
     public static readonly SUBMITTOPIC: string = "/topics"; // POST
@@ -50,6 +51,8 @@ export class Requests {
     public static readonly FORGOTPASSWORD: string = "/user/forgotpassword"; // POST
     public static readonly CHANGEPASSWORD: string = "/user/changepassword"; // POST
     public static readonly CHANGEAVATAR: string = "/user/changeavatar"; // POST
+
+    public static readonly EMAILDOMAINS: string = "/emaildomains"; // GET, POST, PUT, DELETE
 
     public static readonly PROFILE = "/profile/:userId"; // GET, Is actually profile pic
 

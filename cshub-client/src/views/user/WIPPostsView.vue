@@ -22,7 +22,10 @@ import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
 
 @Component({
     name: "WIPPostsView",
-    components: { PostList }
+    components: { PostList },
+    metaInfo: {
+        title: "WIP Posts - Cshub"
+    }
 })
 export default class WIPPostsView extends Vue {
     /**
@@ -43,12 +46,6 @@ export default class WIPPostsView extends Vue {
 
     private destroyed() {
         EventBus.$off(STUDY_CHANGED);
-    }
-
-    public metaInfo(): any {
-        return {
-            title: "WIP posts - CSHub"
-        };
     }
 
     /**

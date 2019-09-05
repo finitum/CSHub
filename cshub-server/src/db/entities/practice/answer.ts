@@ -1,10 +1,12 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, RelationId } from "typeorm";
 import { Question } from "./question";
+
 import { Exclude, Expose } from "class-transformer";
 import { ClosedAnswer } from "./closed-answer";
-import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
 import { OpenTextAnswer } from "./open-text-answer";
 import { OpenNumberAnswer } from "./open-number-answer";
+import { DynamicAnswer } from "./dynamic-answer";
+import { Variable } from "./variable";
 
 @Exclude()
 @Entity({
@@ -54,6 +56,15 @@ export class Answer {
     })
     openAnswerText?: string;
 
+    // Dynamic
+    @Column({
+        nullable: true
+    })
+    dynamicAnswerExpression?: string;
+
+    @OneToMany(type => Variable, variable => variable.answer)
+    dynamicAnswerVariables?: Variable[];
+
     public isClosedAnswer(): this is ClosedAnswer {
         return (
             this.closedAnswerText !== null &&
@@ -74,5 +85,9 @@ export class Answer {
             this.precision !== null &&
             this.precision !== undefined
         );
+    }
+
+    public isDynamicAnswer(): this is DynamicAnswer {
+        return this.dynamicAnswerExpression !== null && this.dynamicAnswerExpression !== undefined;
     }
 }

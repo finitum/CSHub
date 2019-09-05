@@ -4,8 +4,13 @@
             <v-flex :xs6="showMarkdownPreview" class="fullHeight">
                 <!-- Shamelessly stolen from the quilljs homepage -->
                 <div class="snow-wrapper fullHeight" style="height: 100%">
-                    <div :id="editorId" class="snow-container fullHeight">
-                        <div v-show="editorSetup.showToolbar" class="toolbar" style="border: none; padding: 1%;">
+                    <div class="snow-container fullHeight">
+                        <div
+                            v-show="editorSetup.showToolbar"
+                            id="toolbar"
+                            class="toolbar"
+                            style="border: none; padding: 1%;"
+                        >
                             <span class="ql-formats">
                                 <select class="ql-header" title="Header">
                                     <option value="1">Heading</option>
@@ -73,52 +78,54 @@
                                     <span>Add latex (ctrl + shift + a)</span>
                                 </v-tooltip>
 
-                                <v-tooltip bottom>
-                                    <template v-slot:activator="{ on: tooltip }">
-                                        <v-menu
-                                            v-model="otherPeoplesMenu"
-                                            :close-on-content-click="false"
-                                            :nudge-width="200"
-                                            offset-x
-                                        >
-                                            <v-btn
-                                                dark
-                                                text
-                                                :ripple="false"
-                                                small
-                                                class="quillIcon"
-                                                style="margin: 0"
-                                                v-on="tooltip"
-                                            >
-                                                <v-icon :color="darkMode ? 'white' : 'black'">fas fa-users</v-icon>
-                                            </v-btn>
-                                            <v-card>
-                                                <v-list>
-                                                    <v-list-item
-                                                        v-for="user in Array.from(otherPeoples)"
-                                                        :key="user[1].id"
-                                                        avatar
-                                                    >
-                                                        <v-list-item-avatar>
-                                                            <img :src="getAvatarURL(user[1].id)" />
-                                                        </v-list-item-avatar>
-
-                                                        <v-list-item-content>
-                                                            <v-list-item-title
-                                                                >{{ user[1].firstname }}
-                                                                {{ user[1].lastname }}</v-list-item-title
-                                                            >
-                                                        </v-list-item-content>
-                                                    </v-list-item>
-                                                    <v-list-item v-if="otherPeoples.size === 0"
-                                                        >You are alone here :(</v-list-item
-                                                    >
-                                                </v-list>
-                                            </v-card>
-                                        </v-menu>
+                                <v-menu
+                                    v-model="otherPeoplesMenu"
+                                    :close-on-content-click="false"
+                                    :nudge-width="200"
+                                    offset-x
+                                >
+                                    <template v-slot:activator="{ on: menu }">
+                                        <v-tooltip bottom>
+                                            <template v-slot:activator="{ on: tooltip }">
+                                                <v-btn
+                                                    dark
+                                                    text
+                                                    :ripple="false"
+                                                    small
+                                                    class="quillIcon"
+                                                    style="margin: 0"
+                                                    v-on="{ ...tooltip, ...menu }"
+                                                >
+                                                    <v-icon :color="darkMode ? 'white' : 'black'">fas fa-users</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span>View current users</span>
+                                        </v-tooltip>
                                     </template>
-                                    <span>View current users</span>
-                                </v-tooltip>
+                                    <v-card>
+                                        <v-list>
+                                            <v-list-item
+                                                v-for="user in Array.from(otherPeoples)"
+                                                :key="user[1].id"
+                                                avatar
+                                            >
+                                                <v-list-item-avatar>
+                                                    <img :src="getAvatarURL(user[1].id)" />
+                                                </v-list-item-avatar>
+
+                                                <v-list-item-content>
+                                                    <v-list-item-title
+                                                        >{{ user[1].firstname }}
+                                                        {{ user[1].lastname }}</v-list-item-title
+                                                    >
+                                                </v-list-item-content>
+                                            </v-list-item>
+                                            <v-list-item v-if="otherPeoples.size === 0"
+                                                >You are alone here :(</v-list-item
+                                            >
+                                        </v-list>
+                                    </v-card>
+                                </v-menu>
                             </span>
                             <span class="ql-formats">
                                 <v-tooltip bottom>
@@ -160,12 +167,17 @@
                                 </v-tooltip>
                             </span>
                         </div>
-                        <div class="editor fullHeight" style="overflow: hidden;"></div>
+                        <div id="editor" class="editor fullHeight" style="overflow: hidden;"></div>
                     </div>
                 </div>
             </v-flex>
-            <v-flex v-show="showMarkdownPreview" xs6 class="fullHeight">
-                <div id="htmlOutput" style="margin-top: 10px; overflow-y: auto" v-html="markdownHTMLPreview"></div>
+            <v-flex v-show="showMarkdownPreview" xs6 class="fullHeight pl-2">
+                <div
+                    id="htmlOutput"
+                    class="fullHeight"
+                    style="margin-top: 10px; overflow-y: auto"
+                    v-html="markdownHTMLPreview"
+                ></div>
             </v-flex>
         </v-layout>
     </v-container>
@@ -402,8 +414,6 @@ export default class QuillEditor extends Vue {
 
             logStringConsole("Mounted quillInstance with edit: " + this.editorSetup.allowEdit);
 
-            this.editorId = idGenerator();
-
             mathquill4quill(Quill, (window as any).MathQuill); // Load mathquill4quillMin after all its dependencies are accounted for
 
             // setTimeout without timeout magically works, gotta love JS (though with 0 does wait for the next 'JS clock tick', so probably a Vue thing that hasn't been synchronized yet with the DOM and so quillInstance will error)
@@ -487,13 +497,13 @@ export default class QuillEditor extends Vue {
 
     private initQuill(selects: IRealtimeSelect[]) {
         // Create the editor
-        this.editorOptions.bounds = `#${this.editorId} .editor`;
-        this.editorOptions.modules.toolbar = `#${this.editorId} .toolbar`;
+        this.editorOptions.bounds = `#editor`;
+        this.editorOptions.modules.toolbar = `#toolbar`;
 
         if (!this.editorSetup.allowEdit) {
             this.editorOptions.placeholder = "";
         }
-        this.editor = new Quill(`#${this.editorId} .editor`, this.editorOptions);
+        this.editor = new Quill(`#editor`, this.editorOptions);
 
         (this.editor as any).enableMathQuillFormulaAuthoring(); // Enable mathquill4quillMin
         this.editor.enable(false); // Hide it before we set the content
@@ -506,9 +516,7 @@ export default class QuillEditor extends Vue {
         const callback = (range: RangeStatic, context: any) => {
             // @ts-ignore
             this.editor.theme.tooltip.edit("formula");
-            const textArea = document.querySelector(
-                `#${this.editorId} .editor .ql-editing .mq-editable-field .mq-textarea textarea`
-            );
+            const textArea = document.querySelector(`#editor .ql-editing .mq-editable-field .mq-textarea textarea`);
 
             if (textArea) {
                 // @ts-ignore
@@ -516,7 +524,7 @@ export default class QuillEditor extends Vue {
                 const listener = (evt: Event) => {
                     // @ts-ignore
                     if (evt.keyCode === 13) {
-                        const saveButton = document.querySelector(`#${this.editorId} .editor .ql-editing .ql-action`);
+                        const saveButton = document.querySelector(`#editor .ql-editing .ql-action`);
 
                         // @ts-ignore
                         saveButton.click();

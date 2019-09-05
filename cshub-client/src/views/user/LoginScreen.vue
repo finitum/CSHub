@@ -15,12 +15,25 @@
                                 :error-messages="emailErrors"
                                 name="email"
                                 required
-                                suffix="@student.tudelft.nl"
                                 autocomplete="email"
                                 filled
                                 @change="userData.emailerror = ''"
                                 @keyup.enter="doLogin"
-                            ></v-text-field>
+                            >
+                                <template slot="append">
+                                    <span class="mt-3">@</span>
+                                    <v-select
+                                        v-model="emailDomain"
+                                        v-validate="'required'"
+                                        item-text="domain"
+                                        item-value="id"
+                                        class="ma-0 pa-0 loginMailSelect"
+                                        hide-details
+                                        placeholder="Select email"
+                                        :items="emailDomains"
+                                    ></v-select>
+                                </template>
+                            </v-text-field>
                             <v-text-field
                                 v-if="!forgotPassword"
                                 v-model="userData.password"
@@ -80,6 +93,11 @@ import {
     LoginResponseTypes
 } from "../../../../cshub-shared/src/api-calls/index";
 import { Routes } from "../../../../cshub-shared/src/Routes";
+import { IEmailDomain } from "../../../../cshub-shared/src/entities/emaildomains";
+import {
+    GetEmailDomains,
+    GetEmailDomainsCallback
+} from "../../../../cshub-shared/src/api-calls/endpoints/emaildomains";
 
 import router from "../router/router";
 import { SocketWrapper } from "../../utilities/socket-wrapper";
@@ -94,6 +112,8 @@ export default class LoginScreen extends Vue {
      * Data
      */
     public previousRoute = "";
+    private emailDomain: number | null = null;
+    private emailDomains: IEmailDomain[] = [];
 
     private userData = {
         email: "",
@@ -140,8 +160,15 @@ export default class LoginScreen extends Vue {
     /**
      * Lifecycle hooks
      */
-    private mounted() {
+    private async mounted() {
         this.userData.email = localStorage.getItem(LocalStorageData.EMAIL) || "";
+
+        const domains = await ApiWrapper.get(new GetEmailDomains());
+
+        if (domains) {
+            this.emailDomains = domains.domains;
+            this.emailDomain = domains.domains[0].id;
+        }
     }
 
     private beforeRouteEnter(to: Route, from: Route, next: (to?: (vm: this) => any) => void) {
@@ -162,8 +189,9 @@ export default class LoginScreen extends Vue {
     private forgotPasswordSend() {
         this.$validator.validateAll().then((allValid: boolean) => {
             if (allValid) {
+                const emailDomain = this.emailDomains.filter(i => i.id === this.emailDomain)[0];
                 ApiWrapper.sendPostRequest(
-                    new ForgotPasswordMail(this.userData.email),
+                    new ForgotPasswordMail(this.userData.email, emailDomain),
                     (result: ForgotPasswordMailCallback) => {
                         if (result.response === ForgotPasswordMailResponseTypes.SENT) {
                             uiState.setNotificationDialog({
@@ -177,15 +205,29 @@ export default class LoginScreen extends Vue {
                         }
                     }
                 );
+            } else {
+                this.popup();
             }
+        });
+    }
+
+    private popup() {
+        uiState.setNotificationDialog({
+            on: true,
+            header: `You forgot to fill out some fields`,
+            text: ""
         });
     }
 
     private doLogin() {
         this.$validator.validateAll().then((allValid: boolean) => {
-            if (allValid) {
+            if (allValid && this.emailDomain != null) {
                 ApiWrapper.sendPostRequest(
-                    new Login(this.userData.email, this.userData.password),
+                    new Login(
+                        this.userData.email,
+                        this.userData.password,
+                        this.emailDomains.filter(i => i.id === this.emailDomain)[0]
+                    ),
                     (callbackData: LoginCallBack) => {
                         if (callbackData.response === LoginResponseTypes.SUCCESS && callbackData.userModel) {
                             if (this.userData.rememberuser) {
@@ -198,9 +240,6 @@ export default class LoginScreen extends Vue {
                             } else {
                                 router.push(Routes.INDEX);
                             }
-                        } else if (callbackData.response === LoginResponseTypes.NOEXISTINGACCOUNT) {
-                            logStringConsole("Account does not exist");
-                            this.userData.emailerror = "Account does not exist.";
                         } else if (callbackData.response === LoginResponseTypes.ACCOUNTNOTVERIFIED) {
                             logStringConsole("Account is not verified");
                             this.userData.emailerror = "Account has not been verified.";
@@ -217,6 +256,8 @@ export default class LoginScreen extends Vue {
                         }
                     }
                 );
+            } else {
+                this.popup();
             }
         });
     }

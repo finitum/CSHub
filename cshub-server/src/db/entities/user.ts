@@ -1,13 +1,26 @@
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    ManyToMany,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    RelationId,
+    Unique
+} from "typeorm";
 import { Study } from "./study";
 import { Edit } from "./edit";
 import { IUser } from "../../../../cshub-shared/src/entities/user";
-import { Question } from "./practice/question";
 import { Exclude, Expose } from "class-transformer";
+import { EmailDomain } from "./emaildomain";
 
 @Exclude()
 @Entity({
     name: "users"
+})
+@Index("uq_email_domain", ["email", "domain"], {
+    unique: true
 })
 export class User implements IUser {
     @Expose()
@@ -16,7 +29,9 @@ export class User implements IUser {
 
     @Expose()
     @Column({
-        type: "text"
+        type: "varchar",
+        length: 128,
+        nullable: false
     })
     email!: string;
 
@@ -89,4 +104,14 @@ export class User implements IUser {
     // Just to make the model complete
     @ManyToMany(type => Edit, edit => edit.editusers)
     edits?: Edit[];
+
+    @Expose()
+    @ManyToOne(type => EmailDomain, domain => domain.users, {
+        nullable: false
+    })
+    @JoinColumn()
+    domain!: EmailDomain;
+
+    @RelationId((user: User) => user.domain)
+    domainId!: number;
 }

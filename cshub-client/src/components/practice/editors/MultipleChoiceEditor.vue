@@ -3,6 +3,7 @@
         <v-col cols="6">
             <v-form @submit="submit">
                 <v-btn color="primary" @click="submit">Submit</v-btn>
+
                 <v-checkbox
                     v-model="multipleCorrect"
                     label="Multiple correct answers"
@@ -13,6 +14,7 @@
                     v-model="question"
                     v-validate="'required|min:2'"
                     :error-messages="errors.collect('question')"
+                    :hide-details="!errors.has('question')"
                     name="question"
                     filled
                     required
@@ -21,12 +23,12 @@
                     label="Question"
                     value="Bla"
                     class="mt-4"
-                    hide-details
                 ></v-textarea>
                 <v-textarea
                     v-model="explanation"
                     v-validate="'required|min:2'"
                     :error-messages="errors.collect('explanation')"
+                    :hide-details="!errors.has('explanation')"
                     required
                     name="explanation"
                     filled
@@ -35,7 +37,6 @@
                     label="Explanation"
                     value="Bla"
                     class="mt-4"
-                    hide-details
                 ></v-textarea>
 
                 <v-radio-group v-model="radioAnswer" hide-details>
@@ -54,11 +55,11 @@
                             :label="`Answer ${i + 1}`"
                             outlined
                             auto-grow
-                            :name="`answer${i}`"
-                            :error-messages="errors.collect(`answer${i}`)"
+                            :name="`Answer ${i + 1}`"
+                            :error-messages="errors.collect(`Answer ${i + 1}`)"
+                            :hide-details="!errors.has(`Answer ${i + 1}`)"
                             rows="1"
-                            class="mr-0 multiple-choice-textarea"
-                            hide-details
+                            class="mr-0"
                             append-icon="fas fa-plus"
                         >
                             <template v-slot:append>
@@ -96,6 +97,7 @@ import {
 } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import MultipleChoiceViewer from "../viewers/MultipleChoiceViewer.vue";
 import { EventBus, QUESTIONS_CHANGED } from "../../../utilities/EventBus";
+import { uiState } from "../../../store";
 
 const emptyAnswer = (): FullClosedAnswerType => {
     return {
@@ -143,6 +145,8 @@ export default class MultipleChoiceEditor extends Vue {
     private privAnswers: FullClosedAnswerType[] = this.propAnswers || [emptyAnswer(), emptyAnswer()];
     private privRadioAnswer: number = this.propAnswers ? this.propAnswers.findIndex(answer => answer.correct) : 0;
 
+    private readonly minimumLength = 2;
+
     get answers(): FullClosedAnswerType[] {
         const answers = this.privAnswers;
 
@@ -170,6 +174,10 @@ export default class MultipleChoiceEditor extends Vue {
         }
     }
 
+    private lengthRule(input: string) {
+        return input.length >= this.minimumLength ? true : `Length must be more than ${this.minimumLength}`;
+    }
+
     private async submit() {
         let valid = await this.$validator.validateAll();
 
@@ -191,6 +199,16 @@ export default class MultipleChoiceEditor extends Vue {
                 await ApiWrapper.post(new AddQuestion(questionObj, +this.$route.params.hash));
             }
 
+            uiState.setNotificationDialog({
+                header: "Saved",
+                text: "Saved question, it will be reviewed by an admin soon!",
+                on: true
+            });
+
+            this.answers = [emptyAnswer(), emptyAnswer()];
+            this.question = "";
+            this.explanation = "";
+
             EventBus.$emit(QUESTIONS_CHANGED);
         }
     }
@@ -206,7 +224,7 @@ export default class MultipleChoiceEditor extends Vue {
 </script>
 
 <style>
-.multiple-choice-textarea .v-text-field__slot {
+.dynamic-question-textarea .v-text-field__slot {
     margin-right: 0 !important;
 }
 

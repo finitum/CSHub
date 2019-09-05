@@ -22,6 +22,13 @@
             ></NavDrawerItem>
 
             <NavDrawerItem
+                v-if="userStudyAdminComputed"
+                :to="navigationLocations.UNSAVEDQUESTIONS"
+                icon="fas fa-question"
+                text="Unsaved questions"
+            ></NavDrawerItem>
+
+            <NavDrawerItem
                 v-if="userLoggedInComputed && userStudyAdminComputed"
                 :to="navigationLocations.ADMINDASHBOARD"
                 icon="fas fa-users"
@@ -61,7 +68,7 @@
                 <NavDrawerItem
                     :to="navigationLocations.POSTCREATE"
                     icon="fas fa-pen"
-                    text="Create new post"
+                    text="Create new post / example"
                 ></NavDrawerItem>
             </div>
         </v-list>
@@ -77,7 +84,7 @@ import { Routes } from "../../../../cshub-shared/src/Routes";
 
 import NavDrawerItem from "./NavDrawerItem.vue";
 
-import { practiceState, uiState } from "../../store";
+import { uiState } from "../../store";
 import { dataState } from "../../store";
 import { userState } from "../../store";
 

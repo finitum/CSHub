@@ -1,4 +1,5 @@
 import { QuestionType } from "../../../../entities/question";
+import { VariableValue } from "./Variable";
 
 export type PracticeAnswerType =
     | {
@@ -9,7 +10,15 @@ export type PracticeAnswerType =
           }[];
       }
     | {
-          type: QuestionType.OPENNUMBER | QuestionType.OPENTEXT;
+          type: QuestionType.OPENNUMBER;
+          precision: number;
+      }
+    | {
+          type: QuestionType.OPENTEXT;
+      }
+    | {
+          type: QuestionType.DYNAMIC;
+          variables: VariableValue[];
       };
 
 export type PracticeQuestion = {

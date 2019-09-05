@@ -17,8 +17,11 @@ import {
     FullQuestionWithId
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import { Topic } from "../../db/entities/topic";
+import { DynamicAnswer } from "../../db/entities/practice/dynamic-answer";
+import { hasFittingVariables } from "../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
+import { Variable } from "../../db/entities/practice/variable";
 
-export const parseAndValidateQuestion = (question: Question, res: Response): FullQuestionWithId => {
+export const parseAndValidateQuestion = async (question: Question, res: Response): Promise<FullQuestionWithId> => {
     let answerType: FullAnswerType;
     switch (question.type) {
         case QuestionType.SINGLECLOSED:
@@ -110,8 +113,7 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
                 throw new AlreadySentError();
             }
 
-            const correctAnswer = (question.answers as OpenTextAnswer[])[0].openAnswerText;
-            if (!correctAnswer) {
+            if (!(question.answers as OpenTextAnswer[])[0].openAnswerText) {
                 logger.error(`No answer text found for ${question.id}`);
                 res.status(500).send();
                 throw new AlreadySentError();
@@ -121,6 +123,53 @@ export const parseAndValidateQuestion = (question: Question, res: Response): Ful
             answerType = {
                 type: QuestionType.OPENTEXT,
                 answer: openText.openAnswerText
+            };
+            break;
+        case QuestionType.DYNAMIC:
+            if (question.answers.length !== 1) {
+                logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            if (!question.answers[0].isDynamicAnswer()) {
+                logger.error(`Wrong answer type for answerid ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            const answer = (question.answers as DynamicAnswer[])[0];
+            if (!answer.dynamicAnswerExpression) {
+                logger.error(`No answer expression found for ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            const variableRepository = getRepository(Variable);
+            const dynamicAnswerVariables = await variableRepository.find({ answer: answer });
+
+            if (
+                !hasFittingVariables(
+                    question.question,
+                    answer.dynamicAnswerExpression,
+                    question.explanation,
+                    dynamicAnswerVariables
+                )
+            ) {
+                logger.error(`Mismatch in amount of variables for ${question.id}`);
+                res.status(500).send();
+                throw new AlreadySentError();
+            }
+
+            answerType = {
+                type: QuestionType.DYNAMIC,
+                variableExpressions: dynamicAnswerVariables.map(variable => {
+                    return {
+                        expression: variable.expression,
+                        name: variable.name
+                    };
+                }),
+                answerExpression: answer.dynamicAnswerExpression
             };
             break;
         default:
@@ -181,9 +230,35 @@ export const validateNewQuestion = (question: FullQuestion, res: Response) => {
             break;
         case QuestionType.OPENNUMBER:
             hasError = !validateMultipleInputs({ input: question.precision }, { input: question.number }).valid;
+            const precision = Number(question.precision);
+            hasError = hasError || !Number.isInteger(precision);
+            hasError = hasError || precision > 10;
+            hasError = hasError || precision < -10;
             break;
         case QuestionType.OPENTEXT:
             hasError = !validateMultipleInputs({ input: question.answer }).valid;
+            break;
+        case QuestionType.DYNAMIC:
+            for (const variable of question.variableExpressions) {
+                if (
+                    validateMultipleInputs({
+                        input: variable
+                    }).error
+                ) {
+                    hasError = true;
+                    break;
+                }
+            }
+
+            hasError = !validateMultipleInputs({ input: question.answerExpression }).valid;
+            hasError =
+                hasError ||
+                !hasFittingVariables(
+                    question.question,
+                    question.answerExpression,
+                    question.explanation,
+                    question.variableExpressions
+                );
             break;
     }
 
@@ -253,7 +328,7 @@ export const insertQuestions = async (
         throw new AlreadySentError();
     }
 
-    const newQuestion = new Question();
+    let newQuestion = new Question();
     newQuestion.type = question.question.type;
     newQuestion.question = question.question.question;
     newQuestion.topic = topic;
@@ -279,8 +354,30 @@ export const insertQuestions = async (
         case QuestionType.OPENTEXT:
             newQuestion.answers.push(new OpenTextAnswer(question.question.answer));
             break;
+        case QuestionType.DYNAMIC:
+            newQuestion.answers.push(
+                new DynamicAnswer(
+                    question.question.answerExpression,
+                    question.question.variableExpressions.map(expression => {
+                        const newVariable = new Variable();
+                        newVariable.name = expression.name;
+                        newVariable.expression = expression.expression;
+                        return newVariable;
+                    })
+                )
+            );
+            break;
     }
 
-    await repository.save(newQuestion);
+    newQuestion = await repository.save(newQuestion);
+
+    if (newQuestion.type === QuestionType.DYNAMIC) {
+        const variableRepository = getRepository(Variable);
+        const answer = newQuestion.answers[0];
+        const variables = answer.dynamicAnswerVariables || [];
+        variables.forEach(variable => (variable.answer = answer));
+        await variableRepository.save(variables);
+    }
+
     res.json();
 };

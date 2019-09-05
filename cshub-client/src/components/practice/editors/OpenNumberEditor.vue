@@ -7,6 +7,7 @@
                     v-model="question"
                     v-validate="'required|min:2'"
                     :error-messages="errors.collect('question')"
+                    :hide-details="!errors.has('question')"
                     name="question"
                     filled
                     required
@@ -15,12 +16,12 @@
                     label="Question"
                     value="Bla"
                     class="mb-4 mt-4"
-                    hide-details
                 ></v-textarea>
                 <v-textarea
                     v-model="explanation"
                     v-validate="'required|min:2'"
                     :error-messages="errors.collect('explanation')"
+                    :hide-details="!errors.has('explanation')"
                     required
                     name="explanation"
                     filled
@@ -29,29 +30,28 @@
                     label="Explanation"
                     value="Bla"
                     class="mb-4"
-                    hide-details
                 ></v-textarea>
                 <v-text-field
                     v-model="answer"
                     v-validate="'required|decimal'"
+                    :hide-details="!errors.has('answer')"
                     label="Answer"
-                    outlined
+                    filled
                     type="number"
                     name="answer"
                     :error-messages="errors.collect('answer')"
                     class="mb-4"
-                    hide-details
                 >
                 </v-text-field>
                 <v-text-field
                     v-model="precision"
-                    v-validate="'required|decimal'"
+                    v-validate="'required|min_value:-10|max_value:10|numeric'"
                     label="Precision"
                     outlined
                     type="number"
                     name="precision"
+                    hint="The precision is the amount of numbers after the decimal point. If you put in 0 the precision will be 1, 2 will be 0.01, -2 will be 100"
                     :error-messages="errors.collect('precision')"
-                    hide-details
                 >
                 </v-text-field>
             </v-form>
@@ -77,6 +77,7 @@ import { AddQuestion, EditQuestion } from "../../../../../cshub-shared/src/api-c
 import { FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import OpenNumberViewer from "../viewers/OpenNumberViewer.vue";
 import { EventBus, QUESTIONS_CHANGED } from "../../../utilities/EventBus";
+import { uiState } from "../../../store";
 
 @Component({
     name: OpenNumberEditor.name,
@@ -113,7 +114,7 @@ export default class OpenNumberEditor extends Vue {
     private explanation = this.propExplanation || "";
 
     private answer: number = this.propAnswer || 0;
-    private precision: number = this.propPrecision || 0.01;
+    private precision: number = this.propPrecision || 1;
 
     private async submit() {
         let valid = await this.$validator.validateAll();
@@ -133,6 +134,17 @@ export default class OpenNumberEditor extends Vue {
                 await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
             }
 
+            uiState.setNotificationDialog({
+                header: "Saved",
+                text: "Saved question, it will be reviewed by an admin soon!",
+                on: true
+            });
+
+            this.answer = 0;
+            this.question = "";
+            this.explanation = "";
+            this.precision = 0.01;
+
             EventBus.$emit(QUESTIONS_CHANGED);
         }
     }
@@ -140,7 +152,7 @@ export default class OpenNumberEditor extends Vue {
 </script>
 
 <style>
-.multiple-choice-textarea .v-text-field__slot {
+.dynamic-question-textarea .v-text-field__slot {
     margin-right: 0 !important;
 }
 

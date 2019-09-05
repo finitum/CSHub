@@ -7,6 +7,7 @@
                     v-model="question"
                     v-validate="'required|min:2'"
                     :error-messages="errors.collect('question')"
+                    :hide-details="!errors.has('question')"
                     name="question"
                     filled
                     required
@@ -15,13 +16,13 @@
                     label="Question"
                     value="Bla"
                     class="mb-4 mt-4"
-                    hide-details
                 ></v-textarea>
                 <v-textarea
                     v-model="explanation"
                     v-validate="'required|min:2'"
                     :error-messages="errors.collect('explanation')"
                     required
+                    :hide-details="!errors.has('explanation')"
                     name="explanation"
                     filled
                     auto-grow
@@ -29,16 +30,15 @@
                     label="Explanation"
                     value="Bla"
                     class="mb-4"
-                    hide-details
                 ></v-textarea>
                 <v-text-field
                     v-model="answer"
                     v-validate="'required|min:2'"
                     label="Answer"
-                    outlined
+                    filled
                     name="answer"
+                    :hide-details="!errors.has('answer')"
                     :error-messages="errors.collect('answer')"
-                    hide-details
                 >
                 </v-text-field>
             </v-form>
@@ -59,6 +59,7 @@ import { AddQuestion, EditQuestion } from "../../../../../cshub-shared/src/api-c
 import { FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import OpenTextViewer from "../viewers/OpenTextViewer.vue";
 import { EventBus, QUESTIONS_CHANGED } from "../../../utilities/EventBus";
+import { uiState } from "../../../store";
 
 @Component({
     name: OpenTextEditor.name,
@@ -108,6 +109,16 @@ export default class OpenTextEditor extends Vue {
                 await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
             }
 
+            uiState.setNotificationDialog({
+                header: "Saved",
+                text: "Saved question, it will be reviewed by an admin soon!",
+                on: true
+            });
+
+            this.question = "";
+            this.answer = "";
+            this.explanation = "";
+
             EventBus.$emit(QUESTIONS_CHANGED);
         }
     }
@@ -115,7 +126,7 @@ export default class OpenTextEditor extends Vue {
 </script>
 
 <style>
-.multiple-choice-textarea .v-text-field__slot {
+.dynamic-question-textarea .v-text-field__slot {
     margin-right: 0 !important;
 }
 

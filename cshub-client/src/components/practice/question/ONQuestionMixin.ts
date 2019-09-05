@@ -10,24 +10,20 @@ import { Watch } from "vue-property-decorator";
 export default class ONQuestionMixin extends Vue {
     private privOnAnswer: number | null = this.getInitialOnState();
 
-    get otAnswer(): number | null {
+    get onAnswer(): number | null {
         return this.privOnAnswer;
     }
 
-    @Watch("privOnAnswer", {
-        deep: true
-    })
-    private onPrivOnAnswersUpdate(value: number | null) {
+    set onAnswer(value: number | null) {
         const questionIndex = +this.$route.params.index;
 
         if (value !== null) {
             const questionIndex = +this.$route.params.index;
-            const currentQuestions = practiceState.currentQuestions;
             practiceState.addAnswer({
                 questionIndex,
                 answer: {
                     type: QuestionType.OPENNUMBER,
-                    number: value
+                    number: Number(value)
                 }
             });
         }

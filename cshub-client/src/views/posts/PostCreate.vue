@@ -17,7 +17,7 @@
                     </v-card-title>
                     <v-card-text class="ma-2">
                         <v-layout row>
-                            <v-flex xs10>
+                            <v-flex xs7>
                                 <v-text-field
                                     v-model="postTitle"
                                     v-validate="'required|min:4|max:50'"
@@ -30,8 +30,21 @@
                                     @change="postTitleError = ''"
                                 ></v-text-field>
                             </v-flex>
-                            <v-flex xs1>
-                                <v-checkbox v-model="isIndex" class="ml-3" label="Is index"></v-checkbox>
+                            <v-flex xs2>
+                                <v-checkbox
+                                    v-model="isIndex"
+                                    :disabled="isExample"
+                                    class="ml-3"
+                                    label="Is index"
+                                ></v-checkbox>
+                            </v-flex>
+                            <v-flex xs2>
+                                <v-checkbox
+                                    v-model="isExample"
+                                    :disabled="isIndex"
+                                    class="ml-1"
+                                    label="Is example"
+                                ></v-checkbox>
                             </v-flex>
                             <v-flex xs1 class="text-xs-right">
                                 <v-menu :close-on-content-click="false" :nudge-width="100" :nudge-left="200" offset-x>
@@ -112,6 +125,7 @@ export default class PostCreate extends Vue {
     private postTitle = "";
     private postTitleError = "";
     private isIndex = false;
+    private isExample = false;
     private showTopicWrongIcon = false;
     private showTopicFilledIcon = false;
     private showLoadingIcon = false;
@@ -148,7 +162,7 @@ export default class PostCreate extends Vue {
             this.$validator.validateAll().then((allValid: boolean) => {
                 if (allValid) {
                     ApiWrapper.sendPostRequest(
-                        new SubmitPost(this.postTitle, this.activeTopicHash[0], this.isIndex),
+                        new SubmitPost(this.postTitle, this.activeTopicHash[0], this.isIndex, this.isExample),
                         (response: CreatePostCallback) => {
                             this.showLoadingIcon = false;
                             if (response.response === SubmitPostResponse.SUCCESS) {

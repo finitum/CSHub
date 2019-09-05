@@ -2,10 +2,8 @@ import logger from "./utilities/Logger";
 import { Settings } from "./settings";
 
 import "reflect-metadata";
-import "./db/orm-connection";
-
 import { CORSMiddleware } from "./utilities/CORSMiddleware";
-import http from "http";
+import http, { Server } from "http";
 import express from "express";
 
 import { query } from "./db/database-query";
@@ -16,6 +14,7 @@ import { Study } from "./db/entities/study";
 
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import { connectDb } from "./db/orm-connection";
 
 export const app: express.Application = express();
 
@@ -30,49 +29,54 @@ import "./auth/AuthMiddleware";
 import "./utilities/VersionMiddleware";
 import "./endpoints/utils";
 
-// Run the server on port 3000
-export const server = http.createServer(app).listen(Settings.PORT);
-
 // Here all the connectors will be defined
 import "./endpoints";
-import "./realtime-edit";
-import "./tiptap-realtime-edit";
+import { registerSockets } from "./realtime-edit/socket-receiver";
 
-logger.info("Express server started with settings:");
-logger.info(JSON.stringify(Settings));
+export let server: Server;
 
-// Create a default topic and study if it doesn't exist so you aren't stuck.
-// From this default topic, an Admin can create more studies/topics
-// The default topic doesn't seem strictly necessary but no studies can exist without
-// a root topic.
-app.on("db-connect", async () => {
-    const defaultTopicName = "DefaultTopic";
-    const defaultStudyName = "DefaultStudy";
+connectDb().then(() => {
+    // Run the server on port
+    server = http.createServer(app).listen(Settings.PORT);
 
-    const studyRepository = getRepository(Study);
-    const topicRepository = getRepository(Topic);
+    registerSockets();
 
-    if ((await topicRepository.count()) === 0 || (await studyRepository.count()) === 0) {
-        logger.info("Inserting default topic and study!");
+    logger.info("Express server started with settings:");
+    logger.info(JSON.stringify(Settings));
 
-        // If so, create new topic
-        const hash = await generateRandomTopicHash();
+    // Create a default topic and study if it doesn't exist so you aren't stuck.
+    // From this default topic, an Admin can create more studies/topics
+    // The default topic doesn't seem strictly necessary but no studies can exist without
+    // a root topic.
+    app.on("db-connect", async () => {
+        const defaultTopicName = "DefaultTopic";
+        const defaultStudyName = "DefaultStudy";
 
-        const newTopic = new Topic();
-        newTopic.name = defaultTopicName;
-        newTopic.parentId = null;
-        newTopic.hash = hash;
+        const studyRepository = getRepository(Study);
+        const topicRepository = getRepository(Topic);
 
-        const inserted = await topicRepository.save(newTopic);
+        if ((await topicRepository.count()) === 0 || (await studyRepository.count()) === 0) {
+            logger.info("Inserting default topic and study!");
 
-        const study = new Study();
-        study.name = defaultStudyName;
-        study.topTopicId = inserted.id;
+            // If so, create new topic
+            const hash = await generateRandomTopicHash();
 
-        await studyRepository.save(study);
-    }
+            const newTopic = new Topic();
+            newTopic.name = defaultTopicName;
+            newTopic.parentId = null;
+            newTopic.hash = hash;
+
+            const inserted = await topicRepository.save(newTopic);
+
+            const study = new Study();
+            study.name = defaultStudyName;
+            study.topTopicId = inserted.id;
+
+            await studyRepository.save(study);
+        }
+    });
+
+    setInterval(() => {
+        query("SELECT 1");
+    }, 60 * 5 * 1000);
 });
-
-setInterval(() => {
-    query("SELECT 1");
-}, 60 * 5 * 1000);

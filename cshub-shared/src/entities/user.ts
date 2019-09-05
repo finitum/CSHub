@@ -1,4 +1,5 @@
 import { IStudy } from "./study";
+import { IEmailDomain } from "./emaildomains";
 
 export interface IUser {
     id: number;
@@ -18,4 +19,6 @@ export interface IUser {
     lastname: string;
 
     studies: IStudy[];
+
+    domain: IEmailDomain;
 }

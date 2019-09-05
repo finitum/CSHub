@@ -20,6 +20,9 @@
 
                 <OpenTextEditor :is-editing="false"></OpenTextEditor
             ></EditorAccordion>
+            <EditorAccordion title="Dynamic question" subtitle="Create a dynamically generated and checked question">
+                <DynamicEditor></DynamicEditor
+            ></EditorAccordion>
         </v-expansion-panels>
     </div>
 </template>
@@ -31,10 +34,11 @@ import MultipleChoiceEditor from "./MultipleChoiceEditor.vue";
 import EditorAccordion from "./EditorAccordion.vue";
 import OpenNumberEditor from "./OpenNumberEditor.vue";
 import OpenTextEditor from "./OpenTextEditor.vue";
+import DynamicEditor from "./DynamicEditor.vue";
 
 @Component({
     name: Editors.name,
-    components: { OpenTextEditor, OpenNumberEditor, EditorAccordion, MultipleChoiceEditor }
+    components: { DynamicEditor, OpenTextEditor, OpenNumberEditor, EditorAccordion, MultipleChoiceEditor }
 })
 export default class Editors extends Vue {}
 </script>

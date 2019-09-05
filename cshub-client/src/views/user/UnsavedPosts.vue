@@ -19,6 +19,7 @@ import { ApiWrapper, logObjectConsole } from "../../utilities";
 import { GetUnverifiedPostsCallBack, GetUnverifiedPosts } from "../../../../cshub-shared/src/api-calls";
 import { uiState } from "../../store";
 import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
+import { MetaInfo } from "vue-meta";
 
 @Component({
     name: "UnsavedPosts",
@@ -45,7 +46,7 @@ export default class UnsavedPosts extends Vue {
         EventBus.$off(STUDY_CHANGED);
     }
 
-    public metaInfo(): any {
+    public metaInfo(): MetaInfo {
         return {
             title: "Unsaved posts - CSHub"
         };

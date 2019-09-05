@@ -10,11 +10,14 @@ import {
     GetQuestionsCallback,
     GetUnpublishedQuestions
 } from "../../../../cshub-shared/src/api-calls/endpoints/question";
+
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { Question } from "../../db/entities/practice/question";
 import { findTopicInTree, getChildHashes, getTopicTree } from "../../utilities/TopicsUtils";
+import { Study } from "../../db/entities/study";
 
 app.get(GetQuestions.getURL, (req: Request, res: Response) => {
+
     const topicQueryParam = req.query[GetQuestions.topicQueryParam];
     if (!topicQueryParam) {
         res.status(400).send(new ServerError("Topic query param not found", false));
@@ -70,7 +73,7 @@ app.get(GetQuestions.getURL, (req: Request, res: Response) => {
 });
 
 app.get(GetEditableQuestions.getURL, async (req: Request, res: Response) => {
-    const topicQueryParam = req.query[GetUnpublishedQuestions.topicQueryParam];
+    const topicQueryParam = req.query[GetEditableQuestions.topicQueryParam];
     if (!topicQueryParam) {
         res.status(400).send(new ServerError("Topic query param not found", false));
         return;
@@ -116,16 +119,30 @@ app.get(GetEditableQuestions.getURL, async (req: Request, res: Response) => {
 });
 
 app.get(GetUnpublishedQuestions.getURL, async (req: Request, res: Response) => {
-    const topicQueryParam = req.query[GetUnpublishedQuestions.topicQueryParam];
-    if (!topicQueryParam) {
-        res.status(400).send(new ServerError("Topic query param not found", false));
+    const studyQueryParam = req.query[GetUnpublishedQuestions.studyQueryParam];
+    if (!studyQueryParam) {
+        res.status(400).send(new ServerError("Study query param not found", false));
         return;
     }
-    const topicHash = +topicQueryParam;
+    const studyId = +studyQueryParam;
 
     const topicTree = await getTopicTree();
     if (topicTree) {
-        const topic = findTopicInTree(topicHash, topicTree);
+        const studyRepository = getRepository(Study);
+
+        const study = await studyRepository.findOne({
+            where: {
+                id: studyId
+            },
+            relations: ["topTopic"]
+        });
+
+        if (!study) {
+            res.sendStatus(404);
+            return;
+        }
+
+        const topic = findTopicInTree(study.topTopic.hash, topicTree);
 
         if (topic) {
             const childHashes = getChildHashes([topic]);
@@ -133,14 +150,13 @@ app.get(GetUnpublishedQuestions.getURL, async (req: Request, res: Response) => {
             const repository = getRepository(Question);
 
             repository
-                .find({
-                    select: ["id"],
-                    where: {
-                        topicId: In(childHashes),
-                        active: false,
-                        deleted: false
-                    }
+                .createQueryBuilder("question")
+                .select("question.id", "id")
+                .leftJoin("question.topic", "topic")
+                .where("topic.hash IN (:...childHashes) AND question.active = 0 AND question.deleted = 0", {
+                    childHashes
                 })
+                .getRawMany()
                 .then(questions => {
                     res.json(new GetQuestionsCallback(questions.map(question => question.id)));
                 })
