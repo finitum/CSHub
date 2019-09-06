@@ -356,7 +356,7 @@ export default class Post extends Vue {
      * Computed properties
      */
     get userAdminComputed(): boolean {
-        return this.userIsLoggedIn && userState.isAdmin;
+        return this.userIsLoggedIn && userState.isStudyAdmin;
     }
 
     get userIsLoggedIn(): boolean {
