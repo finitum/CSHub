@@ -24,28 +24,25 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
             } else {
                 query(
                     `
-                  SELECT firstname, lastname, title
+                  SELECT title, name
                   FROM posts T1
-                  WHERE hash = ?
+                  INNER JOIN topics T2 ON T1.topic = T2.id
+                  WHERE T1.hash = ?
                 `,
                     strings[2]
                 ).then((result: DatabaseResultSet) => {
-                    const firstname = result.getStringFromDB("firstname");
-                    const lastname = result.getStringFromDB("lastname");
+                    const topicName = result.getStringFromDB("name");
                     const title = result.getStringFromDB("title");
 
                     const descriptionMeta: MetaType = {
                         property: "og:description",
-                        content: `A post by ${firstname} ${lastname}. Join now and start writing!`
+                        content: `A post about ${topicName}. Join now and start writing!`
                     };
-                    const imageMeta: MetaType = {
-                        property: "og:image",
-                        content: `https://picsum.photos/40`
-                    };
+
                     const titleMeta: MetaType = { property: "og:title", content: `${title} - CSHub` };
                     const titleActualMeta: MetaType = { name: "title", content: `${title} - CSHub` };
 
-                    const metas = [...getSitename(param), descriptionMeta, titleActualMeta, imageMeta, titleMeta];
+                    const metas = [...getSitename(param), descriptionMeta, titleActualMeta, titleMeta];
 
                     res.send(createHTML(metas));
                     return;
