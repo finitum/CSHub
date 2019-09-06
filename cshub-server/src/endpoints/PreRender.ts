@@ -42,7 +42,7 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
                     const titleMeta: MetaType = { property: "og:title", content: `${title} - CSHub` };
                     const titleActualMeta: MetaType = { name: "title", content: `${title} - CSHub` };
 
-                    const metas = [...getSitename(param), descriptionMeta, titleActualMeta, titleMeta];
+                    const metas = [...getSitenameImage(param), descriptionMeta, titleActualMeta, titleMeta];
 
                     res.send(createHTML(metas));
                     return;
