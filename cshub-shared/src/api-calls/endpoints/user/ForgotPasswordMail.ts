@@ -1,7 +1,7 @@
 import { IApiRequest } from "../../../models";
 
 import { Requests } from "../../Requests";
-import {IEmailDomain} from "../../../entities/emaildomains";
+import { IEmailDomain } from "../../../entities/emaildomains";
 
 export enum ForgotPasswordMailResponseTypes {
     SENT,

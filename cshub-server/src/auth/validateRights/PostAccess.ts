@@ -19,19 +19,21 @@ export const hasAccessToTopicRequest = (topicHash: number, req: Request): Promis
 export const hasAccessToTopicJWT = (topicHash: number, jwt: string): Promise<PostAccessType> => {
     const tokenResult = checkTokenValidityFromJWT(jwt);
 
+    if (!tokenResult) {
+        return Promise.resolve({ canEdit: false, canSave: false });
+    }
+
     // Check if user is global admin
-    if (tokenResult && tokenResult.user.admin) {
+    if (tokenResult.user.admin) {
         return Promise.resolve({ canEdit: true, canSave: true });
     }
 
     // Check if user is study admin
     return getStudiesFromTopic(topicHash).then(studies => {
-        if (tokenResult) {
-            for (const study of studies) {
-                const isStudyAdmin = tokenResult.user.studies.map(currStudy => currStudy.id).includes(study.id);
-                if (isStudyAdmin) {
-                    return { canEdit: true, canSave: true };
-                }
+        for (const study of studies) {
+            const isStudyAdmin = tokenResult.user.studies.map(currStudy => currStudy.id).includes(study.id);
+            if (isStudyAdmin) {
+                return { canEdit: true, canSave: true };
             }
         }
 

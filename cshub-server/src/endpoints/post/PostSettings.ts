@@ -4,6 +4,7 @@ import { DatabaseResultSet, query } from "../../db/database-query";
 import { PostSettings, PostSettingsEditType } from "../../../../cshub-shared/src/api-calls";
 import { hasAccessToPostRequest } from "../../auth/validateRights/PostAccess";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
+import logger from "../../utilities/Logger";
 
 app.put(PostSettings.getURL, async (req: Request, res: Response) => {
     const postHash: number = +req.params.hash;
@@ -61,9 +62,14 @@ const wipPost = async (res: Response, postHash: number) => {
     `,
         !isCurrentlyWip,
         postHash
-    ).then(() => {
-        res.json();
-    });
+    )
+        .then(() => {
+            res.json();
+        })
+        .catch(reason => {
+            logger.error(reason);
+            res.sendStatus(500);
+        });
 };
 
 const deletePost = (res: Response, postHash: number) => {
@@ -71,12 +77,16 @@ const deletePost = (res: Response, postHash: number) => {
         `
         UPDATE posts
         SET postVersion = postVersion + 1,
-            deleted     = 1,
-            title       = CONCAT('deleted_', title)
+            deleted     = 1
         WHERE hash = ?
     `,
         postHash
-    ).then(() => {
-        res.json();
-    });
+    )
+        .then(() => {
+            res.json();
+        })
+        .catch(reason => {
+            logger.error(reason);
+            res.sendStatus(500);
+        });
 };

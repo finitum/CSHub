@@ -49,7 +49,10 @@ export const getHTML = (quillEditor: any, document: Document) => {
     const toBeDeletedNodes: HTMLElement[] = [];
 
     for (const domNode of allNodes) {
-        if (domNode.tagName === "PRE" && domNode.classList.contains(MarkdownLatexQuill.blotName)) {
+        const isMarkdownNode =
+            (domNode.tagName === "PRE" && domNode.classList.contains(MarkdownLatexQuill.blotName)) ||
+            (prevElement.isMarkdownBlock && domNode.tagName === "BR");
+        if (isMarkdownNode) {
             toBeDeletedNodes.push(domNode);
             if (prevElement.isMarkdownBlock) {
                 if (domNode.textContent !== "\n") {

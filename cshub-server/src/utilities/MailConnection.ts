@@ -106,7 +106,7 @@ export const sendVerificationEmail = (to: string, name: string, insertId: number
                     logger.error("Wrong suffix entered, mail not sent");
                     throw Error();
                 } else {
-                    sendMail("Verify your email address", newHTML, to + suffix);
+                    sendMail("Verify your email address", newHTML, address);
                 }
             } else {
                 sendMail("Verify your email address", newHTML, Settings.MAIL.DEBUGMAILADDRESS);
