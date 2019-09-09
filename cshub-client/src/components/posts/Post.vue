@@ -213,7 +213,7 @@
                                         <!-- <v-list-item-avatar>
                                             <img src="https://picsum.photos/40" class="profileBorder" />
                                         </v-list-item-avatar> -->
-                                        <v-list-item-content class="pt-2 d-inline">
+                                        <v-list-item-content class="pt-2 pb-0 d-inline">
                                             <v-list-item-subtitle class="whitespaceInit post-title">
                                                 <span>
                                                     {{ post.title }}
@@ -252,7 +252,7 @@
                         </v-card-text>
                         <v-card-text
                             v-else-if="fullPostComputed && !loadingIcon && editModeComputed"
-                            class="fullHeight"
+                            class="fullHeight pt-0"
                         >
                             <Quill
                                 key="editQuill"

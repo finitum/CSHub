@@ -26,15 +26,23 @@ export const registerSockets = () => {
     io.use(cookieparser());
 
     io.on("connection", (socketConn: Socket) => {
+        let madeConnection = false;
+
         socketConn.on("disconnecting", () => {
             CursorUpdatedHandler.removeCursor(socketConn);
         });
 
         socketConn.on(ClientCursorUpdated.getURL, (cursorUpdated: ClientCursorUpdated) => {
+            if (!madeConnection) {
+                socketConn.disconnect(true);
+            }
             CursorUpdatedHandler.changedCursor(cursorUpdated.selection, socketConn);
         });
 
         socketConn.on(ClientDataUpdated.getURL, (dataUpdated: ClientDataUpdated) => {
+            if (!madeConnection) {
+                socketConn.disconnect(true);
+            }
             DataUpdatedHandler.applyNewEdit(dataUpdated.edit, socketConn);
         });
 
@@ -55,6 +63,8 @@ export const registerSockets = () => {
                                 const roomName = `POST_${togglePost.postHash}`;
                                 if (togglePost.join) {
                                     socketConn.join(roomName);
+
+                                    madeConnection = true;
 
                                     let edit: IRealtimeEdit | null;
 

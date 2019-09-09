@@ -110,6 +110,7 @@ import {
     GetEmailDomains,
     GetEmailDomainsCallback
 } from "../../../../cshub-shared/src/api-calls/endpoints/emaildomains";
+import {uiState} from "../../store";
 
 @Component({
     name: "CreateUserAccount",
@@ -164,6 +165,11 @@ export default class CreateUserAccount extends Vue {
                     (callbackData: CreateAccountCallBack) => {
                         if (callbackData.response === CreateAccountResponseTypes.SUCCESS) {
                             router.push(Routes.LOGIN);
+                            uiState.setNotificationDialog({
+                                header: "Account created",
+                                text: "Your account has been created. A verification mail has been sent.",
+                                on: true
+                            });
                         } else if (callbackData.response === CreateAccountResponseTypes.ALREADYEXISTS) {
                             logStringConsole("Account already exists");
                             this.userData.emailerror = "Account already exists.";
