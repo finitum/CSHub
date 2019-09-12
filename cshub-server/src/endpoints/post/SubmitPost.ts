@@ -55,15 +55,15 @@ app.post(SubmitPost.getURL, async (req: Request, res: Response) => {
         return res.sendStatus(500);
     }
 
-    // Check if a post with the same title already exists
-    const numPostsWithSameTitle = await postRepository.count({ title: submitPostRequest.postTitle });
-    if (numPostsWithSameTitle > 0) {
-        return res.status(409).json(new ServerError("Post with name already exists"));
-    }
-
     const topic = await topicRepository.find({ hash: submitPostRequest.postTopicHash });
     if (topic.length == 0) {
-        return res.sendStatus(500);
+        return res.sendStatus(400);
+    }
+
+    // Check if a post with the same title already exists
+    const numPostsWithSameTitle = await postRepository.count({ title: submitPostRequest.postTitle, topic: topic[0] });
+    if (numPostsWithSameTitle > 0) {
+        return res.status(409).json(new ServerError("Post with name in this topic already exists"));
     }
 
     const isIndexResult = await postRepository.find({ isIndex: true, topic: topic[0] });

@@ -14,6 +14,7 @@ import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { getRepository } from "typeorm";
 import { Edit } from "../../db/entities/edit";
 import { Post } from "../../db/entities/post";
+import { Topic } from "../../db/entities/topic";
 
 app.put(EditPost.getURL, async (req: Request, res: Response) => {
     const editPostRequest: EditPost = req.body as EditPost;
@@ -95,6 +96,22 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
 
             for (let i = 1; i < edits.length; i++) {
                 delta = delta.compose(new Delta(JSON.parse((edits[i].content as any) as string))); // typeorm doesn't parse the JSON
+            }
+
+            const topicRepository = getRepository(Topic);
+
+            const topic = await topicRepository.find({ hash: editPostRequest.postTopicHash });
+            if (topic.length == 0) {
+                return res.sendStatus(400);
+            }
+
+            // Check if a post with the same title already exists
+            const numPostsWithSameTitle = await postsRepository.count({
+                title: editPostRequest.postTitle,
+                topic: topic[0]
+            });
+            if (numPostsWithSameTitle > 0) {
+                return res.status(409).json(new ServerError("Post with name in this topic already exists"));
             }
 
             getHTMLFromDelta(delta, async (html, indexWords) => {

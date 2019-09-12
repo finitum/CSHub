@@ -7,6 +7,9 @@ import { Exclude, Expose } from "class-transformer";
 @Entity({
     name: "posts"
 })
+@Index("uq_title_topic", ["title", "topic"], {
+    unique: true
+})
 export class Post implements IPost {
     @Expose()
     @PrimaryGeneratedColumn()
@@ -30,8 +33,7 @@ export class Post implements IPost {
     @Expose()
     @Column({
         type: "varchar",
-        length: 127,
-        unique: true
+        length: 127
     })
     title!: string;
 
