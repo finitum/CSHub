@@ -106,11 +106,11 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
             }
 
             // Check if a post with the same title already exists
-            const numPostsWithSameTitle = await postsRepository.count({
+            const numPostsWithSameTitle = await postsRepository.findOne({
                 title: editPostRequest.postTitle,
                 topic: topic[0]
             });
-            if (numPostsWithSameTitle > 0) {
+            if (numPostsWithSameTitle && numPostsWithSameTitle.hash !== postHash) {
                 return res.status(409).json(new ServerError("Post with name in this topic already exists"));
             }
 
