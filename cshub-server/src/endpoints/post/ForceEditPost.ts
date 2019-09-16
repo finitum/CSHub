@@ -2,12 +2,12 @@ import { Request, Response } from "express";
 
 import { app } from "../../";
 import logger from "../../utilities/Logger";
+import cp from "child_process";
 
 import { DatabaseResultSet, query } from "../../db/database-query";
 import { validateMultipleInputs } from "../../utilities/StringUtils";
 import Delta from "quill-delta/dist/Delta";
 
-import { getHTMLFromDelta } from "../../utilities/EditsHandler";
 import { ForceEditPost } from "../../../../cshub-shared/src/api-calls";
 import { hasAccessToPostRequest } from "../../auth/validateRights/PostAccess";
 
@@ -47,25 +47,29 @@ app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
                             }
                         }
 
-                        getHTMLFromDelta(delta, (html, indexWords) => {
-                            query(
-                                `
-                                    UPDATE edits, posts
-                                    SET edits.htmlContent = ?,
-                                        edits.indexWords  = ?,
-                                        posts.postVersion = posts.postVersion + 1
-                                    WHERE edits.id = ?
-                                      AND posts.hash = ?
-                                `,
-                                html,
-                                indexWords,
-                                editId,
-                                postHash
-                            ).then(() => {
-                                logger.info("Force edit post succesfully");
-                                res.sendStatus(200);
-                            });
+                        const child = cp.fork(`${__dirname}/EditsHandler`);
+                        child.on("message", async htmlAndIndex => {
+                            if (htmlAndIndex.html && htmlAndIndex.indexWords) {
+                                query(
+                                    `
+                                            UPDATE edits, posts
+                                            SET edits.htmlContent = ?,
+                                                edits.indexWords  = ?,
+                                                posts.postVersion = posts.postVersion + 1
+                                            WHERE edits.id = ?
+                                              AND posts.hash = ?
+                                    `,
+                                    htmlAndIndex.html,
+                                    htmlAndIndex.indexWords,
+                                    editId,
+                                    postHash
+                                ).then(() => {
+                                    logger.info("Force edit post succesfully");
+                                    res.sendStatus(200);
+                                });
+                            }
                         });
+                        child.send(delta);
                     })
                     .catch(err => {
                         logger.error(`Force editing failed`);

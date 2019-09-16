@@ -3,12 +3,12 @@ import { Request, Response } from "express";
 import { app } from "../../";
 import logger from "../../utilities/Logger";
 
-import { DatabaseResultSet, query } from "../../db/database-query";
+import { query } from "../../db/database-query";
 import { checkTokenValidityFromRequest } from "../../auth/AuthMiddleware";
 import { EditPost } from "../../../../cshub-shared/src/api-calls";
 import { validateMultipleInputs } from "../../utilities/StringUtils";
 import Delta from "quill-delta/dist/Delta";
-import { getHTMLFromDelta } from "../../utilities/EditsHandler";
+import cp from "child_process";
 import { hasAccessToPostRequest } from "../../auth/validateRights/PostAccess";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { getRepository } from "typeorm";
@@ -22,6 +22,10 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
 
     const userObj = checkTokenValidityFromRequest(req);
 
+    if (!userObj) {
+        return res.sendStatus(401);
+    }
+
     const inputsValidation = validateMultipleInputs(
         { input: postHash },
         { input: editPostRequest.postTitle },
@@ -29,8 +33,8 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
         { input: editPostRequest.deleteEdit }
     );
 
-    if (!(inputsValidation.valid && userObj)) {
-        return res.status(409).json(new ServerError("Invalid request"));
+    if (!inputsValidation.valid) {
+        return res.status(400).json(new ServerError("Invalid request"));
     }
 
     const userPostAccess = await hasAccessToPostRequest(postHash, req);
@@ -114,9 +118,11 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
                 return res.status(409).json(new ServerError("Post with name in this topic already exists"));
             }
 
-            getHTMLFromDelta(delta, async (html, indexWords) => {
-                await query(
-                    `
+            const child = cp.fork(`${__dirname}/EditsHandler`);
+            child.on("message", async htmlAndIndex => {
+                if (htmlAndIndex.html && htmlAndIndex.indexWords) {
+                    await query(
+                        `
                             UPDATE edits, posts
                             SET edits.approved    = 1,
                                 edits.htmlContent = ?,
@@ -137,17 +143,19 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
                             ORDER BY edits.datetime DESC
                             LIMIT 1
                         `,
-                    html,
-                    indexWords,
-                    editPostRequest.postTitle,
-                    editPostRequest.postTopicHash,
-                    postHash,
-                    postHash
-                );
+                        htmlAndIndex.html,
+                        htmlAndIndex.indexWords,
+                        editPostRequest.postTitle,
+                        editPostRequest.postTopicHash,
+                        postHash,
+                        postHash
+                    );
 
-                logger.info("Edited post succesfully");
-                return res.sendStatus(200);
+                    logger.info("Edited post succesfully");
+                    res.sendStatus(200);
+                }
             });
+            child.send(delta);
         } catch (err) {
             logger.error(`Editing failed`);
             logger.error(err);

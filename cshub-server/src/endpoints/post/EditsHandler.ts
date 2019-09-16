@@ -1,12 +1,38 @@
-import { MarkdownLatexQuill } from "../../../cshub-shared/src/utilities/MarkdownLatexQuill";
-import { DOMWindow, JSDOM, VirtualConsole } from "jsdom";
-import QuillDefaultOptions from "../../../cshub-shared/src/utilities/QuillDefaultOptions";
-import Delta from "quill-delta/dist/Delta";
-import logger from "./Logger";
-import { getHTML } from "../../../cshub-shared/src/utilities/EditsHandler";
+import { MarkdownLatexQuill } from "../../../../cshub-shared/src/utilities/MarkdownLatexQuill";
+import { JSDOM, VirtualConsole } from "jsdom";
+import QuillDefaultOptions from "../../../../cshub-shared/src/utilities/QuillDefaultOptions";
+import logger from "../../utilities/Logger";
+import { getHTML } from "../../../../cshub-shared/src/utilities/EditsHandler";
 
-export const getHTMLFromDelta = (delta: Delta, callback: (html: string, indexWords: string) => void) => {
-    const window = initJSDOM();
+process.on("message", delta => {
+    logger.info("SPAWNED")
+    const virtualConsole = new VirtualConsole();
+    virtualConsole.on("error", err => {
+        logger.info(err);
+    });
+
+    virtualConsole.on("warn", warn => {
+        logger.info(warn);
+    });
+
+    const jsdom = new JSDOM(
+        `
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <script src="file://${__dirname}/assets/quill.min.js"></script>
+            <script src="file://${__dirname}/assets/katex.min.js"></script>
+        </head>
+        <body><div id="editor-container"></div></body>
+    </html>`,
+        {
+            runScripts: "dangerously",
+            resources: "usable",
+            virtualConsole
+        }
+    );
+
+    const window = jsdom.window;
     const document = window.document;
 
     // @ts-ignore (quill wants to execute but JSDom doesn't have it)
@@ -15,6 +41,7 @@ export const getHTMLFromDelta = (delta: Delta, callback: (html: string, indexWor
     window.onerror = err => {
         logger.info("JSDOM Save errors");
         logger.info(err.toString());
+        process.emit("warning", err as any);
     };
 
     window.onload = () => {
@@ -50,36 +77,9 @@ export const getHTMLFromDelta = (delta: Delta, callback: (html: string, indexWor
         const unique = [...new Set(filteredArr)];
         const htmlFiltered = unique.join("");
 
-        callback(html, htmlFiltered);
-    };
-};
-
-const initJSDOM = (): DOMWindow => {
-    const virtualConsole = new VirtualConsole();
-    virtualConsole.on("error", err => {
-        logger.info(err);
-    });
-
-    virtualConsole.on("warn", warn => {
-        logger.info(warn);
-    });
-
-    const jsdom = new JSDOM(
-        `
-    <!DOCTYPE html>
-    <html>
-        <head>
-            <script src="file://${__dirname}/assets/quill.min.js"></script>
-            <script src="file://${__dirname}/assets/katex.min.js"></script>
-        </head>
-        <body><div id="editor-container"></div></body>
-    </html>`,
-        {
-            runScripts: "dangerously",
-            resources: "usable",
-            virtualConsole
+        if (process.send) {
+            logger.info("SENDING");
+            process.send({ html, indexWords: htmlFiltered });
         }
-    );
-
-    return jsdom.window;
-};
+    };
+});
