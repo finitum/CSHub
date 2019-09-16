@@ -66,6 +66,7 @@ app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
                                 ).then(() => {
                                     logger.info("Force edit post succesfully");
                                     res.sendStatus(200);
+                                    child.kill("SIGKILL");
                                 });
                             }
                         });

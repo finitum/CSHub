@@ -5,7 +5,7 @@ import logger from "../../utilities/Logger";
 import { getHTML } from "../../../../cshub-shared/src/utilities/EditsHandler";
 
 process.on("message", delta => {
-    logger.info("SPAWNED")
+    logger.info("Spawned child process");
     const virtualConsole = new VirtualConsole();
     virtualConsole.on("error", err => {
         logger.info(err);
@@ -78,7 +78,7 @@ process.on("message", delta => {
         const htmlFiltered = unique.join("");
 
         if (process.send) {
-            logger.info("SENDING");
+            logger.info("Returning from child process");
             process.send({ html, indexWords: htmlFiltered });
         }
     };

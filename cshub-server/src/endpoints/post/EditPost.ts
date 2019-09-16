@@ -153,6 +153,8 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
 
                     logger.info("Edited post succesfully");
                     res.sendStatus(200);
+
+                    child.kill("SIGKILL");
                 }
             });
             child.send(delta);
