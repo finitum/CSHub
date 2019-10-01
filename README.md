@@ -3,7 +3,7 @@ This is a project made for the TU Delft CSE studies, where everyone can post inf
 ## Running the project
 * Install [NodeJS](https://nodejs.org/en/), and install the dependencies of the server and client projects (`npm install` in the correct directories)
 * For the server, run `ts-node`, or use the provided IntelliJ runconfigs
-* For the client, run `npm run serve` :)
+* For the client, run `yarn run serve` :)
 
 ## Feature Requests / Bug Reports
 
