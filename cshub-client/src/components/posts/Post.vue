@@ -1,4 +1,4 @@
-<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+<template>
     <div class="fullHeight">
         <div v-if="post !== null" class="fullHeight" @click.capture="handleClick" @dblclick.capture="handleDoubleClick">
             <!-- The following transition is just a trick so I get an event on the change from preview to full post (performance of the animation when the viewer is on is terrible) -->
@@ -153,7 +153,8 @@
                                                     <v-icon>fas fa-save</v-icon>
                                                 </v-btn>
                                             </template>
-                                            <span>Save the post</span>
+                                            <span v-if="post.wip">Save the edit</span>
+                                            <span v-else>Publish the edit</span>
                                         </v-tooltip>
 
                                         <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
