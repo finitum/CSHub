@@ -7,6 +7,7 @@ import { Topics, GetTopicsCallBack } from "../../../../cshub-shared/src/api-call
 import { getTopicTree } from "../../utilities/TopicsUtils";
 import { getRepository } from "typeorm";
 import { CacheVersion } from "../../db/entities/cacheversion";
+import { Study } from "../../db/entities/study";
 import { Topic } from "../../db/entities/topic";
 
 app.get(Topics.getURL, async (req: Request, res: Response) => {
@@ -25,13 +26,25 @@ app.get(Topics.getURL, async (req: Request, res: Response) => {
     }
 
     const repository = getRepository(CacheVersion);
+    const studyRepository = getRepository(Study);
 
     const versionData = await repository.findOne({
         where: {
             type: "TOPICS"
         }
     });
-
+   
+    const studyData = study !== undefined ? await studyRepository.findOne({
+        where: {
+            id: study        
+        }
+    }) : undefined;    
+    
+    if (studyData == undefined) {
+        res.status(404).send();
+        return;
+    }
+    
     const makeJsonifiable = (topic: Topic) => {
         delete topic.parent;
 
