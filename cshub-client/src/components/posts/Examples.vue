@@ -4,9 +4,8 @@
             <v-col
                 v-for="postHash of postHashesProp"
                 :key="postHash"
-                lg="3"
-                md="4"
-                sm="6"
+                xl="4"
+                md="6"
                 cols="12"
                 class="example pa-0 mb-4"
             >
