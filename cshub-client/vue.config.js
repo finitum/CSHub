@@ -5,7 +5,7 @@ process.env.VUE_APP_BUILDDATE = new Date().toLocaleString();
 
 module.exports = {
     pwa: {
-        themeColor: '#00A6D8',
+        themeColor: '#00A6D6',
         name: 'CSHub',
         workboxPluginMode: 'GenerateSW',
         appleMobileWebAppCapable: true,
