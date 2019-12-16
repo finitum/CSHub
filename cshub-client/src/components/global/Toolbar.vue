@@ -68,7 +68,7 @@ export default class Toolbar extends Vue {
     // Build information
     private shortVersionString = "SHA: " + process.env.VUE_APP_VERSION.substr(0, 7);
     private fullGitSHA = process.env.VUE_APP_VERSION;
-    private githubLink = "https://github.com/RobbinBaauw/CSHub/commit/" + this.fullGitSHA;
+    private githubLink = "https://github.com/finitum/CSHub/commit/" + this.fullGitSHA;
     private buildDate = "Build Date: " + process.env.VUE_APP_BUILDDATE;
 
     /**
