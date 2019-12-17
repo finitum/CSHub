@@ -1,6 +1,6 @@
 <template>
-    <div class="">
-        <div v-if="post !== null" class="" @click.capture="handleClick" @dblclick.capture="handleDoubleClick">
+    <div>
+        <div v-if="post !== null" @click.capture="handleClick" @dblclick.capture="handleDoubleClick">
             <!-- The following transition is just a trick so I get an event on the change from preview to full post (performance of the animation when the viewer is on is terrible) -->
             <transition
                 :duration="300"
@@ -19,7 +19,7 @@
             ></v-progress-circular>
             <v-card
                 :class="{ previewCard: !fullPostComputed, fullCard: fullPostComputed, isIndex: alwaysShowContent }"
-                class=""
+               
                 style="box-shadow: none"
             >
                 <v-layout align-start justify-start column fill-height>
@@ -231,7 +231,7 @@
                             </span>
                         </v-card-title>
                     </v-flex>
-                    <v-flex class="" style="overflow: scroll; width: 100%">
+                    <v-flex style="overflow: scroll; width: 100%" v-show="fullPostComputed">
                         <v-card-text
                             v-if="
                                 ((fullPostComputed && !editModeComputed) || (!fullPostComputed && alwaysShowContent)) &&
@@ -242,15 +242,14 @@
                             <v-list-item-subtitle class="whitespaceInit post-title secondaryTitle">
                                 <span>{{ post.title }}</span>
                             </v-list-item-subtitle>
-                            <div class="ql-editor  pa-0">
-                                <div v-show="showContent" id="htmlOutput" class="" v-html="post.htmlContent"></div>
+                            <div class="ql-editor pa-0">
+                                <div v-show="showContent" id="htmlOutput" v-html="post.htmlContent"></div>
                             </div>
                         </v-card-text>
                         <v-card-text v-else-if="fullPostComputed && !loadingIcon && editModeComputed" class=" pt-0">
                             <Quill
                                 key="editQuill"
                                 ref="editQuill"
-                                style="margin-bottom: 20px"
                                 :editor-setup="{ allowEdit: true, showToolbar: true, postHash }"
                             ></Quill>
                         </v-card-text>
