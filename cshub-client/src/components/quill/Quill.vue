@@ -1,10 +1,10 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-    <v-container style="max-width: 100%;" class="fullHeight pa-0">
-        <v-layout row wrap class="fullHeight">
-            <v-flex :xs6="showMarkdownPreview" class="fullHeight">
+    <v-container style="max-width: 100%;" class=" pa-0">
+        <v-layout row wrap class="">
+            <v-flex :xs6="showMarkdownPreview" class="">
                 <!-- Shamelessly stolen from the quilljs homepage -->
-                <div class="snow-wrapper fullHeight" style="height: 100%">
-                    <div class="snow-container fullHeight">
+                <div class="snow-wrapper " style="height: 100%">
+                    <div class="snow-container ">
                         <div
                             v-show="editorSetup.showToolbar"
                             id="toolbar"
@@ -167,14 +167,14 @@
                                 </v-tooltip>
                             </span>
                         </div>
-                        <div id="editor" class="editor fullHeight" style="overflow: hidden;"></div>
+                        <div id="editor" class="editor " style="overflow: hidden;"></div>
                     </div>
                 </div>
             </v-flex>
-            <v-flex v-show="showMarkdownPreview" xs6 class="fullHeight pl-2">
+            <v-flex v-show="showMarkdownPreview" xs6 class=" pl-2">
                 <div
                     id="htmlOutput"
-                    class="fullHeight"
+                    class=""
                     style="margin-top: 10px; overflow-y: auto"
                     v-html="markdownHTMLPreview"
                 ></div>
