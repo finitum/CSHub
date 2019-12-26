@@ -23,214 +23,212 @@
                 style="box-shadow: none"
             >
                 <v-layout align-start justify-start column fill-height>
-                    <v-flex>
-                        <v-card-title primary-title class="pb-0 xl-0 pt-1 titleCard">
-                            <transition name="topMenuShow">
-                                <div v-if="!showTopMenu && fullPostComputed">
+                    <v-card-title primary-title class="pb-0 xl-0 pt-1 titleCard">
+                        <transition name="topMenuShow">
+                            <div v-if="!showTopMenu && fullPostComputed">
+                                <v-btn
+                                    color="primary"
+                                    min-width="88"
+                                    class="mr-1 my-1"
+                                    depressed
+                                    small
+                                    dark
+                                    @click="returnToPostMenu"
+                                >
+                                    <v-icon>fas fa-chevron-left</v-icon>
+                                </v-btn>
+                                <v-btn
+                                    color="secondary"
+                                    depressed
+                                    min-width="88"
+                                    small
+                                    class="ma-1 angleLighten3Dark"
+                                    @click="showTopMenu = true"
+                                >
+                                    <v-icon>fas fa-angle-down</v-icon>
+                                </v-btn>
+                            </div>
+                        </transition>
+                        <span v-if="showTopMenu || !fullPostComputed" style="display: contents">
+                            <transition name="breadcrumb">
+                                <div v-if="fullPostComputed">
                                     <v-btn
                                         color="primary"
                                         min-width="88"
-                                        class="mr-1 my-1"
                                         depressed
+                                        class="my-1 mr-4 d-inline-block"
                                         small
                                         dark
                                         @click="returnToPostMenu"
                                     >
                                         <v-icon>fas fa-chevron-left</v-icon>
                                     </v-btn>
-                                    <v-btn
-                                        color="secondary"
-                                        depressed
-                                        min-width="88"
-                                        small
-                                        class="ma-1 angleLighten3Dark"
-                                        @click="showTopMenu = true"
+
+                                    <v-breadcrumbs :items="topicNames" class="d-inline-block pa-0 mr-4 my-1">
+                                        <template v-slot:item="props">
+                                            <v-breadcrumbs-item
+                                                v-if="props.item.topic"
+                                                :to="props.item.to"
+                                                :exact="true"
+                                            >
+                                                {{ props.item.text }}
+                                            </v-breadcrumbs-item>
+                                            <v-breadcrumbs-item
+                                                v-else
+                                                :disabled="!editModeComputed"
+                                                :to="currentPostURLComputed"
+                                                :exact="true"
+                                            >
+                                                {{ props.item.text }}
+                                            </v-breadcrumbs-item>
+                                        </template>
+                                    </v-breadcrumbs>
+                                    <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
+                                        <template v-slot:activator="{ on }">
+                                            <v-btn
+                                                min-width="88"
+                                                color="red"
+                                                depressed
+                                                class="my-1 mr-4 d-inline-block"
+                                                small
+                                                v-on="on"
+                                                @click="hidePost()"
+                                            >
+                                                <v-icon>fas fa-trash</v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <span>Delete the post (sorta)</span>
+                                    </v-tooltip>
+
+                                    <v-tooltip
+                                        v-if="!editModeComputed && userIsLoggedIn && userAdminComputed"
+                                        bottom
                                     >
-                                        <v-icon>fas fa-angle-down</v-icon>
+                                        <template v-slot:activator="{ on }">
+                                            <v-btn
+                                                min-width="88"
+                                                color="purple"
+                                                depressed
+                                                class="my-1 mr-4 d-inline-block"
+                                                small
+                                                v-on="on"
+                                                @click="wipPost()"
+                                            >
+                                                <v-icon v-if="post.wip">fas fa-comments</v-icon>
+                                                <v-icon v-else>far fa-comments</v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <span>Toggle WIP (dark = WIP)</span>
+                                    </v-tooltip>
+
+                                    <v-tooltip v-if="!editModeComputed && userIsLoggedIn" bottom>
+                                        <template v-slot:activator="{ on }">
+                                            <v-btn
+                                                min-width="88"
+                                                color="orange"
+                                                depressed
+                                                class="my-1 mr-4 d-inline-block"
+                                                small
+                                                v-on="on"
+                                                @click="enableEdit"
+                                            >
+                                                <v-icon>fas fa-edit</v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <span>Edit the post</span>
+                                    </v-tooltip>
+
+                                    <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
+                                        <template v-slot:activator="{ on }">
+                                            <v-btn
+                                                min-width="88"
+                                                depressed
+                                                class="my-1 mr-4 d-inline-block"
+                                                small
+                                                color="green"
+                                                v-on="on"
+                                                @click="savePostDialog"
+                                            >
+                                                <v-icon>fas fa-save</v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <span v-if="post.wip">Save the edit</span>
+                                        <span v-else>Publish the edit</span>
+                                    </v-tooltip>
+
+                                    <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
+                                        <template v-slot:activator="{ on }">
+                                            <v-btn
+                                                min-width="88"
+                                                depressed
+                                                class="my-1 mr-4 d-inline-block"
+                                                small
+                                                color="blue"
+                                                v-on="on"
+                                                @click="forceEditPost"
+                                            >
+                                                <v-icon>fas fa-gavel</v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <span>Force edit the post</span>
+                                    </v-tooltip>
+
+                                    <v-tooltip v-if="!editModeComputed" bottom>
+                                        <template v-slot:activator="{ on }">
+                                            <v-btn
+                                                min-width="88"
+                                                depressed
+                                                small
+                                                class="my-1 mr-4 d-inline-block"
+                                                color="primary"
+                                                v-on="on"
+                                                @click="viewEditDialog"
+                                            >
+                                                <v-icon>fas fa-history</v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <span>View post history</span>
+                                    </v-tooltip>
+
+                                    <v-btn
+                                        depressed
+                                        small
+                                        min-width="88"
+                                        color="secondary"
+                                        class="my-1 mr-4 d-inline-block angleLighten3Dark"
+                                        @click="showTopMenu = false"
+                                    >
+                                        <v-icon>fas fa-angle-up</v-icon>
                                     </v-btn>
                                 </div>
                             </transition>
-                            <span v-if="showTopMenu || !fullPostComputed" style="display: contents">
-                                <transition name="breadcrumb">
-                                    <div v-if="fullPostComputed">
-                                        <v-btn
-                                            color="primary"
-                                            min-width="88"
-                                            depressed
-                                            class="my-1 mr-4 d-inline-block"
-                                            small
-                                            dark
-                                            @click="returnToPostMenu"
-                                        >
-                                            <v-icon>fas fa-chevron-left</v-icon>
-                                        </v-btn>
-
-                                        <v-breadcrumbs :items="topicNames" class="d-inline-block pa-0 mr-4 my-1">
-                                            <template v-slot:item="props">
-                                                <v-breadcrumbs-item
-                                                    v-if="props.item.topic"
-                                                    :to="props.item.to"
-                                                    :exact="true"
-                                                >
-                                                    {{ props.item.text }}
-                                                </v-breadcrumbs-item>
-                                                <v-breadcrumbs-item
-                                                    v-else
-                                                    :disabled="!editModeComputed"
-                                                    :to="currentPostURLComputed"
-                                                    :exact="true"
-                                                >
-                                                    {{ props.item.text }}
-                                                </v-breadcrumbs-item>
-                                            </template>
-                                        </v-breadcrumbs>
-                                        <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
-                                            <template v-slot:activator="{ on }">
-                                                <v-btn
-                                                    min-width="88"
-                                                    color="red"
-                                                    depressed
-                                                    class="my-1 mr-4 d-inline-block"
-                                                    small
-                                                    v-on="on"
-                                                    @click="hidePost()"
-                                                >
-                                                    <v-icon>fas fa-trash</v-icon>
-                                                </v-btn>
-                                            </template>
-                                            <span>Delete the post (sorta)</span>
-                                        </v-tooltip>
-
-                                        <v-tooltip
-                                            v-if="!editModeComputed && userIsLoggedIn && userAdminComputed"
-                                            bottom
-                                        >
-                                            <template v-slot:activator="{ on }">
-                                                <v-btn
-                                                    min-width="88"
-                                                    color="purple"
-                                                    depressed
-                                                    class="my-1 mr-4 d-inline-block"
-                                                    small
-                                                    v-on="on"
-                                                    @click="wipPost()"
-                                                >
-                                                    <v-icon v-if="post.wip">fas fa-comments</v-icon>
-                                                    <v-icon v-else>far fa-comments</v-icon>
-                                                </v-btn>
-                                            </template>
-                                            <span>Toggle WIP (dark = WIP)</span>
-                                        </v-tooltip>
-
-                                        <v-tooltip v-if="!editModeComputed && userIsLoggedIn" bottom>
-                                            <template v-slot:activator="{ on }">
-                                                <v-btn
-                                                    min-width="88"
-                                                    color="orange"
-                                                    depressed
-                                                    class="my-1 mr-4 d-inline-block"
-                                                    small
-                                                    v-on="on"
-                                                    @click="enableEdit"
-                                                >
-                                                    <v-icon>fas fa-edit</v-icon>
-                                                </v-btn>
-                                            </template>
-                                            <span>Edit the post</span>
-                                        </v-tooltip>
-
-                                        <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
-                                            <template v-slot:activator="{ on }">
-                                                <v-btn
-                                                    min-width="88"
-                                                    depressed
-                                                    class="my-1 mr-4 d-inline-block"
-                                                    small
-                                                    color="green"
-                                                    v-on="on"
-                                                    @click="savePostDialog"
-                                                >
-                                                    <v-icon>fas fa-save</v-icon>
-                                                </v-btn>
-                                            </template>
-                                            <span v-if="post.wip">Save the edit</span>
-                                            <span v-else>Publish the edit</span>
-                                        </v-tooltip>
-
-                                        <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
-                                            <template v-slot:activator="{ on }">
-                                                <v-btn
-                                                    min-width="88"
-                                                    depressed
-                                                    class="my-1 mr-4 d-inline-block"
-                                                    small
-                                                    color="blue"
-                                                    v-on="on"
-                                                    @click="forceEditPost"
-                                                >
-                                                    <v-icon>fas fa-gavel</v-icon>
-                                                </v-btn>
-                                            </template>
-                                            <span>Force edit the post</span>
-                                        </v-tooltip>
-
-                                        <v-tooltip v-if="!editModeComputed" bottom>
-                                            <template v-slot:activator="{ on }">
-                                                <v-btn
-                                                    min-width="88"
-                                                    depressed
-                                                    small
-                                                    class="my-1 mr-4 d-inline-block"
-                                                    color="primary"
-                                                    v-on="on"
-                                                    @click="viewEditDialog"
-                                                >
-                                                    <v-icon>fas fa-history</v-icon>
-                                                </v-btn>
-                                            </template>
-                                            <span>View post history</span>
-                                        </v-tooltip>
-
-                                        <v-btn
-                                            depressed
-                                            small
-                                            min-width="88"
-                                            color="secondary"
-                                            class="my-1 mr-4 d-inline-block angleLighten3Dark"
-                                            @click="showTopMenu = false"
-                                        >
-                                            <v-icon>fas fa-angle-up</v-icon>
-                                        </v-btn>
-                                    </div>
-                                </transition>
-                                <v-list
-                                    v-if="!alwaysShowContent || fullPostComputed"
-                                    two-line
-                                    style="width: 100%"
-                                    class="pt-0"
-                                >
-                                    <v-list-item class="pa-0 postTile">
-                                        <!-- Maybe re-add later -->
-                                        <!-- <v-list-item-avatar>
-                                            <img src="https://picsum.photos/40" class="profileBorder" />
-                                        </v-list-item-avatar> -->
-                                        <v-list-item-content class="pt-2 pb-0 d-inline">
-                                            <v-list-item-subtitle class="whitespaceInit post-title">
-                                                <span>
-                                                    {{ post.title }}
-                                                    {{ post.isIndex ? "(index page)" : "" }}
-                                                    {{ post.isExample ? "(example)" : "" }}
-                                                </span>
-                                            </v-list-item-subtitle>
-                                            <v-list-item-subtitle class="whitespaceInit">
-                                                {{ post.datetime | formatDate }}
-                                            </v-list-item-subtitle>
-                                        </v-list-item-content>
-                                    </v-list-item>
-                                </v-list>
-                            </span>
-                        </v-card-title>
-                    </v-flex>
+                            <v-list
+                                v-if="!alwaysShowContent || fullPostComputed"
+                                two-line
+                                style="width: 100%"
+                                class="pt-0"
+                            >
+                                <v-list-item class="pa-0 postTile">
+                                    <!-- Maybe re-add later -->
+                                    <!-- <v-list-item-avatar>
+                                        <img src="https://picsum.photos/40" class="profileBorder" />
+                                    </v-list-item-avatar> -->
+                                    <v-list-item-content class="pt-2 pb-0 d-inline">
+                                        <v-list-item-subtitle class="whitespaceInit post-title">
+                                            <span>
+                                                {{ post.title }}
+                                                {{ post.isIndex ? "(index page)" : "" }}
+                                                {{ post.isExample ? "(example)" : "" }}
+                                            </span>
+                                        </v-list-item-subtitle>
+                                        <v-list-item-subtitle class="whitespaceInit">
+                                            {{ post.datetime | formatDate }}
+                                        </v-list-item-subtitle>
+                                    </v-list-item-content>
+                                </v-list-item>
+                            </v-list>
+                        </span>
+                    </v-card-title>
                     <v-flex style="overflow: scroll; width: 100%" v-show="fullPostComputed">
                         <v-card-text
                             v-if="
