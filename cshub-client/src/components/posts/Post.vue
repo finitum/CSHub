@@ -19,7 +19,6 @@
             ></v-progress-circular>
             <v-card
                 :class="{ previewCard: !fullPostComputed, fullCard: fullPostComputed, isIndex: alwaysShowContent }"
-               
                 style="box-shadow: none"
             >
                 <v-layout align-start justify-start column fill-height>
@@ -100,10 +99,7 @@
                                         <span>Delete the post (sorta)</span>
                                     </v-tooltip>
 
-                                    <v-tooltip
-                                        v-if="!editModeComputed && userIsLoggedIn && userAdminComputed"
-                                        bottom
-                                    >
+                                    <v-tooltip v-if="!editModeComputed && userIsLoggedIn && userAdminComputed" bottom>
                                         <template v-slot:activator="{ on }">
                                             <v-btn
                                                 min-width="88"
@@ -229,7 +225,7 @@
                             </v-list>
                         </span>
                     </v-card-title>
-                    <v-flex style="overflow: scroll; width: 100%" v-show="fullPostComputed">
+                    <v-flex v-show="fullPostComputed" style="width: 100%; overflow: auto">
                         <v-card-text
                             v-if="
                                 ((fullPostComputed && !editModeComputed) || (!fullPostComputed && alwaysShowContent)) &&
@@ -244,12 +240,16 @@
                                 <div v-show="showContent" id="htmlOutput" v-html="post.htmlContent"></div>
                             </div>
                         </v-card-text>
-                        <v-card-text v-else-if="fullPostComputed && !loadingIcon && editModeComputed" class=" pt-0">
+                        <v-card-text
+                            v-else-if="fullPostComputed && !loadingIcon && editModeComputed"
+                            style="height: 100%"
+                            class="pa-0"
+                        >
                             <Quill
                                 key="editQuill"
                                 ref="editQuill"
                                 :editor-setup="{ allowEdit: true, showToolbar: true, postHash }"
-                            ></Quill>
+                            />
                         </v-card-text>
                     </v-flex>
                 </v-layout>

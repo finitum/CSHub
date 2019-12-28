@@ -105,7 +105,11 @@ import ViewerMixin from "../viewers/ViewerMixin";
 import { FullQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import { ApiWrapper } from "../../../utilities";
 import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
-import { getVariableNames, evaluate, generateVariableValues } from "../../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
+import {
+    getVariableNames,
+    evaluate,
+    generateVariableValues
+} from "../../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
 import DynamicViewer from "../viewers/DynamicViewer.vue";
 import { uiState } from "../../../store";
 import { VariableExpression } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/Variable";
@@ -211,7 +215,7 @@ export default class DynamicEditor extends ViewerMixin {
         );
 
         variableNames.forEach(variableName => {
-            if (!this.variableExpressions.hasOwnProperty(variableName)) {
+            if (!Object.prototype.hasOwnProperty.call(this.variableExpressions, variableName)) {
                 Vue.set(this.variableExpressions, variableName, "");
             }
         });

@@ -27,7 +27,7 @@
                 <v-btn tile depressed small color="primary" @click="backToQuestions">
                     You're practicing questions! Go back to the questions <v-icon right>fas fa-backward</v-icon>
                 </v-btn>
-                <v-btn tile depressed small color="secondary" @click="quitPractice" class="mr-2">
+                <v-btn tile depressed small color="secondary" class="mr-2" @click="quitPractice">
                     Or quit practicing <v-icon right>fas fa-times</v-icon>
                 </v-btn>
             </template>

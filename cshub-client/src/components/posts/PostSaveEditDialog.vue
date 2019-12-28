@@ -197,14 +197,14 @@ export default class PostSaveEditDialog extends Vue {
                             const currentTheme = theme.dark ? theme.themes.dark : theme.themes.light;
 
                             for (const op of currContent.ops) {
-                                if (op.hasOwnProperty("insert")) {
+                                if (Object.prototype.hasOwnProperty.call(op, "insert")) {
                                     op.attributes = {
                                         ...op.attributes,
                                         background: currentTheme.success,
                                         color: currentTheme.secondary
                                     };
                                 }
-                                if (op.hasOwnProperty("delete")) {
+                                if (Object.prototype.hasOwnProperty.call(op, "delete")) {
                                     op.retain = op.delete;
                                     delete op.delete;
                                     op.attributes = {
