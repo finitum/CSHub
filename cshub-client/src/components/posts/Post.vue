@@ -225,7 +225,7 @@
                             </v-list>
                         </span>
                     </v-card-title>
-                    <v-flex v-show="fullPostComputed" style="width: 100%; overflow: auto">
+                    <v-flex style="width: 100%; overflow: auto">
                         <v-card-text
                             v-if="
                                 ((fullPostComputed && !editModeComputed) || (!fullPostComputed && alwaysShowContent)) &&
