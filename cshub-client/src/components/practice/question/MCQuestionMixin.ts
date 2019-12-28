@@ -60,13 +60,10 @@ export default class MCQuestionMixin extends Vue {
             const savedData = currentQuestions[+this.$route.params.index];
 
             if (savedData.answer && savedData.answer.type === QuestionType.MULTICLOSED) {
-                return savedData.answer.answerIds.reduce(
-                    (previousValue, currentValue) => {
-                        previousValue[currentValue] = true;
-                        return previousValue;
-                    },
-                    {} as MCAnswerType
-                );
+                return savedData.answer.answerIds.reduce((previousValue, currentValue) => {
+                    previousValue[currentValue] = true;
+                    return previousValue;
+                }, {} as MCAnswerType);
             }
         }
 

@@ -110,7 +110,7 @@ import {
     GetEmailDomains,
     GetEmailDomainsCallback
 } from "../../../../cshub-shared/src/api-calls/endpoints/emaildomains";
-import {uiState} from "../../store";
+import { uiState } from "../../store";
 
 @Component({
     name: "CreateUserAccount",

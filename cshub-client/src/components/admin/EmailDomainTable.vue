@@ -87,7 +87,7 @@ import {
     PutEmailDomains,
     PostEmailDomains,
     PostEmailDomainsCallback,
-    DeleteEmailDomains,
+    DeleteEmailDomains
 } from "../../../../cshub-shared/src/api-calls/endpoints/emaildomains";
 import { IEmailDomain } from "../../../../cshub-shared/src/entities/emaildomains";
 

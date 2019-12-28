@@ -1,186 +1,170 @@
-<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-    <v-container style="max-width: 100%;" class=" pa-0">
-        <v-layout row wrap class="">
-            <v-flex :xs6="showMarkdownPreview" class="">
-                <!-- Shamelessly stolen from the quilljs homepage -->
-                <div class="snow-wrapper " style="height: 100%">
-                    <div class="snow-container ">
-                        <div
-                            v-show="editorSetup.showToolbar"
-                            id="toolbar"
-                            class="toolbar"
-                            style="border: none; padding: 1%;"
-                        >
-                            <span class="ql-formats">
-                                <select class="ql-header" title="Header">
-                                    <option value="1">Heading</option>
-                                    <option value="2">Subheading</option>
-                                    <option value="3">Subsubheading</option>
-                                    <option selected>Normal</option>
-                                </select>
-                            </span>
-                            <span class="ql-formats">
-                                <button class="ql-bold"></button>
-                                <button class="ql-italic"></button>
-                                <button class="ql-underline"></button>
-                                <button class="ql-clean"></button>
-                                <select class="ql-color">
-                                    <option value="inherit" />
-                                    <option value="rgb(230, 0, 0)" />
-                                    <option value="rgb(255, 153, 0)" />
-                                    <option value="rgb(255, 255, 0)" />
-                                    <option value="rgb(0, 138, 0)" />
-                                    <option value="rgb(0, 102, 204)" />
-                                    <option value="rgb(153, 51, 255)" />
-                                    <option value="rgb(250, 204, 204)" />
-                                    <option value="rgb(255, 235, 204)" />
-                                    <option value="rgb(204, 224, 245)" />
-                                    <option value="rgb(235, 214, 255)" />
-                                    <option value="rgb(187, 187, 187)" />
-                                    <option value="rgb(102, 185, 102)" />
-                                </select>
-                                <select class="ql-background">
-                                    <option value="rgba(0, 0, 0, 0)" />
-                                    <option value="rgb(230, 0, 0)" />
-                                    <option value="rgb(255, 153, 0)" />
-                                    <option value="rgb(255, 255, 0)" />
-                                    <option value="rgb(0, 138, 0)" />
-                                    <option value="rgb(0, 102, 204)" />
-                                    <option value="rgb(153, 51, 255)" />
-                                    <option value="rgb(250, 204, 204)" />
-                                    <option value="rgb(255, 235, 204)" />
-                                    <option value="rgb(204, 224, 245)" />
-                                    <option value="rgb(235, 214, 255)" />
-                                    <option value="rgb(187, 187, 187)" />
-                                    <option value="rgb(102, 185, 102)" />
-                                </select>
-                            </span>
-                            <span class="ql-formats">
-                                <button class="ql-list" value="ordered"></button>
-                                <button class="ql-list" value="bullet"></button>
-                                <select class="ql-align" title="Alignment">
-                                    <option label="left" selected></option>
-                                    <option label="center" value="center"></option>
-                                    <option label="right" value="right"></option>
-                                    <option label="justify" value="justify"></option>
-                                </select>
-                            </span>
-                            <span class="ql-formats">
-                                <button class="ql-link"></button>
-                                <button class="ql-image" style="display: none"></button>
-                                <button class="ql-video"></button>
-                            </span>
-                            <span class="ql-formats">
-                                <v-tooltip bottom>
-                                    <template v-slot:activator="{ on }">
-                                        <button class="ql-formula" v-on="on"></button>
-                                    </template>
-                                    <span>Add latex (ctrl + shift + a)</span>
-                                </v-tooltip>
+<template>
+    <v-layout align-start justify-start column fill-height>
+        <div v-show="editorSetup.showToolbar" id="toolbar" class="toolbar" style="width: 100%; border: none">
+            <span class="ql-formats">
+                <select class="ql-header" title="Header">
+                    <option value="1">Heading</option>
+                    <option value="2">Subheading</option>
+                    <option value="3">Subsubheading</option>
+                    <option selected>Normal</option>
+                </select>
+            </span>
+            <span class="ql-formats">
+                <button class="ql-bold" />
+                <button class="ql-italic" />
+                <button class="ql-underline" />
+                <button class="ql-clean" />
+                <label>
+                    <select class="ql-color">
+                        <option value="inherit" />
+                        <option value="rgb(230, 0, 0)" />
+                        <option value="rgb(255, 153, 0)" />
+                        <option value="rgb(255, 255, 0)" />
+                        <option value="rgb(0, 138, 0)" />
+                        <option value="rgb(0, 102, 204)" />
+                        <option value="rgb(153, 51, 255)" />
+                        <option value="rgb(250, 204, 204)" />
+                        <option value="rgb(255, 235, 204)" />
+                        <option value="rgb(204, 224, 245)" />
+                        <option value="rgb(235, 214, 255)" />
+                        <option value="rgb(187, 187, 187)" />
+                        <option value="rgb(102, 185, 102)" />
+                    </select>
+                </label>
+                <label>
+                    <select class="ql-background">
+                        <option value="rgba(0, 0, 0, 0)" />
+                        <option value="rgb(230, 0, 0)" />
+                        <option value="rgb(255, 153, 0)" />
+                        <option value="rgb(255, 255, 0)" />
+                        <option value="rgb(0, 138, 0)" />
+                        <option value="rgb(0, 102, 204)" />
+                        <option value="rgb(153, 51, 255)" />
+                        <option value="rgb(250, 204, 204)" />
+                        <option value="rgb(255, 235, 204)" />
+                        <option value="rgb(204, 224, 245)" />
+                        <option value="rgb(235, 214, 255)" />
+                        <option value="rgb(187, 187, 187)" />
+                        <option value="rgb(102, 185, 102)" />
+                    </select>
+                </label>
+            </span>
+            <span class="ql-formats">
+                <button class="ql-list" value="ordered" />
+                <button class="ql-list" value="bullet" />
+                <select class="ql-align" title="Alignment">
+                    <option label="left" selected />
+                    <option label="center" value="center" />
+                    <option label="right" value="right" />
+                    <option label="justify" value="justify" />
+                </select>
+            </span>
+            <span class="ql-formats">
+                <button class="ql-link" />
+                <button class="ql-image" style="display: none" />
+                <button class="ql-video" />
+            </span>
+            <span class="ql-formats">
+                <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                        <button class="ql-formula" v-on="on" />
+                    </template>
+                    <span>Add latex (ctrl + shift + a)</span>
+                </v-tooltip>
 
-                                <v-menu
-                                    v-model="otherPeoplesMenu"
-                                    :close-on-content-click="false"
-                                    :nudge-width="200"
-                                    offset-x
+                <v-menu v-model="otherPeoplesMenu" :close-on-content-click="false" :nudge-width="200" offset-x>
+                    <template v-slot:activator="{ on: menu }">
+                        <v-tooltip bottom>
+                            <template v-slot:activator="{ on: tooltip }">
+                                <v-btn
+                                    dark
+                                    text
+                                    :ripple="false"
+                                    small
+                                    class="quillIcon"
+                                    style="margin: 0"
+                                    v-on="{ ...tooltip, ...menu }"
                                 >
-                                    <template v-slot:activator="{ on: menu }">
-                                        <v-tooltip bottom>
-                                            <template v-slot:activator="{ on: tooltip }">
-                                                <v-btn
-                                                    dark
-                                                    text
-                                                    :ripple="false"
-                                                    small
-                                                    class="quillIcon"
-                                                    style="margin: 0"
-                                                    v-on="{ ...tooltip, ...menu }"
-                                                >
-                                                    <v-icon :color="darkMode ? 'white' : 'black'">fas fa-users</v-icon>
-                                                </v-btn>
-                                            </template>
-                                            <span>View current users</span>
-                                        </v-tooltip>
-                                    </template>
-                                    <v-card>
-                                        <v-list>
-                                            <v-list-item
-                                                v-for="user in Array.from(otherPeoples)"
-                                                :key="user[1].id"
-                                                avatar
-                                            >
-                                                <v-list-item-avatar>
-                                                    <img :src="getAvatarURL(user[1].id)" />
-                                                </v-list-item-avatar>
+                                    <v-icon :color="darkMode ? 'white' : 'black'">fas fa-users</v-icon>
+                                </v-btn>
+                            </template>
+                            <span>View current users</span>
+                        </v-tooltip>
+                    </template>
+                    <v-card>
+                        <v-list>
+                            <v-list-item v-for="user in Array.from(otherPeoples)" :key="user[1].id" avatar>
+                                <v-list-item-avatar>
+                                    <img :src="getAvatarURL(user[1].id)" alt="avatar" />
+                                </v-list-item-avatar>
 
-                                                <v-list-item-content>
-                                                    <v-list-item-title
-                                                        >{{ user[1].firstname }}
-                                                        {{ user[1].lastname }}</v-list-item-title
-                                                    >
-                                                </v-list-item-content>
-                                            </v-list-item>
-                                            <v-list-item v-if="otherPeoples.size === 0"
-                                                >You are alone here :(</v-list-item
-                                            >
-                                        </v-list>
-                                    </v-card>
-                                </v-menu>
-                            </span>
-                            <span class="ql-formats">
-                                <v-tooltip bottom>
-                                    <template v-slot:activator="{ on }">
-                                        <v-btn
-                                            slot="activator"
-                                            dark
-                                            text
-                                            :ripple="false"
-                                            small
-                                            class="quillIcon"
-                                            style="margin: 0"
-                                            v-on="on"
-                                            @click="setMarkDown"
-                                        >
-                                            <v-icon :color="darkMode ? 'white' : 'black'">fas fa-marker</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>Edit markdown (ctrl + m)</span>
-                                </v-tooltip>
+                                <v-list-item-content>
+                                    <v-list-item-title
+                                        >{{ user[1].firstname }} {{ user[1].lastname }}</v-list-item-title
+                                    >
+                                </v-list-item-content>
+                            </v-list-item>
+                            <v-list-item v-if="otherPeoples.size === 0">You are alone here :(</v-list-item>
+                        </v-list>
+                    </v-card>
+                </v-menu>
+            </span>
+            <span class="ql-formats">
+                <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                        <v-btn
+                            slot="activator"
+                            dark
+                            text
+                            :ripple="false"
+                            small
+                            class="quillIcon"
+                            style="margin: 0"
+                            v-on="on"
+                            @click="setMarkDown"
+                        >
+                            <v-icon :color="darkMode ? 'white' : 'black'">fas fa-marker</v-icon>
+                        </v-btn>
+                    </template>
+                    <span>Edit markdown (ctrl + m)</span>
+                </v-tooltip>
 
-                                <v-tooltip bottom>
-                                    <template v-slot:activator="{ on }">
-                                        <v-btn
-                                            slot="activator"
-                                            dark
-                                            text
-                                            :ripple="false"
-                                            small
-                                            class="quillIcon"
-                                            style="margin: 0"
-                                            v-on="on"
-                                            @click="setMarkdownPreview"
-                                        >
-                                            <v-icon :color="darkMode ? 'white' : 'black'">fas fa-desktop</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>Show markdown preview</span>
-                                </v-tooltip>
-                            </span>
+                <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                        <v-btn
+                            slot="activator"
+                            dark
+                            text
+                            :ripple="false"
+                            small
+                            class="quillIcon"
+                            style="margin: 0"
+                            v-on="on"
+                            @click="setMarkdownPreview"
+                        >
+                            <v-icon :color="darkMode ? 'white' : 'black'">fas fa-desktop</v-icon>
+                        </v-btn>
+                    </template>
+                    <span>Show markdown preview</span>
+                </v-tooltip>
+            </span>
+        </div>
+        <v-flex style="width: 100%; overflow: scroll">
+            <v-layout>
+                <v-flex :xs6="showMarkdownPreview">
+                    <!-- Shamelessly stolen from the quilljs homepage -->
+                    <div class="snow-wrapper">
+                        <div class="snow-container">
+                            <div id="editor" class="editor" />
                         </div>
-                        <div id="editor" class="editor " style="overflow: hidden;"></div>
                     </div>
-                </div>
-            </v-flex>
-            <v-flex v-show="showMarkdownPreview" xs6 class=" pl-2">
-                <div
-                    id="htmlOutput"
-                    class=""
-                    style="margin-top: 10px; overflow-y: auto"
-                    v-html="markdownHTMLPreview"
-                ></div>
-            </v-flex>
-        </v-layout>
-    </v-container>
+                </v-flex>
+                <v-flex v-show="showMarkdownPreview" xs6>
+                    <div id="htmlOutput" style="margin-top: 10px" v-html="markdownHTMLPreview"></div>
+                </v-flex>
+            </v-layout>
+        </v-flex>
+    </v-layout>
 </template>
 
 <script lang="ts">
@@ -192,7 +176,6 @@ import katex from "katex";
 import "katex/dist/katex.min.css";
 
 import { debounce } from "lodash";
-
 // @ts-ignore
 import QuillCursors from "quill-cursors";
 
@@ -209,11 +192,10 @@ import defaultOptions from "../../../../cshub-shared/src/utilities/QuillDefaultO
 import { IQuillEditSetup } from "./IQuillEditSetup";
 
 import { logStringConsole } from "../../utilities";
-import { idGenerator } from "../../utilities/id-generator";
 
 import { MarkdownLatexQuill } from "../../../../cshub-shared/src/utilities/MarkdownLatexQuill";
 
-import { uiState } from "../../store";
+import { uiState, userState } from "../../store";
 import {
     ClientCursorUpdated,
     ClientDataUpdated,
@@ -225,7 +207,6 @@ import {
 } from "../../../../cshub-shared/src/api-calls/realtime-edit";
 import { SocketWrapper } from "../../utilities/socket-wrapper";
 import { Routes } from "../../../../cshub-shared/src/Routes";
-import { userState } from "../../store";
 import { getRandomNumberLarge } from "../../../../cshub-shared/src/utilities/Random";
 import { transformFromArray } from "../../../../cshub-shared/src/utilities/DeltaHandler";
 import { Requests } from "../../../../cshub-shared/src/api-calls";
@@ -707,7 +688,6 @@ export default class QuillEditor extends Vue {
 
 .editor {
     min-height: 100px;
-    height: 90%;
     border: none !important;
 }
 
