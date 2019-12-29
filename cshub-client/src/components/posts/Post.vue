@@ -735,16 +735,13 @@ export default class Post extends Vue {
 
 .previewCard {
     position: relative;
-    width: 90%;
-    overflow: hidden;
-    margin: 10px 5% 10px 5%;
     padding: 0;
     transition: 0.3s;
     cursor: pointer;
 }
 
 .previewCard:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
     border: HSL(194, 100%, 42%) 1px solid;
 }
 
