@@ -807,6 +807,7 @@ export default class Post extends Vue {
 }
 
 .ql-editor {
+    overflow-y: hidden;
     border: none;
     font-family: "SailecLight", sans-serif;
 }
