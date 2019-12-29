@@ -149,7 +149,7 @@
                 </v-tooltip>
             </span>
         </div>
-        <v-flex style="width: 100%; overflow: scroll">
+        <v-flex style="width: 100%; overflow: scroll" id="scrollContainer">
             <v-layout>
                 <v-flex :xs6="showMarkdownPreview">
                     <!-- Shamelessly stolen from the quilljs homepage -->
@@ -480,6 +480,7 @@ export default class QuillEditor extends Vue {
         // Create the editor
         this.editorOptions.bounds = `#editor`;
         this.editorOptions.modules.toolbar = `#toolbar`;
+        this.editorOptions.scrollingContainer = "#scrollContainer";
 
         if (!this.editorSetup.allowEdit) {
             this.editorOptions.placeholder = "";
@@ -661,6 +662,12 @@ export default class QuillEditor extends Vue {
 
 <style lang="scss">
 @import "../../styling/vars";
+
+.ql-clipboard {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+}
 
 .theme--dark {
     svg > {
