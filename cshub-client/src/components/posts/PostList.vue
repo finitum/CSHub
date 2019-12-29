@@ -1,13 +1,13 @@
 <template>
     <div>
-        <div v-for="(postHash, index) in postHashes" :key="postHash.index">
-            <Post v-if="showCurrentPost(index, postHash)" :key="postHash" :post-hash="postHash"></Post>
+        <div v-for="(postHash, index) in postHashes" :key="postHash.index" :class="{ 'ma-4 mx-6': isListing }">
+            <Post v-if="showCurrentPost(index, postHash)" :key="postHash" :post-hash="postHash" />
         </div>
         <PostPagination
             v-if="postHashes.length !== 0 && currentPostHash === -1"
             :elements="postHashesProp.length"
             :range="range"
-        ></PostPagination>
+        />
     </div>
 </template>
 
@@ -46,6 +46,10 @@ export default class PostList extends Vue {
 
     set paginationPageState(page: number) {
         uiState.setPaginationPageState(page);
+    }
+
+    get isListing(): boolean {
+        return this.currentPostHash === -1;
     }
 
     /**
