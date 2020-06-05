@@ -15,8 +15,6 @@ if [[ $1 ]]; then
 else
     run "logging"
     run "traefik"
-    run "portainer"
-    run "prerender"
     run "prod"
     run "dev"
     run "watchtower"
