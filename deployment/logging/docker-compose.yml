@@ -34,7 +34,7 @@ services:
       - SERVER_HOST=0.0.0.0
       - SERVER_NAME=${KIBANA_HOSTNAME}
   fluentd:
-    image: registry.xirion.net/cshub/fluentd:latest 
+    image: harbor.xirion.net/library/cshub-fluentd 
     container_name: ${FLUENTD_CONTAINER_NAME}
     logging:
       driver: "json-file"
@@ -49,4 +49,3 @@ volumes:
 networks:
   web:
     external: true
-
