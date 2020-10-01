@@ -74,7 +74,7 @@
                             :name="`Variable ${name}`"
                             :hide-details="
                                 !errors.has(`Variable ${name}`) &&
-                                    validateVariable(variableExpressions[name])() === true
+                                validateVariable(variableExpressions[name])() === true
                             "
                             :error-messages="errors.collect(`Variable ${name}`)"
                             rows="1"
@@ -108,7 +108,7 @@ import { AddQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints
 import {
     getVariableNames,
     evaluate,
-    generateVariableValues
+    generateVariableValues,
 } from "../../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
 import DynamicViewer from "../viewers/DynamicViewer.vue";
 import { uiState } from "../../../store";
@@ -120,26 +120,26 @@ type VariableDictionary = { [name: string]: string };
 @Component({
     name: "DynamicEditor",
     components: { DynamicViewer },
-    inject: ["$validator"]
+    inject: ["$validator"],
 })
 export default class DynamicEditor extends ViewerMixin {
     @Prop({
-        required: false
+        required: false,
     })
     private propQuestion?: string;
 
     @Prop({
-        required: false
+        required: false,
     })
     private propExplanation?: string;
 
     @Prop({
-        required: false
+        required: false,
     })
     private propAnswerExpression?: string;
 
     @Prop({
-        required: false
+        required: false,
     })
     private propVariableExpressions?: VariableExpression[];
 
@@ -150,10 +150,10 @@ export default class DynamicEditor extends ViewerMixin {
     private variableExpressions: VariableDictionary = this.getInitialVariableExpressions(); // key = name, value = value
 
     get variableExpressionsParsed() {
-        return Object.keys(this.variableExpressions).map(key => {
+        return Object.keys(this.variableExpressions).map((key) => {
             return {
                 expression: this.variableExpressions[key],
-                name: key
+                name: key,
             };
         });
     }
@@ -170,7 +170,7 @@ export default class DynamicEditor extends ViewerMixin {
                 explanation: this.explanation,
                 answerExpression: this.answerExpression,
                 type: QuestionType.DYNAMIC,
-                variableExpressions: this.variableExpressionsParsed
+                variableExpressions: this.variableExpressionsParsed,
             };
 
             await ApiWrapper.post(new AddQuestion(question, +this.$route.params.hash));
@@ -178,7 +178,7 @@ export default class DynamicEditor extends ViewerMixin {
             uiState.setNotificationDialog({
                 header: "Saved",
                 text: "Saved question, it will be reviewed by an admin soon!",
-                on: true
+                on: true,
             });
         }
     }
@@ -186,7 +186,7 @@ export default class DynamicEditor extends ViewerMixin {
     private getInitialVariableExpressions(): VariableDictionary {
         if (this.propVariableExpressions) {
             const propVariables: VariableDictionary = {};
-            this.propVariableExpressions.forEach(variable => (propVariables[variable.name] = variable.expression));
+            this.propVariableExpressions.forEach((variable) => (propVariables[variable.name] = variable.expression));
             return propVariables;
         }
         return {};
@@ -211,16 +211,16 @@ export default class DynamicEditor extends ViewerMixin {
         }
 
         const variableNames = getVariableNames(
-            `${this.question} ${this.answerExpression} ${this.explanation} ${expressionValue}`
+            `${this.question} ${this.answerExpression} ${this.explanation} ${expressionValue}`,
         );
 
-        variableNames.forEach(variableName => {
+        variableNames.forEach((variableName) => {
             if (!Object.prototype.hasOwnProperty.call(this.variableExpressions, variableName)) {
                 Vue.set(this.variableExpressions, variableName, "");
             }
         });
 
-        Object.keys(this.variableExpressions).forEach(key => {
+        Object.keys(this.variableExpressions).forEach((key) => {
             if (!variableNames.includes(key)) {
                 Vue.delete(this.variableExpressions, key);
             }

@@ -18,26 +18,26 @@ import { mixins } from "vue-class-component";
 import ViewerMixin from "./ViewerMixin";
 
 @Component({
-    name: OpenNumberViewer.name
+    name: OpenNumberViewer.name,
 })
 export default class OpenNumberViewer extends mixins(ViewerMixin) {
     @Prop({
-        required: true
+        required: true,
     })
     private question!: string;
 
     @Prop({
-        required: true
+        required: true,
     })
     private explanation!: string;
 
     @Prop({
-        required: true
+        required: true,
     })
     private answer!: number;
 
     @Prop({
-        required: true
+        required: true,
     })
     private precision!: number;
 }

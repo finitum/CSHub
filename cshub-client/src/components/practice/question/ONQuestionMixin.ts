@@ -5,7 +5,7 @@ import { QuestionType } from "../../../../../cshub-shared/src/entities/question"
 import { Watch } from "vue-property-decorator";
 
 @Component({
-    name: ONQuestionMixin.name
+    name: ONQuestionMixin.name,
 })
 export default class ONQuestionMixin extends Vue {
     private privOnAnswer: number | null = this.getInitialOnState();
@@ -23,8 +23,8 @@ export default class ONQuestionMixin extends Vue {
                 questionIndex,
                 answer: {
                     type: QuestionType.OPENNUMBER,
-                    number: Number(value)
-                }
+                    number: Number(value),
+                },
             });
         }
     }

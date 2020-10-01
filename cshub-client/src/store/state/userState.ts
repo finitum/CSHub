@@ -57,7 +57,7 @@ class UserState extends VuexModule implements IUserState {
         }
         if (this.studyAdmins.length > 0) {
             const currStudy = uiState.studyNr;
-            const studyAdmin = this.studyAdmins.findIndex(study => study.id === currStudy);
+            const studyAdmin = this.studyAdmins.findIndex((study) => study.id === currStudy);
             return studyAdmin !== -1;
         }
         return false;
@@ -73,5 +73,5 @@ class UserState extends VuexModule implements IUserState {
 
 export const userStateModule = new UserState({
     store,
-    name: "userStateModule"
+    name: "userStateModule",
 });

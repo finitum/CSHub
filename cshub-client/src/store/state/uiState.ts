@@ -27,7 +27,6 @@ export interface IUIState {
     };
     editDialogState: editDialogType;
     currentEditDialogState: editDialogType;
-    paginationPageState: number;
     notificationDialog: notificationDialogType;
     darkMode: boolean;
     studyNr: number | undefined;
@@ -36,25 +35,23 @@ export interface IUIState {
 @Module
 class UIState extends VuexModule implements IUIState {
     private _navbar = {
-        open: true
+        open: true,
     };
 
     private _editDialogState: editDialogType = {
         on: false,
-        hash: -1
+        hash: -1,
     };
 
     private _currentEditDialogState: editDialogType = {
         on: false,
-        hash: -1
+        hash: -1,
     };
-
-    private _paginationPageState = 1;
 
     private _notificationDialog: notificationDialogType = {
         on: false,
         header: "",
-        text: ""
+        text: "",
     };
 
     private _darkMode = localStorage.getItem(LocalStorageData.DARK) === "true";
@@ -86,15 +83,6 @@ class UIState extends VuexModule implements IUIState {
     @Mutation
     public setCurrentEditDialogState(value: editDialogType) {
         this._currentEditDialogState = value;
-    }
-
-    get paginationPageState(): number {
-        return this._paginationPageState;
-    }
-
-    @Mutation
-    public setPaginationPageState(value: number) {
-        this._paginationPageState = value;
     }
 
     get notificationDialog(): notificationDialogType {
@@ -129,5 +117,5 @@ class UIState extends VuexModule implements IUIState {
 
 export const uiStateModule = new UIState({
     store,
-    name: "uiStateModule"
+    name: "uiStateModule",
 });

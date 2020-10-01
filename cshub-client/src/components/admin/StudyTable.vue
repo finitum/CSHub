@@ -74,12 +74,8 @@
 
             <template v-slot:item.hidden="{ item }">
                 <div class="pa-0">
-                    <v-icon v-if="item.hidden" small @click="hideItem(item)">
-                        fas fa-eye
-                    </v-icon>
-                    <v-icon v-else small @click="hideItem(item)">
-                        fas fa-eye-slash
-                    </v-icon>
+                    <v-icon v-if="item.hidden" small @click="hideItem(item)"> fas fa-eye </v-icon>
+                    <v-icon v-else small @click="hideItem(item)"> fas fa-eye-slash </v-icon>
                     {{ item.hidden.toString() }}
                 </div>
             </template>
@@ -103,12 +99,12 @@ import {
     getAndSetStudyNr,
     getStudies,
     getTopTopic,
-    parseTopTopic
+    parseTopTopic,
 } from "../../views/router/guards/setupRequiredDataGuard";
 import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
 
 @Component({
-    name: "studyTable"
+    name: "studyTable",
 })
 export default class StudyTable extends Vue {
     /**
@@ -121,7 +117,7 @@ export default class StudyTable extends Vue {
         { text: "Study name", value: "name" },
         { text: "Top topic id", value: "topTopic.id" },
         { text: "Top topic name", value: "topTopic.name" },
-        { text: "Hidden", value: "hidden" }
+        { text: "Hidden", value: "hidden" },
     ];
 
     private loading = true;
@@ -179,7 +175,7 @@ export default class StudyTable extends Vue {
         dataState.setStudies(studies);
         const study = await getAndSetStudyNr(studies);
 
-        getTopTopic(study, true).then(topTopic => {
+        getTopTopic(study, true).then((topTopic) => {
             parseTopTopic(topTopic);
             dataState.setTopics(topTopic);
             EventBus.$emit(STUDY_CHANGED);

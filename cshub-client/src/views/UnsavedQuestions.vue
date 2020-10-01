@@ -12,7 +12,7 @@ import { MetaInfo } from "vue-meta";
 
 @Component({
     name: UnsavedQuestions.name,
-    components: { QuestionList }
+    components: { QuestionList },
 })
 export default class UnsavedQuestions extends Vue {
     /**
@@ -20,7 +20,7 @@ export default class UnsavedQuestions extends Vue {
      */
     public metaInfo(): MetaInfo {
         return {
-            title: "Unsaved questions - CSHub"
+            title: "Unsaved questions - CSHub",
         };
     }
 }

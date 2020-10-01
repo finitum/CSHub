@@ -58,7 +58,7 @@ import { dataState, practiceState, uiState } from "../../store";
 import router from "../../views/router/router";
 
 @Component({
-    name: "Toolbar"
+    name: "Toolbar",
 })
 export default class Toolbar extends Vue {
     /**
@@ -146,8 +146,8 @@ export default class Toolbar extends Vue {
                 text: "Go to github",
                 jsAction: () => {
                     window.open(this.githubLink, "_blank");
-                }
-            }
+                },
+            },
         });
     }
 

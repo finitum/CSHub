@@ -57,7 +57,7 @@ import { Route } from "vue-router";
 import { Component, Watch } from "vue-property-decorator";
 import isEqual from "lodash/isEqual";
 
-import PostList from "../../components/posts/PostList.vue";
+import PostList from "../../components/posts/list/PostList.vue";
 
 import { TopicPosts, PostHashes } from "../../../../cshub-shared/src/api-calls/index";
 import { Routes } from "../../../../cshub-shared/src/Routes";
@@ -70,12 +70,12 @@ import { getTopicFromHash } from "../../utilities/Topics";
 import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
 import Editors from "../../components/practice/editors/Editors.vue";
 import Practice from "../../components/practice/Practice.vue";
-import Examples from "../../components/posts/Examples.vue";
+import Examples from "../../components/posts/list/Examples.vue";
 import { ExamplePosts } from "../../../../cshub-shared/src/api-calls/endpoints/posts/ExamplePosts";
 
 @Component({
     name: "PostView",
-    components: { Examples, Practice, Editors, PostList }
+    components: { Examples, Practice, Editors, PostList },
 })
 export default class PostView extends Vue {
     /**
@@ -150,7 +150,7 @@ export default class PostView extends Vue {
             }
 
             return {
-                title: `${this.currentTopicNameComputed} - CSHub`
+                title: `${this.currentTopicNameComputed} - CSHub`,
             };
         } else {
             return {};
@@ -204,7 +204,7 @@ export default class PostView extends Vue {
                 uiState.setNotificationDialog({
                     header: "Error!",
                     text: "We have not found a topic?",
-                    on: true
+                    on: true,
                 });
             }
         }

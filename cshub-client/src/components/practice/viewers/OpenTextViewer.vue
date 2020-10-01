@@ -16,21 +16,21 @@ import { mixins } from "vue-class-component";
 import ViewerMixin from "./ViewerMixin";
 
 @Component({
-    name: OpenTextViewer.name
+    name: OpenTextViewer.name,
 })
 export default class OpenTextViewer extends mixins(ViewerMixin) {
     @Prop({
-        required: true
+        required: true,
     })
     private question!: string;
 
     @Prop({
-        required: true
+        required: true,
     })
     private explanation!: string;
 
     @Prop({
-        required: true
+        required: true,
     })
     private answer!: string;
 }

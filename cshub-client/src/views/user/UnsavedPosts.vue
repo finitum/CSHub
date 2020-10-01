@@ -1,8 +1,6 @@
 <template>
     <div>
-        <v-subheader>
-            Unsaved posts
-        </v-subheader>
+        <v-subheader> Unsaved posts </v-subheader>
         <PostList v-if="postHashes.length > 0" :post-hashes-prop="postHashes"></PostList>
         <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
     </div>
@@ -12,7 +10,7 @@
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
 
-import PostList from "../../components/posts/PostList.vue";
+import PostList from "../../components/posts/list/PostList.vue";
 
 import { ApiWrapper, logObjectConsole } from "../../utilities";
 
@@ -23,7 +21,7 @@ import { MetaInfo } from "vue-meta";
 
 @Component({
     name: "UnsavedPosts",
-    components: { PostList }
+    components: { PostList },
 })
 export default class UnsavedPosts extends Vue {
     /**
@@ -48,7 +46,7 @@ export default class UnsavedPosts extends Vue {
 
     public metaInfo(): MetaInfo {
         return {
-            title: "Unsaved posts - CSHub"
+            title: "Unsaved posts - CSHub",
         };
     }
 

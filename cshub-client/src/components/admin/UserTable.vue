@@ -49,12 +49,12 @@ import {
     VerifyUser,
     BlockUser,
     SetAdminUser,
-    SetStudyAdminUser
+    SetStudyAdminUser,
 } from "../../../../cshub-shared/src/api-calls/endpoints/user/UserAdminPage";
 import { dataState, uiState, userState } from "../../store";
 
 @Component({
-    name: "userTable"
+    name: "userTable",
 })
 export default class UserTable extends Vue {
     /**
@@ -70,17 +70,17 @@ export default class UserTable extends Vue {
         { text: "Admin", value: "admin" },
         { text: "Blocked", value: "blocked" },
         { text: "Verified", value: "verified" },
-        { text: "Study admin", value: "studies" }
+        { text: "Study admin", value: "studies" },
     ];
     private loading = true;
     private amountItems: number = 0;
 
     get studies(): Array<{ text: string; id: number }> {
         if (dataState.studies) {
-            return dataState.studies.map(value => {
+            return dataState.studies.map((value) => {
                 return {
                     text: value.name,
-                    id: value.id
+                    id: value.id,
                 };
             });
         } else {
@@ -103,7 +103,7 @@ export default class UserTable extends Vue {
     }
 
     private getStudyAdmins(user: IUser) {
-        return user.studies.map(study => study.id);
+        return user.studies.map((study) => study.id);
     }
 
     private getData(itemsPerPage: number, page: number) {

@@ -5,7 +5,7 @@ import { QuestionType } from "../../../../../cshub-shared/src/entities/question"
 import { VariableValue } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/Variable";
 
 @Component({
-    name: DNQuestionMixin.name
+    name: DNQuestionMixin.name,
 })
 export default class DNQuestionMixin extends Vue {
     private privDnAnswer: string | number | null = this.getInitialDnState();
@@ -28,8 +28,8 @@ export default class DNQuestionMixin extends Vue {
                 answer: {
                     type: QuestionType.DYNAMIC,
                     answer: valueAsStringOrNumber,
-                    variables: this.variableValues
-                }
+                    variables: this.variableValues,
+                },
             });
         }
     }

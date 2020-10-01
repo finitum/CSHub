@@ -18,13 +18,13 @@ export default new Vuetify({
                 error: "#FF5252",
                 info: "#2196F3",
                 success: "#4CAF50",
-                warning: "#FFC107"
-            }
+                warning: "#FFC107",
+            },
         },
-        dark: localStorage.getItem(LocalStorageData.DARK) === "true"
+        dark: localStorage.getItem(LocalStorageData.DARK) === "true",
     },
     customProperties: true,
     icons: {
-        iconfont: "fa"
-    }
+        iconfont: "fa",
+    },
 });

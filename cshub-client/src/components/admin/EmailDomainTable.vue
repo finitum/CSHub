@@ -67,9 +67,7 @@
             </template>
 
             <template v-slot:item.delete="{ item }">
-                <v-icon small @click="deleteDomain(item)">
-                    fas fa-trash
-                </v-icon>
+                <v-icon small @click="deleteDomain(item)"> fas fa-trash </v-icon>
             </template>
         </v-data-table>
     </div>
@@ -87,12 +85,12 @@ import {
     PutEmailDomains,
     PostEmailDomains,
     PostEmailDomainsCallback,
-    DeleteEmailDomains
+    DeleteEmailDomains,
 } from "../../../../cshub-shared/src/api-calls/endpoints/emaildomains";
 import { IEmailDomain } from "../../../../cshub-shared/src/entities/emaildomains";
 
 @Component({
-    name: "domainTable"
+    name: "domainTable",
 })
 export default class EmailDomainTable extends Vue {
     /**
@@ -103,7 +101,7 @@ export default class EmailDomainTable extends Vue {
     private readonly headers = [
         { text: "Id", value: "id" },
         { text: "Domain", value: "domain" },
-        { text: "Delete", value: "delete", sortable: false }
+        { text: "Delete", value: "delete", sortable: false },
     ];
 
     private loading = true;
@@ -140,7 +138,7 @@ export default class EmailDomainTable extends Vue {
     private domainNameRule(name: string) {
         if (name.length < this.minDomainNameLength) {
             return `Length must be more than ${this.minDomainNameLength}`;
-        } else if (this.items.filter(i => i.domain == name).length > 1) {
+        } else if (this.items.filter((i) => i.domain == name).length > 1) {
             return `Name must be unique`;
         } else {
             return true;

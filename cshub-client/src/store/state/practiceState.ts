@@ -1,7 +1,7 @@
 import { Module, Mutation, VuexModule } from "vuex-class-modules";
 import {
     CheckAnswerType,
-    CheckedAnswerType
+    CheckedAnswerType,
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/CheckAnswer";
 import store from "../store";
 import localforage from "localforage";
@@ -74,31 +74,31 @@ class PracticeState extends VuexModule implements IPracticeState {
 
 export const practiceStateModule = new PracticeState({
     store,
-    name: "practiceStateModule"
+    name: "practiceStateModule",
 });
 
 const key = "vuex-practicestate";
 
 practiceStateModule.$watch(
-    practiceStateModule => practiceStateModule.currentQuestions,
+    (practiceStateModule) => practiceStateModule.currentQuestions,
     (newValue, oldValue) => {
         localforage.setItem(`${key}-questions`, newValue);
     },
     {
         deep: true,
-        immediate: false
-    }
+        immediate: false,
+    },
 );
 
 practiceStateModule.$watch(
-    practiceStateModule => practiceStateModule.checkedQuestions,
+    (practiceStateModule) => practiceStateModule.checkedQuestions,
     (newValue, oldValue) => {
         localforage.setItem(`${key}-checked`, newValue);
     },
     {
         deep: true,
-        immediate: false
-    }
+        immediate: false,
+    },
 );
 
 const setInitialState = async () => {

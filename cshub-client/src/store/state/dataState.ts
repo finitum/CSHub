@@ -59,5 +59,5 @@ class DataState extends VuexModule implements IDataState {
 
 export const dataStateModule = new DataState({
     store,
-    name: "dataStateModule"
+    name: "dataStateModule",
 });

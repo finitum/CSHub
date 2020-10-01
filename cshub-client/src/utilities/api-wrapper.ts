@@ -13,8 +13,8 @@ const axiosApi = axios.create({
     headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Version: process.env.VUE_APP_VERSION
-    }
+        Version: process.env.VUE_APP_VERSION,
+    },
 });
 
 axiosApi.interceptors.request.use((config: AxiosRequestConfig) => {
@@ -35,14 +35,14 @@ axiosApi.interceptors.response.use(
             jsAction: () => {
                 const promiseChain = caches
                     .keys()
-                    .then(cacheNames => {
+                    .then((cacheNames) => {
                         // Step through each cache name and delete it
-                        return Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+                        return Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
                     })
                     .then(() => {
                         window.location.reload(true);
                     });
-            }
+            },
         };
 
         if (error.response) {
@@ -56,7 +56,7 @@ axiosApi.interceptors.response.use(
                           text: "Log in",
                           jsAction: () => {
                               window.open(Routes.LOGIN, "_self");
-                          }
+                          },
                       }
                     : undefined;
 
@@ -66,7 +66,7 @@ axiosApi.interceptors.response.use(
                     text: `You are not authorized to do this! ${
                         !loggedOut ? " Click the button below to log in." : ""
                     }`,
-                    button
+                    button,
                 });
             } else {
                 const response = error.response.data as ServerError;
@@ -77,13 +77,13 @@ axiosApi.interceptors.response.use(
                         on: true,
                         header: `Error! ${error.response.status}`,
                         text: response.message,
-                        button
+                        button,
                     });
                 } else {
                     uiState.setNotificationDialog({
                         on: true,
                         header: `Error! ${error.response.status}`,
-                        text: `The server experienced an error, but didn't provide an error message :(`
+                        text: `The server experienced an error, but didn't provide an error message :(`,
                     });
                 }
             }
@@ -93,14 +93,14 @@ axiosApi.interceptors.response.use(
                 header: `Network error`,
                 text:
                     "A network error was caught, this is most probably a 404. If so, the server might be restarting (okay we should cluster it so we can update better, but so far we haven't), so wait a sec or try force refresh!",
-                button: forceRefreshButton
+                button: forceRefreshButton,
             });
         } else {
             if (!uiState.notificationDialog.on) {
                 uiState.setNotificationDialog({
                     on: true,
                     header: `Error!`,
-                    text: `There was an error, but no idea what it could be`
+                    text: `There was an error, but no idea what it could be`,
                 });
 
                 logObjectConsole(error);
@@ -108,7 +108,7 @@ axiosApi.interceptors.response.use(
         }
 
         return Promise.reject(error);
-    }
+    },
 );
 
 export const getCookie = (name: string): string => {
@@ -133,13 +133,13 @@ export class ApiWrapper {
     public static sendPostRequest(
         request: IApiRequest<any>,
         callback?: (...args: any) => void,
-        error?: (err: AxiosError) => void
+        error?: (err: AxiosError) => void,
     ) {
         axiosApi
             .post(request.URL, request, {
                 withCredentials: true,
                 headers: request.headers,
-                params: request.params
+                params: request.params,
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
@@ -163,13 +163,13 @@ export class ApiWrapper {
     public static sendPutRequest(
         request: IApiRequest<any>,
         callback?: (...args: any) => void,
-        error?: (err: AxiosError) => void
+        error?: (err: AxiosError) => void,
     ) {
         axiosApi
             .put(request.URL, request, {
                 withCredentials: true,
                 headers: request.headers,
-                params: request.params
+                params: request.params,
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
@@ -190,14 +190,14 @@ export class ApiWrapper {
     public static sendDeleteRequest(
         request: IApiRequest<any>,
         callback?: (...args: any) => void,
-        error?: (err: AxiosError) => void
+        error?: (err: AxiosError) => void,
     ) {
         axiosApi
             .delete(request.URL, {
                 data: request,
                 withCredentials: true,
                 headers: request.headers,
-                params: request.params
+                params: request.params,
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
@@ -221,12 +221,12 @@ export class ApiWrapper {
     public static sendGetRequest(
         request: IApiRequest<any>,
         callback?: (...args: any) => void,
-        error?: (err: AxiosError) => void
+        error?: (err: AxiosError) => void,
     ) {
         axiosApi
             .get(request.URL, {
                 headers: request.headers,
-                params: request.params
+                params: request.params,
             })
             .then((response: AxiosResponse<any>) => {
                 if (callback) {
@@ -254,9 +254,9 @@ export class ApiWrapper {
                 withCredentials: true,
                 headers: request.headers,
                 params: request.params,
-                validateStatus: this.validateStatus
+                validateStatus: this.validateStatus,
             })
-            .then(response => {
+            .then((response) => {
                 if (response) {
                     return response.data;
                 }
@@ -271,9 +271,9 @@ export class ApiWrapper {
                 withCredentials: true,
                 headers: request.headers,
                 params: request.params,
-                validateStatus: this.validateStatus
+                validateStatus: this.validateStatus,
             })
-            .then(response => {
+            .then((response) => {
                 if (response) {
                     return response.data;
                 }
@@ -287,9 +287,9 @@ export class ApiWrapper {
             .get<T>(request.URL, {
                 headers: request.headers,
                 params: request.params,
-                validateStatus: this.validateStatus
+                validateStatus: this.validateStatus,
             })
-            .then(response => {
+            .then((response) => {
                 if (response.status === 304) {
                     return null;
                 }

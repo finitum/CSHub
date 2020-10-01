@@ -42,7 +42,7 @@ import { Routes } from "../../../../cshub-shared/src/Routes";
 
 @Component({
     name: "Practice",
-    components: { QuestionList, Editors, EditorAccordion }
+    components: { QuestionList, Editors, EditorAccordion },
 })
 export default class Practice extends Vue {
     private amountOfQuestions: number | string = 10;
@@ -66,12 +66,12 @@ export default class Practice extends Vue {
 
         if (questions && questions.questionIds.length > 0) {
             practiceState.setCurrentQuestions(
-                questions.questionIds.map(id => {
+                questions.questionIds.map((id) => {
                     return {
                         questionId: id,
-                        answer: null
+                        answer: null,
                     };
-                })
+                }),
             );
 
             this.$router.push(`${Routes.QUESTION}/0`);
@@ -79,7 +79,7 @@ export default class Practice extends Vue {
             uiState.setNotificationDialog({
                 header: "No questions!",
                 text: "No questions were found for this topic!",
-                on: true
+                on: true,
             });
         }
     }

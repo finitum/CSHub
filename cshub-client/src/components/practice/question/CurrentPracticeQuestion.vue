@@ -98,7 +98,7 @@ import QuestionMixin from "./QuestionMixin";
 import { StoreQuestionType } from "../../../store/state/practiceState";
 
 @Component({
-    name: CurrentPracticeQuestion.name
+    name: CurrentPracticeQuestion.name,
 })
 export default class CurrentPracticeQuestion extends mixins(ViewerMixin, QuestionMixin) {
     private question: PracticeQuestion | null = null;
@@ -124,7 +124,7 @@ export default class CurrentPracticeQuestion extends mixins(ViewerMixin, Questio
     get checkedQuestion(): CheckedAnswerType | null {
         return (
             practiceState.checkedQuestions.find(
-                question => question && question.questionId === this.currentQuestion.questionId
+                (question) => question && question.questionId === this.currentQuestion.questionId,
             ) || null
         );
     }
@@ -192,7 +192,7 @@ export default class CurrentPracticeQuestion extends mixins(ViewerMixin, Questio
     }
 
     private mounted() {
-        ApiWrapper.get(new GetQuestion(this.currentQuestion.questionId)).then(retrievedQuestion => {
+        ApiWrapper.get(new GetQuestion(this.currentQuestion.questionId)).then((retrievedQuestion) => {
             this.question = retrievedQuestion !== null ? retrievedQuestion.question : null;
 
             if (retrievedQuestion !== null) {

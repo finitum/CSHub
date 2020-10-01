@@ -57,7 +57,7 @@ import { ApiWrapper, logStringConsole } from "../../utilities";
 import {
     ForgotPassword,
     ForgotPasswordCallback,
-    ForgotPasswordResponseTypes
+    ForgotPasswordResponseTypes,
 } from "../../../../cshub-shared/src/api-calls";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
@@ -65,7 +65,7 @@ import { uiState } from "../../store";
 
 @Component({
     name: "ForgotPasswordComp",
-    inject: ["$validator"]
+    inject: ["$validator"],
 })
 export default class ForgotPasswordComp extends Vue {
     private accountId: number | null = null;
@@ -85,7 +85,7 @@ export default class ForgotPasswordComp extends Vue {
 
     public metaInfo(): any {
         return {
-            title: "Forgot password - CSHub"
+            title: "Forgot password - CSHub",
         };
     }
 
@@ -103,7 +103,7 @@ export default class ForgotPasswordComp extends Vue {
                             uiState.setNotificationDialog({
                                 on: true,
                                 header: "Password changed",
-                                text: "Your password has been changed, you can now log in"
+                                text: "Your password has been changed, you can now log in",
                             });
                             this.$router.push(Routes.INDEX);
                         } else {
@@ -111,10 +111,10 @@ export default class ForgotPasswordComp extends Vue {
                                 on: true,
                                 header: "Password not changed",
                                 text:
-                                    "Your password has not been changed, something went wrong. Check whether this is the last request you did."
+                                    "Your password has not been changed, something went wrong. Check whether this is the last request you did.",
                             });
                         }
-                    }
+                    },
                 );
             }
         });

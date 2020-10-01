@@ -14,22 +14,22 @@ export const setupRequiredDataGuard = (): Promise<boolean> => {
     }
 
     return getStudies()
-        .then(studies => {
+        .then((studies) => {
             dataState.setStudies(studies);
             return getAndSetStudyNr(studies);
         })
-        .then(studynr => {
+        .then((studynr) => {
             return getTopTopic(studynr);
         })
-        .then(topTopic => {
+        .then((topTopic) => {
             parseTopTopic(topTopic);
             return topTopic;
         })
-        .then(topTopic => {
+        .then((topTopic) => {
             dataState.setTopics(topTopic);
             return true;
         })
-        .catch(err => {
+        .catch((err) => {
             logStringConsole("Error!", "SetupRequiredDataGuard");
             logObjectConsole(err);
             return false;
@@ -63,7 +63,7 @@ export async function getStudies(forceUpdate = false): Promise<IStudy[]> {
 
             const studyData: studyCache = {
                 version: studies.version,
-                studies: studies.studies
+                studies: studies.studies,
             };
 
             localForage.setItem(CacheTypes.STUDIES, studyData);
@@ -88,7 +88,7 @@ export function getAndSetStudyNr(studies: IStudy[]): Promise<number> {
     if (!studyLocalStorage || isNaN(Number(studyLocalStorage))) {
         studynr = studies[0].id;
     } else {
-        if (studies.findIndex(currStudy => currStudy.id === +studyLocalStorage) === -1) {
+        if (studies.findIndex((currStudy) => currStudy.id === +studyLocalStorage) === -1) {
             studynr = studies[0].id;
         } else {
             studynr = +studyLocalStorage;
@@ -124,7 +124,7 @@ export async function getTopTopic(studyNr: number, forceUpdate = false): Promise
         if (topics !== null) {
             const topicData: topicCache = {
                 version: topics.version,
-                topTopic: topics.topTopic
+                topTopic: topics.topTopic,
             };
 
             localForage.setItem(CacheTypes.TOPICS + studyNr, topicData);

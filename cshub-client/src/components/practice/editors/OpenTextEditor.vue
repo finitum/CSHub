@@ -64,26 +64,26 @@ import { uiState } from "../../../store";
 @Component({
     name: OpenTextEditor.name,
     components: { OpenTextViewer },
-    inject: ["$validator"]
+    inject: ["$validator"],
 })
 export default class OpenTextEditor extends Vue {
     @Prop({
-        required: false
+        required: false,
     })
     private propQuestion?: string;
 
     @Prop({
-        required: false
+        required: false,
     })
     private propExplanation?: string;
 
     @Prop({
-        required: false
+        required: false,
     })
     private propAnswer?: string;
 
     @Prop({
-        required: true
+        required: true,
     })
     private isEditing!: false | number;
 
@@ -100,7 +100,7 @@ export default class OpenTextEditor extends Vue {
                 question: this.question,
                 explanation: this.explanation,
                 type: QuestionType.OPENTEXT,
-                answer: this.answer
+                answer: this.answer,
             };
 
             if (this.isEditing) {
@@ -112,7 +112,7 @@ export default class OpenTextEditor extends Vue {
             uiState.setNotificationDialog({
                 header: "Saved",
                 text: "Saved question, it will be reviewed by an admin soon!",
-                on: true
+                on: true,
             });
 
             this.question = "";

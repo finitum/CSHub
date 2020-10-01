@@ -36,26 +36,26 @@ import { mixins } from "vue-class-component";
 import ViewerMixin from "./ViewerMixin";
 
 @Component({
-    name: "MultipleChoiceViewer"
+    name: "MultipleChoiceViewer",
 })
 export default class MultipleChoiceViewer extends mixins(ViewerMixin) {
     @Prop({
-        required: true
+        required: true,
     })
     private multipleCorrect!: boolean;
 
     @Prop({
-        required: true
+        required: true,
     })
     private question!: string;
 
     @Prop({
-        required: true
+        required: true,
     })
     private explanation!: string;
 
     @Prop({
-        required: true
+        required: true,
     })
     private answers!: FullClosedAnswerType[];
 

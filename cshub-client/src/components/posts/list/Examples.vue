@@ -11,11 +11,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import Post from "./Post.vue";
+import Post from "../Post.vue";
 
 @Component({
     name: Examples.name,
-    components: { Post }
+    components: { Post },
 })
 export default class Examples extends Vue {
     /**

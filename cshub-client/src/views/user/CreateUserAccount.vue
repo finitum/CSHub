@@ -101,20 +101,20 @@ import { ApiWrapper, logStringConsole } from "../../utilities";
 import {
     CreateAccount,
     CreateAccountCallBack,
-    CreateAccountResponseTypes
+    CreateAccountResponseTypes,
 } from "../../../../cshub-shared/src/api-calls";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 import router from "../router/router";
 import { IEmailDomain } from "../../../../cshub-shared/src/entities/emaildomains";
 import {
     GetEmailDomains,
-    GetEmailDomainsCallback
+    GetEmailDomainsCallback,
 } from "../../../../cshub-shared/src/api-calls/endpoints/emaildomains";
 import { uiState } from "../../store";
 
 @Component({
     name: "CreateUserAccount",
-    inject: ["$validator"]
+    inject: ["$validator"],
 })
 export default class CreateUserAccount extends Vue {
     /**
@@ -127,7 +127,7 @@ export default class CreateUserAccount extends Vue {
         confirmPassword: "",
         passwordvisible: false,
         firstname: "",
-        lastname: ""
+        lastname: "",
     };
     private emailDomain: number | null = null;
     private emailDomains: IEmailDomain[] = [];
@@ -143,7 +143,7 @@ export default class CreateUserAccount extends Vue {
 
     public metaInfo(): any {
         return {
-            title: "Create account - CSHub"
+            title: "Create account - CSHub",
         };
     }
 
@@ -153,14 +153,14 @@ export default class CreateUserAccount extends Vue {
     private doCreateAccount() {
         this.$validator.validateAll().then((allValid: boolean) => {
             if (allValid) {
-                const emailDomain = this.emailDomains.filter(i => i.id === this.emailDomain)[0];
+                const emailDomain = this.emailDomains.filter((i) => i.id === this.emailDomain)[0];
                 ApiWrapper.sendPostRequest(
                     new CreateAccount(
                         this.userData.email,
                         this.userData.password,
                         this.userData.firstname,
                         this.userData.lastname,
-                        emailDomain
+                        emailDomain,
                     ),
                     (callbackData: CreateAccountCallBack) => {
                         if (callbackData.response === CreateAccountResponseTypes.SUCCESS) {
@@ -168,7 +168,7 @@ export default class CreateUserAccount extends Vue {
                             uiState.setNotificationDialog({
                                 header: "Account created",
                                 text: "Your account has been created. A verification mail has been sent.",
-                                on: true
+                                on: true,
                             });
                         } else if (callbackData.response === CreateAccountResponseTypes.ALREADYEXISTS) {
                             logStringConsole("Account already exists");
@@ -177,7 +177,7 @@ export default class CreateUserAccount extends Vue {
                             logStringConsole("Invalid input");
                             this.userData.emailerror = "Invalid input.";
                         }
-                    }
+                    },
                 );
             }
         });

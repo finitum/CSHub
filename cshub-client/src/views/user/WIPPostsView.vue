@@ -1,8 +1,6 @@
 <template>
     <div>
-        <v-subheader>
-            WIP posts
-        </v-subheader>
+        <v-subheader> WIP posts </v-subheader>
         <PostList v-if="postHashes.length > 0" :post-hashes-prop="postHashes"></PostList>
         <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
     </div>
@@ -12,7 +10,7 @@
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
 
-import PostList from "../../components/posts/PostList.vue";
+import PostList from "../../components/posts/list/PostList.vue";
 
 import { ApiWrapper, logObjectConsole } from "../../utilities";
 
@@ -24,8 +22,8 @@ import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
     name: "WIPPostsView",
     components: { PostList },
     metaInfo: {
-        title: "WIP Posts - Cshub"
-    }
+        title: "WIP Posts - Cshub",
+    },
 })
 export default class WIPPostsView extends Vue {
     /**

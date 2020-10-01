@@ -21,7 +21,7 @@
                                 <v-text-field
                                     v-model="postTitle"
                                     v-validate="'required|min:4|max:50'"
-                                    style="font-weight:bold; font-size: 22px"
+                                    style="font-weight: bold; font-size: 22px"
                                     label="Title"
                                     filled
                                     :error-messages="errors.collect('postTitle') + postTitleError"
@@ -72,9 +72,7 @@
                                     </template>
                                     <v-card>
                                         <v-card-title primary-title style="padding-bottom: 0">
-                                            <h3>
-                                                Topic
-                                            </h3>
+                                            <h3>Topic</h3>
                                         </v-card-title>
                                         <v-card-text style="padding-top: 0">
                                             <v-treeview
@@ -115,7 +113,7 @@ import { ITopic } from "../../../../cshub-shared/src/entities/topic";
 @Component({
     name: "PostCreate",
     components: { Quill },
-    inject: ["$validator"]
+    inject: ["$validator"],
 })
 export default class PostCreate extends Vue {
     /**
@@ -150,7 +148,7 @@ export default class PostCreate extends Vue {
      */
     public metaInfo(): any {
         return {
-            title: "Create post - CSHub"
+            title: "Create post - CSHub",
         };
     }
 
@@ -174,7 +172,7 @@ export default class PostCreate extends Vue {
                             } else {
                                 this.postTitleError = "There has been some error with this input";
                             }
-                        }
+                        },
                     );
                 }
             });

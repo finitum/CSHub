@@ -27,7 +27,7 @@ import { ApiWrapper } from "../../utilities";
 import {
     GetEditableQuestions,
     GetQuestions,
-    GetUnpublishedQuestions
+    GetUnpublishedQuestions,
 } from "../../../../cshub-shared/src/api-calls/endpoints/question";
 import { EventBus, QUESTIONS_CHANGED } from "../../utilities/EventBus";
 import ReviewQuestionListItem from "./ReviewQuestionListItem.vue";
@@ -36,11 +36,11 @@ import { uiState } from "../../store";
 
 @Component({
     name: QuestionList.name,
-    components: { EditQuestionListItem, ReviewQuestionListItem }
+    components: { EditQuestionListItem, ReviewQuestionListItem },
 })
 export default class QuestionList extends Vue {
     @Prop({
-        required: true
+        required: true,
     })
     private unpublished!: boolean;
 
@@ -70,11 +70,11 @@ export default class QuestionList extends Vue {
 
     private getData() {
         if (this.unpublished) {
-            ApiWrapper.get(new GetUnpublishedQuestions(Number(uiState.studyNr))).then(questionIds => {
+            ApiWrapper.get(new GetUnpublishedQuestions(Number(uiState.studyNr))).then((questionIds) => {
                 this.questionIds = questionIds !== null ? questionIds.questionIds : [];
             });
         } else {
-            ApiWrapper.get(new GetEditableQuestions(+this.$route.params.hash)).then(questionIds => {
+            ApiWrapper.get(new GetEditableQuestions(+this.$route.params.hash)).then((questionIds) => {
                 this.questionIds = questionIds !== null ? questionIds.questionIds : [];
             });
         }

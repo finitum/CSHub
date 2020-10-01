@@ -24,7 +24,7 @@ import { uiState } from "./store";
 
 @Component({
     name: "App",
-    components: { NavDrawer, Toolbar, NotificationDialog }
+    components: { NavDrawer, Toolbar, NotificationDialog },
 })
 export default class App extends Vue {
     /**

@@ -198,38 +198,13 @@
                                     </v-btn>
                                 </div>
                             </transition>
-                            <v-list
-                                v-if="!alwaysShowContent || fullPostComputed"
-                                two-line
-                                style="width: 100%"
-                                class="pt-0"
-                            >
-                                <v-list-item class="pa-0 postTile">
-                                    <!-- Maybe re-add later -->
-                                    <!-- <v-list-item-avatar>
-                                        <img src="https://picsum.photos/40" class="profileBorder" />
-                                    </v-list-item-avatar> -->
-                                    <v-list-item-content class="pt-2 pb-0 d-inline">
-                                        <v-list-item-subtitle class="whitespaceInit post-title">
-                                            <span>
-                                                {{ post.title }}
-                                                {{ post.isIndex ? "(index page)" : "" }}
-                                                {{ post.isExample ? "(example)" : "" }}
-                                            </span>
-                                        </v-list-item-subtitle>
-                                        <v-list-item-subtitle class="whitespaceInit">
-                                            {{ post.datetime | formatDate }}
-                                        </v-list-item-subtitle>
-                                    </v-list-item-content>
-                                </v-list-item>
-                            </v-list>
                         </span>
                     </v-card-title>
                     <v-flex style="width: 100%; overflow: auto">
                         <v-card-text
                             v-if="
                                 ((fullPostComputed && !editModeComputed) || (!fullPostComputed && alwaysShowContent)) &&
-                                    !loadingIcon
+                                !loadingIcon
                             "
                             class="pt-0"
                         >
@@ -259,7 +234,7 @@
                         :width="5"
                         color="primary"
                         indeterminate
-                        style="width: 100%; margin: 10% auto;"
+                        style="width: 100%; margin: 10% auto"
                     />
                 </div>
             </v-card>
@@ -270,7 +245,7 @@
                 :width="5"
                 color="primary"
                 indeterminate
-                style="width: 100%; margin: 10% auto;"
+                style="width: 100%; margin: 10% auto"
             />
         </div>
         <PostEditsDialog v-if="fullPostComputed" :key="postHash" :post-hash="postHash"></PostEditsDialog>
@@ -301,7 +276,7 @@ import {
     PostSettings,
     PostSettingsEditType,
     PostVersionTypes,
-    Requests
+    Requests,
 } from "../../../../cshub-shared/src/api-calls";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 
@@ -323,7 +298,7 @@ interface IBreadCrumbType {
 
 @Component({
     name: "Post",
-    components: { Quill, PostEditsDialog, PostSaveEditDialog }
+    components: { Quill, PostEditsDialog, PostSaveEditDialog },
 })
 export default class Post extends Vue {
     /**
@@ -433,7 +408,7 @@ export default class Post extends Vue {
             this.getPostRequest();
             uiState.setCurrentEditDialogState({
                 ...notificationDialogState,
-                hasJustSaved: false
+                hasJustSaved: false,
             });
         }
     }
@@ -444,7 +419,7 @@ export default class Post extends Vue {
     public metaInfo(): any {
         if (this.fullPostComputed && this.post) {
             return {
-                title: `${this.post.title} - CSHub`
+                title: `${this.post.title} - CSHub`,
             };
         } else {
             return {};
@@ -471,12 +446,12 @@ export default class Post extends Vue {
         } else if (this.editsListComputed) {
             uiState.setEditDialogState({
                 on: true,
-                hash: this.postHash
+                hash: this.postHash,
             });
         } else if (this.saveDialogComputed) {
             uiState.setCurrentEditDialogState({
                 on: true,
-                hash: this.postHash
+                hash: this.postHash,
             });
         }
     }
@@ -496,7 +471,7 @@ export default class Post extends Vue {
                 header: "Connection failed",
                 text:
                     "The connection with the server failed :( perhaps try refreshing or hope that it's been fixed in a few minutes (your edits won't be saved!)",
-                on: true
+                on: true,
             });
         }
     }
@@ -509,7 +484,7 @@ export default class Post extends Vue {
             uiState.setNotificationDialog({
                 on: true,
                 header: "Edited post",
-                text: "Post was edited successfully"
+                text: "Post was edited successfully",
             });
 
             this.$router.push(this.currentPostURLComputed);
@@ -564,7 +539,7 @@ export default class Post extends Vue {
         const currTopic: IBreadCrumbType = {
             text: child.name,
             to: `${Routes.TOPIC}/${child.hash}`,
-            topic: true
+            topic: true,
         };
 
         if (parentTopic) {
@@ -573,37 +548,6 @@ export default class Post extends Vue {
         } else {
             return [currTopic];
         }
-    }
-
-    private getPostRequest() {
-        localForage.getItem<IPost>(CacheTypes.POSTS + this.postHash).then((cachedValue: IPost) => {
-            if (cachedValue === null || cachedValue.id === undefined) {
-                ApiWrapper.sendGetRequest(new PostData(this.postHash), (callbackData: GetPostCallBack) => {
-                    if (callbackData.post !== null) {
-                        this.post = callbackData.post;
-
-                        logObjectConsole(callbackData.post, "getPostRequest");
-
-                        if (this.fullPostComputed || this.post.isIndex || this.post.isExample) {
-                            this.getContentRequest(callbackData.post);
-                        } else {
-                            localForage.setItem<IPost>(CacheTypes.POSTS + this.postHash, callbackData.post);
-                        }
-                    } else {
-                        this.$router.push(Routes.INDEX);
-                    }
-                });
-            } else {
-                logStringConsole("Gotten post from cache", "getPostRequest");
-                this.post = cachedValue;
-
-                if (this.fullPostComputed) {
-                    this.getContentRequest(cachedValue);
-                } else if (cachedValue.isIndex || cachedValue.isExample) {
-                    this.getContentRequest(cachedValue);
-                }
-            }
-        });
     }
 
     private async getContentRequest(knownPost: IPost) {
@@ -622,14 +566,14 @@ export default class Post extends Vue {
             let hasBeenUpdated = false;
 
             let currentPost: IPost = {
-                ...knownPost
+                ...knownPost,
             };
 
             if (content !== null) {
                 switch (content.data.type) {
                     case PostVersionTypes.UPDATEDPOST:
                         currentPost = {
-                            ...content.data.postUpdated
+                            ...content.data.postUpdated,
                         };
                         currentPost.htmlContent = content.data.content.html;
                         hasBeenUpdated = true;
@@ -637,7 +581,7 @@ export default class Post extends Vue {
                     case PostVersionTypes.POSTDELETED:
                         this.$router.push(Routes.INDEX);
                         currentPost = {
-                            ...knownPost
+                            ...knownPost,
                         };
                         break;
                 }
@@ -651,7 +595,7 @@ export default class Post extends Vue {
                 this.topicNames.push({
                     text: currentPost.title,
                     to: this.$route.fullPath,
-                    topic: false
+                    topic: false,
                 });
             }
 
@@ -697,7 +641,7 @@ export default class Post extends Vue {
         }
         uiState.setEditDialogState({
             on: true,
-            hash: this.postHash
+            hash: this.postHash,
         });
     }
 
@@ -720,7 +664,7 @@ export default class Post extends Vue {
 
         uiState.setCurrentEditDialogState({
             on: true,
-            hash: this.postHash
+            hash: this.postHash,
         });
     }
 }

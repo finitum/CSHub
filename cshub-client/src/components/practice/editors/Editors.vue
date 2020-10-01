@@ -37,7 +37,7 @@ import DynamicEditor from "./DynamicEditor.vue";
 
 @Component({
     name: Editors.name,
-    components: { DynamicEditor, OpenTextEditor, OpenNumberEditor, EditorAccordion, MultipleChoiceEditor }
+    components: { DynamicEditor, OpenTextEditor, OpenNumberEditor, EditorAccordion, MultipleChoiceEditor },
 })
 export default class Editors extends Vue {}
 </script>

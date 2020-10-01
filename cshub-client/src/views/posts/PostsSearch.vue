@@ -34,7 +34,7 @@ import Vue from "vue";
 
 import { Search, GetSearchPostsCallback } from "../../../../cshub-shared/src/api-calls";
 
-import PostList from "../../components/posts/PostList.vue";
+import PostList from "../../components/posts/list/PostList.vue";
 
 import { dataState, uiState } from "../../store";
 
@@ -42,7 +42,7 @@ import { ApiWrapper } from "../../utilities";
 
 @Component({
     name: "PostsSearch",
-    components: { PostList }
+    components: { PostList },
 })
 export default class PostsSearch extends Vue {
     /**
@@ -76,7 +76,7 @@ export default class PostsSearch extends Vue {
 
     public metaInfo(): any {
         return {
-            title: "Search - CSHub"
+            title: "Search - CSHub",
         };
     }
 
@@ -98,7 +98,7 @@ export default class PostsSearch extends Vue {
             new Search(this.searchQuery, uiState.studyNr || 0),
             (result: GetSearchPostsCallback) => {
                 this.postHashes = result.hashes;
-            }
+            },
         );
     }
 }

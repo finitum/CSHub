@@ -2,9 +2,7 @@
     <v-navigation-drawer id="cshub-nav" v-model="drawerComputed" fixed clipped app>
         <v-list class="pt-0" dense>
             <v-select v-model="studyNr" :items="studies" hide-details filled label="Study"></v-select>
-            <v-subheader>
-                User
-            </v-subheader>
+            <v-subheader> User </v-subheader>
             <NavDrawerItem
                 v-if="userLoggedInComputed"
                 :to="navigationLocations.USERDASHBOARD"
@@ -46,9 +44,7 @@
                 ><NavDrawerItem v-if="userLoggedInComputed" icon="fas fa-sign-out-alt" text="Logout"></NavDrawerItem
             ></a>
             <v-divider dark class="my-3"></v-divider>
-            <v-subheader>
-                Topics
-            </v-subheader>
+            <v-subheader> Topics </v-subheader>
             <v-treeview
                 dense
                 :active.sync="activeTopicHash"
@@ -61,9 +57,7 @@
             </v-treeview>
             <div v-if="userLoggedInComputed">
                 <v-divider dark class="my-3"></v-divider>
-                <v-subheader>
-                    Create
-                </v-subheader>
+                <v-subheader> Create </v-subheader>
 
                 <NavDrawerItem
                     :to="navigationLocations.POSTCREATE"
@@ -97,7 +91,7 @@ import { Logout } from "../../../../cshub-shared/src/api-calls/endpoints/user";
 
 @Component({
     name: "NavDrawer",
-    components: { NavDrawerItem }
+    components: { NavDrawerItem },
 })
 export default class NavDrawer extends Vue {
     /**
@@ -132,10 +126,10 @@ export default class NavDrawer extends Vue {
 
     get studies(): Array<{ text: string; value: number }> {
         if (dataState.studies) {
-            return dataState.studies.map(value => {
+            return dataState.studies.map((value) => {
                 return {
                     text: value.name,
-                    value: value.id
+                    value: value.id,
                 };
             });
         } else {
@@ -156,7 +150,7 @@ export default class NavDrawer extends Vue {
             localStorage.setItem(LocalStorageData.STUDY, study.toString(10));
             uiState.setStudyNr(study);
 
-            getTopTopic(study, true).then(topTopic => {
+            getTopTopic(study, true).then((topTopic) => {
                 parseTopTopic(topTopic);
                 dataState.setTopics(topTopic);
                 EventBus.$emit(STUDY_CHANGED);

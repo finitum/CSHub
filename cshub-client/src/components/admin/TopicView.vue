@@ -57,7 +57,7 @@ import { EventBus, STUDY_CHANGED } from "../../utilities/EventBus";
 
 @Component({
     name: "TopicView",
-    components: { SlVueTree }
+    components: { SlVueTree },
 })
 export default class TopicView extends Vue {
     private nodes: ISlTreeNodeModel<ITopic>[] = [];
@@ -82,18 +82,18 @@ export default class TopicView extends Vue {
         const firstNode = this.tree.getFirstNode();
         const insertPosition: ICursorPosition<ITopic> = {
             node: firstNode,
-            placement: "before"
+            placement: "before",
         };
 
         const newNode: ISlTreeNodeModel<ITopic> = {
-            title: "New topic"
+            title: "New topic",
         };
         (this.tree as any).insert(insertPosition, newNode);
     }
 
     private deleteNode() {
         const selected = this.tree.getSelected();
-        selected.forEach(currSelected => (this.tree as any).remove([currSelected.path]));
+        selected.forEach((currSelected) => (this.tree as any).remove([currSelected.path]));
     }
 
     private startEditing(node: ISlTreeNode<ITopic>) {
@@ -111,7 +111,7 @@ export default class TopicView extends Vue {
         // Types of lib are bad, so we can do te cast (node.path as any)
         this.tree.updateNode(node.path as any, {
             title: this.currentlyEditedTitle,
-            data
+            data,
         });
 
         this.isEditingName = false;
@@ -120,7 +120,7 @@ export default class TopicView extends Vue {
     private getNodes() {
         const topTopic = dataState.topTopic;
         if (topTopic) {
-            this.nodes = topTopic.children.map(child => this.createTreeViewFragment(child));
+            this.nodes = topTopic.children.map((child) => this.createTreeViewFragment(child));
         } else {
             this.nodes = [];
         }
@@ -128,7 +128,7 @@ export default class TopicView extends Vue {
 
     private async collectNodes(
         parent: TopicOrNew,
-        node: ISlTreeNodeModel<TopicOrNew>
+        node: ISlTreeNodeModel<TopicOrNew>,
     ): Promise<TopicOrNew | undefined> {
         if (node.data === undefined) {
             return;
@@ -139,7 +139,7 @@ export default class TopicView extends Vue {
             name: node.data.name,
             children: [],
             hash: node.data.hash || null,
-            parent: parent
+            parent: parent,
         };
 
         if (node.children) {
@@ -161,7 +161,7 @@ export default class TopicView extends Vue {
             uiState.setNotificationDialog({
                 header: "Something's gone terribly wrong :(",
                 text: "Please tell the devs you saw this message",
-                on: true
+                on: true,
             });
             return;
         }
@@ -182,7 +182,7 @@ export default class TopicView extends Vue {
 
                 await ApiWrapper.put(new RestructureTopics(uiState.studyNr, fullCopy));
 
-                getTopTopic(uiState.studyNr, true).then(topTopic => {
+                getTopTopic(uiState.studyNr, true).then((topTopic) => {
                     parseTopTopic(topTopic);
                     dataState.setTopics(topTopic);
                     EventBus.$emit(STUDY_CHANGED);
@@ -191,7 +191,7 @@ export default class TopicView extends Vue {
                 uiState.setNotificationDialog({
                     header: "Saved",
                     text: "Saved!",
-                    on: true
+                    on: true,
                 });
                 return;
             } else {
@@ -225,7 +225,7 @@ export default class TopicView extends Vue {
         return {
             title: clonedTopic.name,
             children: childFragments,
-            data: clonedTopic
+            data: clonedTopic,
         };
     }
 }

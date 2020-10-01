@@ -4,7 +4,7 @@ export const replaceVariablesByValues = (text: string, variablesAndValues: Varia
     variablesAndValues.sort((a, b) => b.name.length - a.name.length);
 
     let newText = text;
-    variablesAndValues.forEach(value => {
+    variablesAndValues.forEach((value) => {
         newText = newText.replace(new RegExp(`\\$${value.name}`, "g"), value.value.toString());
     });
     return newText;
