@@ -19,7 +19,7 @@ app.put(SquashEdits.getURL, (req: Request, res: Response) => {
     const inputsValidation = validateMultipleInputs({ input: postHash }, { input: squashEditRequest.editIds });
 
     if (inputsValidation.valid && squashEditRequest.editIds.length > 1) {
-        hasAccessToPostRequest(postHash, req).then(req => {
+        hasAccessToPostRequest(postHash, req).then((req) => {
             if (req.canSave) {
                 logger.info(`Executing squash for post id ${postHash}`);
                 query(
@@ -35,20 +35,20 @@ app.put(SquashEdits.getURL, (req: Request, res: Response) => {
                           AND approved = 1
                         ORDER BY datetime
                     `,
-                    postHash
+                    postHash,
                 )
                     .then((edits: DatabaseResultSet) => {
                         const dbEdits: { id: number; datetime: Dayjs; content: Delta; users: number[] }[] = [];
 
                         for (const edit of edits) {
-                            const currEdit = dbEdits.find(x => x.id === edit.getNumberFromDB("id"));
+                            const currEdit = dbEdits.find((x) => x.id === edit.getNumberFromDB("id"));
 
                             if (currEdit === null || typeof currEdit === "undefined") {
                                 dbEdits.push({
                                     id: edit.getNumberFromDB("id"),
                                     datetime: dayjs(edit.getStringFromDB("datetime")),
                                     content: new Delta(JSON.parse(edit.getStringFromDB("content"))),
-                                    users: [edit.getNumberFromDB("user")]
+                                    users: [edit.getNumberFromDB("user")],
                                 });
                             } else {
                                 currEdit.users.push(edit.getNumberFromDB("user"));
@@ -59,7 +59,7 @@ app.put(SquashEdits.getURL, (req: Request, res: Response) => {
                         let currSquashIndexes: number[] = [];
 
                         for (const editId of squashEditRequest.editIds) {
-                            const dbEditIndex = dbEdits.findIndex(x => x.id === editId);
+                            const dbEditIndex = dbEdits.findIndex((x) => x.id === editId);
 
                             if (dbEditIndex !== -1) {
                                 currSquashIndexes.push(dbEditIndex);
@@ -115,7 +115,7 @@ app.put(SquashEdits.getURL, (req: Request, res: Response) => {
                                         WHERE id = ?
                                     `,
                                     JSON.stringify(delta),
-                                    editId
+                                    editId,
                                 )
                                     .then(() => {
                                         async.each(
@@ -130,7 +130,7 @@ app.put(SquashEdits.getURL, (req: Request, res: Response) => {
                                                         ON DUPLICATE KEY UPDATE user=user;
                                                     `,
                                                         editId,
-                                                        item
+                                                        item,
                                                     ).then(() => {
                                                         callback();
                                                     });
@@ -138,7 +138,7 @@ app.put(SquashEdits.getURL, (req: Request, res: Response) => {
                                             },
                                             () => {
                                                 return;
-                                            }
+                                            },
                                         );
                                     })
                                     .then(() => {
@@ -157,7 +157,7 @@ app.put(SquashEdits.getURL, (req: Request, res: Response) => {
                                                     FROM editusers
                                                     WHERE edit = ?
                                                 `,
-                                                    item
+                                                    item,
                                                 ).then(() => {
                                                     callback();
                                                 });
@@ -169,9 +169,9 @@ app.put(SquashEdits.getURL, (req: Request, res: Response) => {
                                                     FROM edits
                                                     WHERE id IN (?)
                                                 `,
-                                                    dbIds
+                                                    dbIds,
                                                 );
-                                            }
+                                            },
                                         );
                                     })
                                     .then(() => {
@@ -180,7 +180,7 @@ app.put(SquashEdits.getURL, (req: Request, res: Response) => {
                             }
                         }
                     })
-                    .catch(e => {
+                    .catch((e) => {
                         logger.error("Error squashsing");
                         logger.error(e);
                         res.status(500).send();

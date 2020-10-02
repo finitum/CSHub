@@ -2,26 +2,26 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Answer } from "./answer";
 
 @Entity({
-    name: "variable"
+    name: "variable",
 })
 export class Variable {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @ManyToOne(type => Answer, answer => answer.dynamicAnswerVariables, {
+    @ManyToOne((type) => Answer, (answer) => answer.dynamicAnswerVariables, {
         nullable: false,
         onDelete: "RESTRICT",
-        onUpdate: "RESTRICT"
+        onUpdate: "RESTRICT",
     })
     answer!: Answer;
 
     @Column({
-        nullable: false
+        nullable: false,
     })
     name!: string;
 
     @Column({
-        nullable: false
+        nullable: false,
     })
     expression!: string;
 }

@@ -7,7 +7,7 @@ import { ClientResponse } from "@sendgrid/client/src/response";
 import { Settings } from "../settings";
 import { query } from "../db/database-query";
 import logger from "./Logger";
-import { Requests } from "../../../cshub-shared/src/api-calls/index";
+import { Requests } from "../../../cshub-shared/src/api-calls";
 import { Routes } from "../../../cshub-shared/src/Routes";
 import { getRandomNumberLarge } from "../../../cshub-shared/src/utilities/Random";
 import { getRepository } from "typeorm";
@@ -19,20 +19,20 @@ const nodeMailer = nodemailer.createTransport({
     service: "gmail",
     auth: {
         user: Settings.MAIL.GMAILSETTINGS.MAILADDRESS,
-        pass: Settings.MAIL.GMAILSETTINGS.PASSWORD
-    }
+        pass: Settings.MAIL.GMAILSETTINGS.PASSWORD,
+    },
 });
 
-export const sendMail = (subject: string, html: string, to: string) => {
+export const sendMail = (subject: string, html: string, to: string): void => {
     const emailObj = {
         to,
         subject,
-        html
+        html,
     };
 
     if (Settings.MAIL.USEGMAIL) {
         emailObj["from"] = Settings.MAIL.GMAILSETTINGS.MAILADDRESS;
-        nodeMailer.sendMail(emailObj, function(err, info) {
+        nodeMailer.sendMail(emailObj, function (err, info) {
             if (err) {
                 logger.error(`Mail sending failed`);
                 logger.error(err);
@@ -44,23 +44,23 @@ export const sendMail = (subject: string, html: string, to: string) => {
     } else {
         const sendGridEmailObject = {
             ...emailObj,
-            from: Settings.MAIL.NOREPLYADDRESS
+            from: Settings.MAIL.NOREPLYADDRESS,
         };
 
         sgMail
             .send(sendGridEmailObject)
-            .then((response: [ClientResponse, {}]) => {
+            .then((response: [ClientResponse, unknown]) => {
                 logger.info("Mail sent: ");
                 logger.info(response[0]);
             })
-            .catch(err => {
+            .catch((err) => {
                 logger.error(`Mail sending failed`);
                 logger.error(err);
             });
     }
 };
 
-export const sendVerificationEmail = (to: string, name: string, insertId: number) => {
+export const sendVerificationEmail = (to: string, name: string, insertId: number): void => {
     const hash = getRandomNumberLarge();
 
     query(
@@ -70,7 +70,7 @@ export const sendVerificationEmail = (to: string, name: string, insertId: number
       WHERE id = ?
     `,
         hash,
-        insertId
+        insertId,
     ).then(() => {
         const userRepository = getRepository(User);
         const domainRepository = getRepository(EmailDomain);
@@ -85,7 +85,7 @@ export const sendVerificationEmail = (to: string, name: string, insertId: number
 
             logger.info(`Replaced address; ${replaceToAddress}`);
 
-            let user = await userRepository.findOne({ id: insertId });
+            const user = await userRepository.findOne({ id: insertId });
             if (!user) {
                 logger.error("Could not get user, mail not sent");
                 throw Error();
@@ -115,7 +115,7 @@ export const sendVerificationEmail = (to: string, name: string, insertId: number
     });
 };
 
-export const sendPasswordResetMail = (to: string, name: string, userId: number) => {
+export const sendPasswordResetMail = (to: string, name: string, userId: number): void => {
     const hash = getRandomNumberLarge();
 
     query(
@@ -125,7 +125,7 @@ export const sendPasswordResetMail = (to: string, name: string, userId: number) 
       WHERE id = ?
     `,
         hash,
-        userId
+        userId,
     ).then(() => {
         const userRepository = getRepository(User);
         const domainRepository = getRepository(EmailDomain);
@@ -138,7 +138,7 @@ export const sendPasswordResetMail = (to: string, name: string, userId: number) 
                 .replace("{2}", replaceToAddress)
                 .replace("{3}", "Change password");
 
-            let user = await userRepository.findOne({ id: userId });
+            const user = await userRepository.findOne({ id: userId });
             if (!user) {
                 logger.error("Could not get user, mail not sent");
                 throw Error();

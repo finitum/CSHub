@@ -8,7 +8,7 @@ export const generateRandomTopicHash = (): Promise<number> => {
     const hash = getRandomNumberLarge();
 
     // Right now, using getTopicTree each time is terribly inefficient, but in the future we want to optimize this one. So just use this one for now and the optimizations will be in this method so not much refactoring has to be done.
-    return getTopicTree().then(topics => {
+    return getTopicTree().then((topics) => {
         if (topics) {
             const topic = findTopicInTree(hash, topics);
             if (topic === null) {
@@ -66,7 +66,7 @@ export const getChildHashes = (inputTopic: ITopic[]): number[] => {
 
 // Retrieving all the studies that contain that topic id
 export const getStudiesFromTopic = (topicHash: number): Promise<IStudy[]> => {
-    return getTopicTree().then(value => {
+    return getTopicTree().then((value) => {
         if (value) {
             const topic = findTopicInTree(topicHash, value);
 
@@ -85,11 +85,11 @@ export const getTopicTree = (study?: number): Promise<Topic[] | null> => {
 
     return topicRepository
         .find({
-            relations: ["parent", "study"]
+            relations: ["parent", "study"],
         })
-        .then(topics => {
+        .then((topics) => {
             const parseCurrentLayer = (parent: Topic | null) => {
-                const topicsWithParent = topics.filter(topic => {
+                const topicsWithParent = topics.filter((topic) => {
                     if (parent === null) {
                         return topic.parent === null;
                     } else {
@@ -102,7 +102,7 @@ export const getTopicTree = (study?: number): Promise<Topic[] | null> => {
                 }
 
                 for (const topic of topicsWithParent) {
-                    const children = topics.filter(childTopic => {
+                    const children = topics.filter((childTopic) => {
                         return childTopic.parent && childTopic.parent.id === topic.id;
                     });
                     topic.children = children;
@@ -138,12 +138,12 @@ export const getTopicTree = (study?: number): Promise<Topic[] | null> => {
                     return [treeForStudy];
                 }
             } else {
-                return topics.filter(topic => topic.parent === null);
+                return topics.filter((topic) => topic.parent === null);
             }
 
             return null;
         })
-        .catch(err => {
+        .catch((err) => {
             return null;
         });
 };

@@ -13,15 +13,13 @@ export const sign = (obj: IUser): string => {
 
     const jwtobj: IJWTToken = {
         user: newObj,
-        expirydate: dayjs()
-            .add(Settings.TOKENAGEMILLISECONDS, "millisecond")
-            .unix()
+        expirydate: dayjs().add(Settings.TOKENAGEMILLISECONDS, "millisecond").unix(),
     };
 
     return jwt.sign(jwtobj, Settings.JWTHASH);
 };
 
-export const validateAccessToken = (accessToken: string) => {
+export const validateAccessToken = (accessToken: string): IJWTToken | undefined => {
     try {
         return jwt.verify(accessToken, Settings.JWTHASH) as IJWTToken;
     } catch (e) {

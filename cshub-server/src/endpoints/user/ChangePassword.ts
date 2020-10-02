@@ -3,7 +3,7 @@ import logger from "../../utilities/Logger";
 import {
     ChangePasswordCallback,
     ChangePassword,
-    ChangePasswordResponseTypes
+    ChangePasswordResponseTypes,
 } from "../../../../cshub-shared/src/api-calls";
 import { Request, Response } from "express";
 import { DatabaseResultSet, query } from "../../db/database-query";
@@ -21,15 +21,15 @@ app.post(ChangePassword.getURL, (req: Request, res: Response) => {
             {
                 input: userDashboardChangePasswordRequest.currentPassword,
                 validationObject: {
-                    minlength: 8
-                }
+                    minlength: 8,
+                },
             },
             {
                 input: userDashboardChangePasswordRequest.newPassword,
                 validationObject: {
-                    minlength: 8
-                }
-            }
+                    minlength: 8,
+                },
+            },
         );
 
         if (inputsValidation.valid) {
@@ -39,7 +39,7 @@ app.post(ChangePassword.getURL, (req: Request, res: Response) => {
             FROM users
             WHERE id = ?
             `,
-                token.user.id
+                token.user.id,
             )
                 .then((result: DatabaseResultSet) => {
                     if (result.convertRowsToResultObjects().length !== 1) {
@@ -58,12 +58,12 @@ app.post(ChangePassword.getURL, (req: Request, res: Response) => {
                                         WHERE id = ?
                                         `,
                                         newHashedValue,
-                                        token.user.id
+                                        token.user.id,
                                     ).then(() => {
                                         res.json(new ChangePasswordCallback(ChangePasswordResponseTypes.SUCCESS));
                                     });
                                 })
-                                .catch(err => {
+                                .catch((err) => {
                                     logger.error(`Changing password failed`);
                                     logger.error(err);
                                     res.status(500).send();
@@ -73,7 +73,7 @@ app.post(ChangePassword.getURL, (req: Request, res: Response) => {
                         }
                     });
                 })
-                .catch(err => {
+                .catch((err) => {
                     logger.error(`Getting user from id for changing password failed`);
                     logger.error(err);
                     res.status(500).send();

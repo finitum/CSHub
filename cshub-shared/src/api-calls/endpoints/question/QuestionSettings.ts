@@ -3,7 +3,7 @@ import { Requests } from "../../Requests";
 
 export enum QuestionSettingsEditType {
     APPROVE,
-    DELETE
+    DELETE,
 }
 
 export class QuestionSettings implements IApiRequest<void> {

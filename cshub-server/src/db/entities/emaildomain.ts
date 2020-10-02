@@ -5,7 +5,7 @@ import { User } from "./user";
 
 @Exclude()
 @Entity({
-    name: "emaildomains"
+    name: "emaildomains",
 })
 export class EmailDomain implements IEmailDomain {
     @Expose()
@@ -16,10 +16,10 @@ export class EmailDomain implements IEmailDomain {
     @Column({
         type: "varchar",
         length: 64,
-        unique: true
+        unique: true,
     })
     domain!: string;
 
-    @OneToMany(type => User, user => user.domain)
+    @OneToMany((type) => User, (user) => user.domain)
     users?: User[];
 }

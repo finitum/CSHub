@@ -5,7 +5,7 @@ import {
     PostEmailDomains,
     DeleteEmailDomains,
     PutEmailDomains,
-    PostEmailDomainsCallback
+    PostEmailDomainsCallback,
 } from "../../../cshub-shared/src/api-calls/endpoints/emaildomains";
 import { Request, Response } from "express";
 import { getRepository } from "typeorm";
@@ -65,7 +65,7 @@ app.post(DeleteEmailDomains.getURL, async (req: Request, res: Response) => {
 
     try {
         const newDomain = await emailDomainsRepo.save({
-            domain: domain.domain
+            domain: domain.domain,
         });
 
         return res.status(200).json(new PostEmailDomainsCallback(newDomain));
@@ -93,8 +93,8 @@ app.put(GetEmailDomains.getURL, async (req: Request, res: Response) => {
         await emailDomainsRepo.update(
             { id: domain.domain.id },
             {
-                domain: domain.domain.domain
-            }
+                domain: domain.domain.domain,
+            },
         );
 
         return res.sendStatus(200);

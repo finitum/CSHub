@@ -1,5 +1,4 @@
-// @ts-ignore
-import Delta from "quill-delta/dist/Delta";
+import Delta from "quill-delta";
 import { Dayjs } from "dayjs";
 
 export interface IRealtimeEdit {

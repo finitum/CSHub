@@ -21,10 +21,10 @@ app.get(AllUsers.getURL, (req: Request, res: Response) => {
             .find({
                 relations: ["studies"],
                 skip: (page - 1) * rowsPerPage,
-                take: rowsPerPage
+                take: rowsPerPage,
             })
-            .then(data => {
-                userRepository.count().then(countResult => {
+            .then((data) => {
+                userRepository.count().then((countResult) => {
                     res.json(new AllUsersCallBack(data, countResult));
                 });
             });

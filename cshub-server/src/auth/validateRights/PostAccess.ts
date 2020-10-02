@@ -29,9 +29,9 @@ export const hasAccessToTopicJWT = (topicHash: number, jwt: string): Promise<Pos
     }
 
     // Check if user is study admin
-    return getStudiesFromTopic(topicHash).then(studies => {
+    return getStudiesFromTopic(topicHash).then((studies) => {
         for (const study of studies) {
-            const isStudyAdmin = tokenResult.user.studies.map(currStudy => currStudy.id).includes(study.id);
+            const isStudyAdmin = tokenResult.user.studies.map((currStudy) => currStudy.id).includes(study.id);
             if (isStudyAdmin) {
                 return { canEdit: true, canSave: true };
             }
@@ -59,7 +59,7 @@ export const hasAccessToPostJWT = (postHash: number, jwt: string): Promise<PostA
         INNER JOIN topics t on p.topic = t.id
       WHERE p.hash = ?
     `,
-        postHash
+        postHash,
     ).then((databaseResult: DatabaseResultSet) => {
         if (databaseResult.getNumberFromDB("deleted") === 1) {
             return { canEdit: false, canSave: false };

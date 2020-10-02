@@ -1,6 +1,6 @@
 import { getMarkdownParser, MarkdownLatexQuill } from "./MarkdownLatexQuill";
 
-export const getHTML = (quillEditor: any, document: Document) => {
+export const getHTML = (quillEditor: any, document: Document): string => {
     const node = quillEditor.container.firstChild.cloneNode(true);
 
     // Converts the classes of all the code blocks so that hljs can highlight them properly
@@ -12,18 +12,14 @@ export const getHTML = (quillEditor: any, document: Document) => {
         containerNode?: HTMLElement;
         currString?: string;
     } = {
-        isMarkdownBlock: false
+        isMarkdownBlock: false,
     };
 
     const finalizeMarkdownBlock = (doc: Document) => {
         if (prevElement.isMarkdownBlock) {
             const currString = prevElement.currString || "";
 
-            prevElement.currString = currString
-                .split("<")
-                .join("&lt;")
-                .split(">")
-                .join("&gt;");
+            prevElement.currString = currString.split("<").join("&lt;").split(">").join("&gt;");
 
             const newNode = doc.createElement("div");
             // To not have a break at the end
@@ -41,7 +37,7 @@ export const getHTML = (quillEditor: any, document: Document) => {
             }
 
             prevElement = {
-                isMarkdownBlock: false
+                isMarkdownBlock: false,
             };
         }
     };
@@ -63,7 +59,7 @@ export const getHTML = (quillEditor: any, document: Document) => {
                 prevElement = {
                     isMarkdownBlock: true,
                     containerNode: domNode,
-                    currString: `${domNode.textContent}\n`
+                    currString: `${domNode.textContent}\n`,
                 };
             }
         } else if (domNode.tagName === "P" && domNode.innerHTML === "") {
@@ -90,12 +86,7 @@ export const getHTML = (quillEditor: any, document: Document) => {
         const tagName = domNode.tagName;
         if (tagName === "H1" || tagName === "H2" || tagName === "H3") {
             const innerText = (domNode.innerText || domNode.textContent) as string;
-            domNode.id = innerText
-                .split(" ")
-                .join("-")
-                .split("\n")
-                .join("-")
-                .toLowerCase();
+            domNode.id = innerText.split(" ").join("-").split("\n").join("-").toLowerCase();
         }
     }
 

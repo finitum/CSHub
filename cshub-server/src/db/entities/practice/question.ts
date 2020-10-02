@@ -6,7 +6,7 @@ import {
     OneToMany,
     OneToOne,
     PrimaryGeneratedColumn,
-    RelationId
+    RelationId,
 } from "typeorm";
 import { Topic } from "../topic";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
@@ -15,7 +15,7 @@ import { Answer } from "./answer";
 
 @Exclude()
 @Entity({
-    name: "question"
+    name: "question",
 })
 export class Question {
     @Expose()
@@ -24,30 +24,30 @@ export class Question {
 
     @Expose()
     @Column({
-        type: "text"
+        type: "text",
     })
     question!: string;
 
     @Expose()
     @Column({
-        type: "text"
+        type: "text",
     })
     type!: QuestionType;
 
     @Expose()
-    @OneToMany(type => Answer, answer => answer.question, {
+    @OneToMany((type) => Answer, (answer) => answer.question, {
         nullable: false,
-        cascade: true
+        cascade: true,
     })
     answers!: Answer[];
 
     @Column({
-        type: "text"
+        type: "text",
     })
     explanation!: string;
 
-    @ManyToOne(type => Topic, topic => topic.questions, {
-        nullable: false
+    @ManyToOne((type) => Topic, (topic) => topic.questions, {
+        nullable: false,
     })
     topic!: Topic;
 
@@ -55,25 +55,25 @@ export class Question {
     topicId!: number;
 
     @Column({
-        default: false
+        default: false,
     })
     active!: boolean;
 
     @Column({
-        default: false
+        default: false,
     })
     deleted!: boolean;
 
     // not the nicest solution, but it works. This marks which question will be set to inactive if this question is accepted
-    @OneToOne(type => Question, question => question.replacedByQuestion, {
-        nullable: true
+    @OneToOne((type) => Question, (question) => question.replacedByQuestion, {
+        nullable: true,
     })
     @JoinColumn()
     replacesQuestion?: Question;
 
     // not the nicest solution, but it works. This marks which question will be set to inactive if this question is accepted
-    @OneToOne(type => Question, question => question.replacesQuestion, {
-        nullable: true
+    @OneToOne((type) => Question, (question) => question.replacesQuestion, {
+        nullable: true,
     })
     replacedByQuestion?: Question;
 

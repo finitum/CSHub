@@ -1,3 +1,0 @@
-[submodule "deployment/fluentd"]
-	path = deployment/submodules/fluentd
-	url = https://gitlab.xirion.net/cshub/fluentd

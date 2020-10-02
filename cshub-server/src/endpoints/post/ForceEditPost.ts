@@ -17,7 +17,7 @@ app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
     const inputsValidation = validateMultipleInputs({ input: postHash });
 
     if (inputsValidation.valid) {
-        hasAccessToPostRequest(postHash, req).then(access => {
+        hasAccessToPostRequest(postHash, req).then((access) => {
             if (access.canSave) {
                 return query(
                     `
@@ -30,7 +30,7 @@ app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
                         )
                         ORDER BY datetime
                     `,
-                    postHash
+                    postHash,
                 )
                     .then((edits: DatabaseResultSet) => {
                         const rows = edits.convertRowsToResultObjects();
@@ -48,7 +48,7 @@ app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
                         }
 
                         const child = cp.fork(`${__dirname}/EditsHandler`);
-                        child.on("message", async htmlAndIndex => {
+                        child.on("message", async (htmlAndIndex) => {
                             if (htmlAndIndex.html && htmlAndIndex.indexWords) {
                                 query(
                                     `
@@ -62,7 +62,7 @@ app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
                                     htmlAndIndex.html,
                                     htmlAndIndex.indexWords,
                                     editId,
-                                    postHash
+                                    postHash,
                                 ).then(() => {
                                     logger.info("Force edit post succesfully");
                                     res.sendStatus(200);
@@ -72,7 +72,7 @@ app.put(ForceEditPost.getURL, (req: Request, res: Response) => {
                         });
                         child.send(delta);
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         logger.error(`Force editing failed`);
                         logger.error(err);
                         res.status(500).send();

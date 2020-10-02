@@ -2,9 +2,12 @@ import { app } from "../../";
 import { Request, Response } from "express";
 import { DatabaseResultSet, query } from "../../db/database-query";
 import { GetUnverifiedPosts, GetUnverifiedPostsCallBack } from "../../../../cshub-shared/src/api-calls";
+import { parseStringQuery } from "../../utilities/query-parser";
 
 app.get(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
-    const studyId = +req.query[GetUnverifiedPosts.studyQueryParam];
+    const studyIdQuery = parseStringQuery(req, res, GetUnverifiedPosts.studyQueryParam);
+    if (!studyIdQuery) return;
+    const studyId = +studyIdQuery;
 
     if (isNaN(studyId)) {
         // language=MySQL
@@ -27,11 +30,11 @@ app.get(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
                       AND T1.deleted = 0
                     GROUP BY T2.post
                     ORDER BY T1.datetime DESC
-            `
+            `,
         ).then((result: DatabaseResultSet) => {
             const hashes: number[] = [];
 
-            result.convertRowsToResultObjects().forEach(x => {
+            result.convertRowsToResultObjects().forEach((x) => {
                 hashes.push(x.getNumberFromDB("hash"));
             });
 
@@ -72,11 +75,11 @@ app.get(GetUnverifiedPosts.getURL, (req: Request, res: Response) => {
                     GROUP BY T2.post
                     ORDER BY T1.datetime DESC
             `,
-            studyId
+            studyId,
         ).then((result: DatabaseResultSet) => {
             const hashes: number[] = [];
 
-            result.convertRowsToResultObjects().forEach(x => {
+            result.convertRowsToResultObjects().forEach((x) => {
                 hashes.push(x.getNumberFromDB("hash"));
             });
 

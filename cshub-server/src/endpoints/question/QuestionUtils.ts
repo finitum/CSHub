@@ -14,7 +14,7 @@ import { validateMultipleInputs } from "../../utilities/StringUtils";
 import {
     FullAnswerType,
     FullQuestion,
-    FullQuestionWithId
+    FullQuestionWithId,
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import { Topic } from "../../db/entities/topic";
 import { DynamicAnswer } from "../../db/entities/practice/dynamic-answer";
@@ -25,7 +25,7 @@ export const parseAndValidateQuestion = async (question: Question, res: Response
     let answerType: FullAnswerType;
     switch (question.type) {
         case QuestionType.SINGLECLOSED:
-        case QuestionType.MULTICLOSED:
+        case QuestionType.MULTICLOSED: {
             if (question.answers.length === 0) {
                 logger.error(`No answers found for ${question.id}`);
                 res.status(500).send();
@@ -39,7 +39,7 @@ export const parseAndValidateQuestion = async (question: Question, res: Response
             }
 
             const correctAnswers = (question.answers as ClosedAnswer[])
-                .filter(answer => {
+                .filter((answer) => {
                     const correctAnswer = answer.correct;
                     if (correctAnswer === undefined) {
                         logger.error(`Don't know if answer ${answer.id} is correct`);
@@ -49,7 +49,7 @@ export const parseAndValidateQuestion = async (question: Question, res: Response
 
                     return correctAnswer;
                 })
-                .map(answer => answer.id);
+                .map((answer) => answer.id);
 
             if (question.type === QuestionType.SINGLECLOSED) {
                 if (correctAnswers.length !== 1) {
@@ -61,17 +61,18 @@ export const parseAndValidateQuestion = async (question: Question, res: Response
 
             answerType = {
                 type: question.type,
-                answers: question.answers.map(answer => {
+                answers: question.answers.map((answer) => {
                     const answerCast = answer as ClosedAnswer;
                     return {
                         answerText: answerCast.closedAnswerText,
                         correct: answerCast.correct,
-                        answerId: answerCast.id
+                        answerId: answerCast.id,
                     };
-                })
+                }),
             };
             break;
-        case QuestionType.OPENNUMBER:
+        }
+        case QuestionType.OPENNUMBER: {
             if (question.answers.length !== 1) {
                 logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
                 res.status(500).send();
@@ -97,10 +98,11 @@ export const parseAndValidateQuestion = async (question: Question, res: Response
             answerType = {
                 type: QuestionType.OPENNUMBER,
                 number: openAnswerNumber,
-                precision: precision
+                precision: precision,
             };
             break;
-        case QuestionType.OPENTEXT:
+        }
+        case QuestionType.OPENTEXT: {
             if (question.answers.length !== 1) {
                 logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
                 res.status(500).send();
@@ -122,10 +124,11 @@ export const parseAndValidateQuestion = async (question: Question, res: Response
             const openText = question.answers[0] as OpenTextAnswer;
             answerType = {
                 type: QuestionType.OPENTEXT,
-                answer: openText.openAnswerText
+                answer: openText.openAnswerText,
             };
             break;
-        case QuestionType.DYNAMIC:
+        }
+        case QuestionType.DYNAMIC: {
             if (question.answers.length !== 1) {
                 logger.error(`${question.answers.length} answer(s) found for ${question.id}`);
                 res.status(500).send();
@@ -153,7 +156,7 @@ export const parseAndValidateQuestion = async (question: Question, res: Response
                     question.question,
                     answer.dynamicAnswerExpression,
                     question.explanation,
-                    dynamicAnswerVariables
+                    dynamicAnswerVariables,
                 )
             ) {
                 logger.error(`Mismatch in amount of variables for ${question.id}`);
@@ -163,15 +166,16 @@ export const parseAndValidateQuestion = async (question: Question, res: Response
 
             answerType = {
                 type: QuestionType.DYNAMIC,
-                variableExpressions: dynamicAnswerVariables.map(variable => {
+                variableExpressions: dynamicAnswerVariables.map((variable) => {
                     return {
                         expression: variable.expression,
-                        name: variable.name
+                        name: variable.name,
                     };
                 }),
-                answerExpression: answer.dynamicAnswerExpression
+                answerExpression: answer.dynamicAnswerExpression,
             };
             break;
+        }
         default:
             logger.error("Missing switch case");
             res.status(500).send();
@@ -183,18 +187,18 @@ export const parseAndValidateQuestion = async (question: Question, res: Response
         question: question.question,
         explanation: question.explanation,
         replacesQuestion: question.replacesQuestionId,
-        ...answerType
+        ...answerType,
     };
 };
 
-export const validateNewQuestion = (question: FullQuestion, res: Response) => {
+export const validateNewQuestion = (question: FullQuestion, res: Response): void => {
     const questionValidation = validateMultipleInputs(
         {
-            input: question.question
+            input: question.question,
         },
         {
-            input: question.explanation
-        }
+            input: question.explanation,
+        },
     );
 
     if (!questionValidation.valid) {
@@ -206,16 +210,16 @@ export const validateNewQuestion = (question: FullQuestion, res: Response) => {
 
     switch (question.type) {
         case QuestionType.SINGLECLOSED:
-        case QuestionType.MULTICLOSED:
+        case QuestionType.MULTICLOSED: {
             for (const answer of question.answers) {
                 if (
                     validateMultipleInputs(
                         {
-                            input: answer.answerText
+                            input: answer.answerText,
                         },
                         {
-                            input: answer.correct
-                        }
+                            input: answer.correct,
+                        },
                     ).error
                 ) {
                     hasError = true;
@@ -224,25 +228,28 @@ export const validateNewQuestion = (question: FullQuestion, res: Response) => {
             }
 
             if (question.type === QuestionType.SINGLECLOSED) {
-                hasError = question.answers.filter(answer => answer.correct).length !== 1;
+                hasError = question.answers.filter((answer) => answer.correct).length !== 1;
             }
 
             break;
-        case QuestionType.OPENNUMBER:
+        }
+        case QuestionType.OPENNUMBER: {
             hasError = !validateMultipleInputs({ input: question.precision }, { input: question.number }).valid;
             const precision = Number(question.precision);
             hasError = hasError || !Number.isInteger(precision);
             hasError = hasError || precision > 10;
             hasError = hasError || precision < -10;
             break;
-        case QuestionType.OPENTEXT:
+        }
+        case QuestionType.OPENTEXT: {
             hasError = !validateMultipleInputs({ input: question.answer }).valid;
             break;
-        case QuestionType.DYNAMIC:
+        }
+        case QuestionType.DYNAMIC: {
             for (const variable of question.variableExpressions) {
                 if (
                     validateMultipleInputs({
-                        input: variable
+                        input: variable,
                     }).error
                 ) {
                     hasError = true;
@@ -257,9 +264,10 @@ export const validateNewQuestion = (question: FullQuestion, res: Response) => {
                     question.question,
                     question.answerExpression,
                     question.explanation,
-                    question.variableExpressions
+                    question.variableExpressions,
                 );
             break;
+        }
     }
 
     if (hasError) {
@@ -275,8 +283,8 @@ export const insertQuestions = async (
     },
     req: Request,
     res: Response,
-    topicHash?: number
-) => {
+    topicHash?: number,
+): Promise<void> => {
     const repository = getRepository(Question);
 
     let updateQuestion: false | Question = false;
@@ -285,9 +293,9 @@ export const insertQuestions = async (
     if (question.originalId) {
         const foundQuestion = await repository.findOne({
             where: {
-                id: question.originalId
+                id: question.originalId,
             },
-            relations: ["topic"]
+            relations: ["topic"],
         });
 
         if (foundQuestion) {
@@ -358,13 +366,13 @@ export const insertQuestions = async (
             newQuestion.answers.push(
                 new DynamicAnswer(
                     question.question.answerExpression,
-                    question.question.variableExpressions.map(expression => {
+                    question.question.variableExpressions.map((expression) => {
                         const newVariable = new Variable();
                         newVariable.name = expression.name;
                         newVariable.expression = expression.expression;
                         return newVariable;
-                    })
-                )
+                    }),
+                ),
             );
             break;
     }
@@ -375,7 +383,7 @@ export const insertQuestions = async (
         const variableRepository = getRepository(Variable);
         const answer = newQuestion.answers[0];
         const variables = answer.dynamicAnswerVariables || [];
-        variables.forEach(variable => (variable.answer = answer));
+        variables.forEach((variable) => (variable.answer = answer));
         await variableRepository.save(variables);
     }
 

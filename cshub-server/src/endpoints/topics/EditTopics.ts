@@ -27,7 +27,7 @@ app.put(RestructureTopics.postURL, async (req: Request, res: Response) => {
         if (authenticated === false) {
             res.sendStatus(401);
             return;
-        } else if (!authenticated.user.admin && !authenticated.user.studies.map(s => s.id).includes(studyId)) {
+        } else if (!authenticated.user.admin && !authenticated.user.studies.map((s) => s.id).includes(studyId)) {
             res.sendStatus(403);
             return;
         }
@@ -42,7 +42,7 @@ app.put(RestructureTopics.postURL, async (req: Request, res: Response) => {
         }
 
         const topTopic = await topicRepository.findOne({
-            id: study.topTopicId
+            id: study.topTopicId,
         });
         if (!topTopic) {
             res.sendStatus(500);
@@ -87,7 +87,7 @@ app.put(RestructureTopics.postURL, async (req: Request, res: Response) => {
         const originalChildHashes = getChildHashes([actualTopTopic]);
         const nonNewChildHashes = getNonNewChildHashes([restructureTopicsRequest.topTopic]);
 
-        const deletedHashes = originalChildHashes.filter(hash => !nonNewChildHashes.includes(hash));
+        const deletedHashes = originalChildHashes.filter((hash) => !nonNewChildHashes.includes(hash));
         for (const deletedHash of deletedHashes) {
             const topicInTree = findTopicInTree(deletedHash, topicTree);
             if (topicInTree) {
@@ -97,13 +97,15 @@ app.put(RestructureTopics.postURL, async (req: Request, res: Response) => {
                     .select(["post.id", "topic.name"])
                     .leftJoin("post.topic", "topic")
                     .where("topic.hash IN (:...childHashes)", {
-                        childHashes
+                        childHashes,
                     })
                     .getRawMany();
 
                 if (posts.length > 0) {
                     res.status(400).json(
-                        new ServerError(`You are deleting a topic (${posts[0].topic_name}) which has underlying posts!`)
+                        new ServerError(
+                            `You are deleting a topic (${posts[0].topic_name}) which has underlying posts!`,
+                        ),
                     );
                     return;
                 }
@@ -119,8 +121,8 @@ app.put(RestructureTopics.postURL, async (req: Request, res: Response) => {
                         input: childTopic.name,
                         validationObject: {
                             minlength: 2,
-                            maxlength: 40
-                        }
+                            maxlength: 40,
+                        },
                     });
 
                     if (!inputsValidation.valid) {
@@ -139,7 +141,7 @@ app.put(RestructureTopics.postURL, async (req: Request, res: Response) => {
 
                     parentTopic.children[i] = {
                         ...topicInserted,
-                        children: childTopic.children
+                        children: childTopic.children,
                     };
                 }
 
@@ -162,8 +164,8 @@ app.put(RestructureTopics.postURL, async (req: Request, res: Response) => {
                         input: childTopic.name,
                         validationObject: {
                             minlength: 2,
-                            maxlength: 40
-                        }
+                            maxlength: 40,
+                        },
                     });
 
                     if (!validation.valid) {
@@ -183,7 +185,7 @@ app.put(RestructureTopics.postURL, async (req: Request, res: Response) => {
 
                     await topicRepository.update(childTopic.id, {
                         name: childTopic.name,
-                        parent
+                        parent,
                     });
                 }
 

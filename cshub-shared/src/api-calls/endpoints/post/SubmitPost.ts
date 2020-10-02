@@ -6,7 +6,7 @@ export enum SubmitPostResponse {
     SUCCESS,
     TITLEALREADYINUSE,
     INVALIDINPUT,
-    ALREADYHASINDEX
+    ALREADYHASINDEX,
 }
 
 export class CreatePostCallback {
@@ -21,6 +21,6 @@ export class SubmitPost implements IApiRequest<CreatePostCallback> {
         public postTitle: string,
         public postTopicHash: number,
         public isIndex: boolean,
-        public isExample: boolean
+        public isExample: boolean,
     ) {}
 }

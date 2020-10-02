@@ -1,8 +1,8 @@
 import crypto from "crypto";
 import { Settings } from "../settings";
 
-export const hashPassword = (input: string) => {
-    return new Promise<string>((resolve, reject) => {
+export const hashPassword = (input: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
         crypto.pbkdf2(
             input,
             Settings.PASSWORDSALT,
@@ -14,7 +14,7 @@ export const hashPassword = (input: string) => {
                     reject();
                 }
                 resolve(derivedKey.toString("hex"));
-            }
+            },
         );
     });
 };

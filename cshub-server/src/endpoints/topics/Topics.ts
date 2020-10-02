@@ -28,12 +28,12 @@ app.get(Topics.getURL, async (req: Request, res: Response) => {
 
     const versionData = await repository.findOne({
         where: {
-            type: "TOPICS"
-        }
+            type: "TOPICS",
+        },
     });
 
     const makeJsonifiable = (topic: Topic) => {
-        delete topic.parent;
+        topic.parent = null;
 
         for (const child of topic.children) {
             makeJsonifiable(child);

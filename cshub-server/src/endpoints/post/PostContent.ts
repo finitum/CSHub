@@ -1,11 +1,7 @@
 import { app } from "../../.";
 import logger from "../../utilities/Logger";
 import { Request, Response } from "express";
-import {
-    PostContent,
-    GetPostContentCallBack,
-    PostVersionTypes
-} from "../../../../cshub-shared/src/api-calls";
+import { PostContent, GetPostContentCallBack, PostVersionTypes } from "../../../../cshub-shared/src/api-calls";
 
 import { DatabaseResultSet, query } from "../../db/database-query";
 import { getPostData } from "./PostData";
@@ -17,12 +13,12 @@ app.get(PostContent.getURL, (req: Request, res: Response) => {
         postVersion = +postVersionHeader;
     }
 
-    const postHash: number = Number(req.params.hash);
+    const postHash = Number(req.params.hash);
 
     enum postState {
         ONLINE,
         FIRSTEDIT,
-        DELETED
+        DELETED,
     }
 
     interface ContentReturn {
@@ -36,34 +32,34 @@ app.get(PostContent.getURL, (req: Request, res: Response) => {
         FROM posts T1
         WHERE T1.hash = ?
     `,
-        postHash
+        postHash,
     )
         .then((post: DatabaseResultSet) => {
             if (post.convertRowsToResultObjects().length === 0) {
                 res.json(
                     new GetPostContentCallBack({
-                        type: PostVersionTypes.POSTDELETED
-                    })
+                        type: PostVersionTypes.POSTDELETED,
+                    }),
                 );
             } else if (post.getNumberFromDB("postVersion") !== postVersion) {
                 getContent().then((returnContent: ContentReturn) => {
-                    getPostData(postHash).then(data => {
+                    getPostData(postHash).then((data) => {
                         if (data !== null && returnContent.state !== postState.DELETED) {
                             res.json(
                                 new GetPostContentCallBack({
                                     type: PostVersionTypes.UPDATEDPOST,
                                     content: {
                                         html: returnContent.content,
-                                        approved: returnContent.state === postState.ONLINE
+                                        approved: returnContent.state === postState.ONLINE,
                                     },
-                                    postUpdated: data.post
-                                })
+                                    postUpdated: data.post,
+                                }),
                             );
                         } else {
                             res.status(410).json(
                                 new GetPostContentCallBack({
-                                    type: PostVersionTypes.POSTDELETED
-                                })
+                                    type: PostVersionTypes.POSTDELETED,
+                                }),
                             );
                         }
                     });
@@ -73,7 +69,7 @@ app.get(PostContent.getURL, (req: Request, res: Response) => {
                 res.sendStatus(304);
             }
         })
-        .catch(err => {
+        .catch((err) => {
             logger.error("Error at post content");
             logger.error(err);
             res.status(500).send();
@@ -90,34 +86,34 @@ app.get(PostContent.getURL, (req: Request, res: Response) => {
             ORDER BY T2.datetime DESC
             LIMIT 1
         `,
-            postHash
+            postHash,
         )
             .then((content: DatabaseResultSet) => {
                 if (content.convertRowsToResultObjects().length > 0) {
                     if (content.getStringFromDB("htmlContent") === null) {
                         return {
                             content: "No content yet!",
-                            state: postState.FIRSTEDIT
+                            state: postState.FIRSTEDIT,
                         };
                     }
 
                     return {
                         content: content.getStringFromDB("htmlContent"),
-                        state: postState.ONLINE
+                        state: postState.ONLINE,
                     };
                 } else {
                     return {
                         content: "No accessible content found!",
-                        state: postState.DELETED
+                        state: postState.DELETED,
                     };
                 }
             })
-            .catch(err => {
+            .catch((err) => {
                 logger.error("Error getting content");
                 logger.error(err);
                 return {
                     content: "Error",
-                    state: postState.DELETED
+                    state: postState.DELETED,
                 };
             });
     };

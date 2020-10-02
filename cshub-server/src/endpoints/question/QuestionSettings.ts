@@ -4,7 +4,7 @@ import { hasAccessToTopicRequest } from "../../auth/validateRights/PostAccess";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import {
     QuestionSettings,
-    QuestionSettingsEditType
+    QuestionSettingsEditType,
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/QuestionSettings";
 import { AlreadySentError } from "../utils";
 import { getRepository } from "typeorm";
@@ -23,9 +23,9 @@ app.put(QuestionSettings.getURL, async (req: Request, res: Response) => {
 
     const question = await questionRepository.findOne({
         where: {
-            id: questionId
+            id: questionId,
         },
-        relations: ["topic", "replacesQuestion"]
+        relations: ["topic", "replacesQuestion"],
     });
 
     if (question === undefined) {
@@ -43,7 +43,7 @@ app.put(QuestionSettings.getURL, async (req: Request, res: Response) => {
                     .update()
                     .set({
                         active: true,
-                        replacesQuestion: undefined
+                        replacesQuestion: undefined,
                     })
                     .where("id = :id", { id: questionId })
                     .execute();
@@ -54,7 +54,7 @@ app.put(QuestionSettings.getURL, async (req: Request, res: Response) => {
                         .update()
                         .set({
                             active: false,
-                            deleted: true
+                            deleted: true,
                         })
                         .where("id = :id", { id: question.replacesQuestion.id })
                         .execute();
@@ -72,7 +72,7 @@ app.put(QuestionSettings.getURL, async (req: Request, res: Response) => {
                     .update()
                     .set({
                         active: false,
-                        deleted: true
+                        deleted: true,
                     })
                     .where("id = :id", { id: questionId })
                     .execute();

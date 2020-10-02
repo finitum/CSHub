@@ -29,14 +29,14 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
                   INNER JOIN topics T2 ON T1.topic = T2.id
                   WHERE T1.hash = ?
                 `,
-                    strings[2]
+                    strings[2],
                 ).then((result: DatabaseResultSet) => {
                     const topicName = result.getStringFromDB("name");
                     const title = result.getStringFromDB("title");
 
                     const descriptionMeta: MetaType = {
                         property: "og:description",
-                        content: `A post about ${topicName}. Join now and start writing!`
+                        content: `A post about ${topicName}. Join now and start writing!`,
                     };
 
                     const titleMeta: MetaType = { property: "og:title", content: `${title} - CSHub` };
@@ -56,13 +56,13 @@ app.get("/prerender(/*)?", (req: Request, res: Response) => {
               FROM topics T1
               WHERE hash = ?
             `,
-                strings[2]
+                strings[2],
             ).then((result: DatabaseResultSet) => {
                 const name = result.getStringFromDB("name");
 
                 const descriptionMeta: MetaType = {
                     property: "og:description",
-                    content: `A topic on ${name}. Click to see all the related posts!`
+                    content: `A topic on ${name}. Click to see all the related posts!`,
                 };
                 const titleMeta: MetaType = { property: "og:title", content: `${name} - CSHub` };
                 const titleActualMeta: MetaType = { name: "title", content: `${name} - CSHub` };
@@ -121,15 +121,15 @@ interface MetaType {
 const getSitename = (param: string): MetaType[] => [
     { property: "og:type", content: "website" },
     { property: "og:url", content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}${param}` },
-    { property: "og:site_name", content: "CSHub" }
+    { property: "og:site_name", content: "CSHub" },
 ];
 
 const getSitenameImage = (param: string): MetaType[] => [
     ...getSitename(param),
     {
         property: "og:image",
-        content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}/img/icons/favicon-192x192.png`
-    }
+        content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}/img/icons/favicon-192x192.png`,
+    },
 ];
 
 const joinNowAndHelpCreateThem =
@@ -138,20 +138,20 @@ const getSitenameImageDescription = (param: string, title: string): MetaType[] =
     ...getSitenameImage(param),
     {
         property: "og:title",
-        content: title
+        content: title,
     },
     {
         name: "title",
-        content: title
+        content: title,
     },
     {
         property: "og:description",
-        content: joinNowAndHelpCreateThem
+        content: joinNowAndHelpCreateThem,
     },
     {
         name: "description",
-        content: joinNowAndHelpCreateThem
-    }
+        content: joinNowAndHelpCreateThem,
+    },
 ];
 
 const createHTML = (metas: MetaType[]) => {

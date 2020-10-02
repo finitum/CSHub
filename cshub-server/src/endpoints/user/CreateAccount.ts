@@ -7,7 +7,7 @@ import { DatabaseResultSet, query } from "../../db/database-query";
 import {
     CreateAccount,
     CreateAccountCallBack,
-    CreateAccountResponseTypes
+    CreateAccountResponseTypes,
 } from "../../../../cshub-shared/src/api-calls";
 import { validateMultipleInputs } from "../../utilities/StringUtils";
 import { hashPassword } from "../../auth/HashPassword";
@@ -21,29 +21,29 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
         {
             input: createAccountRequest.password,
             validationObject: {
-                minlength: 8
-            }
+                minlength: 8,
+            },
         },
         {
             input: createAccountRequest.email,
             validationObject: {
-                tuemail: true
-            }
+                tuemail: true,
+            },
         },
         {
             input: createAccountRequest.firstname,
             validationObject: {
                 minlength: 2,
-                maxlength: 127
-            }
+                maxlength: 127,
+            },
         },
         {
             input: createAccountRequest.lastname,
             validationObject: {
                 minlength: 2,
-                maxlength: 127
-            }
-        }
+                maxlength: 127,
+            },
+        },
     );
 
     if (inputsValidation.valid) {
@@ -54,7 +54,7 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
             WHERE email = ? AND domainId = ?
             `,
             createAccountRequest.email,
-            createAccountRequest.domain.id
+            createAccountRequest.domain.id,
         )
             .then((result: DatabaseResultSet) => {
                 // It checks whether the user doesn't already exist. If not, hash the password 45000 times and insert the user into the database. If nothing gives any errors, send the callback with a succes message, otherwise it will give the corresponding message
@@ -70,23 +70,23 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
                                 hashedValue,
                                 createAccountRequest.firstname,
                                 createAccountRequest.lastname,
-                                createAccountRequest.domain.id
+                                createAccountRequest.domain.id,
                             )
                                 .then((result: DatabaseResultSet) => {
                                     sendVerificationEmail(
                                         createAccountRequest.email,
                                         createAccountRequest.firstname,
-                                        result.getInsertId()
+                                        result.getInsertId(),
                                     );
                                     res.status(201).json(new CreateAccountCallBack(CreateAccountResponseTypes.SUCCESS));
                                 })
-                                .catch(err => {
+                                .catch((err) => {
                                     logger.error(`Inserting into users table failed`);
                                     logger.error(err);
                                     res.status(500).send();
                                 });
                         })
-                        .catch(err => {
+                        .catch((err) => {
                             logger.error(`Hashing password for creating account failed`);
                             logger.error(err);
                             res.status(500).send();
@@ -95,7 +95,7 @@ app.post(CreateAccount.getURL, (req: Request, res: Response) => {
                     res.json(new CreateAccountCallBack(CreateAccountResponseTypes.ALREADYEXISTS));
                 }
             })
-            .catch(err => {
+            .catch((err) => {
                 logger.error(`Selecting from users failed`);
                 logger.error(err);
                 res.status(500).send();

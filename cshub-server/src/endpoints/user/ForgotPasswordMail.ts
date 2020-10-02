@@ -5,7 +5,7 @@ import { app } from "../../index";
 import {
     ForgotPasswordMail,
     ForgotPasswordMailCallback,
-    ForgotPasswordMailResponseTypes
+    ForgotPasswordMailResponseTypes,
 } from "../../../../cshub-shared/src/api-calls";
 import { customValidator } from "../../utilities/StringUtils";
 import { DatabaseResultSet, query } from "../../db/database-query";
@@ -23,13 +23,13 @@ app.post(ForgotPasswordMail.getURL, (req: Request, res: Response) => {
             WHERE email = ? and domainId = ?
         `,
             forgotPassword.email,
-            forgotPassword.domain.id
+            forgotPassword.domain.id,
         ).then((resDatabase: DatabaseResultSet) => {
             if (resDatabase.convertRowsToResultObjects().length > 0) {
                 sendPasswordResetMail(
                     forgotPassword.email,
                     resDatabase.getStringFromDB("firstname"),
-                    resDatabase.getNumberFromDB("id")
+                    resDatabase.getNumberFromDB("id"),
                 );
                 res.json(new ForgotPasswordMailCallback(ForgotPasswordMailResponseTypes.SENT));
             } else {

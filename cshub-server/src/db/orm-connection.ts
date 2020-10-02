@@ -55,7 +55,7 @@ export const connectDb = (): Promise<void> => {
         charset: "utf8mb4",
         logger: new CustomLogger(),
         entities: [User, Topic, Post, Edit, Study, Answer, Question, CacheVersion, EmailDomain, Variable],
-        synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
+        synchronize: !Settings.LIVE, // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
     };
 
     if (Settings.USESSH) {
@@ -67,10 +67,10 @@ export const connectDb = (): Promise<void> => {
             dstHost: "localhost",
             dstPort: 3306,
             localHost: "localhost",
-            localPort: Settings.DATABASE.PORT
+            localPort: Settings.DATABASE.PORT,
         };
 
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             tunnel(sshConfig, (error, server) => {
                 if (error) {
                     throw error;
@@ -80,13 +80,15 @@ export const connectDb = (): Promise<void> => {
                     .then(() => {
                         resolve();
                     })
-                    .catch(reason => logger.error(reason));
+                    .catch((reason) => logger.error(reason));
             });
         });
     } else {
         return createConnection(options)
-            .then(() => {})
-            .catch(reason => {
+            .then(() => {
+                // noop
+            })
+            .catch((reason) => {
                 logger.error(reason);
             });
     }

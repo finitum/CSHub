@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request } from "express";
 import dayjs from "dayjs";
 
 import { IJWTToken } from "../../../cshub-shared/src/models";
@@ -8,7 +8,7 @@ import { sign, validateAccessToken } from "./JWTHandler";
 import { Settings } from "../settings";
 import { logMiddleware } from "../utilities/LoggingMiddleware";
 
-app.use((req: Request, res: Response, next: Function) => {
+app.use((req, res, next) => {
     const tokenValidity = checkTokenValidityFromRequest(req);
 
     if (tokenValidity) {
@@ -16,7 +16,7 @@ app.use((req: Request, res: Response, next: Function) => {
 
         res.cookie("token", newtoken, {
             maxAge: Settings.TOKENAGEMILLISECONDS,
-            domain: Settings.DOMAIN
+            domain: Settings.DOMAIN,
         });
 
         logMiddleware(req, tokenValidity);

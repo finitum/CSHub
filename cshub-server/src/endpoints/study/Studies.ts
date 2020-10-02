@@ -7,13 +7,13 @@ import {
     GetStudiesCallback,
     Studies,
     AllStudies,
-    GetAllStudiesCallback
+    GetAllStudiesCallback,
 } from "../../../../cshub-shared/src/api-calls/endpoints/study/Studies";
 import { HideStudies, UnhideStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/HideStudies";
 import { RenameStudies } from "../../../../cshub-shared/src/api-calls/endpoints/study/RenameStudies";
 import {
     CreateStudies,
-    CreateStudiesCallback
+    CreateStudiesCallback,
 } from "../../../../cshub-shared/src/api-calls/endpoints/study/CreateStudies";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { Study } from "../../db/entities/study";
@@ -40,8 +40,8 @@ app.get(Studies.getURL, async (req: Request, res: Response) => {
 
     const versionData = await repository.findOne({
         where: {
-            type: "STUDIES"
-        }
+            type: "STUDIES",
+        },
     });
 
     if (!versionData) {
@@ -57,14 +57,14 @@ app.get(Studies.getURL, async (req: Request, res: Response) => {
     studyRepository
         .find({
             where: {
-                hidden: false
+                hidden: false,
             },
-            relations: ["topTopic"]
+            relations: ["topTopic"],
         })
-        .then(value => {
+        .then((value) => {
             res.json(new GetStudiesCallback(versionData ? versionData.version : 0, value));
         })
-        .catch(reason => {
+        .catch((reason) => {
             logger.error(reason);
             res.sendStatus(500);
         });
@@ -83,12 +83,12 @@ app.get(AllStudies.getURL, (req: Request, res: Response) => {
 
     studyRepository
         .find({
-            relations: ["topTopic"]
+            relations: ["topTopic"],
         })
-        .then(value => {
+        .then((value) => {
             res.json(new GetAllStudiesCallback(value));
         })
-        .catch(reason => {
+        .catch((reason) => {
             logger.error(reason);
             res.sendStatus(500);
         });
@@ -114,13 +114,13 @@ app.post(CreateStudies.postURL, async (req: Request, res: Response) => {
         const topic = await topicRepository.save({
             name: createStudiesRequest.name,
             hash: await generateRandomTopicHash(),
-            parent: null
+            parent: null,
         });
 
         const study = await studyRepository.save({
             name: createStudiesRequest.name,
             topTopic: topic,
-            hidden: createStudiesRequest.hidden
+            hidden: createStudiesRequest.hidden,
         });
 
         await query(`
@@ -145,7 +145,7 @@ app.put(HideStudies.postURL, async (req: Request, res: Response) => {
 
         if (visible.length == 1 && visible[0].id === id) {
             res.status(400).json(
-                new ServerError("You may not hide the last visible study! There must always be one visible study")
+                new ServerError("You may not hide the last visible study! There must always be one visible study"),
             );
             return;
         }

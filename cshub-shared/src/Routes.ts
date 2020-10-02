@@ -12,5 +12,5 @@ export enum Routes {
     UNSAVEDQUESTIONS = "/unsavedquestions",
     WIPPOSTS = "/wipposts",
     SEARCH = "/search",
-    FORGOTPASSWORD = "/forgotpassword"
+    FORGOTPASSWORD = "/forgotpassword",
 }

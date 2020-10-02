@@ -6,7 +6,7 @@ import {
     ManyToMany,
     OneToOne,
     PrimaryGeneratedColumn,
-    RelationId
+    RelationId,
 } from "typeorm";
 import { Topic } from "./topic";
 import { User } from "./user";
@@ -15,7 +15,7 @@ import { Exclude, Expose } from "class-transformer";
 
 @Exclude()
 @Entity({
-    name: "studies"
+    name: "studies",
 })
 export class Study implements IStudy {
     @Expose()
@@ -24,13 +24,13 @@ export class Study implements IStudy {
 
     @Expose()
     @Column({
-        type: "text"
+        type: "text",
     })
     name!: string;
 
     @Expose()
-    @OneToOne(type => Topic, topic => topic.study, {
-        nullable: false
+    @OneToOne((type) => Topic, (topic) => topic.study, {
+        nullable: false,
     })
     @JoinColumn()
     topTopic!: Topic;
@@ -39,14 +39,14 @@ export class Study implements IStudy {
     topTopicId!: number;
 
     // Not sent to client
-    @ManyToMany(type => User, user => user.studies)
+    @ManyToMany((type) => User, (user) => user.studies)
     @JoinTable()
     admins?: User[];
 
     @Expose()
     @Column({
         type: "boolean",
-        default: false
+        default: false,
     })
     hidden!: boolean;
 }

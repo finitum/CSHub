@@ -26,10 +26,10 @@ app.put(EditQuestion.getURL, (req: Request, res: Response) => {
         insertQuestions(
             {
                 question: editQuestion.question,
-                originalId: Number(req.params.id)
+                originalId: Number(req.params.id),
             },
             req,
-            res
+            res,
         );
     } catch (err) {
         if (!(err instanceof AlreadySentError)) {
@@ -55,11 +55,11 @@ app.post(AddQuestion.getURL, (req: Request, res: Response) => {
         validateNewQuestion(addQuestions.question, res);
         insertQuestions(
             {
-                question: addQuestions.question
+                question: addQuestions.question,
             },
             req,
             res,
-            addQuestions.topicHash
+            addQuestions.topicHash,
         );
     } catch (err) {
         if (!(err instanceof AlreadySentError)) {

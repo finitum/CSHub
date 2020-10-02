@@ -19,13 +19,13 @@ app.post(ChangeAvatar.getURL, (req: Request, res: Response) => {
 
         sharp(imageBuff)
             .resize({
-                width: 100
+                width: 100,
             })
             .jpeg({
-                quality: 40
+                quality: 40,
             })
             .toBuffer()
-            .then(bufferDataJPG => {
+            .then((bufferDataJPG) => {
                 bufferData = bufferDataJPG;
                 return query(
                     `
@@ -34,7 +34,7 @@ app.post(ChangeAvatar.getURL, (req: Request, res: Response) => {
                     WHERE id = ?
                 `,
                     bufferData,
-                    token.user.id
+                    token.user.id,
                 );
             })
             .then(() => {

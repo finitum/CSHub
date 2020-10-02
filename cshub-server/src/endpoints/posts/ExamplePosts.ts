@@ -18,7 +18,7 @@ app.get(ExamplePosts.getURL, (req: Request, res: Response) => {
                     AND T2.hash IN (?)
                   ORDER BY T1.isIndex DESC, T1.datetime DESC
                 `,
-            topicHashes
+            topicHashes,
         );
     });
 });

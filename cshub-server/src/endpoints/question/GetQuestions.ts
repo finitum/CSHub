@@ -8,26 +8,22 @@ import {
     GetEditableQuestions,
     GetQuestions,
     GetQuestionsCallback,
-    GetUnpublishedQuestions
+    GetUnpublishedQuestions,
 } from "../../../../cshub-shared/src/api-calls/endpoints/question";
 
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import { Question } from "../../db/entities/practice/question";
 import { findTopicInTree, getChildHashes, getTopicTree } from "../../utilities/TopicsUtils";
 import { Study } from "../../db/entities/study";
+import { parseStringQuery } from "../../utilities/query-parser";
 
 app.get(GetQuestions.getURL, (req: Request, res: Response) => {
-
-    const topicQueryParam = req.query[GetQuestions.topicQueryParam];
-    if (!topicQueryParam) {
-        res.status(400).send(new ServerError("Topic query param not found", false));
-        return;
-    }
-
+    const topicQueryParam = parseStringQuery(req, res, GetQuestions.topicQueryParam);
+    if (!topicQueryParam) return;
     const topicHash = +topicQueryParam;
     logger.info("Received Topic: " + topicHash);
 
-    let amount;
+    let amount: number | undefined;
     const amountQueryParam = req.query[GetQuestions.questionAmountQueryParam];
     if (amountQueryParam) {
         amount = +amountQueryParam;
@@ -35,7 +31,7 @@ app.get(GetQuestions.getURL, (req: Request, res: Response) => {
     }
 
     getTopicTree()
-        .then(value => {
+        .then((value) => {
             if (value) {
                 const topic = findTopicInTree(topicHash, value);
 
@@ -49,13 +45,13 @@ app.get(GetQuestions.getURL, (req: Request, res: Response) => {
                         .select("question.id", "id")
                         .leftJoin("question.topic", "topic")
                         .where("topic.hash IN (:...childHashes) AND question.active = 1 AND question.deleted = 0", {
-                            childHashes
+                            childHashes,
                         })
                         .orderBy("RAND()")
                         .take(amount)
                         .getRawMany()
-                        .then(questions => {
-                            const parsedQuestions = (questions as { id: number }[]).map(question => question.id);
+                        .then((questions) => {
+                            const parsedQuestions = (questions as { id: number }[]).map((question) => question.id);
                             res.json(new GetQuestionsCallback(parsedQuestions));
                         })
                         .catch(() => {
@@ -73,11 +69,8 @@ app.get(GetQuestions.getURL, (req: Request, res: Response) => {
 });
 
 app.get(GetEditableQuestions.getURL, async (req: Request, res: Response) => {
-    const topicQueryParam = req.query[GetEditableQuestions.topicQueryParam];
-    if (!topicQueryParam) {
-        res.status(400).send(new ServerError("Topic query param not found", false));
-        return;
-    }
+    const topicQueryParam = parseStringQuery(req, res, GetQuestions.topicQueryParam);
+    if (!topicQueryParam) return;
     const topicHash = +topicQueryParam;
 
     const topicTree = await getTopicTree();
@@ -96,7 +89,7 @@ app.get(GetEditableQuestions.getURL, async (req: Request, res: Response) => {
                 .where("topic.hash IN (:...childHashes)", { childHashes })
                 .andWhere("question.active = 1")
                 .andWhere("question.deleted = 0")
-                .andWhere(qb => {
+                .andWhere((qb) => {
                     const subQuery = qb
                         .subQuery()
                         .select("replaceQuestion.replacesQuestionId")
@@ -108,8 +101,8 @@ app.get(GetEditableQuestions.getURL, async (req: Request, res: Response) => {
                     return `NOT EXISTS (${subQuery})`;
                 })
                 .getRawMany()
-                .then(questions => {
-                    res.json(new GetQuestionsCallback(questions.map(question => question.id)));
+                .then((questions) => {
+                    res.json(new GetQuestionsCallback(questions.map((question) => question.id)));
                 })
                 .catch(() => {
                     res.status(500).send(new ServerError("Server did oopsie"));
@@ -119,11 +112,8 @@ app.get(GetEditableQuestions.getURL, async (req: Request, res: Response) => {
 });
 
 app.get(GetUnpublishedQuestions.getURL, async (req: Request, res: Response) => {
-    const studyQueryParam = req.query[GetUnpublishedQuestions.studyQueryParam];
-    if (!studyQueryParam) {
-        res.status(400).send(new ServerError("Study query param not found", false));
-        return;
-    }
+    const studyQueryParam = parseStringQuery(req, res, GetUnpublishedQuestions.studyQueryParam);
+    if (!studyQueryParam) return;
     const studyId = +studyQueryParam;
 
     const topicTree = await getTopicTree();
@@ -132,9 +122,9 @@ app.get(GetUnpublishedQuestions.getURL, async (req: Request, res: Response) => {
 
         const study = await studyRepository.findOne({
             where: {
-                id: studyId
+                id: studyId,
             },
-            relations: ["topTopic"]
+            relations: ["topTopic"],
         });
 
         if (!study) {
@@ -154,11 +144,11 @@ app.get(GetUnpublishedQuestions.getURL, async (req: Request, res: Response) => {
                 .select("question.id", "id")
                 .leftJoin("question.topic", "topic")
                 .where("topic.hash IN (:...childHashes) AND question.active = 0 AND question.deleted = 0", {
-                    childHashes
+                    childHashes,
                 })
                 .getRawMany()
-                .then(questions => {
-                    res.json(new GetQuestionsCallback(questions.map(question => question.id)));
+                .then((questions) => {
+                    res.json(new GetQuestionsCallback(questions.map((question) => question.id)));
                 })
                 .catch(() => {
                     res.status(500).send(new ServerError("Server did oopsie"));

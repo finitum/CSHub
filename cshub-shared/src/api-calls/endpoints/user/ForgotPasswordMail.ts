@@ -6,7 +6,7 @@ import { IEmailDomain } from "../../../entities/emaildomains";
 export enum ForgotPasswordMailResponseTypes {
     SENT,
     EMAILDOESNTEXIST,
-    INVALIDINPUT
+    INVALIDINPUT,
 }
 
 export class ForgotPasswordMailCallback {

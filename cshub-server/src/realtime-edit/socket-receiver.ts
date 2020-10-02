@@ -11,12 +11,12 @@ import { CursorUpdatedHandler } from "./CursorUpdatedHandler";
 
 export let io: Server;
 
-export const registerSockets = () => {
+export const registerSockets = (): void => {
     io = socket(server);
 
-    const cookieparser = () => {
-        // @ts-ignore TODO: Why does this break?
-        const parser = cookieParser.apply(null, arguments);
+    const cookieparser = (...args) => {
+        // TODO: Why does this break?
+        const parser = cookieParser(...args);
 
         return (socket, next) => {
             parser(socket.request, socket.response, next);
@@ -50,10 +50,10 @@ export const registerSockets = () => {
             TogglePostJoin.getURL,
             (
                 togglePost: TogglePostJoin,
-                fn: (edit: IRealtimeEdit | null, select: IRealtimeSelect[] | null) => void
+                fn: (edit: IRealtimeEdit | null, select: IRealtimeSelect[] | null) => void,
             ) => {
                 const inputsValidation = customValidator({
-                    input: togglePost.postHash
+                    input: togglePost.postHash,
                 });
 
                 if (inputsValidation.valid) {
@@ -68,7 +68,7 @@ export const registerSockets = () => {
 
                                     let edit: IRealtimeEdit | null;
 
-                                    DataUpdatedHandler.getCurrentPostData(togglePost.postHash).then(data => {
+                                    DataUpdatedHandler.getCurrentPostData(togglePost.postHash).then((data) => {
                                         edit = data;
                                         const select = CursorUpdatedHandler.getCurrentPostData(togglePost.postHash);
 
@@ -83,12 +83,12 @@ export const registerSockets = () => {
                             } else {
                                 fn(null, null);
                             }
-                        }
+                        },
                     );
                 } else {
                     fn(null, null);
                 }
-            }
+            },
         );
     });
 };

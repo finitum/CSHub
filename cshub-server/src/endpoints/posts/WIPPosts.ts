@@ -3,9 +3,12 @@ import { Request, Response } from "express";
 import { DatabaseResultSet, query } from "../../db/database-query";
 import { GetUnverifiedPostsCallBack, WIPPosts } from "../../../../cshub-shared/src/api-calls";
 import { customValidator } from "../../utilities/StringUtils";
+import { parseStringQuery } from "../../utilities/query-parser";
 
 app.get(WIPPosts.getURL, (req: Request, res: Response) => {
-    const studyId = +req.query[WIPPosts.studyQueryParam];
+    const studyIdQuery = parseStringQuery(req, res, WIPPosts.studyQueryParam);
+    if (!studyIdQuery) return;
+    const studyId = +studyIdQuery;
 
     if (!customValidator({ input: studyId }).valid) {
         res.sendStatus(400);
@@ -32,11 +35,11 @@ app.get(WIPPosts.getURL, (req: Request, res: Response) => {
         WHERE T1.wip = 1 AND T1.deleted = 0 AND T1.topic IN (SELECT id FROM studyTopics)
         ORDER BY T1.datetime DESC
     `,
-        studyId
+        studyId,
     ).then((result: DatabaseResultSet) => {
         const hashes: number[] = [];
 
-        result.convertRowsToResultObjects().forEach(x => {
+        result.convertRowsToResultObjects().forEach((x) => {
             hashes.push(x.getNumberFromDB("hash"));
         });
 

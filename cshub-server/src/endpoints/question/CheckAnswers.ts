@@ -14,7 +14,7 @@ import { ClosedAnswer } from "../../db/entities/practice/closed-answer";
 import { parseAndValidateQuestion } from "./QuestionUtils";
 import {
     CheckAnswerType,
-    CheckedAnswerType
+    CheckedAnswerType,
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/CheckAnswer";
 
 app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
@@ -36,13 +36,13 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
             }
 
             const correctAnswers = (question.answers as ClosedAnswer[])
-                .filter(answer => answer.correct)
-                .map(answer => answer.id);
+                .filter((answer) => answer.correct)
+                .map((answer) => answer.id);
 
-            let sharedPart = {
+            const sharedPart = {
                 questionId: question.id,
                 answer: clientAnswer,
-                explanation: question.explanation
+                explanation: question.explanation,
             };
 
             if (clientAnswer.type === QuestionType.SINGLECLOSED && question.type === QuestionType.SINGLECLOSED) {
@@ -52,9 +52,9 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                     ...sharedPart,
                     correctAnswer: {
                         type: QuestionType.SINGLECLOSED,
-                        answerId: correctAnswers[0]
+                        answerId: correctAnswers[0],
                     },
-                    correct: userAnswer === correctAnswers[0]
+                    correct: userAnswer === correctAnswers[0],
                 };
             } else if (clientAnswer.type === QuestionType.MULTICLOSED && question.type === QuestionType.MULTICLOSED) {
                 const userAnswers = clientAnswer.answerIds;
@@ -63,11 +63,11 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                     ...sharedPart,
                     correctAnswer: {
                         type: QuestionType.MULTICLOSED,
-                        answerIds: correctAnswers
+                        answerIds: correctAnswers,
                     },
                     correct:
                         userAnswers.length === correctAnswers.length && // if the length is the same and every correct answer is found in the user's answers, it's correct
-                        correctAnswers.every(correctAnswer => userAnswers.includes(correctAnswer))
+                        correctAnswers.every((correctAnswer) => userAnswers.includes(correctAnswer)),
                 };
             } else {
                 res.status(400).send(new ServerError("Uuuh we don't agree on the amount of answers!"));
@@ -81,7 +81,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
 
     async function checkOpenNumberQuestion(
         clientAnswer: CheckAnswerType,
-        question: Question
+        question: Question,
     ): Promise<CheckedAnswerType> {
         if (clientAnswer.type === QuestionType.OPENNUMBER) {
             const parsedQuestion = await parseAndValidateQuestion(question, res);
@@ -102,10 +102,10 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 answer: clientAnswer,
                 correctAnswer: {
                     type: QuestionType.OPENNUMBER,
-                    number: parsedQuestion.number
+                    number: parsedQuestion.number,
                 },
                 correct: correctAnswerRounded === userAnswerRounded,
-                explanation: question.explanation
+                explanation: question.explanation,
             };
         } else {
             res.status(400).send(new ServerError("This answer shouldn't be a number!"));
@@ -115,7 +115,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
 
     async function checkOpenTextQuestion(
         clientAnswer: CheckAnswerType,
-        question: Question
+        question: Question,
     ): Promise<CheckedAnswerType> {
         if (clientAnswer.type === QuestionType.OPENTEXT) {
             const parsedQuestion = await parseAndValidateQuestion(question, res);
@@ -131,10 +131,10 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 answer: clientAnswer,
                 correctAnswer: {
                     type: QuestionType.OPENTEXT,
-                    text: parsedQuestion.answer
+                    text: parsedQuestion.answer,
                 },
                 correct: null,
-                explanation: question.explanation
+                explanation: question.explanation,
             };
         } else {
             res.status(400).send(new ServerError("This answer shouldn't be a string!"));
@@ -155,7 +155,7 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
             const checkedAnswer = dynamicQuestionChecker(
                 parsedQuestion.answerExpression,
                 clientAnswer.variables,
-                clientAnswer.answer
+                clientAnswer.answer,
             );
 
             return {
@@ -164,10 +164,10 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                 correctAnswer: {
                     type: QuestionType.DYNAMIC,
                     variables: clientAnswer.variables,
-                    answer: checkedAnswer.actualAnswer
+                    answer: checkedAnswer.actualAnswer,
                 },
                 correct: checkedAnswer.isCorrect,
-                explanation: question.explanation
+                explanation: question.explanation,
             };
         } else {
             res.status(400).send(new ServerError("This answer shouldn't be dynamic!"));
@@ -189,21 +189,21 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
         }
     };
 
-    const questionIds = checkAnswers.answers.map(answer => answer.questionId);
+    const questionIds = checkAnswers.answers.map((answer) => answer.questionId);
 
     const repository = getRepository(Question);
 
     repository
         .find({
             where: {
-                id: In(questionIds)
+                id: In(questionIds),
             },
-            relations: ["answers"]
+            relations: ["answers"],
         })
-        .then(async questions => {
+        .then(async (questions) => {
             const mappedQuestions = await Promise.all(
-                questions.map(async question => {
-                    const clientAnswer = checkAnswers.answers.find(answer => answer.questionId === question.id);
+                questions.map(async (question) => {
+                    const clientAnswer = checkAnswers.answers.find((answer) => answer.questionId === question.id);
 
                     if (!clientAnswer) {
                         logger.error(`First we had an answer, now we dont?`);
@@ -214,12 +214,12 @@ app.post(CheckAnswers.getURL, (req: Request, res: Response) => {
                     }
 
                     return await parseAnswer(question, clientAnswer.answer);
-                })
+                }),
             );
 
             res.json(new CheckAnswersCallback(mappedQuestions));
         })
-        .catch(err => {
+        .catch((err) => {
             if (!(err instanceof AlreadySentError)) {
                 logger.error(err);
                 res.status(500).send(new ServerError("Server did oopsie"));

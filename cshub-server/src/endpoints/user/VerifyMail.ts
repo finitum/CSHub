@@ -7,10 +7,16 @@ import { Requests } from "../../../../cshub-shared/src/api-calls";
 
 import { Settings } from "../../settings";
 import { query } from "../../db/database-query";
+import { parseStringQuery } from "../../utilities/query-parser";
 
 app.get(Requests.VERIFYMAIL, (req: Request, res: Response) => {
-    const hash = parseInt(req.query.hash, 10);
-    const userID = parseInt(req.query.accId, 10);
+    const hashQuery = parseStringQuery(req, res, "hash");
+    if (!hashQuery) return;
+    const hash = +hashQuery;
+
+    const userIDQuery = parseStringQuery(req, res, "accId");
+    if (!userIDQuery) return;
+    const userID = +userIDQuery;
 
     if (!isNaN(hash) && !isNaN(userID)) {
         query(
@@ -20,12 +26,12 @@ app.get(Requests.VERIFYMAIL, (req: Request, res: Response) => {
         WHERE verifyhash = ? AND id = ?
         `,
             hash,
-            userID
+            userID,
         )
             .then(() => {
                 res.redirect(`${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}`);
             })
-            .catch(err => {
+            .catch((err) => {
                 logger.error("Error while verifying email");
                 logger.error(err);
                 res.status(500).send();
