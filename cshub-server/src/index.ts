@@ -19,6 +19,7 @@ import { addCorsMiddleware } from "./utilities/CORSMiddleware";
 
 import { registerSockets } from "./realtime-edit/socket-receiver";
 import { registerEndpoints } from "./endpoints";
+import { initializeDatabase } from "./init";
 
 function createApp() {
     const app = express();
@@ -37,6 +38,8 @@ function createApp() {
 
 if (cluster.isMaster) {
     connectDb().then(async () => {
+        await initializeDatabase();
+
         const app = createApp();
         const server = http.createServer(app);
         registerSockets(server);
