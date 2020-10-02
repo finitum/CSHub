@@ -1,18 +1,18 @@
-import { app } from "../.";
 import logger from "../utilities/Logger";
-import { Request, Response } from "express";
+import { Application, Request, Response } from "express";
 import { Search, GetSearchPostsCallback } from "../../../cshub-shared/src/api-calls";
 
 import { DatabaseResultSet, query } from "../db/database-query";
 import { ServerError } from "../../../cshub-shared/src/models/ServerError";
 
-app.get(Search.getURL, (req: Request, res: Response) => {
-    const search = req.query.query;
-    const studyNr = req.query.studyNr;
+export function registerSearchEndpoint(app: Application): void {
+    app.get(Search.getURL, (req: Request, res: Response) => {
+        const search = req.query.query;
+        const studyNr = req.query.studyNr;
 
-    if (search && typeof search === "string" && search.length >= 3) {
-        query(
-            `
+        if (search && typeof search === "string" && search.length >= 3) {
+            query(
+                `
             WITH RECURSIVE studyTopics (id, parentid) AS (
                 SELECT t1.id, t1.parentid
                 FROM topics t1
@@ -61,30 +61,31 @@ app.get(Search.getURL, (req: Request, res: Response) => {
             ) AS a
             LIMIT 5
         `,
-            studyNr,
-            `%${search}%`,
-            `%${search}%`,
-        )
-            .then((hashes: DatabaseResultSet) => {
-                const hashesArray: number[] = [];
+                studyNr,
+                `%${search}%`,
+                `%${search}%`,
+            )
+                .then((hashes: DatabaseResultSet) => {
+                    const hashesArray: number[] = [];
 
-                for (const hash of hashes.convertRowsToResultObjects()) {
-                    hashesArray.push(hash.getNumberFromDB("hash"));
-                }
+                    for (const hash of hashes.convertRowsToResultObjects()) {
+                        hashesArray.push(hash.getNumberFromDB("hash"));
+                    }
 
-                res.json(new GetSearchPostsCallback(hashesArray));
-            })
-            .catch((err) => {
-                logger.error("Error at GetSearchPosts");
-                logger.error(err);
-                res.status(500).send(
-                    new ServerError(
-                        "The query failed... Please open an issue if this keeps persisting (but first try again in a few minutes)",
-                    ),
-                );
-            });
-    } else {
-        logger.error("Invalid search query");
-        res.status(400).send(new ServerError("Your query is not long enough"));
-    }
-});
+                    res.json(new GetSearchPostsCallback(hashesArray));
+                })
+                .catch((err) => {
+                    logger.error("Error at GetSearchPosts");
+                    logger.error(err);
+                    res.status(500).send(
+                        new ServerError(
+                            "The query failed... Please open an issue if this keeps persisting (but first try again in a few minutes)",
+                        ),
+                    );
+                });
+        } else {
+            logger.error("Invalid search query");
+            res.status(400).send(new ServerError("Your query is not long enough"));
+        }
+    });
+}

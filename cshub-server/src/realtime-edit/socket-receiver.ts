@@ -1,4 +1,3 @@
-import { server } from "../index";
 import socket, { Server, Socket } from "socket.io";
 import { ClientDataUpdated, ClientCursorUpdated, IRealtimeSelect } from "../../../cshub-shared/src/api-calls";
 import { DataUpdatedHandler } from "./DataUpdatedHandler";
@@ -8,10 +7,11 @@ import cookieParser from "cookie-parser";
 import { customValidator } from "../utilities/StringUtils";
 import { hasAccessToPostJWT, PostAccessType } from "../auth/validateRights/PostAccess";
 import { CursorUpdatedHandler } from "./CursorUpdatedHandler";
+import { Server as HttpServer } from "http";
 
 export let io: Server;
 
-export const registerSockets = (): void => {
+export const registerSockets = (server: HttpServer): void => {
     io = socket(server);
 
     const cookieparser = (...args) => {
