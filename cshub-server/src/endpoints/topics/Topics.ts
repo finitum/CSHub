@@ -1,6 +1,5 @@
-import { Request, Response } from "express";
+import { Application, Request, Response } from "express";
 
-import { app } from "../../";
 import logger from "../../utilities/Logger";
 
 import { Topics, GetTopicsCallBack } from "../../../../cshub-shared/src/api-calls";
@@ -9,62 +8,64 @@ import { getRepository } from "typeorm";
 import { CacheVersion } from "../../db/entities/cacheversion";
 import { Topic } from "../../db/entities/topic";
 
-app.get(Topics.getURL, async (req: Request, res: Response) => {
-    let version = -1;
-    const versionHeader = req.header(Topics.topicVersionHeader);
-    if (versionHeader) {
-        version = +versionHeader;
-        logger.info("Received TopicVersion: " + version);
-    }
-
-    let study: number | undefined = undefined;
-    const studyQueryParam = req.query[Topics.studyQueryParam];
-    if (studyQueryParam) {
-        study = +studyQueryParam;
-        logger.info("Received Study: " + study);
-    }
-
-    const repository = getRepository(CacheVersion);
-
-    const versionData = await repository.findOne({
-        where: {
-            type: "TOPICS",
-        },
-    });
-
-    const makeJsonifiable = (topic: Topic) => {
-        topic.parent = null;
-
-        for (const child of topic.children) {
-            makeJsonifiable(child);
+export function registerTopicsEndpoint(app: Application): void {
+    app.get(Topics.getURL, async (req: Request, res: Response) => {
+        let version = -1;
+        const versionHeader = req.header(Topics.topicVersionHeader);
+        if (versionHeader) {
+            version = +versionHeader;
+            logger.info("Received TopicVersion: " + version);
         }
-    };
 
-    if (!versionData) {
-        const cacheVersion = new CacheVersion();
-        cacheVersion.version = 0;
-        cacheVersion.type = "TOPICS";
-        repository.save(cacheVersion);
-    } else if (versionData && versionData.version === version) {
-        res.status(304).send(); // Not Modified
-    } else {
-        const topicTree = await getTopicTree(study);
+        let study: number | undefined = undefined;
+        const studyQueryParam = req.query[Topics.studyQueryParam];
+        if (studyQueryParam) {
+            study = +studyQueryParam;
+            logger.info("Received Study: " + study);
+        }
 
-        if (topicTree === null) {
-            logger.error(`No topics found`);
-            res.status(500).send();
-        } else {
-            if (topicTree.length > 1) {
-                logger.error("More than 1 top topic?");
-                res.status(500).send();
-                return;
+        const repository = getRepository(CacheVersion);
+
+        const versionData = await repository.findOne({
+            where: {
+                type: "TOPICS",
+            },
+        });
+
+        const makeJsonifiable = (topic: Topic) => {
+            topic.parent = null;
+
+            for (const child of topic.children) {
+                makeJsonifiable(child);
             }
+        };
 
-            const topTopic = topicTree[0];
+        if (!versionData) {
+            const cacheVersion = new CacheVersion();
+            cacheVersion.version = 0;
+            cacheVersion.type = "TOPICS";
+            repository.save(cacheVersion);
+        } else if (versionData && versionData.version === version) {
+            res.status(304).send(); // Not Modified
+        } else {
+            const topicTree = await getTopicTree(study);
 
-            makeJsonifiable(topTopic);
+            if (topicTree === null) {
+                logger.error(`No topics found`);
+                res.status(500).send();
+            } else {
+                if (topicTree.length > 1) {
+                    logger.error("More than 1 top topic?");
+                    res.status(500).send();
+                    return;
+                }
 
-            res.json(new GetTopicsCallBack(versionData ? versionData.version : 0, topTopic));
+                const topTopic = topicTree[0];
+
+                makeJsonifiable(topTopic);
+
+                res.json(new GetTopicsCallBack(versionData ? versionData.version : 0, topTopic));
+            }
         }
-    }
-});
+    });
+}

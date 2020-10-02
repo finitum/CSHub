@@ -13,10 +13,10 @@ import fs from "fs";
 import logger from "../utilities/Logger";
 import { CacheVersion } from "./entities/cacheversion";
 import { Question } from "./entities/practice/question";
-import { app } from "../index";
 import { Answer } from "./entities/practice/answer";
 import { EmailDomain } from "./entities/emaildomain";
 import { Variable } from "./entities/practice/variable";
+import { query } from "./database-query";
 
 class CustomLogger implements Logger {
     log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {
@@ -78,6 +78,9 @@ export const connectDb = (): Promise<void> => {
 
                 createConnection(options)
                     .then(() => {
+                        setInterval(() => {
+                            query("SELECT 1");
+                        }, 60 * 5 * 1000);
                         resolve();
                     })
                     .catch((reason) => logger.error(reason));
@@ -86,7 +89,9 @@ export const connectDb = (): Promise<void> => {
     } else {
         return createConnection(options)
             .then(() => {
-                // noop
+                setInterval(() => {
+                    query("SELECT 1");
+                }, 60 * 5 * 1000);
             })
             .catch((reason) => {
                 logger.error(reason);

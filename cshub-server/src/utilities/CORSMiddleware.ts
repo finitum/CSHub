@@ -1,7 +1,7 @@
 import { Application } from "express";
 import { Settings } from "../settings";
 
-export function corsMiddleware(app: Application): void {
+export function addCorsMiddleware(app: Application): void {
     app.use((req, res, next) => {
         // Add some headers so we don't have to deal with CORS problems as much
         res.header("Access-Control-Allow-Credentials", "true");
