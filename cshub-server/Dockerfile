@@ -21,4 +21,4 @@ COPY ./src/SettingsBaseline.ts ./src/settings.ts
 # Install TSC, Compiles TS, Remove TSC
 RUN yarn global add typescript@4.0.3 && tsc && yarn global remove typescript && yarn cache clean
 
-CMD ["node", "src/index.js"]
+CMD ["node", "dist/cshub-server/index.js"]
