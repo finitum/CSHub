@@ -5,7 +5,7 @@ import {
     VerifyUser,
     BlockUser,
     SetAdminUser,
-    SetStudyAdminUser
+    SetStudyAdminUser,
 } from "../../../../cshub-shared/src/api-calls/endpoints/user/UserAdminPage";
 import { getRepository } from "typeorm";
 import { User } from "../../db/entities/user";
@@ -115,7 +115,7 @@ app.put(SetStudyAdminUser.putURL, async (req: Request, res: Response) => {
                 DELETE FROM studies_admins_users
                 WHERE usersId = ?
             `,
-            setStudyAdminUserRequest.user.id
+            setStudyAdminUserRequest.user.id,
         );
 
         for (const study of setStudyAdminUserRequest.studies) {
@@ -126,7 +126,7 @@ app.put(SetStudyAdminUser.putURL, async (req: Request, res: Response) => {
                     studiesId = ?
             `,
                 setStudyAdminUserRequest.user.id,
-                study
+                study,
             );
         }
     } catch (err) {

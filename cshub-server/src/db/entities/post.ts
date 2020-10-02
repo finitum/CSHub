@@ -5,10 +5,10 @@ import { Exclude, Expose } from "class-transformer";
 
 @Exclude()
 @Entity({
-    name: "posts"
+    name: "posts",
 })
 @Index("uq_title_topic", ["title", "topic"], {
-    unique: true
+    unique: true,
 })
 export class Post implements IPost {
     @Expose()
@@ -16,8 +16,8 @@ export class Post implements IPost {
     id!: number;
 
     @Expose()
-    @ManyToOne(type => Topic, topic => topic.posts, {
-        nullable: false
+    @ManyToOne((type) => Topic, (topic) => topic.posts, {
+        nullable: false,
     })
     @JoinColumn({ name: "topic" })
     @Index()
@@ -26,26 +26,26 @@ export class Post implements IPost {
     @Expose()
     @Column({
         type: "datetime",
-        default: () => "CURRENT_TIMESTAMP"
+        default: () => "CURRENT_TIMESTAMP",
     })
     datetime!: Date;
 
     @Expose()
     @Column({
         type: "varchar",
-        length: 127
+        length: 127,
     })
     title!: string;
 
     @Expose()
     @Column({
-        unique: true
+        unique: true,
     })
     hash!: number;
 
     @Expose()
     @Column({
-        default: 0
+        default: 0,
     })
     @Index()
     postVersion!: number;
@@ -53,7 +53,7 @@ export class Post implements IPost {
     @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
-        default: false
+        default: false,
     })
     @Index()
     deleted!: boolean;
@@ -61,7 +61,7 @@ export class Post implements IPost {
     @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
-        default: true
+        default: true,
     })
     @Index()
     wip!: boolean;
@@ -69,14 +69,14 @@ export class Post implements IPost {
     @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
-        default: false
+        default: false,
     })
     @Index()
     isIndex!: boolean;
 
     @Expose()
     @Column({
-        default: false
+        default: false,
     })
     @Index()
     isExample!: boolean;

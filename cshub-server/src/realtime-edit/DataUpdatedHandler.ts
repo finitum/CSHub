@@ -2,8 +2,7 @@ import { DataList } from "./DataList";
 import { Socket } from "socket.io";
 import { ServerDataUpdated, IRealtimeEdit } from "../../../cshub-shared/src/api-calls";
 import dayjs, { Dayjs } from "dayjs";
-// @ts-ignore
-import Delta from "quill-delta/dist/Delta";
+import Delta from "quill-delta";
 import { DatabaseResultSet, query } from "../db/database-query";
 import logger from "../utilities/Logger";
 import { getRandomNumberLarge } from "../../../cshub-shared/src/utilities/Random";
@@ -31,7 +30,7 @@ export class DataUpdatedHandler {
 
             async.whilst(
                 () => DataUpdatedHandler.editQueue.length !== 0,
-                next => {
+                (next) => {
                     const edit = this.editQueue.shift();
 
                     if (edit) {
@@ -43,7 +42,7 @@ export class DataUpdatedHandler {
                             } catch {
                                 const response = new ServerDataUpdated({
                                     error: true,
-                                    message: "Wrong previous state!"
+                                    message: "Wrong previous state!",
                                 });
                                 currSocket.emit(response.URL, response);
                                 next();
@@ -54,7 +53,7 @@ export class DataUpdatedHandler {
                         if (edit.prevServerGeneratedId !== previousServerId && previousServerId !== -1) {
                             logger.verbose("Performing operational transform");
                             logger.verbose(
-                                `Current server id: ${edit.serverGeneratedId}, previous: ${edit.prevServerGeneratedId} last few edits server id ${previousServerId}`
+                                `Current server id: ${edit.serverGeneratedId}, previous: ${edit.prevServerGeneratedId} last few edits server id ${previousServerId}`,
                             );
                             try {
                                 edit.delta = this.postHistoryHandler.transformArray(edit, false);
@@ -62,7 +61,7 @@ export class DataUpdatedHandler {
                                 logger.error("Invalid transform");
                                 const response = new ServerDataUpdated({
                                     error: true,
-                                    message: "Invalid transform!"
+                                    message: "Invalid transform!",
                                 });
                                 currSocket.emit(response.URL, response);
                                 next();
@@ -76,7 +75,7 @@ export class DataUpdatedHandler {
                         DataUpdatedHandler.postHistoryHandler.addPostEdit({
                             ...edit,
                             serverGeneratedId: serverGeneratedIdentifier,
-                            prevServerGeneratedId: previousServerId
+                            prevServerGeneratedId: previousServerId,
                         });
 
                         const userModel = validateAccessToken(currSocket.request.cookies["token"]);
@@ -90,14 +89,14 @@ export class DataUpdatedHandler {
                                 prevServerGeneratedId: previousServerId,
                                 userId: userModel.user.id,
                                 userGeneratedId: edit.userGeneratedId,
-                                prevUserGeneratedId: edit.prevUserGeneratedId
+                                prevUserGeneratedId: edit.prevUserGeneratedId,
                             };
 
                             const roomId = `POST_${edit.postHash}`;
 
                             const response = new ServerDataUpdated({
                                 error: false,
-                                edit: serverEdit
+                                edit: serverEdit,
                             });
                             io.to(roomId).emit(response.URL, response);
                         }
@@ -106,7 +105,7 @@ export class DataUpdatedHandler {
                 },
                 () => {
                     DataUpdatedHandler.isUpdatingPost = false;
-                }
+                },
             );
         }
     }
@@ -122,7 +121,7 @@ export class DataUpdatedHandler {
           WHERE T2.hash = ?
           ORDER BY T1.datetime ASC
         `,
-            postHash
+            postHash,
         )
             .then((edits: DatabaseResultSet) => {
                 const dbEdits: { content: Delta; datetime: Dayjs; approved: boolean }[] = [];
@@ -131,7 +130,7 @@ export class DataUpdatedHandler {
                     dbEdits.push({
                         content: new Delta(JSON.parse(editObj.getStringFromDB("content"))),
                         datetime: dayjs(editObj.getStringFromDB("datetime")),
-                        approved: editObj.getNumberFromDB("approved") === 1
+                        approved: editObj.getNumberFromDB("approved") === 1,
                     });
                 }
 
@@ -173,12 +172,12 @@ export class DataUpdatedHandler {
                 const returnedValue: DeltaReturnType = {
                     fullDelta,
                     oldDelta,
-                    latestTime
+                    latestTime,
                 };
 
                 return returnedValue;
             })
-            .catch(err => {
+            .catch((err) => {
                 logger.error(`Getting current post data failed`);
                 logger.error(err);
                 return null;
@@ -186,7 +185,7 @@ export class DataUpdatedHandler {
     }
 
     public static async getCurrentPostData(postHash: number): Promise<IRealtimeEdit | null> {
-        return this.getOldAndNewDeltas(postHash).then(deltas => {
+        return this.getOldAndNewDeltas(postHash).then((deltas) => {
             if (deltas) {
                 const prevEdit = this.postHistoryHandler.getPreviousServerID(postHash);
 
@@ -195,7 +194,7 @@ export class DataUpdatedHandler {
                     delta: deltas.fullDelta,
                     timestamp: deltas.latestTime,
                     serverGeneratedId: prevEdit,
-                    userGeneratedId: -1
+                    userGeneratedId: -1,
                 };
 
                 return returnedValue;

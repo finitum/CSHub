@@ -10,7 +10,7 @@ app.get(Search.getURL, (req: Request, res: Response) => {
     const search = req.query.query;
     const studyNr = req.query.studyNr;
 
-    if (search.length >= 3) {
+    if (search && typeof search === "string" && search.length >= 3) {
         query(
             `
             WITH RECURSIVE studyTopics (id, parentid) AS (
@@ -63,7 +63,7 @@ app.get(Search.getURL, (req: Request, res: Response) => {
         `,
             studyNr,
             `%${search}%`,
-            `%${search}%`
+            `%${search}%`,
         )
             .then((hashes: DatabaseResultSet) => {
                 const hashesArray: number[] = [];
@@ -74,13 +74,13 @@ app.get(Search.getURL, (req: Request, res: Response) => {
 
                 res.json(new GetSearchPostsCallback(hashesArray));
             })
-            .catch(err => {
+            .catch((err) => {
                 logger.error("Error at GetSearchPosts");
                 logger.error(err);
                 res.status(500).send(
                     new ServerError(
-                        "The query failed... Please open an issue if this keeps persisting (but first try again in a few minutes)"
-                    )
+                        "The query failed... Please open an issue if this keeps persisting (but first try again in a few minutes)",
+                    ),
                 );
             });
     } else {

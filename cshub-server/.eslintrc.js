@@ -1,32 +1,11 @@
 module.exports = {
-    root: true,
-    env: {
-        node: true
-    },
-    extends:  [
-        "plugin:@typescript-eslint/recommended",
-        "prettier/@typescript-eslint",
-        "plugin:prettier/recommended",
-    ],
+    extends: ["@robbinbaauw"],
     rules: {
-        "no-console": process.env.NODE_ENV === "production" ? "error" : "off",
-        "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off",
-        "@typescript-eslint/explicit-function-return-type": "off",
-        "@typescript-eslint/no-use-before-define": "off",
-        "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-parameter-properties": "off",
-        "@typescript-eslint/explicit-member-accessibility": "off",
-        "@typescript-eslint/interface-name-prefix": "off",
-        "prettier/prettier": [
+        "@typescript-eslint/explicit-module-boundary-types": [
             "error",
             {
-                semi: true,
-                tabWidth: 4,
-                printWidth: 120
-            }
-        ]
+                allowArgumentsExplicitlyTypedAsAny: true,
+            },
+        ],
     },
-    parserOptions: {
-        parser: "@typescript-eslint/parser"
-    }
 };

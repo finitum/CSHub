@@ -6,7 +6,7 @@ const math = create(all, {});
 export const checkDynamicQuestion = (
     answerExpression: string,
     variables: VariableValue[],
-    userAnswer: number | string
+    userAnswer: number | string,
 ): {
     isCorrect: boolean;
     actualAnswer: number | string;
@@ -15,7 +15,7 @@ export const checkDynamicQuestion = (
 
     return {
         isCorrect: answer == userAnswer,
-        actualAnswer: answer
+        actualAnswer: answer,
     };
 };
 
@@ -37,11 +37,11 @@ export const generateVariableValues = (variables: VariableExpression[]): Variabl
 
     const dependencyOrder = resolveDependencyTree(variables);
 
-    dependencyOrder.forEach(value =>
+    dependencyOrder.forEach((value) =>
         valuedVariables.push({
             name: value.name,
-            value: evaluate(value.expression, valuedVariables) || ""
-        })
+            value: evaluate(value.expression, valuedVariables) || "",
+        }),
     );
 
     return valuedVariables;
@@ -67,7 +67,7 @@ export const resolveDependencyTree = (variableExpressions: VariableExpression[])
 
     const variableDependencyTree: VariableType[] = [];
 
-    variableExpressions.forEach(value => {
+    variableExpressions.forEach((value) => {
         const variableNames = getVariableNames(value.expression);
 
         if (variableNames.includes(value.name)) {
@@ -77,19 +77,19 @@ export const resolveDependencyTree = (variableExpressions: VariableExpression[])
         variableDependencyTree.push({
             name: value.name,
             expression: value.expression,
-            dependsOn: variableNames
+            dependsOn: variableNames,
         });
     });
 
-    let resolvedDependencies: string[] = [];
-    let resolvedDependenciesVariables: VariableExpression[] = [];
+    const resolvedDependencies: string[] = [];
+    const resolvedDependenciesVariables: VariableExpression[] = [];
 
     while (variableDependencyTree.length !== 0) {
-        let startSize = variableDependencyTree.length;
+        const startSize = variableDependencyTree.length;
 
         for (let i = variableDependencyTree.length - 1; i >= 0; i--) {
             const variable = variableDependencyTree[i];
-            const everyVariableResolved = variable.dependsOn.every(name => resolvedDependencies.includes(name));
+            const everyVariableResolved = variable.dependsOn.every((name) => resolvedDependencies.includes(name));
             if (everyVariableResolved) {
                 resolvedDependencies.push(variable.name);
                 resolvedDependenciesVariables.push(variable);
@@ -109,7 +109,7 @@ export const hasFittingVariables = (
     question: string,
     answer: string,
     explanation: string,
-    variableExpressions: VariableExpression[]
+    variableExpressions: VariableExpression[],
 ): boolean => {
     const variableTexts = question + answer + explanation;
     const variableNames = new Set(getVariableNames(variableTexts));

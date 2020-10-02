@@ -3,7 +3,7 @@ import { Requests } from "../../Requests";
 
 export enum PostSettingsEditType {
     HIDE,
-    WIP
+    WIP,
 }
 
 export class PostSettings implements IApiRequest<void> {

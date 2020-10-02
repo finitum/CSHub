@@ -5,7 +5,7 @@ import mung from "express-mung";
 app.use(
     mung.json(function transform(body: any) {
         return classToPlain(body);
-    })
+    }),
 );
 
 export class AlreadySentError extends Error {}

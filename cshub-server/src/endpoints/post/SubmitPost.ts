@@ -21,12 +21,12 @@ app.post(SubmitPost.getURL, async (req: Request, res: Response) => {
             input: submitPostRequest.postTitle,
             validationObject: {
                 minlength: 4,
-                maxlength: 50
-            }
+                maxlength: 50,
+            },
         },
         { input: submitPostRequest.postTopicHash },
         { input: submitPostRequest.isIndex },
-        { input: submitPostRequest.isExample }
+        { input: submitPostRequest.isExample },
     );
 
     if (submitPostRequest.isIndex && submitPostRequest.isExample) {
@@ -91,8 +91,8 @@ app.post(SubmitPost.getURL, async (req: Request, res: Response) => {
                 title: submitPostRequest.postTitle,
                 hash: topicHash,
                 isIndex: submitPostRequest.isIndex,
-                isExample: submitPostRequest.isExample
-            }
+                isExample: submitPostRequest.isExample,
+            },
         ]);
 
         return res.status(201).json(new CreatePostCallback(SubmitPostResponse.SUCCESS, topicHash));

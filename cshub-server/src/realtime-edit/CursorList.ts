@@ -1,15 +1,14 @@
-import {IRealtimeSelect} from "../../../cshub-shared/src/api-calls";
+import { IRealtimeSelect } from "../../../cshub-shared/src/api-calls";
 
 export class CursorList {
+    private readonly selectObj: { [postId: number]: IRealtimeSelect[] } = {};
 
-    private readonly selectObj: {[postId: number]: IRealtimeSelect[]} = {};
-
-    public addPost(postHash: number) {
+    public addPost(postHash: number): void {
         this.selectObj[postHash] = [];
     }
 
     public getSelectList(postHash: number): IRealtimeSelect[] {
-        if (this.selectObj.hasOwnProperty(postHash)) {
+        if (Object.prototype.hasOwnProperty.call(this.selectObj, postHash)) {
             return this.selectObj[postHash];
         } else {
             this.addPost(postHash);
@@ -21,5 +20,4 @@ export class CursorList {
         const newLength = this.getSelectList(select.postHash).push(select);
         return newLength - 1;
     }
-
 }

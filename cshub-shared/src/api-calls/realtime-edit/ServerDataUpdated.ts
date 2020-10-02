@@ -14,6 +14,6 @@ export class ServerDataUpdated {
             | {
                   error: true;
                   message: string;
-              }
+              },
     ) {}
 }

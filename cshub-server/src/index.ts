@@ -2,7 +2,7 @@ import logger from "./utilities/Logger";
 import { Settings } from "./settings";
 
 import "reflect-metadata";
-import { CORSMiddleware } from "./utilities/CORSMiddleware";
+import { corsMiddleware } from "./utilities/CORSMiddleware";
 import http, { Server } from "http";
 import express from "express";
 
@@ -21,9 +21,7 @@ export const app: express.Application = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: "1mb" }));
 app.use(cookieParser());
-app.use(CORSMiddleware);
-
-app.options("*", CORSMiddleware);
+corsMiddleware(app);
 
 import "./auth/AuthMiddleware";
 import "./utilities/VersionMiddleware";
@@ -65,8 +63,8 @@ connectDb().then(async () => {
     const studyCount = await studyRepository.count();
     const amountOfAdmins = await userRepository.count({
         where: {
-            admin: true
-        }
+            admin: true,
+        },
     });
 
     logger.info("Testing for default topic, study, domain and admin!");

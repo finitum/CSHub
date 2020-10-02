@@ -21,7 +21,7 @@ app.get(TopicPosts.getURL, (req: Request, res: Response) => {
                       ORDER BY T1.isIndex DESC, T1.datetime DESC
                     `,
             topicHashes,
-            currentTopicHash
+            currentTopicHash,
         );
     });
 });

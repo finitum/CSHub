@@ -20,8 +20,8 @@ const toExecuteQueries: {
     args: any[];
 }[] = [];
 
-export const query = (query: string, ...args: any[]) => {
-    return new Promise<DatabaseResultSet>((resolve, reject) => {
+export const query = (query: string, ...args: any[]): Promise<DatabaseResultSet> => {
+    return new Promise((resolve, reject) => {
         const currentConnection = getCurrentConnection();
         if ((query.match(/\?/g) || []).length !== args.length) {
             reject("Amount of arguments mismatch");
@@ -29,7 +29,7 @@ export const query = (query: string, ...args: any[]) => {
             toExecuteQueries.push({
                 query,
                 resolve,
-                args
+                args,
             });
         } else if (toExecuteQueries.length > 0) {
             for (const queryobj of toExecuteQueries) {
@@ -40,10 +40,10 @@ export const query = (query: string, ...args: any[]) => {
         } else {
             currentConnection
                 .query(query, args)
-                .then(value => {
+                .then((value) => {
                     resolve(new DatabaseResultSet(value, value.insertId));
                 })
-                .catch(reason => {
+                .catch((reason) => {
                     logger.error(reason);
                 });
         }
@@ -87,15 +87,15 @@ export class DatabaseResultSet implements Iterable<DatabaseResultRow> {
         return this.rows.length;
     }
 
-    public getStringFromDB(name: string, index: number = 0): string {
+    public getStringFromDB(name: string, index = 0): string {
         return DatabaseResultSet.getStringFromDB(name, this.rows[index]);
     }
 
-    public getBlobFromDB(name: string, index: number = 0): Buffer {
+    public getBlobFromDB(name: string, index = 0): Buffer {
         return DatabaseResultSet.getBlobFromDB(name, this.rows[index]);
     }
 
-    public getNumberFromDB(name: string, index: number = 0): number {
+    public getNumberFromDB(name: string, index = 0): number {
         return DatabaseResultSet.getNumberFromDB(name, this.rows[index]);
     }
 
@@ -119,12 +119,12 @@ export class DatabaseResultSet implements Iterable<DatabaseResultRow> {
         let index = 0;
 
         return {
-            next(value?: any): IteratorResult<DatabaseResultRow> {
+            next(): IteratorResult<DatabaseResultRow> {
                 return {
                     done: !(index < rows.length),
-                    value: new DatabaseResultRow(rows[index++])
+                    value: new DatabaseResultRow(rows[index++]),
                 };
-            }
+            },
         };
     }
 }

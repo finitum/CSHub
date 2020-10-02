@@ -4,7 +4,7 @@ import { Requests } from "../../Requests";
 
 export enum ForgotPasswordResponseTypes {
     CHANGED,
-    INVALIDINPUT
+    INVALIDINPUT,
 }
 
 export class ForgotPasswordCallback {

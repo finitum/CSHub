@@ -4,7 +4,7 @@ import {
     GetFullQuestion,
     GetFullQuestionCallback,
     GetQuestion,
-    GetQuestionCallback
+    GetQuestionCallback,
 } from "../../../../cshub-shared/src/api-calls/endpoints/question";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import logger from "../../utilities/Logger";
@@ -13,7 +13,7 @@ import { Question } from "../../db/entities/practice/question";
 import { parseAndValidateQuestion } from "./QuestionUtils";
 import {
     PracticeAnswerType,
-    PracticeQuestion
+    PracticeQuestion,
 } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/PracticeQuestion";
 import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 import { AlreadySentError } from "../utils";
@@ -37,18 +37,18 @@ app.get(GetFullQuestion.getURL, (req: Request, res: Response) => {
         .findOne({
             where: {
                 id: questionId,
-                deleted: false
+                deleted: false,
             },
-            relations: ["answers"]
+            relations: ["answers"],
         })
-        .then(async question => {
+        .then(async (question) => {
             if (question) {
                 res.json(new GetFullQuestionCallback(await parseAndValidateQuestion(question, res)));
             } else {
                 res.sendStatus(404);
             }
         })
-        .catch(err => {
+        .catch((err) => {
             logger.error(err);
             res.status(500).send(new ServerError("Server did oopsie"));
         });
@@ -66,11 +66,11 @@ app.get(GetQuestion.getURL, (req: Request, res: Response) => {
         .findOne({
             where: {
                 id: questionId,
-                deleted: false
+                deleted: false,
             },
-            relations: ["answers"]
+            relations: ["answers"],
         })
-        .then(async question => {
+        .then(async (question) => {
             if (question) {
                 const parsedQuestion = await parseAndValidateQuestion(question, res);
 
@@ -80,32 +80,33 @@ app.get(GetQuestion.getURL, (req: Request, res: Response) => {
                     case QuestionType.SINGLECLOSED:
                         strippedAnswer = {
                             type: parsedQuestion.type,
-                            answers: parsedQuestion.answers.map(parsedAnswer => {
+                            answers: parsedQuestion.answers.map((parsedAnswer) => {
                                 return {
                                     answer: parsedAnswer.answerText,
-                                    id: parsedAnswer.answerId
+                                    id: parsedAnswer.answerId,
                                 };
-                            })
+                            }),
                         };
                         break;
                     case QuestionType.OPENNUMBER:
                         strippedAnswer = {
                             type: parsedQuestion.type,
-                            precision: parsedQuestion.precision
+                            precision: parsedQuestion.precision,
                         };
                         break;
                     case QuestionType.OPENTEXT:
                         strippedAnswer = {
-                            type: parsedQuestion.type
+                            type: parsedQuestion.type,
                         };
                         break;
-                    case QuestionType.DYNAMIC:
+                    case QuestionType.DYNAMIC: {
                         const variables = generateVariableValues(parsedQuestion.variableExpressions);
                         strippedAnswer = {
                             type: parsedQuestion.type,
-                            variables
+                            variables,
                         };
                         break;
+                    }
                     default:
                         logger.error("Missing switch case");
                         res.status(500).send();
@@ -115,7 +116,7 @@ app.get(GetQuestion.getURL, (req: Request, res: Response) => {
                 const strippedQuestion: PracticeQuestion = {
                     id: parsedQuestion.id,
                     question: parsedQuestion.question,
-                    ...strippedAnswer
+                    ...strippedAnswer,
                 };
 
                 res.json(new GetQuestionCallback(strippedQuestion));
@@ -123,7 +124,7 @@ app.get(GetQuestion.getURL, (req: Request, res: Response) => {
                 res.sendStatus(404);
             }
         })
-        .catch(err => {
+        .catch((err) => {
             logger.error(err);
             res.status(500).send(new ServerError("Server did oopsie"));
         });

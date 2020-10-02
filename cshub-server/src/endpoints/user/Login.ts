@@ -15,7 +15,7 @@ import { User } from "../../db/entities/user";
 app.post(Logout.getURL, (req: Request, res: Response) => {
     res.clearCookie("token", {
         maxAge: Settings.TOKENAGEMILLISECONDS,
-        domain: Settings.DOMAIN
+        domain: Settings.DOMAIN,
     }).send();
 });
 
@@ -48,8 +48,8 @@ app.post(Login.getURL, async (req: Request, res: Response) => {
             relations: ["studies"],
             where: {
                 email: loginRequest.email.trim(),
-                domain: loginRequest.domain
-            }
+                domain: loginRequest.domain,
+            },
         });
     } catch (err) {
         logger.error(`Login query failed: ${err}`);
@@ -80,7 +80,7 @@ app.post(Login.getURL, async (req: Request, res: Response) => {
     // Also, the token is only valid for 2 hours (7200000)
     res.cookie("token", jwt, {
         maxAge: Settings.TOKENAGEMILLISECONDS,
-        domain: Settings.DOMAIN
+        domain: Settings.DOMAIN,
     });
 
     return res.json(new LoginCallBack(LoginResponseTypes.SUCCESS, user));

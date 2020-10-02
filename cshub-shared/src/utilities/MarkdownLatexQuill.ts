@@ -1,6 +1,5 @@
 import { BlotConstructor } from "parchment/dist/src/registry";
 
-// @ts-ignore
 import mk from "markdown-it-katex";
 import MarkdownIt from "markdown-it";
 
@@ -11,33 +10,30 @@ export class MarkdownLatexQuill {
 
     constructor(private quillObj: any) {}
 
-    public registerQuill = () => {
+    public registerQuill = (): void => {
         const Block: BlotConstructor = this.quillObj.import("blots/block");
 
         this.MarkdownLatexQuillExt = class extends Block {};
 
         this.MarkdownLatexQuillExt.blotName = MarkdownLatexQuill.blotName;
 
-        // @ts-ignore
         this.MarkdownLatexQuillExt.className = MarkdownLatexQuill.blotName;
 
-        // @ts-ignore
         this.MarkdownLatexQuillExt.tagName = "PRE";
 
-        // @ts-ignore
-        this.MarkdownLatexQuillExt.allowedChildren = Block.allowedChildren;
+        this.MarkdownLatexQuillExt.allowedChildren = (Block as any).allowedChildren;
 
         this.quillObj.register(this.MarkdownLatexQuillExt);
     };
 }
 
-export const getMarkdownParser = () => {
+export const getMarkdownParser = (): MarkdownIt => {
     return new MarkdownIt({
         highlight: (str: string, lang: string) => {
             if (lang.length === 0) {
                 lang = "null";
             }
             return `<pre data-lang=${lang}><code>${str}</code></pre>`;
-        }
+        },
     }).use(mk);
 };

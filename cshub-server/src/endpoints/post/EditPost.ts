@@ -30,7 +30,7 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
         { input: postHash },
         { input: editPostRequest.postTitle },
         { input: editPostRequest.postTopicHash },
-        { input: editPostRequest.deleteEdit }
+        { input: editPostRequest.deleteEdit },
     );
 
     if (!inputsValidation.valid) {
@@ -56,7 +56,7 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
             )
               AND T2.approved = 0
         `,
-            postHash
+            postHash,
         );
 
         await query(
@@ -70,7 +70,7 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
                     )
                       AND approved = 0
                 `,
-            postHash
+            postHash,
         );
 
         return res.sendStatus(200);
@@ -78,7 +78,7 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
         const editsRepository = getRepository(Edit);
         const postsRepository = getRepository(Post);
         const post = await postsRepository.findOne({
-            hash: postHash
+            hash: postHash,
         });
 
         try {
@@ -112,14 +112,14 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
             // Check if a post with the same title already exists
             const numPostsWithSameTitle = await postsRepository.findOne({
                 title: editPostRequest.postTitle,
-                topic: topic[0]
+                topic: topic[0],
             });
             if (numPostsWithSameTitle && numPostsWithSameTitle.hash !== postHash) {
                 return res.status(409).json(new ServerError("Post with name in this topic already exists"));
             }
 
             const child = cp.fork(`${__dirname}/EditsHandler`);
-            child.on("message", async htmlAndIndex => {
+            child.on("message", async (htmlAndIndex) => {
                 if (htmlAndIndex.html && htmlAndIndex.indexWords) {
                     await query(
                         `
@@ -148,7 +148,7 @@ app.put(EditPost.getURL, async (req: Request, res: Response) => {
                         editPostRequest.postTitle,
                         editPostRequest.postTopicHash,
                         postHash,
-                        postHash
+                        postHash,
                     );
 
                     logger.info("Edited post succesfully");

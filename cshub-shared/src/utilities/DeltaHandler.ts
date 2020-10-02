@@ -1,6 +1,5 @@
 import { IRealtimeEdit } from "../api-calls/realtime-edit";
-// @ts-ignore
-import Delta from "quill-delta/dist/Delta";
+import Delta from "quill-delta";
 
 /**
  *
@@ -11,7 +10,7 @@ import Delta from "quill-delta/dist/Delta";
 export const transformFromArray = (
     inputEdits: IRealtimeEdit[],
     newEdit: IRealtimeEdit,
-    countUserDeltas: boolean
+    countUserDeltas: boolean,
 ): Delta | undefined => {
     const toBeTransformed: IRealtimeEdit[] = [];
     for (let i = inputEdits.length - 1; i >= 0; i--) {

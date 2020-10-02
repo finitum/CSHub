@@ -5,7 +5,7 @@ import { app } from "../../index";
 import {
     ForgotPassword,
     ForgotPasswordCallback,
-    ForgotPasswordResponseTypes
+    ForgotPasswordResponseTypes,
 } from "../../../../cshub-shared/src/api-calls";
 import { validateMultipleInputs } from "../../utilities/StringUtils";
 import { DatabaseResultSet, query } from "../../db/database-query";
@@ -18,11 +18,11 @@ app.post(ForgotPassword.getURL, (req: Request, res: Response) => {
         {
             input: forgotPassword.password,
             validationObject: {
-                minlength: 8
-            }
+                minlength: 8,
+            },
         },
         { input: forgotPassword.accId },
-        { input: forgotPassword.hash }
+        { input: forgotPassword.hash },
     );
 
     // Checking the input, see createaccount for a (bit) more in depth explanation
@@ -34,7 +34,7 @@ app.post(ForgotPassword.getURL, (req: Request, res: Response) => {
             WHERE id = ? AND passresethash = ?
         `,
             forgotPassword.accId,
-            forgotPassword.hash
+            forgotPassword.hash,
         ).then((resDatabase: DatabaseResultSet) => {
             if (resDatabase.convertRowsToResultObjects().length > 0) {
                 hashPassword(forgotPassword.password)
@@ -46,7 +46,7 @@ app.post(ForgotPassword.getURL, (req: Request, res: Response) => {
                                 WHERE id = ?
                             `,
                             hashedValue,
-                            forgotPassword.accId
+                            forgotPassword.accId,
                         );
                     })
                     .then(() => {

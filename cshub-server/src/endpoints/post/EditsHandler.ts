@@ -4,14 +4,14 @@ import QuillDefaultOptions from "../../../../cshub-shared/src/utilities/QuillDef
 import logger from "../../utilities/Logger";
 import { getHTML } from "../../../../cshub-shared/src/utilities/EditsHandler";
 
-process.on("message", delta => {
+process.on("message", (delta) => {
     logger.info("Spawned child process");
     const virtualConsole = new VirtualConsole();
-    virtualConsole.on("error", err => {
+    virtualConsole.on("error", (err) => {
         logger.info(err);
     });
 
-    virtualConsole.on("warn", warn => {
+    virtualConsole.on("warn", (warn) => {
         logger.info(warn);
     });
 
@@ -28,17 +28,19 @@ process.on("message", delta => {
         {
             runScripts: "dangerously",
             resources: "usable",
-            virtualConsole
-        }
+            virtualConsole,
+        },
     );
 
     const window = jsdom.window;
     const document = window.document;
 
-    // @ts-ignore (quill wants to execute but JSDom doesn't have it)
-    document.execCommand = () => {};
+    // quill wants to execute but JSDom doesn't have it
+    document.execCommand = () => {
+        return false;
+    };
 
-    window.onerror = err => {
+    window.onerror = (err) => {
         logger.info("JSDOM Save errors");
         logger.info(err.toString());
         process.emit("warning", err as any);
@@ -47,19 +49,13 @@ process.on("message", delta => {
     window.onload = () => {
         const container = document.getElementById("editor-container");
 
-        // @ts-ignore
-        document.getSelection = function() {
-            return {
-                getRangeAt: function() {}
-            };
+        // quill wants to execute but JSDom doesn't have it
+        document.getSelection = function () {
+            return null;
         };
-        // @ts-ignore
-        const quillWindow = window.Quill;
+        const quillWindow = (window as any).Quill;
 
         const options = QuillDefaultOptions;
-        delete options.modules.cursors;
-        delete options.modules.resize;
-
         const quill = new quillWindow(container, options);
         const markdownParser = new MarkdownLatexQuill(quillWindow);
         markdownParser.registerQuill();

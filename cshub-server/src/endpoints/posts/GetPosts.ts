@@ -8,8 +8,8 @@ import { PostHashes } from "../../../../cshub-shared/src/api-calls/endpoints/pos
 export const getPosts = (
     req: Request,
     res: Response,
-    queryGetter: (topicHashes: number[], currentTopicHash: number) => Promise<DatabaseResultSet>
-) => {
+    queryGetter: (topicHashes: number[], currentTopicHash: number) => Promise<DatabaseResultSet>,
+): void => {
     const topicHash = Number(req.params.topichash);
 
     if (isNaN(topicHash)) {
@@ -18,7 +18,7 @@ export const getPosts = (
 
     const topics = getTopicTree();
     topics
-        .then(topicsResult => {
+        .then((topicsResult) => {
             if (topicsResult === null || typeof topicsResult === "undefined") {
                 logger.error(`No topics found, so can't get posts`);
                 res.status(500).send();
@@ -48,7 +48,7 @@ export const getPosts = (
 
                             res.json(callbackObj);
                         })
-                        .catch(err => {
+                        .catch((err) => {
                             logger.error(`Getting posts hash failed`);
                             logger.error(err);
                             res.status(500).send();
@@ -58,7 +58,7 @@ export const getPosts = (
                 }
             }
         })
-        .catch(err => {
+        .catch((err) => {
             logger.error(err);
             res.status(500).send();
         });

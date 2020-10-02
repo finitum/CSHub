@@ -6,7 +6,7 @@ import {
     OneToMany,
     OneToOne,
     PrimaryGeneratedColumn,
-    RelationId
+    RelationId,
 } from "typeorm";
 import { Post } from "./post";
 import { Study } from "./study";
@@ -16,7 +16,7 @@ import { Exclude, Expose } from "class-transformer";
 
 @Exclude()
 @Entity({
-    name: "topics"
+    name: "topics",
 })
 export class Topic implements ITopic {
     @Expose()
@@ -25,15 +25,15 @@ export class Topic implements ITopic {
 
     @Expose()
     @Column({
-        type: "text"
+        type: "text",
     })
     name!: string;
 
     @Expose()
-    @ManyToOne(type => Topic, topic => topic.children, {
+    @ManyToOne((type) => Topic, (topic) => topic.children, {
         nullable: true,
         onDelete: "RESTRICT",
-        onUpdate: "RESTRICT"
+        onUpdate: "RESTRICT",
     })
     @JoinColumn({ name: "parentid" })
     parent!: Topic | null;
@@ -42,24 +42,24 @@ export class Topic implements ITopic {
     parentid!: number | null;
 
     @Expose()
-    @OneToMany(type => Topic, topic => topic.parent)
+    @OneToMany((type) => Topic, (topic) => topic.parent)
     children!: Topic[];
 
     @Expose()
     @Column({
-        unique: true
+        unique: true,
     })
     hash!: number;
 
-    @OneToOne(type => Study, study => study.topTopic, {
-        nullable: true
+    @OneToOne((type) => Study, (study) => study.topTopic, {
+        nullable: true,
     })
     study?: Study;
 
     // Not sent to client
-    @OneToMany(type => Post, post => post.topic)
+    @OneToMany((type) => Post, (post) => post.topic)
     posts?: Post[];
 
-    @OneToMany(type => Question, question => question.topic)
+    @OneToMany((type) => Question, (question) => question.topic)
     questions?: Question[];
 }

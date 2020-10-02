@@ -15,7 +15,7 @@ app.put(PostSettings.getURL, async (req: Request, res: Response) => {
         return;
     }
 
-    hasAccessToPostRequest(postHash, req).then(async access => {
+    hasAccessToPostRequest(postHash, req).then(async (access) => {
         switch (action) {
             case PostSettingsEditType[PostSettingsEditType.HIDE].toLowerCase():
                 if (access.canSave) {
@@ -44,7 +44,7 @@ async function isWip(postHash: number): Promise<boolean> {
         FROM posts
         WHERE hash = ?
     `,
-        postHash
+        postHash,
     );
 
     return result.getNumberFromDB("wip") === 1;
@@ -61,12 +61,12 @@ const wipPost = async (res: Response, postHash: number) => {
         WHERE hash = ?
     `,
         !isCurrentlyWip,
-        postHash
+        postHash,
     )
         .then(() => {
             res.json();
         })
-        .catch(reason => {
+        .catch((reason) => {
             logger.error(reason);
             res.sendStatus(500);
         });
@@ -80,12 +80,12 @@ const deletePost = (res: Response, postHash: number) => {
             deleted     = 1
         WHERE hash = ?
     `,
-        postHash
+        postHash,
     )
         .then(() => {
             res.json();
         })
-        .catch(reason => {
+        .catch((reason) => {
             logger.error(reason);
             res.sendStatus(500);
         });

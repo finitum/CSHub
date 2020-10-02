@@ -10,6 +10,6 @@ export class TogglePostJoin implements ISocketRequest {
     constructor(
         public postHash: number,
         public join: boolean,
-        public callback: (serverData: IRealtimeEdit, select: IRealtimeSelect[]) => void
+        public callback: (serverData: IRealtimeEdit, select: IRealtimeSelect[]) => void,
     ) {}
 }

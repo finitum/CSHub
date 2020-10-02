@@ -3,13 +3,12 @@ import { User } from "./user";
 import { Post } from "./post";
 import { IEdit } from "../../../../cshub-shared/src/entities/edit";
 
-// @ts-ignore
 import Delta from "quill-delta";
 import { Exclude, Expose } from "class-transformer";
 
 @Exclude()
 @Entity({
-    name: "edits"
+    name: "edits",
 })
 export class Edit implements IEdit {
     @Expose()
@@ -17,27 +16,27 @@ export class Edit implements IEdit {
     id!: number;
 
     @Expose()
-    @ManyToMany(type => User, user => user.edits)
+    @ManyToMany((type) => User, (user) => user.edits)
     @JoinTable({ name: "editusers" })
     editusers!: User[];
 
     @Expose()
     @Column({
-        type: "longtext"
+        type: "longtext",
     })
     content!: Delta;
 
     @Expose()
     @Column({
         type: "int", // Otherwise it overrides the value
-        default: false
+        default: false,
     })
     approved!: boolean;
 
     @Expose()
     @Column({
         type: "datetime",
-        default: () => "CURRENT_TIMESTAMP"
+        default: () => "CURRENT_TIMESTAMP",
     })
     @Index()
     datetime!: Date;
@@ -45,19 +44,19 @@ export class Edit implements IEdit {
     @Expose()
     @Column({
         type: "longtext",
-        nullable: true
+        nullable: true,
     })
     htmlContent!: string;
 
     // Not sent to client
-    @ManyToOne(type => Post, post => post.id)
+    @ManyToOne((type) => Post, (post) => post.id)
     @JoinColumn({ name: "post" })
     @Index()
     post?: Post;
 
     @Column({
         type: "longtext",
-        nullable: true
+        nullable: true,
     })
     indexwords?: string;
 }

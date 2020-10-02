@@ -9,7 +9,7 @@ export enum LoginResponseTypes {
     ACCOUNTNOTVERIFIED,
     ACCOUNTBLOCKED,
     SUCCESS,
-    INVALIDINPUT
+    INVALIDINPUT,
 }
 
 export class LoginCallBack {
@@ -26,6 +26,4 @@ export class Login implements IApiRequest<LoginCallBack> {
 export class Logout implements IApiRequest<void> {
     public static getURL: string = Requests.LOGOUT;
     public URL: string = Logout.getURL;
-
-    constructor() {}
 }

@@ -22,8 +22,8 @@ app.get(EditContent.getURL, async (req: Request, res: Response) => {
 
         const post = await postRepository.findOne({
             where: {
-                hash: postHash
-            }
+                hash: postHash,
+            },
         });
 
         if (!post) {
@@ -36,13 +36,13 @@ app.get(EditContent.getURL, async (req: Request, res: Response) => {
             .find({
                 relations: ["editusers"],
                 where: {
-                    post
+                    post,
                 },
                 order: {
-                    datetime: "ASC"
-                }
+                    datetime: "ASC",
+                },
             })
-            .then(edits => {
+            .then((edits) => {
                 if (edits.length > 0) {
                     if (!edits[0].approved && !includeLastEdit) {
                         edits.shift();
@@ -51,16 +51,16 @@ app.get(EditContent.getURL, async (req: Request, res: Response) => {
 
                 res.json(
                     new GetEditContentCallback(
-                        edits.map(edit => {
+                        edits.map((edit) => {
                             return {
                                 ...edit,
-                                content: JSON.parse((edit.content as unknown) as string) // typeorm doesn't parse the JSON
+                                content: JSON.parse((edit.content as unknown) as string), // typeorm doesn't parse the JSON
                             };
-                        })
-                    )
+                        }),
+                    ),
                 );
             })
-            .catch(err => {
+            .catch((err) => {
                 logger.error(`Edit content retrieve failed`);
                 logger.error(err);
                 res.status(500).send();

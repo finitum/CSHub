@@ -17,7 +17,7 @@ app.get(Requests.PROFILE, (req: Request, res: Response) => {
                 FROM users
                 WHERE id = ?
                 `,
-            userId
+            userId,
         ).then((result: DatabaseResultSet) => {
             if (result.getRows().length === 0) {
                 logger.error("User doesn't exist");
@@ -28,14 +28,14 @@ app.get(Requests.PROFILE, (req: Request, res: Response) => {
                 if (avatar !== null) {
                     res.writeHead(200, {
                         "Content-Type": "image/png",
-                        "Content-Length": avatar.length
+                        "Content-Length": avatar.length,
                     });
                     res.end(avatar);
                 } else {
                     fs.readFile(`${__dirname}/defaultAvatar.png`, (err, avatar) => {
                         res.writeHead(200, {
                             "Content-Type": "image/png",
-                            "Content-Length": avatar.length
+                            "Content-Length": avatar.length,
                         });
                         res.end(avatar);
                     });
@@ -47,4 +47,3 @@ app.get(Requests.PROFILE, (req: Request, res: Response) => {
         res.status(400).send(new ServerError("The userid in the URL is not a number"));
     }
 });
-

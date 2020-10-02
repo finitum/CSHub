@@ -12,7 +12,7 @@ export class CursorUpdatedHandler {
         return CursorUpdatedHandler.cursorList.getSelectList(postHash);
     }
 
-    public static removeCursor(currSocket: Socket) {
+    public static removeCursor(currSocket: Socket): void {
         const userModel = validateAccessToken(currSocket.request.cookies["token"]);
 
         if (userModel) {
@@ -27,61 +27,21 @@ export class CursorUpdatedHandler {
                         active: false,
                         selection: {
                             index: 0,
-                            length: 0
-                        }
+                            length: 0,
+                        },
                     };
 
-                    const response = new ServerCursorUpdated(select, () => {});
+                    const response = new ServerCursorUpdated(select, () => {
+                        // noop
+                    });
                     io.to(room).emit(response.URL, response);
 
                     const currSelects = CursorUpdatedHandler.cursorList.getSelectList(postHash);
-                    const currUserIndex = currSelects.findIndex(x => x.user.id === userModel.user.id);
+                    const currUserIndex = currSelects.findIndex((x) => x.user.id === userModel.user.id);
                     if (currUserIndex !== -1) {
                         currSelects.splice(currUserIndex, 1);
                     }
                 }
-            }
-        }
-    }
-
-    public static addUser(currSocket: Socket, postHash: number) {
-        const currSelects = CursorUpdatedHandler.cursorList.getSelectList(postHash);
-        const roomId = `POST_${postHash}`;
-
-        while (true) {
-            const userModel = validateAccessToken(currSocket.request.cookies["token"]);
-
-            if (userModel) {
-                const color = randomColor({
-                    luminosity: "bright",
-                    alpha: 0.1
-                });
-                const user = userModel.user;
-                const userName = userModel.user.firstname;
-
-                const index = currSelects.findIndex(x => x.color === color);
-                if (index === -1) {
-                    const select: IRealtimeSelect = {
-                        postHash,
-                        color,
-                        userName,
-                        user,
-                        active: true,
-                        selection: {
-                            index: 0,
-                            length: 0
-                        }
-                    };
-
-                    currSelects.push(select);
-
-                    const response = new ServerCursorUpdated(select, () => {});
-                    io.to(roomId).emit(response.URL, response);
-
-                    break;
-                }
-            } else {
-                break;
             }
         }
     }
@@ -91,7 +51,7 @@ export class CursorUpdatedHandler {
 
         const roomId = `POST_${select.postHash}`;
 
-        const currUserIndex = currSelects.findIndex(x => x.user.id === select.user.id);
+        const currUserIndex = currSelects.findIndex((x) => x.user.id === select.user.id);
 
         if (select.active) {
             if (currUserIndex === -1) {
@@ -105,14 +65,61 @@ export class CursorUpdatedHandler {
 
                 currSelects[currUserIndex] = {
                     ...previousData,
-                    ...select
+                    ...select,
                 };
             }
         } else if (currUserIndex !== -1) {
             currSelects.splice(currUserIndex, 1);
         }
 
-        const response = new ServerCursorUpdated(select, () => {});
+        const response = new ServerCursorUpdated(select, () => {
+            // noop
+        });
         io.to(roomId).emit(response.URL, response);
+    }
+
+    public static addUser(currSocket: Socket, postHash: number): void {
+        const currSelects = CursorUpdatedHandler.cursorList.getSelectList(postHash);
+        const roomId = `POST_${postHash}`;
+
+        const userModel = validateAccessToken(currSocket.request.cookies["token"]);
+
+        if (userModel) {
+            const user = userModel.user;
+            const userName = userModel.user.firstname;
+
+            const getUnusedColor = () => {
+                const color = randomColor({
+                    luminosity: "bright",
+                    alpha: 0.1,
+                });
+
+                const index = currSelects.findIndex((x) => x.color === color);
+                if (index === -1) {
+                    return color;
+                } else {
+                    return getUnusedColor();
+                }
+            };
+
+            const select: IRealtimeSelect = {
+                postHash,
+                color: getUnusedColor(),
+                userName,
+                user,
+                active: true,
+                selection: {
+                    index: 0,
+                    length: 0,
+                },
+            };
+
+            currSelects.push(select);
+
+            const response = new ServerCursorUpdated(select, () => {
+                // noop
+            });
+            io.to(roomId).emit(response.URL, response);
+        }
     }
 }

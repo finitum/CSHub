@@ -10,7 +10,7 @@ app.get(PostData.getURL, (req: Request, res: Response) => {
     const hash = Number(req.params.hash);
 
     // Get all the post data from database
-    getPostData(hash).then(data => {
+    getPostData(hash).then((data) => {
         if (data === null) {
             res.status(404).send();
         } else {
@@ -26,17 +26,17 @@ export const getPostData = (postHash: number): Promise<GetPostCallBack | null> =
         .findOne({
             relations: ["topic"],
             where: {
-                hash: postHash
-            }
+                hash: postHash,
+            },
         })
-        .then(post => {
+        .then((post) => {
             if (!post) {
                 return null;
             }
 
             return new GetPostCallBack(post);
         })
-        .catch(err => {
+        .catch((err) => {
             logger.error(`Retreiving post data failed`);
             logger.error(err);
             return null;

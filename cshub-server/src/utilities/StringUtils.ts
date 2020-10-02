@@ -1,11 +1,11 @@
 export interface ICustomValidatorResponse {
     valid: boolean;
-    value?: string | number | object | boolean;
+    value?: string | number | Record<any, any> | boolean | Array<any>;
     error?: CustomValidatorReponseTypes;
 }
 
 export interface ICustomValidatorInput {
-    input: string | number | object | boolean;
+    input: string | number | Record<any, any> | boolean | Array<any>;
     validationObject?: ICustomValidatorInputObject;
 }
 
@@ -26,7 +26,6 @@ export enum CustomValidatorReponseTypes {
     EMPTY,
     MINLENGTH,
     MAXLENGTH,
-    TUEMAIL
 }
 
 // This validates the input string based on a few types which can be added to. By default, nullemptyundefined is always on
