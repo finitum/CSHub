@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div class="post-list">
         <div v-for="postHash in visiblePostHashes" :key="postHash.index" class="ma-4 mx-6">
-            <post-header :key="postHash" :post-hash="postHash" />
+            <post-title :key="postHash" :post-hash="postHash" />
         </div>
         <post-pagination v-model="paginationPage" :elements="postHashes.length" :range="range" />
     </div>
@@ -10,13 +10,13 @@
 <script lang="ts">
 import { computed, defineComponent, PropType, ref, watch } from "@vue/composition-api";
 
-import PostHeader from "./PostHeader.vue";
+import PostTitle from "./PostTitle.vue";
 import PostPagination from "./PostPagination.vue";
 
 import { useResize } from "../../../composables/useResize";
 
 export default defineComponent({
-    components: { PostPagination, PostHeader },
+    components: { PostPagination, PostTitle },
     props: {
         postHashes: { required: true, type: Array as PropType<number[]> },
     },
