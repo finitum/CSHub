@@ -198,12 +198,7 @@
                                     </v-btn>
                                 </div>
                             </transition>
-                            <v-list
-                                v-if="!alwaysShowContent || fullPostComputed"
-                                two-line
-                                style="width: 100%"
-                                class="pt-0"
-                            >
+                            <v-list v-if="!post.isIndex || fullPostComputed" two-line style="width: 100%" class="pt-0">
                                 <v-list-item class="pa-0 postTile">
                                     <!-- Maybe re-add later -->
                                     <!-- <v-list-item-avatar>
@@ -389,13 +384,18 @@ export default class Post extends Vue {
         return this.$route.fullPath === Routes.USERDASHBOARD;
     }
 
+    get isOnWipPosts(): boolean {
+        return this.$route.fullPath === Routes.WIPPOSTS;
+    }
+
     get alwaysShowContent(): boolean {
         if (this.post) {
             return (
                 (this.post.isIndex || this.post.isExample) &&
                 !this.isOnAdminDashboard &&
                 !this.isOnUserDashboard &&
-                !this.isOnUnsavedPosts
+                !this.isOnUnsavedPosts &&
+                !this.isOnWipPosts
             );
         }
         return false;

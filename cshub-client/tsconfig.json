@@ -27,6 +27,7 @@
         "src/**/*.ts",
         "src/**/*.tsx",
         "src/**/*.vue",
+        "../cshub-shared/src/**/*.ts",
         "tests/**/*.ts",
         "tests/**/*.tsx"
     ],
