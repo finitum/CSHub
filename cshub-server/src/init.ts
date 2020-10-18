@@ -34,6 +34,8 @@ export async function initializeDatabase(): Promise<void> {
 
     let topic = await topicRepository.findOne();
     if (!topic) {
+        logger.info("Creating default topic");
+
         // If so, create new topic
         const hash = await generateRandomTopicHash();
 
@@ -45,6 +47,8 @@ export async function initializeDatabase(): Promise<void> {
     }
 
     if (studyCount === 0) {
+        logger.info("Creating default study");
+
         const study = new Study();
         study.name = defaultStudyName;
         study.topTopic = topic;
@@ -53,12 +57,16 @@ export async function initializeDatabase(): Promise<void> {
 
     let domain = await domainRepository.findOne();
     if (!domain) {
+        logger.info("Creating default domain");
+
         const newDomain = new EmailDomain();
         newDomain.domain = defaultDomainName;
         domain = await domainRepository.save(newDomain);
     }
 
     if (amountOfAdmins === 0) {
+        logger.info("Creating default admin");
+
         const newAdmin = new User();
         newAdmin.admin = true;
         newAdmin.email = defaultAdminName;

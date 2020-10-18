@@ -40,23 +40,26 @@ if (cluster.isMaster) {
     connectDb().then(async () => {
         await initializeDatabase();
 
-        const app = createApp();
-        const server = http.createServer(app);
-        registerSockets(server);
-
         logger.info("Master started with settings:");
         logger.info(JSON.stringify(Settings));
     });
 
     const cpuCount = cpus().length;
-
     for (let i = 0; i < cpuCount; i += 1) {
+        logger.verbose(`Starting fork ${i}`);
         cluster.fork();
     }
 } else {
-    const app = createApp();
-    registerEndpoints(app);
+    connectDb().then(() => {
+        const app = createApp();
+        const server = http.createServer(app).listen(Settings.PORT);
 
-    logger.info("Fork started");
-    http.createServer(app).listen(Settings.PORT);
+        registerEndpoints(app);
+        if (cluster.worker.id === 1) {
+            logger.info("Starting socket server");
+            registerSockets(server);
+        }
+
+        logger.info("Fork started");
+    });
 }

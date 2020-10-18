@@ -79,7 +79,16 @@ export default class TopicView extends Vue {
     }
 
     private create() {
-        const firstNode = this.tree.getFirstNode();
+        const firstNode: ISlTreeNode<ITopic> | null = this.tree.getFirstNode();
+        if (firstNode === null) {
+            this.nodes = [
+                {
+                    title: "New topic"
+                }
+            ];
+            return;
+        }
+
         const insertPosition: ICursorPosition<ITopic> = {
             node: firstNode,
             placement: "before"
