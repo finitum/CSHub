@@ -1,8 +1,6 @@
 <template>
     <div>
-        <v-subheader>
-            Your profile
-        </v-subheader>
+        <v-subheader> Your profile </v-subheader>
         <v-container fluid fill-height>
             <v-layout justify-center align-center>
                 <v-flex shrink>
@@ -116,7 +114,7 @@
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
 
-import PostList from "../../components/posts/PostList.vue";
+import PostList from "../../components/posts/list/PostList.vue";
 
 import { userState } from "../../store";
 
@@ -124,7 +122,7 @@ import { ApiWrapper, logStringConsole } from "../../utilities";
 import {
     ChangePassword,
     ChangePasswordCallback,
-    ChangePasswordResponseTypes
+    ChangePasswordResponseTypes,
 } from "../../../../cshub-shared/src/api-calls";
 import { ChangeAvatar, ChangeAvatarCallback } from "../../../../cshub-shared/src/api-calls";
 import { uiState } from "../../store";
@@ -133,7 +131,7 @@ import { IUser } from "../../../../cshub-shared/src/entities/user";
 @Component({
     name: "UserDashboard",
     inject: ["$validator"],
-    components: { PostList }
+    components: { PostList },
 })
 export default class UserDashboard extends Vue {
     /**
@@ -144,7 +142,7 @@ export default class UserDashboard extends Vue {
         currentPasswordError: "",
         newPassword: "",
         confirmNewPassword: "",
-        passwordvisible: false
+        passwordvisible: false,
     };
     private imageBase64 = "";
     private imageName = "";
@@ -161,7 +159,7 @@ export default class UserDashboard extends Vue {
      */
     public metaInfo(): any {
         return {
-            title: "User - CSHub"
+            title: "User - CSHub",
         };
     }
 
@@ -198,7 +196,7 @@ export default class UserDashboard extends Vue {
                 uiState.setNotificationDialog({
                     on: true,
                     header: "Avatar changed",
-                    text: "Your avatar has been changed, refresh the page to see your avatar update"
+                    text: "Your avatar has been changed, refresh the page to see your avatar update",
                 });
             }
         });
@@ -212,7 +210,7 @@ export default class UserDashboard extends Vue {
                     uiState.setNotificationDialog({
                         on: true,
                         header: "Changed password",
-                        text: "Your password has been changed successfully"
+                        text: "Your password has been changed successfully",
                     });
                     logStringConsole("User changed password");
                 } else if (callBack.response === ChangePasswordResponseTypes.WRONGPASSWORD) {
@@ -222,7 +220,7 @@ export default class UserDashboard extends Vue {
                     logStringConsole("Invalid input at password change");
                     this.userData.currentPasswordError = "Wrong input!";
                 }
-            }
+            },
         );
     }
 }

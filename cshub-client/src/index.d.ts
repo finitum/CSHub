@@ -1,6 +1,6 @@
 import { Vue } from "vue/types/vue";
 
-declare var process: {
+declare let process: {
     env: {
         NODE_ENV: string;
         VUE_APP_API_URL: string;
@@ -23,6 +23,6 @@ declare module "vue/types/options" {
     }
 }
 
-declare var window: {
+declare let window: {
     appConfig: any;
 };

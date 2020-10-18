@@ -82,31 +82,31 @@ import { uiState } from "../../../store";
 @Component({
     name: OpenNumberEditor.name,
     components: { OpenNumberViewer },
-    inject: ["$validator"]
+    inject: ["$validator"],
 })
 export default class OpenNumberEditor extends Vue {
     @Prop({
-        required: false
+        required: false,
     })
     private propQuestion?: string;
 
     @Prop({
-        required: false
+        required: false,
     })
     private propExplanation?: string;
 
     @Prop({
-        required: false
+        required: false,
     })
     private propAnswer?: number;
 
     @Prop({
-        required: false
+        required: false,
     })
     private propPrecision?: number;
 
     @Prop({
-        required: true
+        required: true,
     })
     private isEditing!: false | number;
 
@@ -125,7 +125,7 @@ export default class OpenNumberEditor extends Vue {
                 explanation: this.explanation,
                 type: QuestionType.OPENNUMBER,
                 number: this.answer,
-                precision: this.precision
+                precision: this.precision,
             };
 
             if (this.isEditing) {
@@ -137,7 +137,7 @@ export default class OpenNumberEditor extends Vue {
             uiState.setNotificationDialog({
                 header: "Saved",
                 text: "Saved question, it will be reviewed by an admin soon!",
-                on: true
+                on: true,
             });
 
             this.answer = 0;

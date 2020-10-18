@@ -22,11 +22,11 @@ import { ApiWrapper } from "../../../utilities";
 import { CheckAnswers } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
 import {
     CheckAnswerType,
-    ToCheckAnswerType
+    ToCheckAnswerType,
 } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/CheckAnswer";
 
 @Component({
-    name: PracticeQuestion.name
+    name: PracticeQuestion.name,
 })
 export default class PracticeQuestion extends Vue {
     get paginationLength(): number {
@@ -52,7 +52,7 @@ export default class PracticeQuestion extends Vue {
                     uiState.setNotificationDialog({
                         header: "Missing answer!",
                         text: "You haven't answered anything!",
-                        on: true
+                        on: true,
                     });
                     return;
                 }
@@ -61,14 +61,14 @@ export default class PracticeQuestion extends Vue {
                     new CheckAnswers([
                         {
                             questionId: currQuestion.questionId,
-                            answer: currQuestion.answer
-                        }
-                    ])
-                ).then(value => {
+                            answer: currQuestion.answer,
+                        },
+                    ]),
+                ).then((value) => {
                     if (value && value.answers.length === 1) {
                         practiceState.setCheckedQuestion({
                             value: value.answers[0],
-                            index: questionIndex
+                            index: questionIndex,
                         });
                     }
                 });
@@ -92,14 +92,14 @@ export default class PracticeQuestion extends Vue {
                         header: "Missing answer!",
                         text:
                             "You are missing an answer for some question! In future updates this answer will be more specified but now we're in a hurry :)",
-                        on: true
+                        on: true,
                     });
                     return;
                 }
 
                 checkQuestions.push({
                     questionId: question.questionId,
-                    answer: question.answer
+                    answer: question.answer,
                 });
             }
 

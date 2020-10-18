@@ -53,7 +53,7 @@ import EmailDomainTable from "../../components/admin/EmailDomainTable.vue";
 
 @Component({
     name: "AdminDashboard",
-    components: { TopicView, UserTable, StudyTable, EmailDomainTable }
+    components: { TopicView, UserTable, StudyTable, EmailDomainTable },
 })
 export default class AdminDashboard extends Vue {
     private tabs = null;
@@ -80,7 +80,7 @@ export default class AdminDashboard extends Vue {
 
     public metaInfo(): any {
         return {
-            title: "Admin - CSHub"
+            title: "Admin - CSHub",
         };
     }
 }

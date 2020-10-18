@@ -6,12 +6,12 @@ import ONQuestionMixin from "./ONQuestionMixin";
 import DNQuestionMixin from "./DNQuestionMixin";
 
 @Component({
-    name: QuestionMixin.name
+    name: QuestionMixin.name,
 })
 export default class QuestionMixin extends mixins(
     SCQuestionMixin,
     MCQuestionMixin,
     OTQuestionMixin,
     ONQuestionMixin,
-    DNQuestionMixin
+    DNQuestionMixin,
 ) {}

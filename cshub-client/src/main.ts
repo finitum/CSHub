@@ -8,7 +8,7 @@ import "./plugins";
 
 Vue.use(Meta, {
     keyName: "metaInfo",
-    refreshOnceOnNavigation: true
+    refreshOnceOnNavigation: true,
 });
 
 import App from "./App.vue";
@@ -16,7 +16,6 @@ import router from "./views/router/router";
 import store from "./store/store";
 import "./registerServiceWorker";
 import "./styleOverwrites.css";
-import "./utilities/pipes";
 
 import vuetify from "./plugins/vuetify/vuetify";
 
@@ -26,5 +25,5 @@ new Vue({
     router,
     store,
     vuetify,
-    render: (h: any) => h(App)
+    render: (h: any) => h(App),
 }).$mount("#app");

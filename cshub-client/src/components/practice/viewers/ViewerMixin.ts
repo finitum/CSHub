@@ -14,7 +14,7 @@ import { PracticeQuestion } from "../../../../../cshub-shared/src/api-calls/endp
 import { VariableValue } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/Variable";
 
 @Component({
-    name: ViewerMixin.name
+    name: ViewerMixin.name,
 })
 export default class ViewerMixin extends Vue {
     public markdownParser = getMarkdownParser();
@@ -29,13 +29,7 @@ export default class ViewerMixin extends Vue {
 
     public renderMarkdown(text: string): string {
         this.highlightCode();
-        return this.markdownParser.render(
-            text
-                .split("<")
-                .join("&lt;")
-                .split(">")
-                .join("&gt;")
-        );
+        return this.markdownParser.render(text.split("<").join("&lt;").split(">").join("&gt;"));
     }
 
     public getRenderedQuestion(nullQuestion: null): string;

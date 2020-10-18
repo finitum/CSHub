@@ -105,7 +105,7 @@ interface EditCheckbox extends IEdit {
 
 @Component({
     name: "PostEditsDialog",
-    components: { Quill }
+    components: { Quill },
 })
 export default class PostEditsDialog extends Vue {
     /**
@@ -169,7 +169,7 @@ export default class PostEditsDialog extends Vue {
                             op.attributes = {
                                 ...op.attributes,
                                 background: currentTheme.success,
-                                color: currentTheme.secondary
+                                color: currentTheme.secondary,
                             };
                         }
                         if (Object.prototype.hasOwnProperty.call(op, "delete")) {
@@ -179,7 +179,7 @@ export default class PostEditsDialog extends Vue {
                                 ...op.attributes,
                                 background: currentTheme.warning,
                                 color: currentTheme.secondary,
-                                strike: true
+                                strike: true,
                             };
                         }
                     }
@@ -190,7 +190,7 @@ export default class PostEditsDialog extends Vue {
                     checkboxEdits.push({
                         ...currEdit,
                         squash: false,
-                        squashDisabled: false
+                        squashDisabled: false,
                     });
                 }
 
@@ -228,7 +228,7 @@ export default class PostEditsDialog extends Vue {
                 }
             }
         } else {
-            edits.forEach(x => (x.squashDisabled = false));
+            edits.forEach((x) => (x.squashDisabled = false));
         }
     }
 
@@ -245,7 +245,7 @@ export default class PostEditsDialog extends Vue {
             uiState.setNotificationDialog({
                 header: "Nope!",
                 text: "You should squash at least 2 edits!",
-                on: true
+                on: true,
             });
         } else {
             ApiWrapper.sendPutRequest(new SquashEdits(this.postHash, squashIds), () => {

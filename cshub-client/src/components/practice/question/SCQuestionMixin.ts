@@ -4,7 +4,7 @@ import { practiceState } from "../../../store";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
 
 @Component({
-    name: SCQuestionMixin.name
+    name: SCQuestionMixin.name,
 })
 export default class SCQuestionMixin extends Vue {
     private privScAnswer: number | null = this.getInitialScState();
@@ -36,8 +36,8 @@ export default class SCQuestionMixin extends Vue {
                 questionIndex,
                 answer: {
                     type: QuestionType.SINGLECLOSED,
-                    answerId: value
-                }
+                    answerId: value,
+                },
             });
         }
     }

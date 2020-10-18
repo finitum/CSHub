@@ -203,7 +203,7 @@ import {
     IRealtimeSelect,
     ServerCursorUpdated,
     ServerDataUpdated,
-    TogglePostJoin
+    TogglePostJoin,
 } from "../../../../cshub-shared/src/api-calls/realtime-edit";
 import { SocketWrapper } from "../../utilities/socket-wrapper";
 import { Routes } from "../../../../cshub-shared/src/Routes";
@@ -219,7 +219,7 @@ import { IUser } from "../../../../cshub-shared/src/entities/user";
 (window as any).Quill.register("modules/cursors", QuillCursors);
 
 @Component({
-    name: "QuillEditor"
+    name: "QuillEditor",
 })
 export default class QuillEditor extends Vue {
     /**
@@ -227,7 +227,7 @@ export default class QuillEditor extends Vue {
      */
     @Prop({
         required: true,
-        default: { allowEdit: true, showToolbar: true, postHash: -1 }
+        default: { allowEdit: true, showToolbar: true, postHash: -1 },
     })
     private editorSetup!: IQuillEditSetup;
 
@@ -262,14 +262,14 @@ export default class QuillEditor extends Vue {
         if (this.editorSetup.allowEdit) {
             // Check every 10 seconds if the edits are arriving
             this.checkingInterval = setInterval(() => {
-                const oldNewIntersect = new Set([...this.awaitingIds].filter(x => this.previousAwaitingIds.has(x)));
+                const oldNewIntersect = new Set([...this.awaitingIds].filter((x) => this.previousAwaitingIds.has(x)));
                 if (oldNewIntersect.size !== 0 && this.awaitingIds.size !== 0) {
                     this.$router.push(Routes.INDEX);
                     uiState.setNotificationDialog({
                         header: "Edit error!",
                         text:
                             "It seems like the server is not receiving our edits... Try again but refresh often to check whether the edits actually arrive at the server side",
-                        on: true
+                        on: true,
                     });
                 } else {
                     this.previousAwaitingIds = new Set(this.awaitingIds);
@@ -283,7 +283,7 @@ export default class QuillEditor extends Vue {
                     uiState.setNotificationDialog({
                         header: "Edit error!",
                         text: editOrError.message,
-                        on: true
+                        on: true,
                     });
                 } else {
                     const lastEdit = this.lastFewEdits[this.lastFewEdits.length - 1];
@@ -305,7 +305,7 @@ export default class QuillEditor extends Vue {
                         }
                     } else {
                         const index = this.lastFewEdits.findIndex(
-                            x => x.userGeneratedId === editOrError.edit.userGeneratedId
+                            (x) => x.userGeneratedId === editOrError.edit.userGeneratedId,
                         );
 
                         if (index !== -1) {
@@ -351,9 +351,9 @@ export default class QuillEditor extends Vue {
                     postHash: this.editorSetup.postHash,
                     selection: {
                         index: 0,
-                        length: 0
+                        length: 0,
                     },
-                    active: true
+                    active: true,
                 };
             }
 
@@ -367,13 +367,13 @@ export default class QuillEditor extends Vue {
                             delta: serverData.delta,
                             timestamp: serverData.timestamp,
                             serverGeneratedId: serverData.serverGeneratedId,
-                            userGeneratedId: serverData.userGeneratedId
+                            userGeneratedId: serverData.userGeneratedId,
                         });
 
                         this.setupQuill(serverData.delta, selects);
-                    }
+                    },
                 ),
-                this.$socket
+                this.$socket,
             );
         } else {
             this.setupQuill(this.initialValueProp, []);
@@ -419,7 +419,7 @@ export default class QuillEditor extends Vue {
                 this.sockets.unsubscribe(ServerDataUpdated.getURL);
                 this.sockets.unsubscribe(ServerCursorUpdated.getURL);
             }),
-            this.$socket
+            this.$socket,
         );
     }
 
@@ -578,7 +578,7 @@ export default class QuillEditor extends Vue {
                 userId: this.userId,
                 prevServerGeneratedId: prevServerId,
                 userGeneratedId: randomNumberLarge,
-                prevUserGeneratedId: prevUserId
+                prevUserGeneratedId: prevUserId,
             };
 
             this.lastFewEdits.push(userEdit);
@@ -609,9 +609,9 @@ export default class QuillEditor extends Vue {
                 SocketWrapper.emitSocket(
                     new ClientCursorUpdated({
                         ...this.myCursor,
-                        selection: range
+                        selection: range,
                     }),
-                    this.$socket
+                    this.$socket,
                 );
             }
 

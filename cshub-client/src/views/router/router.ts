@@ -41,60 +41,60 @@ const router = new Router({
         {
             path: Routes.INDEX,
             name: "index",
-            component: PostView
+            component: PostView,
         },
         {
             path: Routes.LOGIN,
             name: "login",
             component: LoginScreen,
-            beforeEnter: onlyIfNotLoggedIn
+            beforeEnter: onlyIfNotLoggedIn,
         },
         {
             path: Routes.CREATEACCOUNT,
             name: "createaccount",
             component: CreateAccount,
-            beforeEnter: onlyIfNotLoggedIn
+            beforeEnter: onlyIfNotLoggedIn,
         },
         {
             path: Routes.POSTCREATE,
             name: "postcreate",
             component: PostCreate,
-            beforeEnter: userBeforeEnter
+            beforeEnter: userBeforeEnter,
         },
         {
             path: `${Routes.POST}/:hash`,
             name: "post",
-            component: PostView
+            component: PostView,
         },
         {
             path: `${Routes.POST}/:hash/edit`,
             name: "postEdit",
-            component: PostView
+            component: PostView,
         },
         {
             path: `${Routes.POST}/:hash/edits`,
             name: "postEdits",
-            component: PostView
+            component: PostView,
         },
         {
             path: `${Routes.POST}/:hash/save`,
             name: "postSave",
-            component: PostView
+            component: PostView,
         },
         {
             path: `${Routes.TOPIC}/:hash`,
             name: "topic",
-            component: PostView
+            component: PostView,
         },
         {
             path: `${Routes.TOPIC}/:hash/practice`,
             name: "topicpractice",
-            component: PostView
+            component: PostView,
         },
         {
             path: `${Routes.TOPIC}/:hash/examples`,
             name: "topicexamples",
-            component: PostView
+            component: PostView,
         },
         {
             path: `${Routes.QUESTION}`,
@@ -103,64 +103,64 @@ const router = new Router({
                 {
                     path: ":index",
                     name: "currentQuestion",
-                    component: CurrentPracticeQuestion
+                    component: CurrentPracticeQuestion,
                 },
                 {
                     path: "",
                     name: "questionFallback",
-                    redirect: "0"
-                }
-            ]
+                    redirect: "0",
+                },
+            ],
         },
         {
             path: Routes.SEARCH,
             name: "search",
-            component: PostsSearch
+            component: PostsSearch,
         },
         {
             path: Routes.WIPPOSTS,
             name: "wip",
-            component: WIPPosts
+            component: WIPPosts,
         },
         {
             path: Routes.USERDASHBOARD,
             name: "user",
             component: UserDashboard,
-            beforeEnter: userBeforeEnter
+            beforeEnter: userBeforeEnter,
         },
         {
             path: Routes.UNSAVEDPOSTS,
             name: "unsavedposts",
             component: UnsavedPosts,
-            beforeEnter: userBeforeEnter
+            beforeEnter: userBeforeEnter,
         },
         {
             path: Routes.UNSAVEDQUESTIONS,
             name: "unsavedquestions",
             component: UnsavedQuestions,
-            beforeEnter: userBeforeEnter
+            beforeEnter: userBeforeEnter,
         },
         {
             path: Routes.FORGOTPASSWORD,
             name: "forgotpassword",
-            component: ForgotPasswordComp
+            component: ForgotPasswordComp,
         },
         {
             path: Routes.ADMINDASHBOARD,
             name: "admin",
             component: AdminDashboard,
-            beforeEnter: adminBeforeEnter
+            beforeEnter: adminBeforeEnter,
         },
         {
             path: "*",
             name: "wildcard",
-            component: PostView
-        }
-    ]
+            component: PostView,
+        },
+    ],
 });
 
 router.beforeEach((to: Route, from: Route, next) => {
-    setupRequiredDataGuard().then(shouldWeContinue => {
+    setupRequiredDataGuard().then((shouldWeContinue) => {
         if (shouldWeContinue) {
             if (!userState.hasCheckedToken) {
                 ApiWrapper.sendGetRequest(
@@ -182,7 +182,7 @@ router.beforeEach((to: Route, from: Route, next) => {
                     (err: AxiosError) => {
                         dataState.setConnection(false);
                         next();
-                    }
+                    },
                 );
             } else {
                 next();
@@ -191,7 +191,8 @@ router.beforeEach((to: Route, from: Route, next) => {
             uiState.setNotificationDialog({
                 on: true,
                 header: "No studies / topics found :(",
-                text: "Our request for studies or topics returned nothing, so we can't continue now, please report this"
+                text:
+                    "Our request for studies or topics returned nothing, so we can't continue now, please report this",
             });
         }
     });

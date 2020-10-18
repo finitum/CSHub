@@ -38,7 +38,7 @@ export const colorize = (collection: any, codemirror: any) => {
         textContent(node, text);
         node.innerHTML = "";
         codemirror.runMode(text.join(""), mode, node, {
-            theme
+            theme,
         });
 
         node.className = `cm-s-${theme}`;

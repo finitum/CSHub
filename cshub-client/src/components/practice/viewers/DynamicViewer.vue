@@ -16,32 +16,32 @@ import { mixins } from "vue-class-component";
 import ViewerMixin from "./ViewerMixin";
 import {
     VariableExpression,
-    VariableValue
+    VariableValue,
 } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/Variable";
 import { evaluate, generateVariableValues } from "../../../../../cshub-shared/src/utilities/DynamicQuestionUtils";
 import { replaceVariablesByValues } from "../DynamicQuestionUtils";
 
 @Component({
-    name: DynamicViewer.name
+    name: DynamicViewer.name,
 })
 export default class DynamicViewer extends mixins(ViewerMixin) {
     @Prop({
-        required: true
+        required: true,
     })
     private question!: string;
 
     @Prop({
-        required: true
+        required: true,
     })
     private explanation!: string;
 
     @Prop({
-        required: true
+        required: true,
     })
     private answerExpression!: string;
 
     @Prop({
-        required: true
+        required: true,
     })
     private variableExpressions!: VariableExpression[];
 

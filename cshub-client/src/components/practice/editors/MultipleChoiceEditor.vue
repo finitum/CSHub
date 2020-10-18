@@ -93,7 +93,7 @@ import { QuestionType } from "../../../../../cshub-shared/src/entities/question"
 import { AddQuestion, EditQuestion } from "../../../../../cshub-shared/src/api-calls/endpoints/question";
 import {
     FullClosedAnswerType,
-    FullQuestion
+    FullQuestion,
 } from "../../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import MultipleChoiceViewer from "../viewers/MultipleChoiceViewer.vue";
 import { EventBus, QUESTIONS_CHANGED } from "../../../utilities/EventBus";
@@ -103,38 +103,38 @@ const emptyAnswer = (): FullClosedAnswerType => {
     return {
         correct: false,
         answerText: "",
-        answerId: 0
+        answerId: 0,
     };
 };
 
 @Component({
     name: "MultipleChoiceEditor",
     components: { MultipleChoiceViewer },
-    inject: ["$validator"]
+    inject: ["$validator"],
 })
 export default class MultipleChoiceEditor extends Vue {
     @Prop({
-        required: false
+        required: false,
     })
     private propMultipleCorrect?: boolean;
 
     @Prop({
-        required: false
+        required: false,
     })
     private propQuestion?: string;
 
     @Prop({
-        required: false
+        required: false,
     })
     private propExplanation?: string;
 
     @Prop({
-        required: false
+        required: false,
     })
     private propAnswers?: FullClosedAnswerType[];
 
     @Prop({
-        required: true
+        required: true,
     })
     private isEditing!: false | number;
 
@@ -143,7 +143,7 @@ export default class MultipleChoiceEditor extends Vue {
     private explanation = this.propExplanation || "";
 
     private privAnswers: FullClosedAnswerType[] = this.propAnswers || [emptyAnswer(), emptyAnswer()];
-    private privRadioAnswer: number = this.propAnswers ? this.propAnswers.findIndex(answer => answer.correct) : 0;
+    private privRadioAnswer: number = this.propAnswers ? this.propAnswers.findIndex((answer) => answer.correct) : 0;
 
     private readonly minimumLength = 2;
 
@@ -169,7 +169,7 @@ export default class MultipleChoiceEditor extends Vue {
         this.privRadioAnswer = value;
 
         if (!this.multipleCorrect) {
-            this.privAnswers.forEach(answer => (answer.correct = false));
+            this.privAnswers.forEach((answer) => (answer.correct = false));
             this.privAnswers[value].correct = true;
         }
     }
@@ -190,7 +190,7 @@ export default class MultipleChoiceEditor extends Vue {
                 question: this.question,
                 explanation: this.explanation,
                 type: this.multipleCorrect ? QuestionType.MULTICLOSED : QuestionType.SINGLECLOSED,
-                answers: this.answers
+                answers: this.answers,
             };
 
             if (this.isEditing) {
@@ -202,7 +202,7 @@ export default class MultipleChoiceEditor extends Vue {
             uiState.setNotificationDialog({
                 header: "Saved",
                 text: "Saved question, it will be reviewed by an admin soon!",
-                on: true
+                on: true,
             });
 
             this.answers = [emptyAnswer(), emptyAnswer()];

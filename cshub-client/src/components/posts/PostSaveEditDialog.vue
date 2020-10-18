@@ -98,7 +98,7 @@ import { ITopic } from "../../../../cshub-shared/src/entities/topic";
 
 @Component({
     name: "PostSaveEditDialog",
-    components: { Quill }
+    components: { Quill },
 })
 export default class PostSaveEditDialog extends Vue {
     /**
@@ -201,7 +201,7 @@ export default class PostSaveEditDialog extends Vue {
                                     op.attributes = {
                                         ...op.attributes,
                                         background: currentTheme.success,
-                                        color: currentTheme.secondary
+                                        color: currentTheme.secondary,
                                     };
                                 }
                                 if (Object.prototype.hasOwnProperty.call(op, "delete")) {
@@ -211,7 +211,7 @@ export default class PostSaveEditDialog extends Vue {
                                         ...op.attributes,
                                         background: currentTheme.warning,
                                         color: currentTheme.secondary,
-                                        strike: true
+                                        strike: true,
                                     };
                                 }
                             }
@@ -244,13 +244,13 @@ export default class PostSaveEditDialog extends Vue {
                     uiState.setNotificationDialog({
                         on: true,
                         header: "Edited post",
-                        text: "Post was edited successfully"
+                        text: "Post was edited successfully",
                     });
                 } else if (status === 204) {
                     uiState.setNotificationDialog({
                         on: true,
                         header: "Didn't edit post",
-                        text: "There was nothing to update!"
+                        text: "There was nothing to update!",
                     });
                 } else {
                     logStringConsole("Editing post returned unexpected status code");
@@ -259,9 +259,9 @@ export default class PostSaveEditDialog extends Vue {
                 this.dialogActive = {
                     on: false,
                     hash: -1,
-                    hasJustSaved: true
+                    hasJustSaved: true,
                 };
-            }
+            },
         );
     }
 
@@ -274,15 +274,15 @@ export default class PostSaveEditDialog extends Vue {
                 uiState.setNotificationDialog({
                     on: true,
                     header: "Deleted edit",
-                    text: "Edit was successfully deleted"
+                    text: "Edit was successfully deleted",
                 });
 
                 this.dialogActive = {
                     on: false,
                     hash: -1,
-                    hasJustSaved: false
+                    hasJustSaved: false,
                 };
-            }
+            },
         );
     }
 }

@@ -133,7 +133,7 @@ import { ApiWrapper } from "../../utilities";
 import {
     GetFullQuestion,
     QuestionSettings,
-    QuestionSettingsEditType
+    QuestionSettingsEditType,
 } from "../../../../cshub-shared/src/api-calls/endpoints/question";
 import { FullQuestionWithId } from "../../../../cshub-shared/src/api-calls/endpoints/question/models/FullQuestion";
 import OpenTextViewer from "./viewers/OpenTextViewer.vue";
@@ -159,8 +159,8 @@ import MultipleChoiceEditor from "./editors/MultipleChoiceEditor.vue";
         DynamicEditor,
         OpenNumberEditor,
         OpenTextEditor,
-        MultipleChoiceEditor
-    }
+        MultipleChoiceEditor,
+    },
 })
 export default class QuestionListItem extends mixins(QuestionListItemMixin, ViewerMixin) {
     private replacesQuestion: FullQuestionWithId | null = null;
@@ -169,13 +169,13 @@ export default class QuestionListItem extends mixins(QuestionListItemMixin, View
     private editQuestionDialog = false;
 
     private created() {
-        ApiWrapper.get(new GetFullQuestion(this.questionId)).then(question => {
+        ApiWrapper.get(new GetFullQuestion(this.questionId)).then((question) => {
             if (question) {
                 this.question = question.question;
             }
 
             if (this.question && this.question.replacesQuestion) {
-                ApiWrapper.get(new GetFullQuestion(this.question.replacesQuestion)).then(replacesQuestion => {
+                ApiWrapper.get(new GetFullQuestion(this.question.replacesQuestion)).then((replacesQuestion) => {
                     this.replacesQuestion = replacesQuestion !== null ? replacesQuestion.question : null;
                 });
             }

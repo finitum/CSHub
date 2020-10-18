@@ -7,7 +7,7 @@ import { Watch } from "vue-property-decorator";
 type MCAnswerType = { [index: number]: boolean };
 
 @Component({
-    name: MCQuestionMixin.name
+    name: MCQuestionMixin.name,
 })
 export default class MCQuestionMixin extends Vue {
     private privMcAnswers: MCAnswerType = this.getInitialMcState();
@@ -19,11 +19,11 @@ export default class MCQuestionMixin extends Vue {
                 if (answer.type === QuestionType.MULTICLOSED) {
                     const correctAnswers: MCAnswerType = {};
 
-                    answer.answerIds.forEach(answer => (correctAnswers[answer] = true));
+                    answer.answerIds.forEach((answer) => (correctAnswers[answer] = true));
 
                     return {
                         ...this.privMcAnswers,
-                        ...correctAnswers
+                        ...correctAnswers,
                     };
                 }
             }
@@ -33,7 +33,7 @@ export default class MCQuestionMixin extends Vue {
     }
 
     @Watch("privMcAnswers", {
-        deep: true
+        deep: true,
     })
     private onPrivMcAnswersUpdate(value: MCAnswerType) {
         const questionIndex = +this.$route.params.index;
@@ -49,8 +49,8 @@ export default class MCQuestionMixin extends Vue {
             questionIndex,
             answer: {
                 type: QuestionType.MULTICLOSED,
-                answerIds: answerIds
-            }
+                answerIds: answerIds,
+            },
         });
     }
 

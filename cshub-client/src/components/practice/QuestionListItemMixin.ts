@@ -5,11 +5,11 @@ import { Prop } from "vue-property-decorator";
 import { QuestionType } from "../../../../cshub-shared/src/entities/question";
 
 @Component({
-    name: QuestionListItemMixin.name
+    name: QuestionListItemMixin.name,
 })
 export default class QuestionListItemMixin extends Vue {
     @Prop({
-        required: true
+        required: true,
     })
     public questionId!: number;
 

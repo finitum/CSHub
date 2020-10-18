@@ -90,13 +90,13 @@ import {
     ForgotPasswordMailResponseTypes,
     Login,
     LoginCallBack,
-    LoginResponseTypes
+    LoginResponseTypes,
 } from "../../../../cshub-shared/src/api-calls/index";
 import { Routes } from "../../../../cshub-shared/src/Routes";
 import { IEmailDomain } from "../../../../cshub-shared/src/entities/emaildomains";
 import {
     GetEmailDomains,
-    GetEmailDomainsCallback
+    GetEmailDomainsCallback,
 } from "../../../../cshub-shared/src/api-calls/endpoints/emaildomains";
 
 import router from "../router/router";
@@ -105,7 +105,7 @@ import { Route } from "vue-router";
 
 @Component({
     name: "LoginScreen",
-    inject: ["$validator"]
+    inject: ["$validator"],
 })
 export default class LoginScreen extends Vue {
     /**
@@ -122,7 +122,7 @@ export default class LoginScreen extends Vue {
         passwordvisible: false,
         passworderror: "",
         globalerror: "",
-        rememberuser: false
+        rememberuser: false,
     };
     private forgotPassword = false;
 
@@ -179,7 +179,7 @@ export default class LoginScreen extends Vue {
 
     public metaInfo(): any {
         return {
-            title: "Login - CSHub"
+            title: "Login - CSHub",
         };
     }
 
@@ -189,7 +189,7 @@ export default class LoginScreen extends Vue {
     private forgotPasswordSend() {
         this.$validator.validateAll().then((allValid: boolean) => {
             if (allValid) {
-                const emailDomain = this.emailDomains.filter(i => i.id === this.emailDomain)[0];
+                const emailDomain = this.emailDomains.filter((i) => i.id === this.emailDomain)[0];
                 ApiWrapper.sendPostRequest(
                     new ForgotPasswordMail(this.userData.email, emailDomain),
                     (result: ForgotPasswordMailCallback) => {
@@ -197,13 +197,13 @@ export default class LoginScreen extends Vue {
                             uiState.setNotificationDialog({
                                 on: true,
                                 header: "Mail sent",
-                                text: "The password reset mail has been sent."
+                                text: "The password reset mail has been sent.",
                             });
                             this.forgotPassword = false;
                         } else {
                             this.userData.emailerror = "Unknown email address";
                         }
-                    }
+                    },
                 );
             } else {
                 this.popup();
@@ -215,7 +215,7 @@ export default class LoginScreen extends Vue {
         uiState.setNotificationDialog({
             on: true,
             header: `You forgot to fill out some fields`,
-            text: ""
+            text: "",
         });
     }
 
@@ -226,7 +226,7 @@ export default class LoginScreen extends Vue {
                     new Login(
                         this.userData.email,
                         this.userData.password,
-                        this.emailDomains.filter(i => i.id === this.emailDomain)[0]
+                        this.emailDomains.filter((i) => i.id === this.emailDomain)[0],
                     ),
                     (callbackData: LoginCallBack) => {
                         if (callbackData.response === LoginResponseTypes.SUCCESS && callbackData.userModel) {
@@ -254,7 +254,7 @@ export default class LoginScreen extends Vue {
                             this.userData.passworderror = "Invalid input.";
                             this.userData.emailerror = "Invalid input.";
                         }
-                    }
+                    },
                 );
             } else {
                 this.popup();

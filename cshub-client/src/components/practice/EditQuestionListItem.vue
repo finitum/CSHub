@@ -61,7 +61,7 @@ import { ApiWrapper } from "../../utilities";
 import {
     GetFullQuestion,
     QuestionSettings,
-    QuestionSettingsEditType
+    QuestionSettingsEditType,
 } from "../../../../cshub-shared/src/api-calls/endpoints/question";
 import { mixins } from "vue-class-component";
 import QuestionListItemMixin from "./QuestionListItemMixin";
@@ -73,7 +73,7 @@ import DynamicEditor from "./editors/DynamicEditor.vue";
 
 @Component({
     name: QuestionListItem.name,
-    components: { DynamicEditor, OpenNumberEditor, OpenTextEditor, MultipleChoiceEditor }
+    components: { DynamicEditor, OpenNumberEditor, OpenTextEditor, MultipleChoiceEditor },
 })
 export default class QuestionListItem extends mixins(QuestionListItemMixin) {
     private editQuestionDialog = false;
@@ -83,7 +83,7 @@ export default class QuestionListItem extends mixins(QuestionListItemMixin) {
     }
 
     private mounted() {
-        ApiWrapper.get(new GetFullQuestion(this.questionId)).then(question => {
+        ApiWrapper.get(new GetFullQuestion(this.questionId)).then((question) => {
             if (question) {
                 this.question = question.question;
             }

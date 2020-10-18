@@ -21,7 +21,7 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 
 @Component({
-    name: EditorAccordion.name
+    name: EditorAccordion.name,
 })
 export default class EditorAccordion extends Vue {
     @Prop({ required: true })

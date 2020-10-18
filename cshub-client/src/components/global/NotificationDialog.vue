@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="notificationDialogComputed.on" persistent max-width="500" style="z-index:99999">
+    <v-dialog v-model="notificationDialogComputed.on" persistent max-width="500" style="z-index: 99999">
         <v-card>
             <v-card-title class="headline">{{ notificationDialogComputed.header }}</v-card-title>
             <v-card-text v-for="text in notificationDialogText" :key="text.index" class="cardText">{{
@@ -29,7 +29,7 @@ import { uiState } from "../../store";
 import { notificationDialogType } from "../../store/state/uiState";
 
 @Component({
-    name: "NotificationDialog"
+    name: "NotificationDialog",
 })
 export default class NotificationDialog extends Vue {
     /**

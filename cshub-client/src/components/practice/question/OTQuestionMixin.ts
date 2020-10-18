@@ -4,7 +4,7 @@ import { practiceState } from "../../../store";
 import { QuestionType } from "../../../../../cshub-shared/src/entities/question";
 
 @Component({
-    name: OTQuestionMixin.name
+    name: OTQuestionMixin.name,
 })
 export default class OTQuestionMixin extends Vue {
     private privOtAnswer: string | null = this.getInitialOtState();
@@ -20,8 +20,8 @@ export default class OTQuestionMixin extends Vue {
                 questionIndex,
                 answer: {
                     type: QuestionType.OPENTEXT,
-                    text: value
-                }
+                    text: value,
+                },
             });
         }
     }

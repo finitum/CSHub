@@ -16,7 +16,7 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 
 @Component({
-    name: "NavDrawerItem"
+    name: "NavDrawerItem",
 })
 export default class NavDrawerItem extends Vue {
     /**
