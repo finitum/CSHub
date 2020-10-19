@@ -14,11 +14,11 @@ export function savePost(
     return new Promise((resolve) => {
         const virtualConsole = new VirtualConsole();
         virtualConsole.on("error", (err) => {
-            logger.info(err);
+            logger.error(`Virtual console: ${err}`);
         });
 
         virtualConsole.on("warn", (warn) => {
-            logger.info(warn);
+            logger.warn(`Virtual console: ${warn}`);
         });
 
         const jsdom = new JSDOM(
@@ -47,9 +47,8 @@ export function savePost(
         };
 
         window.onerror = (err) => {
-            logger.info("JSDOM Save errors");
-            logger.info(err.toString());
-            process.emit("warning", err as any);
+            logger.error("JSDOM Save errors");
+            logger.error(err.toString());
         };
 
         window.onload = () => {
@@ -61,7 +60,10 @@ export function savePost(
             };
             const quillWindow = (window as any).Quill;
 
-            const options = QuillDefaultOptions;
+            const options: any = QuillDefaultOptions;
+            delete options.modules.cursors;
+            delete options.modules.resize;
+
             const quill = new quillWindow(container, options);
             const markdownParser = new MarkdownLatexQuill(quillWindow);
             markdownParser.registerQuill();
