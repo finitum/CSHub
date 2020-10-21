@@ -13,7 +13,7 @@ import { getRepository } from "typeorm";
 import { Edit } from "../../db/entities/edit";
 import { Post } from "../../db/entities/post";
 import { Topic } from "../../db/entities/topic";
-import { savePost } from "./EditsHandler";
+import cp from "child_process";
 
 export function registerEditPostEndpoint(app: Application): void {
     app.put(EditPost.getURL, async (req: Request, res: Response) => {
@@ -120,7 +120,8 @@ export function registerEditPostEndpoint(app: Application): void {
                     return res.status(409).json(new ServerError("Post with name in this topic already exists"));
                 }
 
-                savePost(delta).then(async (htmlAndIndex) => {
+                const child = cp.fork(`${__dirname}/EditsHandler`);
+                child.on("message", async (htmlAndIndex) => {
                     if (htmlAndIndex.html && htmlAndIndex.indexWords) {
                         await query(
                             `
@@ -154,8 +155,11 @@ export function registerEditPostEndpoint(app: Application): void {
 
                         logger.info("Edited post succesfully");
                         res.sendStatus(200);
+
+                        child.kill("SIGKILL");
                     }
                 });
+                child.send(delta);
             } catch (err) {
                 logger.error(`Editing failed`);
                 logger.error(err);
