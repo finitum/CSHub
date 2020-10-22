@@ -1,32 +1,33 @@
-import { Request, Response } from "express";
+import { Application, Request } from "express";
 import dayjs from "dayjs";
 
 import { IJWTToken } from "../../../cshub-shared/src/models";
 
-import { app } from "../index";
 import { sign, validateAccessToken } from "./JWTHandler";
 import { Settings } from "../settings";
 import { logMiddleware } from "../utilities/LoggingMiddleware";
 
-app.use((req: Request, res: Response, next: Function) => {
-    const tokenValidity = checkTokenValidityFromRequest(req);
+export function addAuthMiddleware(app: Application): void {
+    app.use((req, res, next) => {
+        const tokenValidity = checkTokenValidityFromRequest(req);
 
-    if (tokenValidity) {
-        const newtoken: string = sign(tokenValidity.user);
+        if (tokenValidity) {
+            const newtoken: string = sign(tokenValidity.user);
 
-        res.cookie("token", newtoken, {
-            maxAge: Settings.TOKENAGEMILLISECONDS,
-            domain: Settings.DOMAIN
-        });
+            res.cookie("token", newtoken, {
+                maxAge: Settings.TOKENAGEMILLISECONDS,
+                domain: Settings.DOMAIN,
+            });
 
-        logMiddleware(req, tokenValidity);
-    } else {
-        logMiddleware(req, null);
-        res.clearCookie("token");
-    }
+            logMiddleware(req, tokenValidity);
+        } else {
+            logMiddleware(req, null);
+            res.clearCookie("token");
+        }
 
-    next();
-});
+        next();
+    });
+}
 
 export type ValidationType = false | IJWTToken;
 

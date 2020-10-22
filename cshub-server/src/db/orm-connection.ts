@@ -13,10 +13,11 @@ import fs from "fs";
 import logger from "../utilities/Logger";
 import { CacheVersion } from "./entities/cacheversion";
 import { Question } from "./entities/practice/question";
-import { app } from "../index";
 import { Answer } from "./entities/practice/answer";
 import { EmailDomain } from "./entities/emaildomain";
 import { Variable } from "./entities/practice/variable";
+import { query } from "./database-query";
+import * as cluster from "cluster";
 
 class CustomLogger implements Logger {
     log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {
@@ -55,10 +56,11 @@ export const connectDb = (): Promise<void> => {
         charset: "utf8mb4",
         logger: new CustomLogger(),
         entities: [User, Topic, Post, Edit, Study, Answer, Question, CacheVersion, EmailDomain, Variable],
-        synchronize: !Settings.LIVE // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
+        synchronize: !Settings.LIVE && cluster.isMaster, // DON'T RUN THIS LIVE, THIS WILL CHANGE SCHEMA
     };
 
     if (Settings.USESSH) {
+        const localPort = cluster.isWorker ? cluster.worker.id : 0;
         const sshConfig = {
             username: Settings.SSH.USER,
             privateKey: fs.readFileSync(Settings.SSH.PRIVATEKEYLOCATION),
@@ -67,10 +69,10 @@ export const connectDb = (): Promise<void> => {
             dstHost: "localhost",
             dstPort: 3306,
             localHost: "localhost",
-            localPort: Settings.DATABASE.PORT
+            localPort: Settings.DATABASE.PORT + localPort,
         };
 
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             tunnel(sshConfig, (error, server) => {
                 if (error) {
                     throw error;
@@ -78,15 +80,22 @@ export const connectDb = (): Promise<void> => {
 
                 createConnection(options)
                     .then(() => {
+                        setInterval(() => {
+                            query("SELECT 1");
+                        }, 60 * 5 * 1000);
                         resolve();
                     })
-                    .catch(reason => logger.error(reason));
+                    .catch((reason) => logger.error(reason));
             });
         });
     } else {
         return createConnection(options)
-            .then(() => {})
-            .catch(reason => {
+            .then(() => {
+                setInterval(() => {
+                    query("SELECT 1");
+                }, 60 * 5 * 1000);
+            })
+            .catch((reason) => {
                 logger.error(reason);
             });
     }

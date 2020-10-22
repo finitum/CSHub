@@ -1,41 +1,42 @@
-import { app } from "../../";
-import { Request, Response } from "express";
+import { Application, Request, Response } from "express";
 import { DatabaseResultSet, query } from "../../db/database-query";
 import { PostSettings, PostSettingsEditType } from "../../../../cshub-shared/src/api-calls";
 import { hasAccessToPostRequest } from "../../auth/validateRights/PostAccess";
 import { ServerError } from "../../../../cshub-shared/src/models/ServerError";
 import logger from "../../utilities/Logger";
 
-app.put(PostSettings.getURL, async (req: Request, res: Response) => {
-    const postHash: number = +req.params.hash;
-    const action: string = req.params.action;
+export function registerPostSettingsEndpoint(app: Application): void {
+    app.put(PostSettings.getURL, async (req: Request, res: Response) => {
+        const postHash: number = +req.params.hash;
+        const action: string = req.params.action;
 
-    if (typeof action === "undefined" || isNaN(postHash)) {
-        res.sendStatus(400);
-        return;
-    }
-
-    hasAccessToPostRequest(postHash, req).then(async access => {
-        switch (action) {
-            case PostSettingsEditType[PostSettingsEditType.HIDE].toLowerCase():
-                if (access.canSave) {
-                    deletePost(res, postHash);
-                } else {
-                    res.status(403).send();
-                }
-                break;
-            case PostSettingsEditType[PostSettingsEditType.WIP].toLowerCase():
-                if (access.canSave) {
-                    await wipPost(res, postHash);
-                } else {
-                    res.status(403).send();
-                }
-                break;
-            default:
-                res.status(400).json(new ServerError("Did not understand the PostSettingsEditType"));
+        if (typeof action === "undefined" || isNaN(postHash)) {
+            res.sendStatus(400);
+            return;
         }
+
+        hasAccessToPostRequest(postHash, req).then(async (access) => {
+            switch (action) {
+                case PostSettingsEditType[PostSettingsEditType.HIDE].toLowerCase():
+                    if (access.canSave) {
+                        deletePost(res, postHash);
+                    } else {
+                        res.status(403).send();
+                    }
+                    break;
+                case PostSettingsEditType[PostSettingsEditType.WIP].toLowerCase():
+                    if (access.canSave) {
+                        await wipPost(res, postHash);
+                    } else {
+                        res.status(403).send();
+                    }
+                    break;
+                default:
+                    res.status(400).json(new ServerError("Did not understand the PostSettingsEditType"));
+            }
+        });
     });
-});
+}
 
 async function isWip(postHash: number): Promise<boolean> {
     const result: DatabaseResultSet = await query(
@@ -44,7 +45,7 @@ async function isWip(postHash: number): Promise<boolean> {
         FROM posts
         WHERE hash = ?
     `,
-        postHash
+        postHash,
     );
 
     return result.getNumberFromDB("wip") === 1;
@@ -61,12 +62,12 @@ const wipPost = async (res: Response, postHash: number) => {
         WHERE hash = ?
     `,
         !isCurrentlyWip,
-        postHash
+        postHash,
     )
         .then(() => {
             res.json();
         })
-        .catch(reason => {
+        .catch((reason) => {
             logger.error(reason);
             res.sendStatus(500);
         });
@@ -80,12 +81,12 @@ const deletePost = (res: Response, postHash: number) => {
             deleted     = 1
         WHERE hash = ?
     `,
-        postHash
+        postHash,
     )
         .then(() => {
             res.json();
         })
-        .catch(reason => {
+        .catch((reason) => {
             logger.error(reason);
             res.sendStatus(500);
         });

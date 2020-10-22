@@ -5,7 +5,7 @@ import { Requests } from "../../Requests";
 export enum ChangePasswordResponseTypes {
     INVALIDINPUT,
     SUCCESS,
-    WRONGPASSWORD
+    WRONGPASSWORD,
 }
 
 export class ChangePasswordCallback {

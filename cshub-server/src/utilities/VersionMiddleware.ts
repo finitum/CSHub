@@ -1,26 +1,27 @@
-import { app } from "../index";
-import { Request, Response } from "express";
 import logger from "../utilities/Logger";
 import { readFileSync } from "fs";
 import { ServerError } from "../../../cshub-shared/src/models/ServerError";
+import { Application } from "express";
 
 const SHA = JSON.parse(readFileSync("./package.json").toString())["gitSHA"];
 
-app.use((req: Request, res: Response, next: Function) => {
-    const headerVersion = req.header("Version");
-    const versionMatch = SHA === headerVersion || typeof headerVersion === "undefined";
+export function addVersionMiddleware(app: Application): void {
+    app.use((req, res, next) => {
+        const headerVersion = req.header("Version");
+        const versionMatch = SHA === headerVersion || typeof headerVersion === "undefined";
 
-    const msg = versionMatch ? "Versions match" : "Version mismatch";
+        const msg = versionMatch ? "Versions match" : "Version mismatch";
 
-    if (!versionMatch) {
-        logger.info(msg);
-        res.status(500).send(
-            new ServerError(
-                "There was a version mismatch between the server and client, this could mean you run an outdated version, which can be fixed by refreshing / force refreshing",
-                true
-            )
-        );
-    } else {
-        next();
-    }
-});
+        if (!versionMatch) {
+            logger.info(msg);
+            res.status(500).send(
+                new ServerError(
+                    "There was a version mismatch between the server and client, this could mean you run an outdated version, which can be fixed by refreshing / force refreshing",
+                    true,
+                ),
+            );
+        } else {
+            next();
+        }
+    });
+}

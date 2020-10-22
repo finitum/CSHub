@@ -14,15 +14,15 @@ interface QueueType {
 export class DataList {
     private readonly editQueues: { [postId: number]: QueueType } = {};
 
-    public addPost(postHash: number) {
+    public addPost(postHash: number): void {
         this.editQueues[postHash] = {
             toAdd: [],
             fullList: [],
-            isAsyncRunning: false
+            isAsyncRunning: false,
         };
     }
 
-    public addPostEdit(newEdit: IRealtimeEdit) {
+    public addPostEdit(newEdit: IRealtimeEdit): void {
         const queue = this.getTodoQueue(newEdit.postHash);
 
         if (queue === null) {
@@ -37,13 +37,13 @@ export class DataList {
 
                 async.whilst(
                     () => queue.toAdd.length !== 0,
-                    next => {
+                    (next) => {
                         logger.verbose("Handling edit");
                         this.handleSave(next, queue);
                     },
                     () => {
                         queue.isAsyncRunning = false;
-                    }
+                    },
                 );
             }
 
@@ -56,7 +56,7 @@ export class DataList {
     private handleSave(next: () => void, queue: QueueType): void {
         const currRecord = queue.toAdd[0];
 
-        new Promise(resolve => resolve())
+        new Promise((resolve) => resolve())
             .then(() => {
                 return query(
                     `
@@ -70,10 +70,10 @@ export class DataList {
                   ORDER BY datetime DESC
                   LIMIT 1
                 `,
-                    currRecord.postHash
+                    currRecord.postHash,
                 );
             })
-            .then(lastEdit => {
+            .then((lastEdit) => {
                 const isApproved = lastEdit.getLength() === 0 || lastEdit.getNumberFromDB("approved") === 1;
 
                 try {
@@ -90,7 +90,7 @@ export class DataList {
                               datetime = NOW()
                         `,
                             currRecord.postHash,
-                            JSON.stringify(currRecord.delta)
+                            JSON.stringify(currRecord.delta),
                         ).then(() => {
                             if (currRecord.userId) {
                                 return this.insertUserIntoEdit(currRecord.postHash, currRecord.userId);
@@ -111,7 +111,7 @@ export class DataList {
                           LIMIT 1
                         `,
                             JSON.stringify(toBeSavedEdit),
-                            currRecord.postHash
+                            currRecord.postHash,
                         ).then(() => {
                             if (currRecord.userId) {
                                 return this.insertUserIntoEdit(currRecord.postHash, currRecord.userId);
@@ -122,7 +122,7 @@ export class DataList {
                     logger.error(
                         `Error with saving realtime edit (inserting), postHash: ${
                             queue.toAdd[0].postHash
-                        }, delta: ${JSON.stringify(queue.toAdd[0].delta)}, queue:`
+                        }, delta: ${JSON.stringify(queue.toAdd[0].delta)}, queue:`,
                     );
                     logger.error(JSON.stringify(queue));
                     logger.error(e);
@@ -133,7 +133,7 @@ export class DataList {
                 logger.verbose(
                     `DONE inserting edit from time ${currRecord.timestamp} and user ${currRecord.userId} with id ${
                         currRecord.userGeneratedId
-                    } and delta ${JSON.stringify(currRecord.delta)}`
+                    } and delta ${JSON.stringify(currRecord.delta)}`,
                 );
                 next();
             });
@@ -157,8 +157,8 @@ export class DataList {
           ON DUPLICATE KEY UPDATE usersId=usersId;
         `,
             postHash,
-            userId
-        ).catch(e => {
+            userId,
+        ).catch((e) => {
             logger.error("Inserting into edituser failed");
             logger.error(e);
             return;
@@ -204,7 +204,7 @@ export class DataList {
     }
 
     private getEditQueue(postHash: number): IRealtimeEdit[] {
-        if (this.editQueues.hasOwnProperty(postHash)) {
+        if (Object.prototype.hasOwnProperty.call(this.editQueues, postHash)) {
             return this.editQueues[postHash].fullList;
         } else {
             this.addPost(postHash);
@@ -213,7 +213,7 @@ export class DataList {
     }
 
     private getTodoQueue(postHash: number): QueueType {
-        if (this.editQueues.hasOwnProperty(postHash)) {
+        if (Object.prototype.hasOwnProperty.call(this.editQueues, postHash)) {
             return this.editQueues[postHash];
         } else {
             this.addPost(postHash);

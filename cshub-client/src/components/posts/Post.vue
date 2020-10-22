@@ -152,23 +152,6 @@
                                         <span v-else>Publish the edit</span>
                                     </v-tooltip>
 
-                                    <v-tooltip v-if="!editModeComputed && userAdminComputed" bottom>
-                                        <template v-slot:activator="{ on }">
-                                            <v-btn
-                                                min-width="88"
-                                                depressed
-                                                class="my-1 mr-4 d-inline-block"
-                                                small
-                                                color="blue"
-                                                v-on="on"
-                                                @click="forceEditPost"
-                                            >
-                                                <v-icon>fas fa-gavel</v-icon>
-                                            </v-btn>
-                                        </template>
-                                        <span>Force edit the post</span>
-                                    </v-tooltip>
-
                                     <v-tooltip v-if="!editModeComputed" bottom>
                                         <template v-slot:activator="{ on }">
                                             <v-btn
@@ -198,12 +181,7 @@
                                     </v-btn>
                                 </div>
                             </transition>
-                            <v-list
-                                v-if="!alwaysShowContent || fullPostComputed"
-                                two-line
-                                style="width: 100%"
-                                class="pt-0"
-                            >
+                            <v-list v-if="!post.isIndex || fullPostComputed" two-line style="width: 100%" class="pt-0">
                                 <v-list-item class="pa-0 postTile">
                                     <!-- Maybe re-add later -->
                                     <!-- <v-list-item-avatar>
@@ -293,7 +271,6 @@ import Quill from "../quill/Quill.vue";
 import PostEditsDialog from "./PostEditsDialog.vue";
 
 import {
-    ForceEditPost,
     GetPostCallBack,
     GetPostContentCallBack,
     PostContent,
@@ -389,13 +366,18 @@ export default class Post extends Vue {
         return this.$route.fullPath === Routes.USERDASHBOARD;
     }
 
+    get isOnWipPosts(): boolean {
+        return this.$route.fullPath === Routes.WIPPOSTS;
+    }
+
     get alwaysShowContent(): boolean {
         if (this.post) {
             return (
                 (this.post.isIndex || this.post.isExample) &&
                 !this.isOnAdminDashboard &&
                 !this.isOnUserDashboard &&
-                !this.isOnUnsavedPosts
+                !this.isOnUnsavedPosts &&
+                !this.isOnWipPosts
             );
         }
         return false;
@@ -499,22 +481,6 @@ export default class Post extends Vue {
                 on: true
             });
         }
-    }
-
-    private forceEditPost() {
-        this.showLoadingIcon = true;
-
-        ApiWrapper.sendPutRequest(new ForceEditPost(this.postHash), () => {
-            this.showLoadingIcon = false;
-            uiState.setNotificationDialog({
-                on: true,
-                header: "Edited post",
-                text: "Post was edited successfully"
-            });
-
-            this.$router.push(this.currentPostURLComputed);
-            this.getPostRequest();
-        });
     }
 
     private highlightCode() {

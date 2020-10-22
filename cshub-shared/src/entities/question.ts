@@ -7,5 +7,5 @@ export enum QuestionType {
     MULTICLOSED = "MULTICLOSED",
     OPENNUMBER = "OPENNUMBER",
     OPENTEXT = "OPENTEXT",
-    DYNAMIC = "DYNAMIC"
+    DYNAMIC = "DYNAMIC",
 }

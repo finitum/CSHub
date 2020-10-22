@@ -4,7 +4,7 @@ import { IPost } from "../../../entities/post";
 
 export enum PostVersionTypes {
     UPDATEDPOST,
-    POSTDELETED
+    POSTDELETED,
 }
 
 export class GetPostContentCallBack {
@@ -20,7 +20,7 @@ export class GetPostContentCallBack {
               }
             | {
                   type: PostVersionTypes.POSTDELETED;
-              }
+              },
     ) {}
 }
 

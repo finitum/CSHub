@@ -6,7 +6,7 @@ import { IEmailDomain } from "../../../entities/emaildomains";
 export enum CreateAccountResponseTypes {
     INVALIDINPUT,
     SUCCESS,
-    ALREADYEXISTS
+    ALREADYEXISTS,
 }
 
 export class CreateAccountCallBack {
@@ -22,6 +22,6 @@ export class CreateAccount implements IApiRequest<CreateAccountCallBack> {
         public password: string,
         public firstname: string,
         public lastname: string,
-        public domain: IEmailDomain
+        public domain: IEmailDomain,
     ) {}
 }

@@ -7,9 +7,9 @@ export default {
         keyboard: {
             bindings: {
                 "list autofill": {
-                    prefix: /^\s*?(\d+\.|-|\[ ?]|\[x])$/
-                }
-            }
-        }
-    }
+                    prefix: /^\s*?(\d+\.|-|\[ ?]|\[x])$/,
+                },
+            },
+        },
+    },
 };

@@ -10,7 +10,7 @@ import { Variable } from "./variable";
 
 @Exclude()
 @Entity({
-    name: "answer"
+    name: "answer",
 })
 export class Answer {
     @Expose()
@@ -18,8 +18,8 @@ export class Answer {
     id!: number;
 
     @Expose()
-    @ManyToOne(type => Question, question => question.answers, {
-        nullable: false
+    @ManyToOne((type) => Question, (question) => question.answers, {
+        nullable: false,
     })
     question!: Question;
 
@@ -28,41 +28,41 @@ export class Answer {
 
     // Closed answer
     @Column({
-        nullable: true
+        nullable: true,
     })
     closedAnswerText?: string;
 
     @Column({
-        nullable: true
+        nullable: true,
     })
     correct?: boolean;
 
     // Open number
     @Column({
         type: "float",
-        nullable: true
+        nullable: true,
     })
     openAnswerNumber?: number;
 
     @Column({
         type: "float",
-        nullable: true
+        nullable: true,
     })
     precision?: number;
 
     // Open text
     @Column({
-        nullable: true
+        nullable: true,
     })
     openAnswerText?: string;
 
     // Dynamic
     @Column({
-        nullable: true
+        nullable: true,
     })
     dynamicAnswerExpression?: string;
 
-    @OneToMany(type => Variable, variable => variable.answer)
+    @OneToMany((type) => Variable, (variable) => variable.answer)
     dynamicAnswerVariables?: Variable[];
 
     public isClosedAnswer(): this is ClosedAnswer {

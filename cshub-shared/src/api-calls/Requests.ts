@@ -7,7 +7,6 @@ export class Requests {
     public static readonly POSTCONTENT: string = "/post/:hash/content"; // GET
     public static readonly EDITCONTENT: string = "/post/:hash/editcontent"; // GET
     public static readonly SQUASHEDITS: string = "/post/:hash/squash"; // PUT
-    public static readonly FORCEEDITPOST: string = "/post/:hash/forcesave"; // PUT
     public static readonly POSTSETTINGS: string = "/post/:hash/:action"; // PUT, action = hide,wip
 
     public static readonly GETEXAMPLES: string = "/posts/:topichash/example"; // GET

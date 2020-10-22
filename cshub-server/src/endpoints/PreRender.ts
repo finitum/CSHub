@@ -1,117 +1,117 @@
-import { Request, Response } from "express";
-import { app } from "..";
+import { Application, Request, Response } from "express";
 import { Settings } from "../settings";
 import { Routes } from "../../../cshub-shared/src/Routes";
 import { DatabaseResultSet, query } from "../db/database-query";
 
-app.get("/prerender(/*)?", (req: Request, res: Response) => {
-    let param = req.params[0] as string;
+export function registerPreRenderEndpoint(app: Application): void {
+    app.get("/prerender(/*)?", (req: Request, res: Response) => {
+        let param = req.params[0] as string;
 
-    if (param === undefined) {
-        param = "/";
-    }
+        if (param === undefined) {
+            param = "/";
+        }
 
-    const strings = param.split("/");
-    const paramSplit = "/" + strings[1];
+        const strings = param.split("/");
+        const paramSplit = "/" + strings[1];
 
-    let title = "";
+        let title = "";
 
-    switch (paramSplit) {
-        case Routes.POST:
-            if (isNaN(parseInt(strings[2], 10))) {
-                title = "Post";
-                break;
-            } else {
-                query(
-                    `
+        switch (paramSplit) {
+            case Routes.POST:
+                if (isNaN(parseInt(strings[2], 10))) {
+                    title = "Post";
+                    break;
+                } else {
+                    query(
+                        `
                   SELECT title, name
                   FROM posts T1
                   INNER JOIN topics T2 ON T1.topic = T2.id
                   WHERE T1.hash = ?
                 `,
-                    strings[2]
+                        strings[2],
+                    ).then((result: DatabaseResultSet) => {
+                        const topicName = result.getStringFromDB("name");
+                        const title = result.getStringFromDB("title");
+
+                        const descriptionMeta: MetaType = {
+                            property: "og:description",
+                            content: `A post about ${topicName}. Join now and start writing!`,
+                        };
+
+                        const titleMeta: MetaType = { property: "og:title", content: `${title} - CSHub` };
+                        const titleActualMeta: MetaType = { name: "title", content: `${title} - CSHub` };
+
+                        const metas = [...getSitenameImage(param), descriptionMeta, titleActualMeta, titleMeta];
+
+                        res.send(createHTML(metas));
+                        return;
+                    });
+                    return;
+                }
+            case Routes.TOPIC:
+                query(
+                    `
+              SELECT name
+              FROM topics T1
+              WHERE hash = ?
+            `,
+                    strings[2],
                 ).then((result: DatabaseResultSet) => {
-                    const topicName = result.getStringFromDB("name");
-                    const title = result.getStringFromDB("title");
+                    const name = result.getStringFromDB("name");
 
                     const descriptionMeta: MetaType = {
                         property: "og:description",
-                        content: `A post about ${topicName}. Join now and start writing!`
+                        content: `A topic on ${name}. Click to see all the related posts!`,
                     };
+                    const titleMeta: MetaType = { property: "og:title", content: `${name} - CSHub` };
+                    const titleActualMeta: MetaType = { name: "title", content: `${name} - CSHub` };
 
-                    const titleMeta: MetaType = { property: "og:title", content: `${title} - CSHub` };
-                    const titleActualMeta: MetaType = { name: "title", content: `${title} - CSHub` };
-
-                    const metas = [...getSitenameImage(param), descriptionMeta, titleActualMeta, titleMeta];
+                    const metas = [...getSitenameImage(param), descriptionMeta, titleMeta, titleActualMeta];
 
                     res.send(createHTML(metas));
                     return;
                 });
                 return;
-            }
-        case Routes.TOPIC:
-            query(
-                `
-              SELECT name
-              FROM topics T1
-              WHERE hash = ?
-            `,
-                strings[2]
-            ).then((result: DatabaseResultSet) => {
-                const name = result.getStringFromDB("name");
+            case Routes.INDEX:
+                title = "Index";
+                break;
+            case Routes.LOGIN:
+                title = "Login";
+                break;
+            case Routes.POSTCREATE:
+                title = "Create post";
+                break;
+            case Routes.CREATEACCOUNT:
+                title = "Create account";
+                break;
+            case Routes.USERDASHBOARD:
+                title = "User";
+                break;
+            case Routes.ADMINDASHBOARD:
+                title = "Admin";
+                break;
+            case Routes.UNSAVEDPOSTS:
+                title = "Unsaved posts";
+                break;
+            case Routes.UNSAVEDQUESTIONS:
+                title = "Unsaved questions";
+                break;
+            case Routes.SEARCH:
+                title = "Search";
+                break;
+            case Routes.FORGOTPASSWORD:
+                title = "Forgot password";
+                break;
+            case Routes.WIPPOSTS:
+                title = "WIP posts";
+                break;
+        }
 
-                const descriptionMeta: MetaType = {
-                    property: "og:description",
-                    content: `A topic on ${name}. Click to see all the related posts!`
-                };
-                const titleMeta: MetaType = { property: "og:title", content: `${name} - CSHub` };
-                const titleActualMeta: MetaType = { name: "title", content: `${name} - CSHub` };
-
-                const metas = [...getSitenameImage(param), descriptionMeta, titleMeta, titleActualMeta];
-
-                res.send(createHTML(metas));
-                return;
-            });
-            return;
-        case Routes.INDEX:
-            title = "Index";
-            break;
-        case Routes.LOGIN:
-            title = "Login";
-            break;
-        case Routes.POSTCREATE:
-            title = "Create post";
-            break;
-        case Routes.CREATEACCOUNT:
-            title = "Create account";
-            break;
-        case Routes.USERDASHBOARD:
-            title = "User";
-            break;
-        case Routes.ADMINDASHBOARD:
-            title = "Admin";
-            break;
-        case Routes.UNSAVEDPOSTS:
-            title = "Unsaved posts";
-            break;
-        case Routes.UNSAVEDQUESTIONS:
-            title = "Unsaved questions";
-            break;
-        case Routes.SEARCH:
-            title = "Search";
-            break;
-        case Routes.FORGOTPASSWORD:
-            title = "Forgot password";
-            break;
-        case Routes.WIPPOSTS:
-            title = "WIP posts";
-            break;
-    }
-
-    title += " - CSHub";
-    res.send(createHTML(getSitenameImageDescription(param, title)));
-});
-
+        title += " - CSHub";
+        res.send(createHTML(getSitenameImageDescription(param, title)));
+    });
+}
 interface MetaType {
     property?: string;
     name?: string;
@@ -121,15 +121,15 @@ interface MetaType {
 const getSitename = (param: string): MetaType[] => [
     { property: "og:type", content: "website" },
     { property: "og:url", content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}${param}` },
-    { property: "og:site_name", content: "CSHub" }
+    { property: "og:site_name", content: "CSHub" },
 ];
 
 const getSitenameImage = (param: string): MetaType[] => [
     ...getSitename(param),
     {
         property: "og:image",
-        content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}/img/icons/favicon-192x192.png`
-    }
+        content: `${Settings.SITEPROTOCOL}://${Settings.SITEADDRESS}/img/icons/favicon-192x192.png`,
+    },
 ];
 
 const joinNowAndHelpCreateThem =
@@ -138,20 +138,20 @@ const getSitenameImageDescription = (param: string, title: string): MetaType[] =
     ...getSitenameImage(param),
     {
         property: "og:title",
-        content: title
+        content: title,
     },
     {
         name: "title",
-        content: title
+        content: title,
     },
     {
         property: "og:description",
-        content: joinNowAndHelpCreateThem
+        content: joinNowAndHelpCreateThem,
     },
     {
         name: "description",
-        content: joinNowAndHelpCreateThem
-    }
+        content: joinNowAndHelpCreateThem,
+    },
 ];
 
 const createHTML = (metas: MetaType[]) => {
