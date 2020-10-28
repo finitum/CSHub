@@ -212,7 +212,11 @@
                             class="pt-0"
                         >
                             <v-list-item-subtitle class="whitespaceInit post-title secondaryTitle">
-                                <span>{{ post.title }}</span>
+                                <span>
+                                    {{ post.title }}
+                                    {{ post.isIndex ? "(index page)" : "" }}
+                                    {{ post.isExample ? "(example)" : "" }}
+                                </span>
                             </v-list-item-subtitle>
                             <div class="ql-editor pa-0">
                                 <div v-show="showContent" id="htmlOutput" v-html="post.htmlContent"></div>

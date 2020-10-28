@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-row>
-            <v-col v-for="postHash of postHashesProp" :key="postHash" xl="4" md="6" cols="12">
+            <v-col v-for="postHash of postHashesProp" :key="postHash" class="post-col" xl="4" md="6" cols="12">
                 <Post :post-hash="postHash" class="example pa-0"></Post>
             </v-col>
         </v-row>
@@ -32,6 +32,17 @@ export default class Examples extends Vue {
 
     .previewCard:hover {
         transform: none !important;
+    }
+}
+
+@media print {
+    .example {
+        max-height: none;
+        overflow-y: auto;
+    }
+
+    .post-col {
+        max-width: 100%;
     }
 }
 </style>

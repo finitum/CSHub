@@ -10,6 +10,7 @@
         <v-tabs
             v-if="!isFullPost && !isIndex"
             v-model="tabIndex"
+            class="post-view-tabs"
             icons-and-text
             :vertical="$vuetify.breakpoint.mdAndUp"
         >
@@ -30,7 +31,9 @@
 
             <v-tab-item>
                 <transition name="topicHeader">
-                    <v-subheader v-if="!isFullPost"> Posts in {{ currentTopicNameComputed }} </v-subheader>
+                    <v-subheader v-if="!isFullPost" class="topicHeader">
+                        Posts in {{ currentTopicNameComputed }}
+                    </v-subheader>
                 </transition>
                 <PostList v-if="postHashes.length > 0" key="postList" :post-hashes-prop="postHashes"></PostList>
                 <h2 v-else style="text-align: center; width: 100%">No posts found!</h2>
@@ -40,7 +43,9 @@
             </v-tab-item>
             <v-tab-item>
                 <transition name="topicHeader">
-                    <v-subheader v-if="!isFullPost">Examples in {{ currentTopicNameComputed }} </v-subheader>
+                    <v-subheader v-if="!isFullPost" class="topicHeader"
+                        >Examples in {{ currentTopicNameComputed }}
+                    </v-subheader>
                 </transition>
                 <Examples v-if="examplePostHashes.length > 0" :post-hashes-prop="examplePostHashes"></Examples>
                 <h2 v-else style="text-align: center; width: 100%">No examples found!</h2>
@@ -255,5 +260,19 @@ export default class PostView extends Vue {
 .topicHeader-enter,
 .topicHeader-leave-to {
     opacity: 0;
+}
+</style>
+
+<style lang="scss">
+@media print {
+    .post-view-tabs {
+        .v-tabs-bar {
+            display: none;
+        }
+
+        .topicHeader {
+            display: none;
+        }
+    }
 }
 </style>
