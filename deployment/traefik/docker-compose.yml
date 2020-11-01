@@ -4,6 +4,11 @@ services:
     image: traefik:1.7 # The official Traefik docker image
     container_name: ${CONTAINER_NAME}
     command: --api --docker
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.{{.Name}}
     networks:
       - web
     ports:
@@ -19,8 +24,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ../logging/.htpasswd:/kibanapass
       - ./.htpasswd:/traefikpass
-    logging:
-      driver: "json-file"
+
 networks:
   web:
     external: true

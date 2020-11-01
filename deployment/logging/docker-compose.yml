@@ -1,12 +1,15 @@
 version: '3'
 services:
   elasticsearch: 
-    image: 'docker.elastic.co/elasticsearch/elasticsearch:6.5.4'
-    container_name: ${ELASTIC_CONTAINER_NAME}
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+    container_name: cshub-elasticsearch
     environment:
       - cluster.name=docker-cluster
+      - discovery.type=single-node
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    logging:
+      driver: "json-file"
     ulimits:
       memlock:
         soft: -1
@@ -14,35 +17,40 @@ services:
     volumes:
       - esdata1:/usr/share/elasticsearch/data
     ports:
-      - ${ELASTIC_PORT_EXTERNAL_API}:${ELASTIC_PORT_INTERNAL_API}
-      - ${ELASTIC_PORT_EXTERNAL_CLUSTER}:${ELASTIC_PORT_INTERNAL_CLUSTER}
+      - "9200:9200"
+      - "9300:9300"
+  
   kibana:
-    image: docker.elastic.co/kibana/kibana:6.5.4
-    container_name: ${KIBANA_CONTAINER_NAME}
+    image: docker.elastic.co/kibana/kibana:7.9.3
+    container_name: cshub-kibana
     networks:
       - web
     volumes:
       - ./kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
-      - ${KIBANA_PORT_EXTERNAL}:${KIBANA_PORT_INTERNAL}
+      - "5601:5601"
+    logging:
+      driver: "json-file"
     labels:
       - traefik.frontend.rule=Host:${KIBANA_HOSTNAME}
       - traefik.frontend.auth.basic.usersFile=/kibanapass
-      - traefik.frontend.port=${KIBANA_PORT_INTERNAL}
+      - traefik.frontend.port=5601
     environment:
-      - ELASTICSEARCH_URL=http://${KIBANA_ELASTIC_HOST}:${ELASTIC_PORT_EXTERNAL_API}
+      - ELASTICSEARCH_HOSTS=http://${KIBANA_ELASTIC_HOST}:9200
       - SERVER_HOST=0.0.0.0
       - SERVER_NAME=${KIBANA_HOSTNAME}
+  
   fluentd:
-    image: harbor.xirion.net/library/cshub-fluentd 
-    container_name: ${FLUENTD_CONTAINER_NAME}
+    image: harbor.xirion.net/library/cshub-fluentd:latest
+    container_name: cshub-fluentd
     logging:
       driver: "json-file"
     ports:
-     - ${FLUENTD_PORT_EXTERNAL}:${FLUENTD_PORT_INTERNAL}
-     - ${FLUENTD_PORT_EXTERNAL}:${FLUENTD_PORT_INTERNAL}/udp
+     - "24224:24224"
+     - "24224:24224/udp"
     volumes:
      - ./fluentd/conf:/fluentd/etc
+
 volumes:
   esdata1:
 
