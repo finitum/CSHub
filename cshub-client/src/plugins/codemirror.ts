@@ -23,6 +23,7 @@ import "codemirror/mode/nginx/nginx";
 import "codemirror/mode/powershell/powershell";
 import "codemirror/mode/python/python";
 import "codemirror/mode/yaml/yaml";
+import "codemirror/mode/haskell/haskell";
 
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/darcula.css";
