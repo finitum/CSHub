@@ -27,7 +27,7 @@
         "markdown-it-katex": "latest",
         "mathjs": "^7.5.1",
         "mysql": "^2.17.1",
-        "nodemailer": "^4.6.8",
+        "nodemailer": "^6.4.16",
         "quill": "2.0.0-dev.3",
         "randomcolor": "^0.5.3",
         "reflect-metadata": "^0.1.13",
