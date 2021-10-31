@@ -3,8 +3,9 @@
     "version": "0.3.0",
     "license": "MIT",
     "scripts": {
-        "build": "tsc --module commonjs",
+        "build": "tsc --module commonjs && yarn copy-resources",
         "dev": "ts-node src/index.ts",
+        "copy-resources": "find src/ \\( ! -name \"*.ts\" \\) -type f -exec cp --parents {} dist/cshub-server/ \\;",
         "lint": "eslint \"./src/**/*.ts\"",
         "lint-fix": "eslint --fix \"./src/**/*.ts\""
     },
