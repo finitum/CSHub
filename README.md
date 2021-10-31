@@ -36,10 +36,6 @@ For the sever:
 For the client:
 `yarn run serve`
 
-## Feature Requests / Bug Reports
-
-Create a GitHub issue on this repository, and we will try to take a look at it.
-
 ## How does it work?
 This project uses TypeScript. This is typed JavaScript, so we can use many advantages of typedness, and use object oriented programming constructs like classes.
 
