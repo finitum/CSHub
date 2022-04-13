@@ -10,7 +10,7 @@
     },
     "dependencies": {
         "@sendgrid/mail": "^6.3.1",
-        "async": "^2.6.1",
+        "async": "^3.2.2",
         "body-parser": "^1.18.3",
         "class-transformer": "^0.3.1",
         "cookie-parser": "^1.4.3",
