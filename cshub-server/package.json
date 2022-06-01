@@ -31,7 +31,7 @@
         "quill": "2.0.0-dev.3",
         "randomcolor": "^0.5.3",
         "reflect-metadata": "^0.1.13",
-        "sharp": "^0.26.1",
+        "sharp": "^0.30.5",
         "socket.io": "^2.4.0",
         "tunnel-ssh": "^4.1.4",
         "typeorm": "^0.2.18",
