@@ -16,7 +16,7 @@
         "cookie-parser": "^1.4.3",
         "dayjs": "^1.7.7",
         "escape-html": "^1.0.3",
-        "express": "^4.16.2",
+        "express": "^4.17.3",
         "express-mung": "^0.5.1",
         "is-plain-object": "^3.0.0",
         "jsdom": "^13.2.0",
