@@ -20,7 +20,7 @@
         "express-mung": "^0.5.1",
         "is-plain-object": "^3.0.0",
         "jsdom": "^13.2.0",
-        "jsonwebtoken": "^8.3.0",
+        "jsonwebtoken": "^9.0.0",
         "katex": "^0.11.0",
         "lodash": "^4.17.21",
         "markdown-it": "^11.0.1",
